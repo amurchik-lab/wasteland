@@ -559,8 +559,6 @@ transform:scale(1);
             box-shadow: 0 6px 16px rgba(255,0,160,0.4), inset 0 1px 0 rgba(255,255,255,0.35);
         }
         .direct-buy-btn:active { transform: scale(0.96); }
-        .map-card { background: var(--glass-bg); backdrop-filter: blur(var(--glass-blur)); border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow-soft); padding: 16px; border-radius: 18px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
-        .map-card.current { border-color: var(--biome-accent); box-shadow: 0 0 14px var(--biome-accent-soft), var(--glass-shadow-soft); transition: border-color 1.4s ease, box-shadow 1.4s ease; }
 
         .bp-container { 
             background: linear-gradient(135deg, rgba(191,90,242,0.25) 0%, rgba(191,90,242,0.10) 100%), var(--glass-bg-strong); 
@@ -1060,6 +1058,252 @@ transform:scale(1);
         }
         .weapon-btn-pill:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
+        /* ===== Карточки припасов (Еда и Ресурсы в Арсенале) — приведены к стилю карточек оружия ===== */
+        .supply-card {
+            --sup-glow: rgba(255,255,255,0.15);
+            position: relative;
+            background: linear-gradient(145deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%), rgba(16, 18, 28, 0.85);
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+            border: 1.5px solid rgba(255,255,255,0.14);
+            border-radius: 18px;
+            padding: 12px 14px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 6px 18px rgba(0,0,0,0.35);
+            transition: all 0.25s ease;
+        }
+        .supply-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 100% 0%, var(--sup-color, transparent) 0%, transparent 60%);
+            opacity: 0.16;
+            pointer-events: none;
+        }
+        .supply-icon {
+            width: 42px;
+            height: 42px;
+            flex-shrink: 0;
+            border-radius: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            background: rgba(255,255,255,0.06);
+            border: 1.5px solid var(--sup-color, rgba(255,255,255,0.2));
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 0 10px var(--sup-glow);
+            position: relative;
+            z-index: 1;
+        }
+        .supply-info { flex: 1; min-width: 0; position: relative; z-index: 1; }
+        .supply-name { font-size: 12.5px; font-weight: 800; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .supply-sub { font-size: 10px; font-weight: 600; color: var(--text-muted); margin-top: 2px; }
+        .supply-qty {
+            font-size: 10.5px;
+            font-weight: 900;
+            padding: 5px 10px;
+            border-radius: 20px;
+            border: 1px solid var(--sup-color, rgba(255,255,255,0.3));
+            color: var(--sup-color, #fff);
+            background: rgba(255,255,255,0.05);
+            flex-shrink: 0;
+            white-space: nowrap;
+            position: relative;
+            z-index: 1;
+        }
+        .supply-eat-btn {
+            flex-shrink: 0;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            padding: 10px 14px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: 0.2px;
+            white-space: nowrap;
+            border: none;
+            cursor: pointer;
+            background: var(--sup-color, var(--neon-green));
+            color: #06210a;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), 0 0 16px var(--sup-glow);
+            transition: all 0.25s ease;
+        }
+        .supply-eat-btn:active { transform: scale(0.96); }
+        .supply-empty {
+            font-size: 12px;
+            color: var(--text-muted);
+            padding: 16px;
+            text-align: center;
+            background: var(--glass-bg);
+            border: 1px dashed var(--glass-border);
+            border-radius: 16px;
+        }
+
+        /* ===== Карточки удочек (Рыболовные Снасти) — тот же язык, что у карточек оружия ===== */
+        .rod-card {
+            --rod-glow: rgba(255,255,255,0.15);
+            position: relative;
+            background: linear-gradient(145deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%), rgba(16, 18, 28, 0.85);
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+            border: 1.5px solid rgba(255,255,255,0.14);
+            border-radius: 18px;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 6px 18px rgba(0,0,0,0.35);
+            transition: all 0.3s ease;
+        }
+        .rod-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 100% 0%, var(--rod-color, transparent) 0%, transparent 60%);
+            opacity: 0.16;
+            pointer-events: none;
+        }
+        .rod-card.active {
+            border-color: var(--rod-color, var(--neon-blue));
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 0 22px var(--rod-glow);
+        }
+        .rod-card-header { display: flex; align-items: center; gap: 12px; position: relative; z-index: 1; }
+        .rod-icon-badge {
+            width: 42px; height: 42px; flex-shrink: 0; border-radius: 13px;
+            display: flex; align-items: center; justify-content: center; font-size: 20px;
+            background: rgba(255,255,255,0.06);
+            border: 1.5px solid var(--rod-color, rgba(255,255,255,0.2));
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 0 8px var(--rod-glow);
+        }
+        .rod-info { flex: 1; min-width: 0; }
+        .rod-name-row { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+        .rod-name { font-size: 14px; font-weight: 800; color: #fff; }
+        .rod-tier-badge {
+            font-size: 8.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px;
+            padding: 2px 7px; border-radius: 20px;
+            border: 1px solid var(--rod-color, rgba(255,255,255,0.3));
+            color: var(--rod-color, #fff);
+            background: rgba(255,255,255,0.05);
+        }
+        .rod-desc { font-size: 10.5px; font-weight: 600; color: var(--text-muted); margin-top: 3px; }
+        .rod-active-flag {
+            margin-left: auto; flex-shrink: 0; font-size: 9px; font-weight: 900; letter-spacing: 0.4px;
+            color: var(--rod-color, var(--neon-blue));
+            background: rgba(255,255,255,0.06);
+            border: 1px solid var(--rod-color, var(--neon-blue));
+            padding: 5px 9px; border-radius: 20px; white-space: nowrap;
+        }
+        .rod-stats-row { display: flex; gap: 18px; font-size: 11.5px; font-weight: 700; color: var(--text-muted); position: relative; z-index: 1; }
+        .rod-stat { display: flex; align-items: center; gap: 5px; }
+        .rod-stat .stat-value { color: #fff; font-weight: 800; }
+        .rod-btn-pill {
+            position: relative; z-index: 1;
+            display: flex; align-items: center; justify-content: center; gap: 5px;
+            padding: 10px 12px; border-radius: 999px; font-size: 11.5px; font-weight: 900; letter-spacing: 0.2px;
+            white-space: nowrap; border: none; background: rgba(255,255,255,0.08); color: #fff; cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.18), 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .rod-btn-pill:active { transform: scale(0.96); }
+        .rod-btn-pill.active {
+            background: var(--rod-color, var(--neon-blue)); color: #08131c;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), 0 0 16px var(--rod-glow);
+        }
+        .rod-btn-pill:not(.active):hover { background: rgba(255,255,255,0.14); }
+        .rod-btn-pill:disabled { opacity: 0.75; cursor: not-allowed; }
+
+        /* ===== Карточки биомов (Карта) — тот же язык, что у карточек оружия/удочек ===== */
+        .map-card {
+            --map-glow: rgba(255,255,255,0.15);
+            position: relative;
+            background: linear-gradient(145deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%), rgba(16, 18, 28, 0.85);
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+            border: 1.5px solid rgba(255,255,255,0.14);
+            border-radius: 18px;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 6px 18px rgba(0,0,0,0.35);
+            transition: all 0.3s ease;
+        }
+        .map-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 100% 0%, var(--map-color, transparent) 0%, transparent 60%);
+            opacity: 0.16;
+            pointer-events: none;
+        }
+        .map-card.locked { opacity: 0.55; filter: grayscale(0.4); }
+        .map-card.current {
+            border-color: var(--map-color, var(--biome-accent));
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 0 22px var(--map-glow);
+        }
+        .map-card-header { display: flex; align-items: center; gap: 12px; position: relative; z-index: 1; }
+        .map-icon-badge {
+            width: 42px; height: 42px; flex-shrink: 0; border-radius: 13px;
+            display: flex; align-items: center; justify-content: center; font-size: 20px;
+            background: rgba(255,255,255,0.06);
+            border: 1.5px solid var(--map-color, rgba(255,255,255,0.2));
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 0 8px var(--map-glow);
+        }
+        .map-info { flex: 1; min-width: 0; }
+        .map-name { font-size: 14px; font-weight: 800; color: #fff; }
+        .map-status { font-size: 10.5px; font-weight: 700; color: var(--text-muted); margin-top: 3px; }
+        .map-card.current .map-status { color: var(--map-color, var(--neon-blue)); }
+        .map-current-flag {
+            margin-left: auto; flex-shrink: 0; font-size: 9px; font-weight: 900; letter-spacing: 0.4px;
+            color: var(--map-color, var(--neon-blue));
+            background: rgba(255,255,255,0.06);
+            border: 1px solid var(--map-color, var(--neon-blue));
+            padding: 5px 9px; border-radius: 20px; white-space: nowrap;
+        }
+        .map-boss-row { position: relative; z-index: 1; }
+        .map-boss-btn {
+            width: 100%; padding: 9px 12px; border-radius: 12px; font-size: 11px; font-weight: 900;
+            border: none; cursor: pointer; color: #fff;
+            background: var(--grad-accent);
+            box-shadow: 0 4px 14px rgba(255,42,95,0.35), inset 0 1px 0 rgba(255,255,255,0.25);
+        }
+        .map-boss-done { position: relative; z-index: 1; font-size: 10.5px; font-weight: 800; color: var(--neon-green); display: flex; align-items: center; gap: 5px; }
+        .map-btn-pill {
+            position: relative; z-index: 1;
+            width: 100%;
+            display: flex; align-items: center; justify-content: center; gap: 5px;
+            padding: 10px 12px; border-radius: 999px; font-size: 11.5px; font-weight: 900; letter-spacing: 0.2px;
+            white-space: nowrap; border: none; cursor: pointer;
+            transition: all 0.25s ease;
+        }
+        .map-btn-pill.go {
+            background: var(--map-color, var(--neon-green)); color: #06210a;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), 0 0 16px var(--map-glow);
+        }
+        .map-btn-pill.go:active { transform: scale(0.96); }
+        .map-btn-pill.locked {
+            background: rgba(255,255,255,0.06); color: var(--text-muted);
+            cursor: not-allowed; box-shadow: none;
+        }
+        .map-btn-pill.here {
+            background: rgba(255,255,255,0.08);
+            color: var(--map-color, var(--neon-blue));
+            border: 1.5px solid var(--map-color, var(--neon-blue));
+            cursor: default;
+        }
+
         .bottom-ui-container { 
             position: fixed; 
             bottom: 0; 
@@ -1175,7 +1419,7 @@ transform:scale(1);
         .data-row-icon svg { width:100%; height:100%; display:block; }
         .data-row-label { position:relative; z-index:1; flex-shrink:0; width:78px; color: #b8c2ce; font-weight:700; text-transform:uppercase; font-size:9px; letter-spacing:0.3px; }
         .data-row-value { position:relative; z-index:1; flex:1; min-width:0; font-size:12.5px; font-weight:800; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-align:right; }
-        .title-card { display:flex; align-items:center; gap:10px; background: var(--glass-bg-strong); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border:1.5px solid var(--glass-border); border-radius:14px; padding:10px; box-shadow: var(--glass-shadow-soft); opacity: 0.42; filter: grayscale(0.7); cursor: default; transition: all 0.2s ease; }
+        .title-card { display:flex; align-items:center; gap:10px; background: var(--glass-bg-strong); backdrop-filter: blur(var(--glass-blur)); -webkit-backdrop-filter: blur(var(--glass-blur)); border:1.5px solid var(--glass-border); border-radius:14px; padding:10px; box-shadow: var(--glass-shadow-soft); opacity: 0.42; filter: grayscale(0.7); cursor: default; transition: all 0.2s ease; position: relative; overflow: hidden; }
         .title-card.unlocked { opacity:1; filter:none; cursor:pointer; }
         .title-card.equipped { border-color: var(--neon-gold); box-shadow: 0 0 14px rgba(255,183,3,0.3), inset 0 1px 0 rgba(255,255,255,0.08); }
         .title-card-icon { width:38px; height:38px; border-radius:12px; background: rgba(255,255,255,0.06); border:1.5px solid rgba(255,255,255,0.18); box-shadow: inset 0 1px 0 rgba(255,255,255,0.15); display:flex; align-items:center; justify-content:center; font-size:19px; flex-shrink:0; }
@@ -1184,6 +1428,72 @@ transform:scale(1);
         .title-card-name { font-weight:800; font-size:12.5px; color:#fff; }
         .title-card-desc { font-size:10.5px; color: var(--text-muted); margin-top:1px; }
         .title-card-tag { font-size:9.5px; font-weight:800; padding:4px 8px; border-radius:8px; background: rgba(255,255,255,0.08); flex-shrink:0; white-space:nowrap; }
+        /* ===== Особый переливающийся (не золотой) оттенок для эксклюзивных промо-титулов ===== */
+        @keyframes titleIridescentText {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 300% 50%; }
+        }
+        @keyframes titleIridescentGlow {
+            0% { border-color: #ff2a5f; color: #ff2a5f; box-shadow: 0 0 14px rgba(255,42,95,0.55), inset 0 1px 0 rgba(255,255,255,0.15); }
+            20% { border-color: #bf5af2; color: #bf5af2; box-shadow: 0 0 14px rgba(191,90,242,0.55), inset 0 1px 0 rgba(255,255,255,0.15); }
+            40% { border-color: #00f0ff; color: #00f0ff; box-shadow: 0 0 14px rgba(0,240,255,0.55), inset 0 1px 0 rgba(255,255,255,0.15); }
+            60% { border-color: #39ff14; color: #39ff14; box-shadow: 0 0 14px rgba(57,255,20,0.55), inset 0 1px 0 rgba(255,255,255,0.15); }
+            80% { border-color: #ffb703; color: #ffb703; box-shadow: 0 0 14px rgba(255,183,3,0.55), inset 0 1px 0 rgba(255,255,255,0.15); }
+            100% { border-color: #ff2a5f; color: #ff2a5f; box-shadow: 0 0 14px rgba(255,42,95,0.55), inset 0 1px 0 rgba(255,255,255,0.15); }
+        }
+        @keyframes titleShineSweep { from { transform: translateX(-120%) skewX(-18deg); } to { transform: translateX(220%) skewX(-18deg); } }
+        .title-card.title-special { position: relative; }
+        .title-card.title-special::after {
+            content: '';
+            position: absolute;
+            top: 0; bottom: 0; left: 0;
+            width: 35%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+            animation: titleShineSweep 2.8s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 2;
+        }
+        .title-card.title-special.unlocked .title-card-icon { border-color: var(--title-accent, var(--neon-purple)); box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), 0 0 10px var(--title-glow, rgba(191,90,242,0.35)); animation: titleIridescentGlow 4s linear infinite; }
+        .title-card.title-special.equipped { border-color: var(--title-accent, var(--neon-purple)); box-shadow: 0 0 16px var(--title-glow, rgba(191,90,242,0.4)), inset 0 1px 0 rgba(255,255,255,0.08); animation: titleIridescentGlow 4s linear infinite; }
+        .title-card.title-special .title-card-name {
+            background: linear-gradient(90deg, #ff2a5f, #bf5af2, #00f0ff, #39ff14, #ffb703, #ff2a5f);
+            background-size: 300% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: titleIridescentText 4s linear infinite;
+        }
+        .title-card-tag.title-tag-special {
+            background: linear-gradient(90deg, #ff2a5f, #bf5af2, #00f0ff, #39ff14, #ffb703, #ff2a5f);
+            background-size: 300% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent !important;
+            animation: titleIridescentText 4s linear infinite;
+        }
+        .profile-title-badge.title-special {
+            position: relative;
+            overflow: hidden;
+            color: var(--title-accent, var(--neon-purple));
+            border-color: var(--title-accent, var(--neon-purple));
+            background: linear-gradient(135deg, var(--title-glow, rgba(191,90,242,0.28)), rgba(191,90,242,0.05));
+            box-shadow: 0 0 10px var(--title-glow, rgba(191,90,242,0.3));
+            animation: titleIridescentGlow 4s linear infinite;
+        }
+        .profile-title-badge.title-special::after {
+            content: '';
+            position: absolute; top: 0; bottom: 0; left: 0; width: 30%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: titleShineSweep 2.8s ease-in-out infinite;
+            pointer-events: none;
+        }
+        body.perf-mode .title-card.title-special::after,
+        body.perf-mode .title-card.title-special.unlocked .title-card-icon,
+        body.perf-mode .title-card.title-special.equipped,
+        body.perf-mode .title-card.title-special .title-card-name,
+        body.perf-mode .title-card-tag.title-tag-special,
+        body.perf-mode .profile-title-badge.title-special,
+        body.perf-mode .profile-title-badge.title-special::after { animation: none !important; }
         .avatar-pick-btn { position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; aspect-ratio: 1; border-radius:16px; background: var(--glass-bg); border:2px solid rgba(255,255,255,0.16); cursor:pointer; transition: all 0.15s ease; padding:10px 6px 8px; }
         .avatar-pick-icon { width:64%; aspect-ratio:1; border-radius:50%; overflow:hidden; border:2px solid rgba(255,255,255,0.2); box-shadow: 0 0 0 3px rgba(255,255,255,0.05); flex-shrink:0; }
         .avatar-pick-icon svg { width:100%; height:100%; display:block; }
@@ -4688,7 +4998,10 @@ onclick="Core.declineEncounter()">
                 { id: "streak30", icon: "🏅", name: "Легенда Снабжения", desc: "Получайте ежедневный паёк 30 дней подряд.", check: p => (p.dailyStreak || 0) >= 30 },
                 { id: "capsMagnate", icon: "🪙", name: "Крышечный Магнат", desc: "Накопите 1000 крышек одновременно.", check: p => (p.caps || 0) >= 1000 },
                 { id: "bpMaster", icon: "🎫", name: "Хозяин Пропуска Пустоши", desc: "Достигните 50 уровня Пропуска Пустоши.", check: p => (p.bpLvl || 0) >= 50 },
-                { id: "trophyChampion", icon: "🏆", name: "Чемпион Трофейной Дороги", desc: "Наберите 500 трофеев.", check: p => (p.trophies || 0) >= 500 }
+                { id: "trophyChampion", icon: "🏆", name: "Чемпион Трофейной Дороги", desc: "Наберите 500 трофеев.", check: p => (p.trophies || 0) >= 500 },
+                // Эксклюзивный титул за промокод — не открывается по игровым условиям, только через Core.redeemPromoCode().
+                // special/accent/glow задают уникальный (не золотой) оттенок карточки титула и его значка.
+                { id: "amurchikVip", icon: "💜", name: "Награждён Амурчиком", desc: "Выдаётся эксклюзивно по промокоду. Оттенок титула отличается от всех остальных.", check: p => false, special: true, accent: "#bf5af2", glow: "rgba(191,90,242,0.4)" }
             ],
             // Косметические скины персонажа. Цена — исключительно в ваучерах (премиум-валюта),
             // не влияют ни на один игровой показатель — только внешний вид боевой модели.
@@ -4775,7 +5088,8 @@ onclick="Core.declineEncounter()">
                 { code: "august", type: "caps", qty: 15, maxUses: Infinity, desc: "15 крышек" },
                 { code: "srb_king", type: "relic_wasteland", qty: 1, maxUses: Infinity, desc: "1x 🗝️ Реликварий Пустоши" },
                 { code: "aaaa", type: "caps", qty: 30, maxUses: Infinity, desc: "30 крышек" },
-                { code: "misternyashka", type: "caps", qty: 30, maxUses: Infinity, desc: "30 крышек" }
+                { code: "misternyashka", type: "caps", qty: 30, maxUses: Infinity, desc: "30 крышек" },
+                { code: "vip", type: "title", titleId: "amurchikVip", maxUses: Infinity, desc: "эксклюзивный титул «Награждён Амурчиком»" }
             ]
         };
 
@@ -5001,12 +5315,17 @@ onclick="Core.declineEncounter()">
                         else { this.p.freeBoxes[idx] = (this.p.freeBoxes[idx] || 0) + promo.qty; }
                     });
                     this.log(`🎟️ Промокод «${promo.code}» активирован: +${promo.qty} бесплатных контейнеров каждого вида!`, "loot");
+                } else if(promo.type === 'title') {
+                    if(!this.p.unlockedTitles) this.p.unlockedTitles = ["newbie"];
+                    if(!this.p.unlockedTitles.includes(promo.titleId)) this.p.unlockedTitles.push(promo.titleId);
+                    const titleDef = DB.titles.find(t => t.id === promo.titleId);
+                    this.log(`🎟️ Промокод «${promo.code}» активирован: получен титул «${titleDef ? titleDef.name : promo.titleId}»!`, "loot");
                 }
 
                 Sound.play('loot');
                 input.value = '';
                 this.showPromoFeedback(`${Icon.check()} Активировано: ${promo.desc}`, 'success');
-                this.save(); this.updateUI(); this.renderShop();
+                this.save(); this.updateUI(); this.renderShop(); this.renderProfile();
             },
 
             // Открывает "Реликварий Пустоши" бесплатно за счёт запасов, полученных по промокоду
@@ -5460,7 +5779,17 @@ onclick="Core.declineEncounter()">
 
                 const equippedTitle = DB.titles.find(t => t.id === this.p.titleId) || DB.titles[0];
                 const titleBadge = document.getElementById('profile-title-badge');
-                if (titleBadge) titleBadge.innerText = `${equippedTitle.icon} ${equippedTitle.name}`;
+                if (titleBadge) {
+                    titleBadge.innerText = `${equippedTitle.icon} ${equippedTitle.name}`;
+                    titleBadge.classList.toggle('title-special', !!equippedTitle.special);
+                    if (equippedTitle.special) {
+                        titleBadge.style.setProperty('--title-accent', equippedTitle.accent || 'var(--neon-purple)');
+                        titleBadge.style.setProperty('--title-glow', equippedTitle.glow || 'rgba(191,90,242,0.35)');
+                    } else {
+                        titleBadge.style.removeProperty('--title-accent');
+                        titleBadge.style.removeProperty('--title-glow');
+                    }
+                }
 
                 const weapon = DB.weapons.find(w => w.id === this.p.activeWeapon) || DB.weapons[0];
                 const rod = DB.rods.find(r => r.id === this.p.activeRod) || DB.rods[0];
@@ -5482,11 +5811,14 @@ onclick="Core.declineEncounter()">
 
                 const unlockedCount = (this.p.unlockedTitles || []).length;
                 document.getElementById('profile-titles-count').innerText = `${unlockedCount}/${DB.titles.length}`;
-                titlesList.innerHTML = DB.titles.map(t => {
-                    const unlocked = this.p.unlockedTitles.includes(t.id);
+                // Показываем только уже открытые титулы — закрытые в списке не отображаются вовсе
+                titlesList.innerHTML = DB.titles.filter(t => this.p.unlockedTitles.includes(t.id)).map(t => {
                     const equipped = t.id === this.p.titleId;
-                    const tag = equipped ? '<span class="title-card-tag" style="color:var(--neon-gold);">Надет</span>' : (unlocked ? '<span class="title-card-tag">Надеть</span>' : '<span class="title-card-tag">🔒 Закрыт</span>');
-                    return `<div class="title-card ${unlocked ? 'unlocked' : ''} ${equipped ? 'equipped' : ''}" ${unlocked ? `onclick="Core.equipTitle('${t.id}')"` : ''}>
+                    const tag = equipped
+                        ? (t.special ? '<span class="title-card-tag title-tag-special">Надет</span>' : '<span class="title-card-tag" style="color:var(--neon-gold);">Надет</span>')
+                        : '<span class="title-card-tag">Надеть</span>';
+                    const specialVars = t.special ? ` style="--title-accent:${t.accent || 'var(--neon-purple)'}; --title-glow:${t.glow || 'rgba(191,90,242,0.35)'};"` : '';
+                    return `<div class="title-card unlocked ${equipped ? 'equipped' : ''} ${t.special ? 'title-special' : ''}"${specialVars} onclick="Core.equipTitle('${t.id}')">
                         <div class="title-card-icon">${t.icon}</div>
                         <div class="title-card-info">
                             <div class="title-card-name">${t.name}</div>
@@ -6311,28 +6643,71 @@ startCombat(isBossFight = false) {
                 });
 
                 const rdEl = document.getElementById('rod-list'); rdEl.innerHTML = '';
+                const rodTierColors = ['#9aa4b2', '#39ff14', '#00f0ff', '#ff2a5f', '#ffb703', '#bf5af2'];
                 this.p.rodsOwned.forEach(rId => {
                     let rod = DB.rods.find(r => r.id === rId);
                     let isActive = this.p.activeRod === rId;
+                    let rodColor = rodTierColors[(rod.tier - 1) % rodTierColors.length] || '#00f0ff';
                     rdEl.innerHTML += `
-                        <div class="list-item" style="flex-direction: column; align-items: stretch; gap: 6px;">
-                            <div style="display: flex; justify-content: space-between;">
-                                <div>${rod.icon} <b>${rod.name}</b></div>
-                                <div style="color: var(--neon-gold); font-size: 11px;">⏱ ${rod.duration}с | ⚡${rod.clickMin}-${rod.clickMax}</div>
+                        <div class="rod-card ${isActive?'active':''}" style="--rod-color:${rodColor}; --rod-glow:${this.hexToRgba(rodColor, 0.45)}">
+                            <div class="rod-card-header">
+                                <div class="rod-icon-badge">${rod.icon}</div>
+                                <div class="rod-info">
+                                    <div class="rod-name-row">
+                                        <span class="rod-name">${rod.name}</span>
+                                        <span class="rod-tier-badge">Ур. ${rod.tier}</span>
+                                    </div>
+                                    <div class="rod-desc">${rod.desc}</div>
+                                </div>
+                                ${isActive ? '<div class="rod-active-flag">⚡ АКТИВНА</div>' : ''}
                             </div>
-                            <div style="font-size: 11px; color: var(--text-muted);">${rod.desc}</div>
-                            <button class="${isActive?'success':'primary'}" style="padding: 6px;" ${isActive?'disabled':''} onclick="Core.equipRod('${rId}')">
+                            <div class="rod-stats-row">
+                                <div class="rod-stat">⏱ Время <span class="stat-value">${rod.duration}с</span></div>
+                                <div class="rod-stat">⚡ Улов <span class="stat-value">${rod.clickMin}-${rod.clickMax}</span></div>
+                            </div>
+                            <button class="rod-btn-pill ${isActive?'active':''}" ${isActive?'disabled':''} onclick="Core.equipRod('${rId}')">
                                 ${isActive?'⚡ Активна':'Экипировать'}
                             </button>
                         </div>`;
                 });
 
                 const fEl = document.getElementById('food-list'); fEl.innerHTML = ''; let hasFood = false;
-                for(let key in this.p.food) { if(this.p.food[key] > 0) { hasFood = true; fEl.innerHTML += `<div class="list-item"><div>🍏 ${key} (x${this.p.food[key]})</div><button class="success" style="padding:6px 12px;" onclick="Core.eatFood('${key}')">Съесть</button></div>`; } }
-                if(!hasFood) fEl.innerHTML = `<div style="font-size:12px; color:var(--text-muted); padding:4px;">Нет готовой еды.</div>`;
+                for(let key in this.p.food) {
+                    if(this.p.food[key] > 0) {
+                        hasFood = true;
+                        const foodDef = DB.cooking.find(c => c.name === key) || DB.fish.find(f => f.cookedName === key);
+                        const icon = foodDef ? foodDef.icon : '🍏';
+                        const heal = foodDef ? foodDef.heal : 10;
+                        fEl.innerHTML += `
+                            <div class="supply-card" style="--sup-color:var(--neon-green); --sup-glow:rgba(57,255,20,0.35);">
+                                <div class="supply-icon">${icon}</div>
+                                <div class="supply-info">
+                                    <div class="supply-name">${key}</div>
+                                    <div class="supply-sub">🍏 Сытость +${heal}%</div>
+                                </div>
+                                <div class="supply-qty">x${this.p.food[key]}</div>
+                                <button class="supply-eat-btn" onclick="Core.eatFood('${key}')">Съесть</button>
+                            </div>`;
+                    }
+                }
+                if(!hasFood) fEl.innerHTML = `<div class="supply-empty">🍽️ Нет готовой еды. Приготовьте что-нибудь на костре во вкладке «Крафт».</div>`;
 
-                const rEl = document.getElementById('inv-list'); rEl.innerHTML = '';
-                for (let k in this.p.inv) { if (this.p.inv[k] > 0) rEl.innerHTML += `<div class="list-item"><div>${this.itemIcons[k] || '📦'} ${k}</div><div>x${this.p.inv[k]}</div></div>`; }
+                const rEl = document.getElementById('inv-list'); rEl.innerHTML = ''; let hasRes = false;
+                for (let k in this.p.inv) {
+                    if (this.p.inv[k] > 0) {
+                        hasRes = true;
+                        rEl.innerHTML += `
+                            <div class="supply-card" style="--sup-color:var(--neon-blue); --sup-glow:rgba(0,240,255,0.3);">
+                                <div class="supply-icon">${this.itemIcons[k] || '📦'}</div>
+                                <div class="supply-info">
+                                    <div class="supply-name">${k}</div>
+                                    <div class="supply-sub">Материал для крафта</div>
+                                </div>
+                                <div class="supply-qty">x${this.p.inv[k]}</div>
+                            </div>`;
+                    }
+                }
+                if(!hasRes) rEl.innerHTML = `<div class="supply-empty">📦 Ресурсов пока нет. Разведайте местность или разберите хлам.</div>`;
             },
 
             // === Книга Рецептов ===
@@ -6881,30 +7256,40 @@ startCombat(isBossFight = false) {
                     let isLvlLocked = this.p.lvl < b.minLvl;
                     let isBossLocked = b.bossDefeatedId !== null && !this.p.bossesDefeated.includes(b.bossDefeatedId);
                     let isCurrent = this.p.currentBiome === b.id;
-                    
-                    let statusText = "";
-                    if (isLvlLocked) statusText = `🔒 Лвл ${b.minLvl}`;
-                    else if (isBossLocked) statusText = `🔒 Сначала Босс: ${DB.biomes[b.bossDefeatedId].name.split(' ')[1]}`;
-                    else statusText = isCurrent ? `📍 Текущий` : `Доступен`;
+                    let locked = isLvlLocked || isBossLocked;
 
-                    let btnHtml = (isLvlLocked || isBossLocked) 
-                        ? `<button disabled style="background:#221115; font-size:11px;">${statusText}</button>` 
-                        : (isCurrent ? `<span style="color:var(--neon-blue); font-size:11px; font-weight:bold;">📍 Развернут</span>` : `<button class="success" style="padding:6px 12px; font-size:11px;" onclick="Core.teleport(${b.id})">Перейти</button>`);
-                    
+                    let statusText = "";
+                    if (isLvlLocked) statusText = `🔒 Требуется уровень ${b.minLvl}`;
+                    else if (isBossLocked) statusText = `🔒 Сначала Босс: ${DB.biomes[b.bossDefeatedId].name.split(' ').slice(1).join(' ')}`;
+                    else statusText = isCurrent ? `📍 Текущая локация` : `Доступна для перехода`;
+
+                    let nameParts = b.name.split(' ');
+                    let icon = nameParts[0];
+                    let title = nameParts.slice(1).join(' ');
+
+                    let btnHtml = locked
+                        ? `<button class="map-btn-pill locked" disabled>🔒 Заблокировано</button>`
+                        : (isCurrent ? `<button class="map-btn-pill here" disabled>📍 Вы здесь</button>` : `<button class="map-btn-pill go" onclick="Core.teleport(${b.id})">🚀 Перейти</button>`);
+
                     let bossBtn = "";
                     if (isCurrent && !this.p.bossesDefeated.includes(b.id) && !this.combatState) {
-                        bossBtn = `<button class="primary" style="background:var(--grad-accent); padding:4px 8px; font-size:10px; margin-top:4px;" onclick="Core.startCombat(true)">👁️ Вызвать БОССА биома</button>`;
+                        bossBtn = `<div class="map-boss-row"><button class="map-boss-btn" onclick="Core.startCombat(true)">👁️ Вызвать Босса биома</button></div>`;
                     } else if (this.p.bossesDefeated.includes(b.id)) {
-                        bossBtn = `<div style="font-size:10px; color:var(--neon-green)">🏆 Босс ликвидирован</div>`;
+                        bossBtn = `<div class="map-boss-row"><div class="map-boss-done">🏆 Босс ликвидирован</div></div>`;
                     }
 
                     el.innerHTML += `
-                        <div class="map-card ${isCurrent?'current':''}">
-                            <div>
-                                <div style="font-weight:bold; color:${(isLvlLocked||isBossLocked)?'var(--text-muted)':'#fff'}">${b.name}</div>
-                                ${bossBtn}
+                        <div class="map-card ${isCurrent?'current':''} ${locked?'locked':''}" style="--map-color:${b.theme.accent}; --map-glow:${b.theme.accentSoft};">
+                            <div class="map-card-header">
+                                <div class="map-icon-badge">${icon}</div>
+                                <div class="map-info">
+                                    <div class="map-name">${title}</div>
+                                    <div class="map-status">${statusText}</div>
+                                </div>
+                                ${isCurrent ? '<div class="map-current-flag">📍 ЗДЕСЬ</div>' : ''}
                             </div>
-                            <div>${btnHtml}</div>
+                            ${bossBtn}
+                            ${btnHtml}
                         </div>`;
                 });
 
