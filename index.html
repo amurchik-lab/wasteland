@@ -642,6 +642,138 @@ transform:scale(1);
         .trophy-collapsed-bar .bp-collapsed-right { position: relative; z-index: 1; }
         .trophy-collapsed-level { font-size: 11px; font-weight: bold; color: #fff; background: rgba(255,255,255,0.12); padding: 4px 9px; border-radius: 7px; white-space: nowrap; }
 
+        /* ===== Таблица лидеров — вход из профиля + модальный оверлей ===== */
+        .leaderboard-collapsed-bar {
+            background: linear-gradient(135deg, rgba(255,183,3,0.22) 0%, rgba(0,120,255,0.08) 45%, rgba(0,240,255,0.20) 100%), var(--glass-bg-strong);
+            backdrop-filter: blur(var(--glass-blur)) saturate(200%);
+            -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(200%);
+            border: 2.5px solid rgba(0,240,255,0.75);
+            border-radius: 20px;
+            padding: 13px 16px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            overflow: visible;
+            box-shadow: 0 0 34px rgba(0,240,255,0.4), 0 8px 24px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.18);
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .leaderboard-collapsed-bar::after {
+            content: ''; position: absolute; top: 0; left: -60%; width: 40%; height: 100%;
+            background: linear-gradient(100deg, transparent, rgba(255,255,255,0.28), transparent);
+            transform: skewX(-18deg); animation: titleShineSweep 4.5s ease-in-out infinite; pointer-events: none;
+            clip-path: inset(0 round 20px);
+        }
+        .leaderboard-collapsed-bar:active { transform: scale(0.98); }
+        .leaderboard-collapsed-bar:hover { box-shadow: 0 0 44px rgba(0,240,255,0.5), 0 8px 24px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.18); }
+        .leaderboard-collapsed-icon {
+            flex-shrink: 0; width: 42px; height: 42px; border-radius: 13px; position: relative; z-index: 1;
+            display: flex; align-items: center; justify-content: center; font-size: 20px;
+            background: linear-gradient(155deg, rgba(255,183,3,0.35), rgba(0,240,255,0.08));
+            border: 1.5px solid rgba(255,209,102,0.75);
+            box-shadow: 0 0 14px rgba(255,183,3,0.5), inset 0 1px 0 rgba(255,255,255,0.2);
+        }
+        .leaderboard-collapsed-title { display: block; overflow: hidden; text-overflow: ellipsis; color: var(--neon-blue); font-weight: 900; font-size: 12.5px; letter-spacing: 0.2px; line-height: 1.2; white-space: nowrap; position: relative; z-index: 1; }
+        .leaderboard-collapsed-bar .bp-collapsed-right { position: relative; z-index: 1; }
+
+        #leaderboard-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: rgba(4,8,12,0.72); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); z-index: 7000; display: none; justify-content: center; align-items: center; padding: 16px; }
+        #leaderboard-overlay.active { display: flex; }
+        .leaderboard-container {
+            max-width: 380px; width: 100%; max-height: 88dvh;
+            background: linear-gradient(165deg, rgba(10,22,30,0.96) 0%, rgba(5,9,15,0.98) 60%);
+            backdrop-filter: blur(var(--glass-blur));
+            border: 1.5px solid rgba(255,209,102,0.35);
+            border-radius: 22px;
+            padding: 18px 16px 16px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 24px 70px rgba(0,0,0,0.65), 0 0 44px rgba(255,183,3,0.14), inset 0 1px 0 rgba(255,255,255,0.06);
+        }
+        .leaderboard-header-row { flex-shrink: 0; display: flex; align-items: center; gap: 12px; padding-bottom: 12px; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+        .leaderboard-header-badge {
+            flex-shrink: 0; width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center;
+            font-size: 22px; background: linear-gradient(155deg, rgba(255,183,3,0.32), rgba(255,183,3,0.05));
+            border: 1.5px solid rgba(255,209,102,0.6); box-shadow: 0 0 16px rgba(255,183,3,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+        }
+        .leaderboard-header-title { color: #fff; font-weight: 900; font-size: 15px; letter-spacing: 0.3px; line-height: 1.25; }
+        .leaderboard-header-sub { font-size: 9.5px; color: var(--neon-gold); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+
+        /* --- Переключатель сортировки: трофеи / уровень --- */
+        .leaderboard-sort-toggle { flex-shrink: 0; display: flex; gap: 6px; margin-bottom: 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 4px; }
+        .leaderboard-sort-btn {
+            flex: 1; border: none; border-radius: 9px; padding: 8px 6px; font-size: 11px; font-weight: 800; letter-spacing: 0.2px;
+            color: var(--text-muted); background: transparent; cursor: pointer; transition: background 0.15s ease, color 0.15s ease;
+            display: flex; align-items: center; justify-content: center; gap: 5px;
+        }
+        .leaderboard-sort-btn.active { color: #1a1206; background: linear-gradient(135deg, #ffe9a8, #ffb703); box-shadow: 0 0 12px rgba(255,183,3,0.45), inset 0 1px 0 rgba(255,255,255,0.4); }
+        .leaderboard-sort-btn.active.by-lvl { color: #06141a; background: linear-gradient(135deg, #7fe9ff, #00c2e0); box-shadow: 0 0 12px rgba(0,240,255,0.45), inset 0 1px 0 rgba(255,255,255,0.4); }
+
+        /* --- Прокручиваемая область: подиум + список (шапка и переключатель всегда на месте) --- */
+        .leaderboard-body { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding-right: 2px; }
+
+        /* --- Подиум топ-3 --- */
+        .leaderboard-podium { display: flex; align-items: flex-end; gap: 8px; margin: 4px 0 16px; }
+        .podium-slot { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; }
+        .podium-slot.rank1 { order: 2; }
+        .podium-slot.rank2 { order: 1; }
+        .podium-slot.rank3 { order: 3; }
+        .podium-crown { font-size: 16px; margin-bottom: 2px; filter: drop-shadow(0 0 6px rgba(255,183,3,0.7)); }
+        .podium-avatar {
+            width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 16px; color: #1a1206; margin-bottom: 6px; border: 2px solid rgba(255,255,255,0.5);
+            position: relative; flex-shrink: 0;
+        }
+        .podium-slot.rank1 .podium-avatar { width: 58px; height: 58px; font-size: 20px; background: linear-gradient(155deg, #ffe9a8, #ffb703 55%, #d98b00); border-color: #ffe9a8; box-shadow: 0 0 22px rgba(255,183,3,0.65), inset 0 1px 0 rgba(255,255,255,0.5); }
+        .podium-slot.rank2 .podium-avatar { background: linear-gradient(155deg, #f1f5f9, #c2cbd6 55%, #93a0b0); box-shadow: 0 0 16px rgba(200,210,225,0.4), inset 0 1px 0 rgba(255,255,255,0.5); }
+        .podium-slot.rank3 .podium-avatar { background: linear-gradient(155deg, #f3c79a, #cd7f32 55%, #9a5b1e); box-shadow: 0 0 16px rgba(205,127,50,0.4), inset 0 1px 0 rgba(255,255,255,0.5); }
+        .podium-name { font-size: 10.5px; font-weight: 800; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+        .podium-trophies { font-size: 10px; font-weight: 900; color: var(--neon-gold); margin-top: 3px; display: flex; align-items: center; justify-content: center; gap: 3px; }
+        .podium-base {
+            width: 100%; margin-top: 8px; border-radius: 10px 10px 4px 4px; display: flex; align-items: center; justify-content: center;
+            font-weight: 900; color: rgba(255,255,255,0.9); position: relative; overflow: hidden;
+        }
+        .podium-slot.rank1 .podium-base { height: 46px; font-size: 18px; background: linear-gradient(180deg, rgba(255,183,3,0.35), rgba(255,183,3,0.08)); border: 1.5px solid rgba(255,209,102,0.7); border-bottom: none; }
+        .podium-slot.rank2 .podium-base { height: 34px; font-size: 15px; background: linear-gradient(180deg, rgba(200,210,225,0.28), rgba(200,210,225,0.06)); border: 1.5px solid rgba(200,210,225,0.6); border-bottom: none; }
+        .podium-slot.rank3 .podium-base { height: 26px; font-size: 14px; background: linear-gradient(180deg, rgba(205,127,50,0.3), rgba(205,127,50,0.07)); border: 1.5px solid rgba(205,127,50,0.6); border-bottom: none; }
+        .podium-slot.me .podium-avatar { outline: 2px solid var(--neon-blue); outline-offset: 2px; }
+
+        /* --- Строки списка (места 4+) --- */
+        .leader-row {
+            display: flex; align-items: center; gap: 10px;
+            background: linear-gradient(145deg, rgba(255,255,255,0.045), rgba(255,255,255,0.01)), rgba(14,17,26,0.65);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 13px;
+            padding: 9px 12px;
+            margin-bottom: 6px;
+            transition: background 0.15s ease;
+        }
+        .leader-row.me {
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 16px rgba(0,240,255,0.32), inset 0 1px 0 rgba(255,255,255,0.1);
+            background: linear-gradient(145deg, rgba(0,240,255,0.14), rgba(0,240,255,0.02)), rgba(16,18,28,0.7);
+        }
+        .leader-rank {
+            width: 24px; height: 24px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+            border-radius: 50%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+            font-weight: 900; font-size: 11px; color: var(--text-muted);
+        }
+        .leader-avatar {
+            width: 32px; height: 32px; flex-shrink: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 12.5px; color: #cfe9ff; background: linear-gradient(155deg, rgba(0,240,255,0.22), rgba(0,240,255,0.04));
+            border: 1.5px solid rgba(0,240,255,0.35);
+        }
+        .leader-row.me .leader-avatar { color: #06141a; background: linear-gradient(155deg, #7fe9ff, #00c2e0); border-color: #bff4ff; }
+        .leader-info { flex: 1; min-width: 0; }
+        .leader-name { font-size: 12.5px; font-weight: 800; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .leader-sub { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+        .leader-trophies { font-size: 12px; font-weight: 900; color: var(--neon-gold); display: flex; align-items: center; gap: 4px; flex-shrink: 0; white-space: nowrap; text-shadow: 0 0 10px rgba(255,183,3,0.4); }
+        .leaderboard-list-label { font-size: 9.5px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.6px; margin: 4px 2px 8px; }
+        .leaderboard-empty, .leaderboard-loading { text-align: center; padding: 26px 10px; color: var(--text-muted); font-size: 12px; font-weight: 600; }
+
         #trophy-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: radial-gradient(circle at 50% 20%, rgba(255,150,0,0.10), rgba(16,10,2,0.9) 65%); z-index: 5900; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 16px; backdrop-filter: blur(6px); }
         #trophy-overlay .schem-container { border-color: var(--neon-gold); box-shadow: 0 0 34px rgba(255,183,3,0.32), inset 0 0 22px rgba(255,183,3,0.08); background: linear-gradient(160deg, rgba(32,22,4,0.94), rgba(10,7,2,0.97)); }
         #trophy-overlay .schem-title { color: var(--neon-gold); text-shadow: 0 0 12px rgba(255,183,3,0.5); }
@@ -2083,7 +2215,7 @@ transform:scale(1);
 
     <div id="death-overlay">
         <h1 style="color: var(--neon-red); font-size: 32px; margin-bottom: 10px; letter-spacing: 2px;">ВЫ ПОГИБЛИ</h1>
-        <p style="color: var(--text-muted); max-width: 300px; margin-bottom: 30px; font-size: 14px;">Пустошь не прощает ошибок. Но за скромное пожертвование контрабандисты могут вытащить ваше тело...</p>
+        <p style="color: var(--text-muted); max-width: 300px; margin-bottom: 30px; font-size: 14px;">Пустошь не прощает ошибок. Контрабандисты вытащат ваше тело и залатают ровно настолько, насколько хватит вашей платы.</p>
         <div style="background: var(--glass-bg-strong); backdrop-filter: blur(26px) saturate(180%); -webkit-backdrop-filter: blur(26px) saturate(180%); padding: 16px; border: 1px solid var(--neon-red); border-radius: 18px; margin-bottom: 30px; min-width: 260px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.15);">
             <div style="font-size: 12px; color: var(--text-muted);">Будет списано крышек:</div>
             <div style="font-size: 24px; color: var(--neon-gold); font-weight: 800; margin: 4px 0;"><span id="death-cost-caps">0</span> 🪙</div>
@@ -2264,6 +2396,26 @@ onclick="Core.declineEncounter()">
                 <button class="schem-close-btn" id="trophy-close-btn" onclick="Core.closeTrophyRoad()"><svg class="mini-ico" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5.2 5.2l9.6 9.6M14.8 5.2L5.2 14.8" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg> Закрыть</button>
             </div>
             <div class="schem-body" id="trophy-body"></div>
+        </div>
+    </div>
+
+    <div id="leaderboard-overlay">
+        <div class="leaderboard-container">
+            <button class="bp-overlay-close" onclick="Core.closeLeaderboard()">✕</button>
+            <div class="leaderboard-header-row">
+                <div class="leaderboard-header-badge">🏆</div>
+                <div>
+                    <div class="leaderboard-header-title">Таблица лидеров</div>
+                    <div class="leaderboard-header-sub">Топ-50 выживших</div>
+                </div>
+            </div>
+            <div class="leaderboard-sort-toggle">
+                <button class="leaderboard-sort-btn by-trophies active" id="lb-sort-trophies" onclick="Core.setLeaderboardSort('trophies')">🏆 Трофеи</button>
+                <button class="leaderboard-sort-btn by-lvl" id="lb-sort-lvl" onclick="Core.setLeaderboardSort('lvl')">⭐ Уровень</button>
+            </div>
+            <div class="leaderboard-body">
+                <div id="leaderboard-list"></div>
+            </div>
         </div>
     </div>
 
@@ -2796,6 +2948,17 @@ onclick="Core.declineEncounter()">
             </div>
         </div>
 
+        <div class="leaderboard-collapsed-bar" onclick="Core.openLeaderboard()">
+            <div class="leaderboard-collapsed-icon">🌐</div>
+            <div class="trophy-collapsed-info">
+                <span class="leaderboard-collapsed-title">ТАБЛИЦА ЛИДЕРОВ</span>
+                <div class="trophy-collapsed-sub">Сравните себя с другими выжившими</div>
+            </div>
+            <div class="bp-collapsed-right">
+                <span class="bp-collapsed-arrow" style="color:var(--neon-blue);">›</span>
+            </div>
+        </div>
+
         <div class="screen-title" style="margin-top: 12px;">📊 Данные Выжившего</div>
         <div id="profile-stats-grid" class="profile-data-card"></div>
 
@@ -2840,6 +3003,7 @@ onclick="Core.declineEncounter()">
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
     <script>
         // ===================================================================
         // AudioCore: общий AudioContext + две шины (звуки и музыка), чтобы
@@ -4460,44 +4624,23 @@ onclick="Core.declineEncounter()">
             // pos: "top" | "bottom" | "mid" — где показывать карточку, чтобы не перекрыть нужный элемент.
             // highlight: id элемента, который нужно мягко подсветить (необязательно для manual-шагов).
             slides: [
-                { type: "manual", pos: "mid", text: "Здарово, боец. Я — Крис Пепел. Двадцать с лишним лет дышу пеплом этой Пустоши и до сих пор жив — уже неплохой послужной список, да? Мне поручили ввести тебя в курс дела, пока тебя не сожрала первая же крыса-мутант. Обучение недолгое, но пройдём его полностью — по всем разделам. Погнали." },
-                { type: "manual", pos: "top", highlight: "status-bar", text: "Смотри на верхнюю панель — это твои жизненные показатели. ❤️ Жизнь — очевидно, кончится она, и привет, экран смерти. ⚡ Энергия тратится на разведку и бой, восстанавливается на привале и со временем. 🍖 Сытость (или ☢️ радиация в некоторых биомах) тоже влияет на выживание. Правее — твой 🎖️ уровень с опытом, 🪙 крышки (основная валюта) и 🏷️ ваучеры (для премиум-покупок)." },
-                { type: "click", trigger: "btn-explore", pos: "top", text: "Начнём с главного. Жми «🚶 Разведка» — она стоит 3⚡ энергии и отправляет тебя искать ресурсы, находки, а иногда и стычки с местной живностью." },
-                { type: "manual", pos: "top", text: "Вот и результат — глянь на подпись над сценой, там написано, что произошло. Если пропустил, разворачивай 📜 «Журнал» в правом нижнем углу сцены — там хранится история твоих последних шагов." },
-                { type: "manual", pos: "top", highlight: "btn-rest", text: "Кнопка «⛺ Привал» рядом с разведкой лечит и восстанавливает силы без затрат энергии, но у неё ограниченное число использований в день (счётчик справа на кнопке) и время отката. Береги привалы для трудных моментов." },
-                { type: "click", trigger: "tab-inv", pos: "top", text: "Теперь глянем, что у тебя в карманах. Жми снизу вкладку «🎒 Арсенал»." },
-                { type: "manual", pos: "bottom", text: "Раздел «⚔️ Доступный Арсенал» — твоё оружие. Можно переключаться между добытыми стволами и вкладывать ресурсы в модернизацию урона и брони прямо здесь." },
-                { type: "manual", pos: "bottom", text: "Ниже — «🎣 Рыболовные Снасти». Удочки нужны для рыбалки на водоёмах во время разведки: улов можно съесть или продать на рынке." },
-                { type: "manual", pos: "bottom", text: "Раздел «🍏 Припасы и Еда» — тут лежит всё съедобное. Кнопка «Съесть» восстанавливает здоровье и сытость. Еду можно найти в разведке или приготовить самому — об этом дальше." },
-                { type: "manual", pos: "bottom", text: "И последнее — «📦 Ресурсы»: металлолом, ткани, химикаты и прочий хлам. Не спеши их продавать — почти всё пригодится для крафта оружия и готовки." },
-                { type: "click", trigger: "tab-craft", pos: "top", text: "Ресурсы сами себя не превратят в еду и снаряжение. Жми вкладку «🛠️ Крафт»." },
-                { type: "manual", pos: "bottom", text: "Мастерская Выжившего делится на два раздела: «Книга Рецептов» — готовка еды, и «Тех-Схемы» — чертежи оружия и удочек. Разберём оба по порядку." },
-                { type: "click", trigger: "craft-recipebook-entry", highlight: "craft-recipebook-entry", pos: "bottom", text: "Жми «Открыть» на «📖 Книге Рецептов»." },
-                { type: "manual", pos: "bottom", text: "Каждый рецепт показывает нужные ингредиенты: зелёным — то, что у тебя уже есть в достатке, красным — чего не хватает. Как только всё зелёное, кнопка крафта становится активной — жми её, и готовое блюдо попадёт в «Припасы и Еда»." },
-                { type: "click", trigger: "book-close-btn", highlight: "book-close-btn", pos: "bottom", text: "Разобрался — жми «Закрыть», идём дальше." },
-                { type: "click", trigger: "craft-schematics-entry", highlight: "craft-schematics-entry", pos: "bottom", text: "Теперь открой «🛠️ Тех-Схемы»." },
-                { type: "manual", pos: "bottom", text: "Здесь два раздела-вкладки: «⚔️ Оружие» и «🎣 Удочки». Принцип тот же — собери нужные ресурсы, а некоторым чертежам ещё и уровень игрока нужен. Не хватает ресурсов или уровня — кнопка крафта будет заблокирована, а требования подсвечены красным." },
-                { type: "click", trigger: "schem-close-btn", highlight: "schem-close-btn", pos: "bottom", text: "Понятно? Жми «Закрыть»." },
-                { type: "click", trigger: "craft-gadgets-entry", highlight: "craft-gadgets-entry", pos: "bottom", text: "В Мастерской есть ещё три раздела. Начнём с «⚡ Гаджеты и Мегасилы» — открывается с 5 уровня." },
-                { type: "manual", pos: "bottom", text: "Гаджет — разовая активная способность оружия с перезарядкой в бою. Мегасила — мощный пассивный бонус, который работает постоянно. Открываются за ресурсы, а если у оружия разблокированы сразу обе — получаешь бонус «Мастерства оружия»." },
-                { type: "click", trigger: "gadgets-close-btn", highlight: "gadgets-close-btn", pos: "bottom", text: "Разобрался — жми «Закрыть»." },
-                { type: "click", trigger: "craft-build-entry", highlight: "craft-build-entry", pos: "bottom", text: "Теперь «🛠️ Билд-Мастерская» — раскрывается на 10 уровне." },
-                { type: "manual", pos: "bottom", text: "Здесь ты собираешь билд выживания: перки под свой стиль игры, броню и моды на оружие. Всё это усиливает тебя постоянно, а не только во время боя." },
-                { type: "click", trigger: "build-close-btn", highlight: "build-close-btn", pos: "bottom", text: "Понятно — жми «Закрыть»." },
-                { type: "click", trigger: "craft-pets-entry", highlight: "craft-pets-entry", pos: "bottom", text: "И последнее в Мастерской — «🐾 Питомцы», доступны с 30 уровня." },
-                { type: "manual", pos: "bottom", text: "Приручи спутника за ресурсы — он даёт постоянный пассивный бонус (например, к доходу крышек или урону) и с этого момента будет всюду ходить рядом с тобой на сцене. Если ресурсов не хватает, в карточке питомца прямо написано, сколько ещё нужно добыть до крафта." },
-                { type: "click", trigger: "pets-close-btn", highlight: "pets-close-btn", pos: "bottom", text: "Отлично, жми «Закрыть»." },
-                { type: "click", trigger: "tab-shop", pos: "top", text: "Дальше — снабжение. Жми вкладку «🏪 Магазин»." },
-                { type: "manual", pos: "bottom", highlight: "daily-card", text: "«📅 Пост Снабжения» — заходи сюда каждый день и забирай бесплатный паёк. Чем дольше не пропускаешь дни подряд, тем ценнее награда на 7-й день." },
-                { type: "manual", pos: "bottom", text: "«Прямые Поставки Медсредств» и «Контейнеры» ниже — платные товары и ящики за крышки или ваучеры: аптечки, батареи энергии и шанс на редкое снаряжение." },
-                { type: "manual", pos: "bottom", highlight: "market-entry-btn", text: "А вот «🏛️ Рынок» и «☠️ Чёрный рынок» пока закрыты на замок — они откроются сами на 15 и 25 уровне соответственно. Не всё сразу: чем выше твой уровень, тем больше механик станет доступно. Загляни туда снова, когда откроются — я подскажу, что к чему." },
-                { type: "manual", pos: "bottom", highlight: "settings-btn", text: "Пролистай вниз и запомни кнопку «⚙️ Настройки» — там громкость, Liquid Glass, промокоды и «🪶 Режим слабых устройств», который отключает частицы, свечения и лишние анимации, если игра тормозит на твоём телефоне." },
-                { type: "click", trigger: "tab-map", pos: "top", text: "Осталось путешествие. Жми «🗺️ Карта»." },
-                { type: "manual", pos: "bottom", text: "Здесь — телепортация между биомами. Новые локации и вызовы Боссов открываются по мере роста уровня и побед над предыдущими Боссами. Пока доступны только стартовые зоны — остальное придёт с опытом." },
-                { type: "click", trigger: "tab-profile", pos: "top", text: "И последний раздел — жми «👤 Профиль»." },
-                { type: "manual", pos: "bottom", text: "Тут твой позывной и аватар (жми на портрет, чтобы сменить), статистика выжившего и «🏆 Титулы Пустоши» — награды за достижения. Смена позывного после первого раза стоит ваучеры, так что выбирай с умом." },
-                { type: "click", trigger: "tab-main", pos: "top", text: "Отлично, обучение почти позади. Жми «🌍 Мир», чтобы вернуться на сцену." },
-                { type: "manual", pos: "mid", text: "Вот и всё, боец — теперь ты знаешь Пустошь не хуже меня. Если что-то забудешь, просто открой нужный раздел заново: я подскажу по делу ещё раз, когда впервые увижу тебя там. Держи оружие заряженным и не суйся в бой на пустой желудок. Удачи." }
+                { type: "manual", pos: "mid", text: "Здарово, боец. Я — Крис Пепел, старожил этой Пустоши. Покажу тебе самое важное за пару минут — остальное подскажу по ходу дела, когда пригодится. Погнали." },
+                { type: "manual", pos: "top", highlight: "status-bar", text: "Верхняя панель — твои показатели. ❤️ Жизнь, ⚡ энергия (тратится на разведку и бой), 🍖 сытость или ☢️ радиация. Правее — 🎖️ уровень, 🪙 крышки и 🏷️ ваучеры." },
+                { type: "click", trigger: "btn-explore", pos: "top", text: "Жми «🚶 Разведка» (3⚡) — так ты добываешь ресурсы, находки и иногда встречаешь противников." },
+                { type: "manual", pos: "top", highlight: "btn-rest", text: "Рядом кнопка «⛺ Привал» — лечит и восстанавливает силы бесплатно, но с ограничением в день. А в 📜 «Журнале» справа внизу — история твоих последних действий." },
+                { type: "click", trigger: "tab-inv", pos: "top", text: "Жми вкладку «🎒 Арсенал» — посмотрим, что у тебя есть." },
+                { type: "manual", pos: "bottom", text: "Здесь всё твоё: оружие (можно улучшать), удочки для рыбалки, еда для восстановления здоровья и сытости, и ресурсы для крафта — не продавай их сразу, пригодятся." },
+                { type: "click", trigger: "tab-craft", pos: "top", text: "Жми вкладку «🛠️ Крафт» — тут превращаешь ресурсы в пользу." },
+                { type: "manual", pos: "bottom", text: "Мастерская Выжившего: «Книга Рецептов» — готовка еды, «Тех-Схемы» — чертежи оружия и удочек. Зелёным подсвечено то, чего хватает, красным — чего не хватает. С ростом уровня откроются ещё гаджеты, билды и питомцы — я расскажу о каждом, когда до них дорастёшь." },
+                { type: "click", trigger: "tab-shop", pos: "top", text: "Жми вкладку «🏪 Магазин»." },
+                { type: "manual", pos: "bottom", highlight: "daily-card", text: "«📅 Пост Снабжения» — забирай бесплатный паёк каждый день, награда растёт за серию дней подряд. Ниже — платные товары и ящики за крышки/ваучеры. «Рынок» и «Чёрный рынок» откроются на 15 и 25 уровне." },
+                { type: "manual", pos: "bottom", highlight: "settings-btn", text: "Кнопка «⚙️ Настройки» внизу магазина — там звук, промокоды и «Режим слабых устройств», если игра тормозит." },
+                { type: "click", trigger: "tab-map", pos: "top", text: "Жми вкладку «🗺️ Карта»." },
+                { type: "manual", pos: "bottom", text: "Здесь — телепортация между биомами. Новые локации и боссы открываются с ростом уровня и побед над предыдущими боссами." },
+                { type: "click", trigger: "tab-profile", pos: "top", text: "И жми вкладку «👤 Профиль»." },
+                { type: "manual", pos: "bottom", text: "Тут твой позывной и аватар, статистика и «🏆 Титулы» за достижения. Смена позывного после первого раза платная." },
+                { type: "click", trigger: "tab-main", pos: "top", text: "Отлично. Жми «🌍 Мир», чтобы вернуться на сцену." },
+                { type: "manual", pos: "mid", text: "Готово, боец. Дальше учись на деле — я сам подскажу по делу, как только ты впервые заглянешь в новый раздел. Удачи на Пустоши." }
             ],
             init() {
                 if (!localStorage.getItem('w_save_v7') && !localStorage.getItem('w_tut_done')) {
@@ -4999,6 +5142,9 @@ onclick="Core.declineEncounter()">
                 { id: "capsMagnate", icon: "🪙", name: "Крышечный Магнат", desc: "Накопите 1000 крышек одновременно.", check: p => (p.caps || 0) >= 1000 },
                 { id: "bpMaster", icon: "🎫", name: "Хозяин Пропуска Пустоши", desc: "Достигните 50 уровня Пропуска Пустоши.", check: p => (p.bpLvl || 0) >= 50 },
                 { id: "trophyChampion", icon: "🏆", name: "Чемпион Трофейной Дороги", desc: "Наберите 500 трофеев.", check: p => (p.trophies || 0) >= 500 },
+                // Проверяется не локально (check всегда false), а отдельно через Core.checkTopRankTitle(),
+                // поскольку требует сравнения с остальными игроками из общей таблицы лидеров в облаке.
+                { id: "bestInGame", icon: "👑", name: "Лучший в игре", desc: "Займите 1-е место в общей таблице лидеров по трофеям.", check: p => false },
                 // Эксклюзивный титул за промокод — не открывается по игровым условиям, только через Core.redeemPromoCode().
                 // special/accent/glow задают уникальный (не золотой) оттенок карточки титула и его значка.
                 { id: "amurchikVip", icon: "💜", name: "Награждён Амурчиком", desc: "Выдаётся эксклюзивно по промокоду. Оттенок титула отличается от всех остальных.", check: p => false, special: true, accent: "#bf5af2", glow: "rgba(191,90,242,0.4)" }
@@ -5098,6 +5244,121 @@ onclick="Core.declineEncounter()">
             DB.cooking.push({ id: "cook_" + f.id, name: f.cookedName, cost: { [f.rawName]: 1 }, heal: f.heal, icon: f.icon, rarity: f.rarity });
         });
 
+        // ===================================================================
+        // Cloud: слой синхронизации сохранения с Supabase (аккаунт + облачный прогресс).
+        // Работает поверх localStorage, а не вместо него: локальное сохранение
+        // остаётся мгновенным и работает офлайн, а Cloud асинхронно подтягивает/
+        // выгружает то же самое состояние в таблицу public.players.
+        // ===================================================================
+        const Cloud = {
+            client: null,
+            userId: null,
+            ready: false,          // true, когда сессия получена и можно читать/писать
+            pushTimer: null,
+            firstSyncDone: false,
+
+            init() {
+                if (!window.supabase || !window.supabase.createClient) {
+                    console.warn("Cloud: библиотека supabase-js не загрузилась — работаем только локально.");
+                    return Promise.resolve(false);
+                }
+                this.client = window.supabase.createClient(
+                    "https://dkraqtzqvjsnqvohobqp.supabase.co",
+                    "sb_publishable_De8dF05CjxEufKz1GToZAw_pTPjA6fw"
+                );
+                return this.ensureSession().then(ok => {
+                    this.ready = ok;
+                    if (ok) this.reconcileOnBoot();
+                    return ok;
+                });
+            },
+
+            // Возвращает существующую (сохранённую supabase-js в своём localStorage) сессию,
+            // либо заводит новую анонимную — игрок ничего не вводит.
+            ensureSession() {
+                return this.client.auth.getSession().then(({ data }) => {
+                    if (data && data.session) {
+                        this.userId = data.session.user.id;
+                        return true;
+                    }
+                    return this.client.auth.signInAnonymously().then(({ data: signData, error }) => {
+                        if (error) { console.warn("Cloud: анонимный вход не удался", error.message); return false; }
+                        this.userId = signData.session.user.id;
+                        return true;
+                    });
+                }).catch(err => { console.warn("Cloud: нет соединения с Supabase", err.message); return false; });
+            },
+
+            // Один раз при старте: если в облаке уже есть сохранение — сравниваем с локальным
+            // и подтягиваем облако только если локального сохранения не было вообще
+            // (переустановка / новое устройство). Иначе облако просто обновляется локальным состоянием.
+            reconcileOnBoot() {
+                const hadLocalSave = !!localStorage.getItem('w_save_v7');
+                this.client.from('players').select('*').eq('id', this.userId).maybeSingle()
+                    .then(({ data: row, error }) => {
+                        if (error) { console.warn("Cloud: не удалось прочитать сохранение", error.message); return; }
+                        if (row && !hadLocalSave) {
+                            this.hydrateFromRow(row);
+                            Core.updateUI(); Core.renderInventory(); Core.renderProfile(); Core.renderMap(); Core.renderShop();
+                            Core.log("☁️ Прогресс восстановлен из облака.", "system");
+                        } else {
+                            this.push(); // создаём/обновляем облачную копию текущим локальным состоянием
+                        }
+                        this.firstSyncDone = true;
+                    });
+            },
+
+            hydrateFromRow(row) {
+                Core.p = Object.assign({}, Core.p, row.data || {}, {
+                    nickname: row.nickname, avatar: row.avatar, titleId: row.title_id,
+                    unlockedTitles: row.unlocked_titles, lvl: row.lvl, exp: row.exp, nextExp: row.next_exp,
+                    hp: row.hp, maxHp: row.max_hp, energy: row.energy, maxEnergy: row.max_energy,
+                    caps: row.caps, trophies: row.trophies, currentBiome: row.current_biome
+                });
+                Core.save();
+            },
+
+            // Отправка в облако — с дебаунсом в 2с, чтобы не долбить сеть на каждое мелкое изменение
+            push() {
+                if (!this.ready) return;
+                clearTimeout(this.pushTimer);
+                this.pushTimer = setTimeout(() => this.pushNow(), 2000);
+            },
+
+            pushNow() {
+                if (!this.ready || !this.userId) return;
+                const p = Core.p;
+                const row = {
+                    id: this.userId,
+                    nickname: p.nickname, avatar: p.avatar, title_id: p.titleId,
+                    unlocked_titles: p.unlockedTitles, lvl: p.lvl, exp: p.exp, next_exp: p.nextExp,
+                    hp: p.hp, max_hp: p.maxHp, energy: p.energy, max_energy: p.maxEnergy,
+                    caps: p.caps, trophies: p.trophies || 0, current_biome: p.currentBiome,
+                    data: p
+                };
+                this.client.from('players').upsert(row).then(({ error }) => {
+                    if (error) { console.warn("Cloud: сохранение не отправилось", error.message); return; }
+                    // Лидерборд обновляем тем же вызовом — не критично, если иногда промахнётся мимо сети
+                    this.client.from('leaderboard').upsert({
+                        player_id: this.userId, nickname: p.nickname, trophies: p.trophies || 0, lvl: p.lvl
+                    }).then(() => {});
+                });
+            },
+
+            // Активация промокода на сервере — источник истины теперь Postgres, а не localStorage
+            redeemPromo(code, maxUses) {
+                if (!this.ready) return Promise.resolve({ ok: false, reason: 'offline' });
+                // Infinity не сериализуется в JSON (становится null) — подменяем на максимум int4 в Postgres
+                const safeMaxUses = (maxUses === Infinity || maxUses === undefined) ? 2147483647 : maxUses;
+                return this.client.rpc('redeem_promo', { p_code: code, p_max_uses: safeMaxUses })
+                    .then(({ data, error }) => {
+                        if (error) return { ok: false, reason: error.message };
+                        return data;
+                    })
+                    .catch(err => ({ ok: false, reason: err.message }));
+            }
+        };
+
         const Core = {
             p: { hp: 50, maxHp: 50, energy: 100, maxEnergy: 100, rad: 0, hazards: {}, satiety: 100, lvl: 1, exp: 0, nextExp: 50, caps: 30, vouchers: 0, armor: 2, dodgeChance: 8, inv: { "Запчасти": 6, "Тяжелый Хлам": 0, "Ядерная Батарея": 0, "Сырое мясо": 1 }, weaponsOwned: ["fists"], wpnUpgrades: { "fists": 0, "pipe": 0, "machete": 0, "pistol": 0, "revolver": 0, "shotgun": 0, "assault": 0, "plasma": 0, "minigun": 0, "gauss": 0 }, activeWeapon: "fists", rodsOwned: ["rusty"], activeRod: "rusty", food: { "Жареное мясо крысы": 1 }, currentBiome: 0, bossesDefeated: [], bpLvl: 1, bpPoints: 0, bpPremium: false, bpClaimedFree: [], bpClaimedPrem: [], dailyStreak: 0, lastDailyClaim: null, relicWasteland: 0, redeemedPromoCodes: [], freeBoxes: {}, nickname: "Странник", nicknameSet: false, avatar: "ranger", titleId: "newbie", unlockedTitles: ["newbie"], maxBiomeReached: 0, bmLastSuccessDay: null, bmFailDay: null, bmFailCount: 0, marketEarnDay: null, marketEarnedToday: 0, marketDailyCapValue: null, skinsOwned: ["default"], activeSkin: "default", dailyQuests: [], dailyQuestsDay: null, petsOwned: [], activePet: null,
                 perksUnlocked: [], perkPoints: 0, armorOwned: ["rags"], activeArmor: "rags", modsOwned: [], modsEquipped: { optic: null, mag: null, grip: null }, gadgetsOwned: [], megasilaOwned: [], trophies: 0, trophyClaimed: [] },
@@ -5151,6 +5412,11 @@ onclick="Core.declineEncounter()">
             ],
 
             init() {
+                // Чистый снимок стартового состояния — берём ДО load(), пока в this.p/this.quests
+                // ещё лежат значения по умолчанию. Используется adminResetPlayer() для настоящего
+                // полного сброса аккаунта (а не просто удаления локального сейва).
+                this.defaultPlayer = JSON.parse(JSON.stringify(this.p));
+                this.defaultQuests = JSON.parse(JSON.stringify(this.quests));
                 this.load();
                 Tut.init();
                 this.generateDailyQuests();
@@ -5167,6 +5433,14 @@ onclick="Core.declineEncounter()">
                 });
                 window.addEventListener('pagehide', () => { this.lastTick = Date.now(); this.save(); });
                 this.log("☢️ Мега-обновление систем выживания запущено.", "system");
+                Cloud.init().then(ok => { // подключение к облаку — асинхронно, не блокирует запуск игры
+                    if (ok) {
+                        this.checkTopRankTitle();
+                        // Дальше проверяем место в рейтинге раз в минуту — не при каждом действии,
+                        // чтобы не долбить Supabase лишними запросами.
+                        setInterval(() => this.checkTopRankTitle(), 60000);
+                    }
+                });
             },
 
             // Отрисовывает нарисованные 3D-модели в карточках-разделах Мастерской (Крафт) — один раз при старте
@@ -5286,15 +5560,34 @@ onclick="Core.declineEncounter()">
                     Sound.play('click'); this.showPromoFeedback('⚠️ Этот промокод уже активирован на вашем аккаунте', 'error'); return;
                 }
 
-                let usage = this.getPromoGlobalUsage();
-                let used = usage[promo.code] || 0;
-                if(used >= promo.maxUses) {
-                    Sound.play('click'); this.showPromoFeedback('⛔ Лимит активаций этого промокода исчерпан', 'error'); return;
+                if (Cloud.ready) {
+                    // Облако подключено — лимит и повтор проверяются на сервере (честно, на всех устройствах сразу)
+                    Cloud.redeemPromo(promo.code, promo.maxUses).then(result => {
+                        if (!result.ok) {
+                            Sound.play('click');
+                            let msg = result.reason === 'already_redeemed' ? '⚠️ Этот промокод уже активирован на вашем аккаунте'
+                                : result.reason === 'limit_reached' ? '⛔ Лимит активаций этого промокода исчерпан'
+                                : '⚠️ Не удалось активировать промокод — проверьте соединение и попробуйте ещё раз';
+                            this.showPromoFeedback(msg, 'error');
+                            return;
+                        }
+                        this.applyPromoReward(promo, input);
+                    });
+                } else {
+                    // Нет связи с облаком — временно проверяем локально, чтобы промокоды не переставали работать офлайн
+                    let usage = this.getPromoGlobalUsage();
+                    let used = usage[promo.code] || 0;
+                    if(used >= promo.maxUses) {
+                        Sound.play('click'); this.showPromoFeedback('⛔ Лимит активаций этого промокода исчерпан', 'error'); return;
+                    }
+                    usage[promo.code] = used + 1;
+                    this.savePromoGlobalUsage(usage);
+                    this.applyPromoReward(promo, input);
                 }
+            },
 
-                // Всё в порядке — фиксируем активацию и начисляем награду
-                usage[promo.code] = used + 1;
-                this.savePromoGlobalUsage(usage);
+            // Начисление награды промокода — вызывается только после успешной проверки (сервер или локальный запасной вариант)
+            applyPromoReward(promo, input) {
                 this.p.redeemedPromoCodes.push(promo.code);
 
                 if(promo.type === 'voucher') {
@@ -5414,7 +5707,7 @@ onclick="Core.declineEncounter()">
                 root.setProperty('--glass-shadow', `0 10px 40px rgba(0, 0, 0, ${shOuter}), inset 0 1px 0 rgba(255, 255, 255, ${shInTop}), inset 0 -1px 0 rgba(0, 0, 0, ${shInBot})`);
                 root.setProperty('--glass-shadow-soft', `inset 0 1px 0 rgba(255, 255, 255, ${softTop}), inset 0 -1px 0 rgba(0, 0, 0, ${softBot})`);
             },
-            save() { localStorage.setItem('w_save_v7', JSON.stringify({ p: this.p, restUses: this.restUses, t: this.nextRestTick, q: this.quests, lt: this.lastTick, sda: this.satietyDecayAccum || 0, hra: this.hpRegenAccum || 0 })); },
+            save() { localStorage.setItem('w_save_v7', JSON.stringify({ p: this.p, restUses: this.restUses, t: this.nextRestTick, q: this.quests, lt: this.lastTick, sda: this.satietyDecayAccum || 0, hra: this.hpRegenAccum || 0 })); Cloud.push(); },
             load() { 
                 let data = localStorage.getItem('w_save_v7'); 
                 if(data) { 
@@ -5681,6 +5974,26 @@ onclick="Core.declineEncounter()">
                     newlyUnlocked.forEach(t => this.log(`🏆 Новый титул получен: ${t.icon} «${t.name}»!`, "loot"));
                     this.save();
                 }
+            },
+            // Титул «Лучший в игре» не проверяется локально (он не зависит только от собственных
+            // показателей игрока), а сверяется с общей таблицей лидеров в облаке: игрок должен
+            // быть первым по трофеям (тот же порядок сортировки, что и по умолчанию в лидерборде).
+            checkTopRankTitle() {
+                if (!Cloud.ready || !Cloud.userId || !Cloud.client) return;
+                if ((this.p.unlockedTitles || []).includes('bestInGame')) return;
+                Cloud.client.from('leaderboard').select('player_id')
+                    .order('trophies', { ascending: false }).order('lvl', { ascending: false }).limit(1)
+                    .then(({ data, error }) => {
+                        if (error || !data || !data.length) return;
+                        if (data[0].player_id === Cloud.userId) {
+                            if (!this.p.unlockedTitles) this.p.unlockedTitles = ["newbie"];
+                            if (!this.p.unlockedTitles.includes('bestInGame')) {
+                                this.p.unlockedTitles.push('bestInGame');
+                                this.log('👑 Вы заняли 1-е место в таблице лидеров! Открыт титул «Лучший в игре».', 'loot');
+                                this.save(); this.renderProfile();
+                            }
+                        }
+                    }).catch(() => {});
             },
             equipTitle(titleId) {
                 if (!this.p.unlockedTitles.includes(titleId)) return;
@@ -6526,18 +6839,33 @@ startCombat(isBossFight = false) {
             },
             endCombat() { this.combatState = null; this.stopCooldownTicker(); document.getElementById('combat-actions').style.display = 'none'; document.getElementById('default-actions').style.display = 'grid'; Scene.hideEnemy(); Music.play('ambient'); this.save(); this.updateUI(); },
 
+            // Считает, сколько крышек реально нужно на воскрешение (не больше, чем не хватает до
+            // полного ОЗ с учётом текущей опасности биома) и сколько из них реально спишется —
+            // если у игрока крышек меньше нужного, спишутся все имеющиеся и ОЗ восстановится частично.
+            getRespawnCost() {
+                let hazard = this.getHazard ? this.getHazard() : 0;
+                let fullHp = Math.max(5, this.p.maxHp - hazard);
+                let missingHp = Math.max(0, fullHp - this.p.hp);
+                let neededCaps = Math.max(5, missingHp); // минимальная плата за воскрешение — 5 крышек
+                let cost = Math.min(this.p.caps, neededCaps);
+                return { cost, heal: cost, fullHp };
+            },
             triggerDeath() {
                 this.p.hp = 0;
                 this.stopCooldownTicker();
-                document.getElementById('death-cost-caps').innerText = this.p.caps;
-                document.getElementById('death-heal-hp').innerText = Math.max(1, this.p.caps);
+                const { cost, heal } = this.getRespawnCost();
+                document.getElementById('death-cost-caps').innerText = cost;
+                document.getElementById('death-heal-hp').innerText = heal;
                 document.getElementById('death-overlay').style.display = 'flex';
                 Scene.playerDown();
             },
             respawn() {
-                let conversionHeal = Math.max(5, this.p.caps); this.p.caps = 0; this.p.hp = Math.min(this.p.maxHp, conversionHeal);
+                const { cost, heal, fullHp } = this.getRespawnCost();
+                this.p.caps -= cost;
+                this.p.hp = Math.min(fullHp, this.p.hp + heal);
                 document.getElementById('death-overlay').style.display = 'none';
-                this.log("🧟 Вы воскресны у костра. Все наличные крышки изъяты мародерами.", "system"); this.endCombat();
+                this.log(`🧟 Вы воскресли у костра. Списано ${cost} 🪙 — ровно столько, сколько не хватало до полного ОЗ.`, "system");
+                this.endCombat();
             },
 
             checkLvl() {
@@ -7194,6 +7522,90 @@ startCombat(isBossFight = false) {
                 setTimeout(() => Tips.show('trophyRoad', "Трофейная Дорога — постоянная шкала наград за победы в бою. Обычный враг даёт 1 трофей, Босс локации — 15. Награды идут по нарастающей: ресурсы, ваучеры, оружие, гаджеты и мегасилы."), 350);
             },
             closeTrophyRoad() { document.getElementById('trophy-overlay').style.display = 'none'; },
+
+            openLeaderboard() {
+                Sound.play('click');
+                document.getElementById('leaderboard-overlay').classList.add('active');
+                this.renderLeaderboard();
+                this.checkTopRankTitle();
+            },
+            closeLeaderboard() { document.getElementById('leaderboard-overlay').classList.remove('active'); },
+
+            leaderboardSort: 'trophies',
+            setLeaderboardSort(sort) {
+                if (sort === this.leaderboardSort) return;
+                Sound.play('click');
+                this.leaderboardSort = sort;
+                const btnTrophies = document.getElementById('lb-sort-trophies');
+                const btnLvl = document.getElementById('lb-sort-lvl');
+                if (btnTrophies) btnTrophies.classList.toggle('active', sort === 'trophies');
+                if (btnLvl) btnLvl.classList.toggle('active', sort === 'lvl');
+                this.renderLeaderboard();
+            },
+
+            renderLeaderboard() {
+                const el = document.getElementById('leaderboard-list');
+                if (!el) return;
+                if (!Cloud.ready) {
+                    el.innerHTML = `<div class="leaderboard-empty">📡 Нет соединения с облаком — таблица лидеров недоступна офлайн.</div>`;
+                    return;
+                }
+                const sort = this.leaderboardSort;
+                el.innerHTML = `<div class="leaderboard-loading">⏳ Загружаем рейтинг...</div>`;
+                // Основная сортировка выбрана переключателем, вторая колонка — тай-брейк при равенстве
+                const query = sort === 'lvl'
+                    ? Cloud.client.from('leaderboard').select('*').order('lvl', { ascending: false }).order('trophies', { ascending: false }).limit(50)
+                    : Cloud.client.from('leaderboard').select('*').order('trophies', { ascending: false }).order('lvl', { ascending: false }).limit(50);
+                query.then(({ data, error }) => {
+                        if (error) { el.innerHTML = `<div class="leaderboard-empty">⚠️ Не удалось загрузить таблицу лидеров.</div>`; return; }
+                        if (!data || data.length === 0) { el.innerHTML = `<div class="leaderboard-empty">Пока никто не попал в рейтинг — станьте первым! 🏆</div>`; return; }
+
+                        const esc = (s) => String(s || '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+                        const initial = (name) => (name || 'С').trim().charAt(0).toUpperCase();
+                        const mainStat = (row) => sort === 'lvl' ? `⭐ Ур. ${row.lvl}` : `🏆 ${row.trophies}`;
+                        const subStat = (row) => sort === 'lvl' ? `🏆 ${row.trophies} трофеев` : `Уровень ${row.lvl}`;
+
+                        const top3 = data.slice(0, 3);
+                        const rest = data.slice(3);
+                        const crowns = ['👑', '', ''];
+                        const podiumOrder = [1, 0, 2]; // визуально: 2 место | 1 место | 3 место
+
+                        let podiumHtml = '';
+                        if (top3.length > 0) {
+                            podiumHtml = `<div class="leaderboard-podium">` + podiumOrder
+                                .filter(idx => top3[idx])
+                                .map(idx => {
+                                    const row = top3[idx];
+                                    const isMe = row.player_id === Cloud.userId;
+                                    return `<div class="podium-slot rank${idx + 1} ${isMe ? 'me' : ''}">
+                                        <div class="podium-crown">${crowns[idx]}</div>
+                                        <div class="podium-avatar">${initial(row.nickname)}</div>
+                                        <div class="podium-name">${esc(row.nickname || 'Странник')}${isMe ? ' (вы)' : ''}</div>
+                                        <div class="podium-trophies">${mainStat(row)}</div>
+                                        <div class="podium-base">${idx + 1}</div>
+                                    </div>`;
+                                }).join('') + `</div>`;
+                        }
+
+                        const listHtml = rest.length
+                            ? `<div class="leaderboard-list-label">Остальной рейтинг</div>` + rest.map((row, i) => {
+                                const isMe = row.player_id === Cloud.userId;
+                                const rank = i + 4;
+                                return `<div class="leader-row ${isMe ? 'me' : ''}">
+                                    <div class="leader-rank">${rank}</div>
+                                    <div class="leader-avatar">${initial(row.nickname)}</div>
+                                    <div class="leader-info">
+                                        <div class="leader-name">${esc(row.nickname || 'Странник')}${isMe ? ' (вы)' : ''}</div>
+                                        <div class="leader-sub">${subStat(row)}</div>
+                                    </div>
+                                    <div class="leader-trophies">${mainStat(row)}</div>
+                                </div>`;
+                            }).join('')
+                            : '';
+
+                        el.innerHTML = podiumHtml + listHtml;
+                    });
+            },
 
             renderTrophyRoad() {
                 const el = document.getElementById('trophy-body'); el.innerHTML = '';
@@ -7946,7 +8358,37 @@ startCombat(isBossFight = false) {
             },
             adminResetPlayer() {
                 if (!confirm('Полностью сбросить весь прогресс? Это действие необратимо.')) return;
-                localStorage.removeItem('w_save_v7');
+
+                // Возвращаем персонажа, задания и счётчики к самым стартовым значениям —
+                // уровень, крышки, ваучеры, трофеи, оружие, титулы, питомцы, квесты и т.д.
+                this.p = JSON.parse(JSON.stringify(this.defaultPlayer));
+                this.quests = JSON.parse(JSON.stringify(this.defaultQuests));
+                this.restUses = 5;
+                this.nextRestTick = null;
+                this.lastTick = Date.now();
+                this.satietyDecayAccum = 0;
+                this.hpRegenAccum = 0;
+                this.dailyStreak = 0;
+
+                // Сбрасываем и обучение с подсказками — при перезапуске оно пройдёт заново.
+                localStorage.removeItem('w_tut_done');
+                Object.keys(localStorage).forEach(k => { if (k.indexOf('w_tip_') === 0) localStorage.removeItem(k); });
+
+                // Важно: сохраняем этот чистый сейв ЛОКАЛЬНО ДО перезагрузки. Раньше сброс
+                // просто стирал localStorage, а при старте игра видела, что локального сейва
+                // нет, и подтягивала старый прогресс обратно из облака (Supabase) — из-за
+                // этого сброс "не срабатывал". Теперь на старте локальный сейв уже есть
+                // (чистый), поэтому облако не подтягивается, а само перезаписывается этим
+                // чистым состоянием (см. Cloud.reconcileOnBoot -> push()).
+                this.save();
+
+                // Дополнительно — best-effort попытка стереть саму запись в облаке
+                // (может не сработать из-за прав доступа, но выше мы это уже подстраховали).
+                if (Cloud.ready && Cloud.userId) {
+                    Cloud.client.from('players').delete().eq('id', Cloud.userId).then(() => {}).catch(() => {});
+                    Cloud.client.from('leaderboard').delete().eq('player_id', Cloud.userId).then(() => {}).catch(() => {});
+                }
+
                 location.reload();
             },
 
