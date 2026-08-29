@@ -967,6 +967,19 @@ transform:scale(1);
             border-color: rgba(255, 183, 3, 0.65);
             box-shadow: inset 0 1px 0 rgba(255,183,3,0.38), 0 6px 16px rgba(255,183,3,0.32);
         }
+        /* Пустая ячейка премиум-дороги (на этапе нет награды) — просто гаснет, без текста и рамки */
+        .track-card.premium.empty {
+            background: rgba(255,255,255,0.03);
+            border-color: transparent;
+            box-shadow: none;
+            opacity: 0.35;
+        }
+        .track-card.premium.empty:hover {
+            background: rgba(255,255,255,0.03);
+            border-color: transparent;
+            box-shadow: none;
+        }
+        .track-card.premium.empty .track-label { opacity: 0.4; }
         
         .bp-claim-btn { 
             padding: 10px 16px; 
@@ -2385,6 +2398,7 @@ onclick="Core.declineEncounter()">
                 <button class="bp-tab-sub" id="bp-sub-quests" onclick="Core.setBpSubTab('quests')">📜 Задания</button>
             </div>
             <div id="bp-premium-status" style="font-size: 11px; text-align: center;"></div>
+            <button class="gold" style="padding: 7px 12px; font-size: 11.5px; height: auto; font-weight: 900;" onclick="Core.claimAllBpRewards()">🎁 Собрать все доступные награды</button>
             <div id="bp-content-render" style="max-height: 240px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;"></div>
         </div>
     </div>
@@ -2395,6 +2409,7 @@ onclick="Core.declineEncounter()">
                 <div class="schem-title">🏆 Трофейная Дорога</div>
                 <button class="schem-close-btn" id="trophy-close-btn" onclick="Core.closeTrophyRoad()"><svg class="mini-ico" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5.2 5.2l9.6 9.6M14.8 5.2L5.2 14.8" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg> Закрыть</button>
             </div>
+            <button class="gold" style="padding: 7px 12px; font-size: 11.5px; height: auto; font-weight: 900; margin: 8px 0 2px;" onclick="Core.claimAllTrophyRewards()">🎁 Собрать все доступные награды</button>
             <div class="schem-body" id="trophy-body"></div>
         </div>
     </div>
@@ -2865,7 +2880,7 @@ onclick="Core.declineEncounter()">
                     <div class="market-entry-sub">Еда, рыба, ресурсы</div>
                 </div>
                 <div class="market-entry-arrow">›</div>
-                <div class="market-entry-lock">🔒 Ур. 15</div>
+                <div class="market-entry-lock">🔒 Ур. 5</div>
             </button>
             <button class="market-entry-btn market-entry-black" id="blackmarket-entry-btn" onclick="Core.openBlackMarket()">
                 <div class="market-entry-icon-badge">☠️</div>
@@ -2943,7 +2958,7 @@ onclick="Core.declineEncounter()">
                 <div class="trophy-collapsed-mini-track"><div id="trophy-collapsed-fill" class="trophy-collapsed-mini-fill"></div></div>
             </div>
             <div class="bp-collapsed-right">
-                <span id="trophy-collapsed-level" class="trophy-collapsed-level">0 / 500</span>
+                <span id="trophy-collapsed-level" class="trophy-collapsed-level">0 / 1000</span>
                 <span class="bp-collapsed-arrow" style="color:var(--neon-gold);">›</span>
             </div>
         </div>
@@ -4633,7 +4648,7 @@ onclick="Core.declineEncounter()">
                 { type: "click", trigger: "tab-craft", pos: "top", text: "Жми вкладку «🛠️ Крафт» — тут превращаешь ресурсы в пользу." },
                 { type: "manual", pos: "bottom", text: "Мастерская Выжившего: «Книга Рецептов» — готовка еды, «Тех-Схемы» — чертежи оружия и удочек. Зелёным подсвечено то, чего хватает, красным — чего не хватает. С ростом уровня откроются ещё гаджеты, билды и питомцы — я расскажу о каждом, когда до них дорастёшь." },
                 { type: "click", trigger: "tab-shop", pos: "top", text: "Жми вкладку «🏪 Магазин»." },
-                { type: "manual", pos: "bottom", highlight: "daily-card", text: "«📅 Пост Снабжения» — забирай бесплатный паёк каждый день, награда растёт за серию дней подряд. Ниже — платные товары и ящики за крышки/ваучеры. «Рынок» и «Чёрный рынок» откроются на 15 и 25 уровне." },
+                { type: "manual", pos: "bottom", highlight: "daily-card", text: "«📅 Пост Снабжения» — забирай бесплатный паёк каждый день, награда растёт за серию дней подряд. Ниже — платные товары и ящики за крышки/ваучеры. «Рынок» и «Чёрный рынок» откроются на 5 и 25 уровне." },
                 { type: "manual", pos: "bottom", highlight: "settings-btn", text: "Кнопка «⚙️ Настройки» внизу магазина — там звук, промокоды и «Режим слабых устройств», если игра тормозит." },
                 { type: "click", trigger: "tab-map", pos: "top", text: "Жми вкладку «🗺️ Карта»." },
                 { type: "manual", pos: "bottom", text: "Здесь — телепортация между биомами. Новые локации и боссы открываются с ростом уровня и побед над предыдущими боссами." },
@@ -4775,12 +4790,21 @@ onclick="Core.declineEncounter()">
                 { lvl: 10, free: { name: "🏷️ Ваучеры x6", type: "voucher", qty: 6 }, prem: { name: "🔥 Винтовка Гаусса", type: "wpn", wpnId: "gauss" } }
             ];
 
-            for (let i = 1; i <= 50; i++) {
+            for (let i = 1; i <= 100; i++) {
                 if (i % 5 === 0 && i <= 50) {
                     // Перераспределяем старые награды на уровни, кратные 5, сохраняя контент
                     let oldIdx = (i / 5) * i <= 10 ? (i / 5) - 1 : Math.floor((i - 1) / 5) % oldRewards.length;
                     let source = oldRewards[oldIdx] || oldRewards[9];
                     list.push({ lvl: i, free: JSON.parse(JSON.stringify(source.free)), prem: JSON.parse(JSON.stringify(source.prem)) });
+                } else if (i > 50) {
+                    // Вторая половина пропуска (уровни 51-100): бесплатная дорога продолжается тем же duxом
+                    list.push({
+                        lvl: i,
+                        free: i % 5 === 0
+                            ? { name: `Крышки x${20 + (i%25)}`, type: "caps", qty: 20 + (i%25) }
+                            : { name: `Запчасти x${1 + (i%3)}`, type: "item", item: "Запчасти", qty: 1 + (i%3) },
+                        prem: { name: `Крышки x${10 + (i%5)*2}`, type: "caps", qty: 10 + (i%5)*2 }
+                    });
                 } else {
                     // Промежуточные новые уровни (без добавления лишних ваучеров)
                     list.push({
@@ -4820,9 +4844,33 @@ onclick="Core.declineEncounter()">
 
             // Гаджеты и мегасилы тоже встречаются среди наград Пропуска Пустоши (случайное подходящее оружие в момент получения)
             list[11].free = { name: "🧰 Гаджет (случайное оружие)", type: "gadget" };
-            list[19].prem = { name: "🧰 Гаджет (случайное оружие)", type: "gadget" };
             list[32].free = { name: "⚡ Мегасила (случайное оружие)", type: "megasila" };
+
+            // ===== Премиум-дорога: сильно сокращаем число наград (раньше — на КАЖДОМ этапе) =====
+            // Пропуск продлён со 50 до 100 этапов. Премиум-награда есть только на каждом 5-м этапе
+            // (20 наград вместо 100), а на промежуточных этапах премиум-дорога пуста (rewardDispatcher/
+            // render трактуют null как «нет награды»). Финал на 100 этапе — эксклюзивный космический скин.
+            for (let i = 1; i <= 100; i++) list[i - 1].prem = null;
+            list[4].prem  = { name: "🔫 Самопал", type: "wpn", wpnId: "pistol" };
+            list[9].prem  = { name: "🏷️ Ваучеры x5", type: "voucher", qty: 5 };
+            list[14].prem = { name: "🔋 Восстановление Энергии", type: "energy_pack" };
+            list[19].prem = { name: "🧰 Гаджет (случайное оружие)", type: "gadget" };
+            list[24].prem = { name: "🏷️ Ваучеры x10", type: "voucher", qty: 10 };
+            list[29].prem = { name: "💉 Мед-Пакет x3", type: "hp_pack", qty: 3 };
+            list[34].prem = { name: "🧬 Сыворотка ОЗ x2", type: "maxhp", qty: 2 };
+            list[39].prem = { name: "🏷️ Ваучеры x15", type: "voucher", qty: 15 };
             list[44].prem = { name: "⚡ Мегасила (случайное оружие)", type: "megasila" };
+            list[49].prem = { name: "🔥 Винтовка Гаусса", type: "wpn", wpnId: "gauss" };
+            list[54].prem = { name: "🏷️ Ваучеры x15", type: "voucher", qty: 15 };
+            list[59].prem = { name: "💥 Дробовик «Костолом»", type: "wpn", wpnId: "shotgun" };
+            list[64].prem = { name: "🔋 Восстановление Энергии", type: "energy_pack" };
+            list[69].prem = { name: "🧰 Гаджет (случайное оружие)", type: "gadget" };
+            list[74].prem = { name: "🏷️ Ваучеры x20", type: "voucher", qty: 20 };
+            list[79].prem = { name: "🎯 Штурмовая АК-74Рад", type: "wpn", wpnId: "assault" };
+            list[84].prem = { name: "💉 Мед-Пакет x5", type: "hp_pack", qty: 5 };
+            list[89].prem = { name: "⚡ Мегасила (случайное оружие)", type: "megasila" };
+            list[94].prem = { name: "🏷️ Ваучеры x25", type: "voucher", qty: 25 };
+            list[99].prem = { name: "🌌 Скин «Космо-Странник»", type: "skin", skinId: "cosmo" };
 
             return list;
         };
@@ -4841,6 +4889,12 @@ onclick="Core.declineEncounter()">
                 { id: 9, name: "☄️ Обломки Станции «Икар»", minLvl: 90, bossDefeatedId: 8, hazard: { key: "vacuum", label: "Декомпрессия", icon: "🌌", color: "#5566ff", rate: 8, tiers: [ { min: 25, dmgTakenMult: 1.15 }, { min: 50, dmgTakenMult: 1.30, dodgeDelta: -10 }, { min: 75, dmgTakenMult: 1.50, dodgeDelta: -18, dmgDealtMult: 0.85 } ] }, theme: { c1: "#5566ff", c2: "#0a0a2a", c3: "#c0c8ff", c4: "#ff2a5f", glow: "#05050f", atmo: "rgba(85,102,255,0.16)", accent: "#8fa8ff", accentSoft: "rgba(143,168,255,0.4)" }, enemies: [{ name: "Дрон-Разведчик «Икар»", hp: 2200, dmg: 190, armor: 99, class: "Быстрый", exp: 2550 }, { name: "Обезумевший Киборг", hp: 2800, dmg: 225, armor: 118, class: "Бронированный", exp: 3300 }], boss: { name: "👑 Капитан «Призрак»", hp: 13000, dmg: 410, armor: 195, class: "Босс", exp: 19500, rewardCaps: 5700 } },
                 { id: 10, name: "👑 Цитадель Омега", minLvl: 100, bossDefeatedId: 9, hazard: { key: "psi", label: "Пси-Давление", icon: "🧠", color: "#bf5af2", rate: 8, tiers: [ { min: 25, dodgeDelta: -5 }, { min: 50, dodgeDelta: -10, dmgDealtMult: 0.9 }, { min: 75, dodgeDelta: -15, dmgDealtMult: 0.75, dmgTakenMult: 1.15 } ] }, theme: { c1: "#bf5af2", c2: "#ffd700", c3: "#ff2a5f", c4: "#f8fafc", glow: "#180a20", atmo: "rgba(191,90,242,0.14)", accent: "#ffd700", accentSoft: "rgba(255,215,0,0.4)" }, enemies: [{ name: "Страж Цитадели", hp: 2600, dmg: 220, armor: 115, class: "Бронированный", exp: 3200 }, { name: "Гвардеец Омега", hp: 3400, dmg: 260, armor: 135, class: "Тяжеловес", exp: 4200 }], boss: { name: "👑 ИМПЕРАТОР ОМЕГА", hp: 16000, dmg: 480, armor: 220, class: "Босс", exp: 25000, rewardCaps: 7500 } }
             ],
+            // Прирост порога опыта (nextExp) за левелап, по "тиру" уровня: tier = min(10, floor(lvl/10)).
+            // Раньше прирост был всегда фиксированным +25, а награда за опыт по биомам растёт в разы —
+            // из-за этого один поздний босс мог пробить разом 8-10 уровней. Теперь прирост растёт вместе
+            // с биомами (но мягче их собственного роста) — скачки почти исчезают, а суммарное время до
+            // 50 уровня растёт лишь примерно на 15%. Тир 0 (уровни 1-9) не тронут — ранняя игра как была.
+            levelExpTierStep: [25, 29, 34, 40, 47, 55, 65, 76, 89, 104, 122],
             weapons: [
                 { id: "fists", name: "Кулаки", dmg: 5, crit: 5, icon: "👊", color: "#9aa4b2", tier: "Стартовое", class: "Ближний бой" },
                 { id: "pipe", name: "Ржавая Труба", dmg: 9, crit: 8, icon: "🔧", color: "#39ff14", tier: "Обычное", class: "Ближний бой" },
@@ -5140,14 +5194,19 @@ onclick="Core.declineEncounter()">
                 { id: "streak7", icon: "📦", name: "Постоянный Клиент", desc: "Получайте ежедневный паёк 7 дней подряд.", check: p => (p.dailyStreak || 0) >= 7 },
                 { id: "streak30", icon: "🏅", name: "Легенда Снабжения", desc: "Получайте ежедневный паёк 30 дней подряд.", check: p => (p.dailyStreak || 0) >= 30 },
                 { id: "capsMagnate", icon: "🪙", name: "Крышечный Магнат", desc: "Накопите 1000 крышек одновременно.", check: p => (p.caps || 0) >= 1000 },
-                { id: "bpMaster", icon: "🎫", name: "Хозяин Пропуска Пустоши", desc: "Достигните 50 уровня Пропуска Пустоши.", check: p => (p.bpLvl || 0) >= 50 },
-                { id: "trophyChampion", icon: "🏆", name: "Чемпион Трофейной Дороги", desc: "Наберите 500 трофеев.", check: p => (p.trophies || 0) >= 500 },
+                { id: "bpMaster", icon: "🎫", name: "Хозяин Пропуска Пустоши", desc: "Достигните 100 уровня Пропуска Пустоши.", check: p => (p.bpLvl || 0) >= 100 },
+                { id: "trophyChampion", icon: "🏆", name: "Чемпион Трофейной Дороги", desc: "Наберите 1000 трофеев.", check: p => (p.trophies || 0) >= 1000 },
                 // Проверяется не локально (check всегда false), а отдельно через Core.checkTopRankTitle(),
                 // поскольку требует сравнения с остальными игроками из общей таблицы лидеров в облаке.
                 { id: "bestInGame", icon: "👑", name: "Лучший в игре", desc: "Займите 1-е место в общей таблице лидеров по трофеям.", check: p => false },
                 // Эксклюзивный титул за промокод — не открывается по игровым условиям, только через Core.redeemPromoCode().
                 // special/accent/glow задают уникальный (не золотой) оттенок карточки титула и его значка.
-                { id: "amurchikVip", icon: "💜", name: "Награждён Амурчиком", desc: "Выдаётся эксклюзивно по промокоду. Оттенок титула отличается от всех остальных.", check: p => false, special: true, accent: "#bf5af2", glow: "rgba(191,90,242,0.4)" }
+                { id: "amurchikVip", icon: "💜", name: "Награждён Амурчиком", desc: "Выдаётся эксклюзивно по промокоду. Оттенок титула отличается от всех остальных.", check: p => false, special: true, accent: "#bf5af2", glow: "rgba(191,90,242,0.4)" },
+                { id: "titleRealClown", icon: "🤡", name: "Real Clown", desc: "Выдаётся эксклюзивно по промокоду.", check: p => false, special: true, accent: "#ff3b3b", glow: "rgba(255,204,0,0.45)" },
+                { id: "titleRebroKent", icon: "💙", name: "RebRoKent", desc: "Выдаётся эксклюзивно по промокоду.", check: p => false, special: true, accent: "#3b82f6", glow: "rgba(59,130,246,0.4)" },
+                { id: "titleAtay", icon: "💚", name: "Атай окакий", desc: "Выдаётся эксклюзивно по промокоду.", check: p => false, special: true, accent: "#22c55e", glow: "rgba(34,197,94,0.4)" },
+                { id: "titleMisternyashka", icon: "💗", name: "Misternyashka", desc: "Выдаётся эксклюзивно по промокоду.", check: p => false, special: true, accent: "#ff6ec7", glow: "rgba(255,110,199,0.4)" },
+                { id: "srb_king", icon: "👑", name: "Кингуля", desc: "Выдаётся эксклюзивно по промокоду.", check: p => false, special: true, accent: "#f8fafc", glow: "rgba(248,250,252,0.5)" }
             ],
             // Косметические скины персонажа. Цена — исключительно в ваучерах (премиум-валюта),
             // не влияют ни на один игровой показатель — только внешний вид боевой модели.
@@ -5158,38 +5217,35 @@ onclick="Core.declineEncounter()">
                 { id: "grime", name: "Грязный Странник", icon: "🦠", price: 20, accent: "#8a9a4e", desc: "Заляпанная болотной тиной куртка. Выглядит так себе, зато почти задаром." }
             ],
             lootboxes: [
-                { name: "Скрап-Ящик", price: 15, color: "#00f0ff", tier: 1, maxVouchers: 2, table: [{ item: "Запчасти x4", chance: 0.679 }, { item: "🧬 Сыворотка ОЗ (+10 к Макс ОЗ)", chance: 0.291 }, { item: "⛺ Привал x1", chance: 0.03 }] },
-                { name: "Продуктовый ящик", price: 20, color: "#39ff14", tier: 2, maxVouchers: 3, table: [{ item: "Сырое мясо x2", chance: 0.57 }, { item: "Жареное мясо крысы x1", chance: 0.38 }, { item: "⛺ Привал x1", chance: 0.05 }] },
-                { name: "Сейф Минори", price: 45, color: "#ffb703", tier: 3, maxVouchers: 5, table: [{ item: "🧬 Сыворотка ОЗ (+10 к Макс ОЗ)", chance: 0.33 }, { item: "🔋 Микро-батарея (+20 Энергии)", chance: 0.25 }, { item: "Сырое мясо x3", chance: 0.24 }, { item: "⛺ Привал x1", chance: 0.10 }, { item: "🧰 Гаджет (случайное оружие)", chance: 0.06 }, { item: "⚡ Мегасила (случайное оружие)", chance: 0.02 }] },
-                { name: "Реликварий Пустоши", price: 5, color: "#ffd700", currency: "vouchers", premium: true, tier: 4, maxVouchers: 3, table: [{ item: "🎫 Пустынный Премиум-пропуск", chance: 0.01 }, { item: "⚡ Мегасила (случайное оружие)", chance: 0.05 }, { item: "🧰 Гаджет (случайное оружие)", chance: 0.09 }, { item: "🧬 Сыворотка ОЗ (+10 к Макс ОЗ)", chance: 0.27 }, { item: "🔋 Микро-батарея (+20 Энергии)", chance: 0.25 }, { item: "Запчасти x15", chance: 0.18 }, { item: "⛺ Привал x1", chance: 0.15 }] }
+                { name: "Скрап-Ящик", price: 15, color: "#00f0ff", tier: 1, maxVouchers: 1, table: [{ item: "Запчасти x4", chance: 0.679 }, { item: "🧬 Сыворотка ОЗ (+10 к Макс ОЗ)", chance: 0.291 }, { item: "⛺ Привал x1", chance: 0.03 }] },
+                { name: "Продуктовый ящик", price: 20, color: "#39ff14", tier: 2, maxVouchers: 1, table: [{ item: "Сырое мясо x2", chance: 0.57 }, { item: "Жареное мясо крысы x1", chance: 0.38 }, { item: "⛺ Привал x1", chance: 0.05 }] },
+                { name: "Сейф Минори", price: 45, color: "#ffb703", tier: 3, maxVouchers: 2, table: [{ item: "🧬 Сыворотка ОЗ (+10 к Макс ОЗ)", chance: 0.33 }, { item: "🔋 Микро-батарея (+20 Энергии)", chance: 0.25 }, { item: "Сырое мясо x3", chance: 0.24 }, { item: "⛺ Привал x1", chance: 0.10 }, { item: "🧰 Гаджет (случайное оружие)", chance: 0.06 }, { item: "⚡ Мегасила (случайное оружие)", chance: 0.02 }] },
+                { name: "Реликварий Пустоши", price: 5, color: "#ffd700", currency: "vouchers", premium: true, tier: 4, maxVouchers: 2, table: [{ item: "🎫 Пустынный Премиум-пропуск", chance: 0.01 }, { item: "⚡ Мегасила (случайное оружие)", chance: 0.05 }, { item: "🧰 Гаджет (случайное оружие)", chance: 0.09 }, { item: "🧬 Сыворотка ОЗ (+10 к Макс ОЗ)", chance: 0.27 }, { item: "🔋 Микро-батарея (+20 Энергии)", chance: 0.25 }, { item: "Запчасти x15", chance: 0.18 }, { item: "⛺ Привал x1", chance: 0.15 }] }
             ],
             // ===== Трофейная Дорога: постоянная (не сезонная) шкала за победы в бою, 1 трофей за обычного врага, 15 за босса =====
+            // Продлена до 1000 трофеев. Ваучеры на всей дороге специально ограничены суммарно 50 штуками
+            // (раскиданы по 5 этапам: 50/280/480/690/900), чтобы дорога не превращалась в отдельный
+            // источник премиум-валюты. Остальные НЕ-валютные награды (ящики, гаджет, мегасила, оружие,
+            // аптечка, макс.ОЗ, энергия, редкие ресурсы) не повторяются — каждая встречается ровно один раз.
             trophyRoad: [
-                { trophies: 5, reward: { name: "Крышки x30", type: "caps", qty: 30 } },
-                { trophies: 10, reward: { name: "Запчасти x10", type: "item", item: "Запчасти", qty: 10 } },
-                { trophies: 20, reward: { name: "🏷️ Ваучеры x5", type: "voucher", qty: 5 } },
-                { trophies: 35, reward: { name: "Тяжелый Хлам x10", type: "item", item: "Тяжелый Хлам", qty: 10 } },
-                { trophies: 50, reward: { name: "🔋 Энергия +30", type: "energy_pack" } },
-                { trophies: 65, reward: { name: "📦 Скрап-Ящик", type: "lootbox", boxIdx: 0 } },
-                { trophies: 80, reward: { name: "💉 Восстановление ОЗ +40", type: "hp_pack" } },
-                { trophies: 100, reward: { name: "🧬 Макс. ОЗ +20", type: "maxhp" } },
-                { trophies: 120, reward: { name: "🏷️ Ваучеры x10", type: "voucher", qty: 10 } },
-                { trophies: 140, reward: { name: "🧰 Гаджет (случайное оружие)", type: "gadget" } },
-                { trophies: 160, reward: { name: "📦 Продуктовый ящик", type: "lootbox", boxIdx: 1 } },
-                { trophies: 180, reward: { name: "Ядерная Батарея x5", type: "item", item: "Ядерная Батарея", qty: 5 } },
-                { trophies: 200, reward: { name: "⚡ Мегасила (случайное оружие)", type: "megasila" } },
-                { trophies: 225, reward: { name: "🔫 Тяжёлый Револьвер", type: "wpn", wpnId: "revolver" } },
-                { trophies: 250, reward: { name: "🏷️ Ваучеры x20", type: "voucher", qty: 20 } },
-                { trophies: 275, reward: { name: "📦 Сейф Минори", type: "lootbox", boxIdx: 2 } },
-                { trophies: 300, reward: { name: "🧰 Гаджет (случайное оружие)", type: "gadget" } },
-                { trophies: 325, reward: { name: "🧬 Макс. ОЗ +20", type: "maxhp" } },
-                { trophies: 350, reward: { name: "⚡ Мегасила (случайное оружие)", type: "megasila" } },
-                { trophies: 375, reward: { name: "🏷️ Ваучеры x30", type: "voucher", qty: 30 } },
-                { trophies: 400, reward: { name: "📦 Реликварий Пустоши", type: "lootbox", boxIdx: 3 } },
-                { trophies: 425, reward: { name: "🧰 Гаджет (случайное оружие)", type: "gadget" } },
-                { trophies: 450, reward: { name: "⚡ Мегасила (случайное оружие)", type: "megasila" } },
-                { trophies: 475, reward: { name: "🏷️ Ваучеры x40", type: "voucher", qty: 40 } },
-                { trophies: 500, reward: { name: "📦 Реликварий Пустоши", type: "lootbox", boxIdx: 3 } }
+                { trophies: 10, reward: { name: "Крышки x30", type: "caps", qty: 30 } },
+                { trophies: 25, reward: { name: "Запчасти x15", type: "item", item: "Запчасти", qty: 15 } },
+                { trophies: 50, reward: { name: "🏷️ Ваучеры x5", type: "voucher", qty: 5 } },
+                { trophies: 90, reward: { name: "🔋 Энергия +30", type: "energy_pack" } },
+                { trophies: 130, reward: { name: "📦 Скрап-Ящик", type: "lootbox", boxIdx: 0 } },
+                { trophies: 180, reward: { name: "💉 Восстановление ОЗ +40", type: "hp_pack" } },
+                { trophies: 230, reward: { name: "🧬 Макс. ОЗ +20", type: "maxhp" } },
+                { trophies: 280, reward: { name: "🏷️ Ваучеры x8", type: "voucher", qty: 8 } },
+                { trophies: 340, reward: { name: "🧰 Гаджет (случайное оружие)", type: "gadget" } },
+                { trophies: 410, reward: { name: "🔫 Тяжёлый Револьвер", type: "wpn", wpnId: "revolver" } },
+                { trophies: 480, reward: { name: "🏷️ Ваучеры x7", type: "voucher", qty: 7 } },
+                { trophies: 550, reward: { name: "📦 Продуктовый ящик", type: "lootbox", boxIdx: 1 } },
+                { trophies: 620, reward: { name: "Крышки x60", type: "caps", qty: 60 } },
+                { trophies: 690, reward: { name: "🏷️ Ваучеры x10", type: "voucher", qty: 10 } },
+                { trophies: 760, reward: { name: "📦 Сейф Минори", type: "lootbox", boxIdx: 2 } },
+                { trophies: 830, reward: { name: "Ядерная Батарея x8", type: "item", item: "Ядерная Батарея", qty: 8 } },
+                { trophies: 900, reward: { name: "🏷️ Ваучеры x20", type: "voucher", qty: 20 } },
+                { trophies: 1000, reward: { name: "⚡ Мегасила (случайное оружие)", type: "megasila" } }
             ],
             dailyRewardPool: [
                 { name: "Крышки x8", type: "caps", qty: 8, weight: 22 },
@@ -5234,8 +5290,14 @@ onclick="Core.declineEncounter()">
                 { code: "august", type: "caps", qty: 15, maxUses: Infinity, desc: "15 крышек" },
                 { code: "srb_king", type: "relic_wasteland", qty: 1, maxUses: Infinity, desc: "1x 🗝️ Реликварий Пустоши" },
                 { code: "aaaa", type: "caps", qty: 30, maxUses: Infinity, desc: "30 крышек" },
-                { code: "misternyashka", type: "caps", qty: 30, maxUses: Infinity, desc: "30 крышек" },
-                { code: "vip", type: "title", titleId: "amurchikVip", maxUses: Infinity, desc: "эксклюзивный титул «Награждён Амурчиком»" }
+                { code: "vip", type: "title", titleId: "amurchikVip", maxUses: Infinity, desc: "эксклюзивный титул «Награждён Амурчиком»" },
+                { code: "Real Clown", type: "title", titleId: "titleRealClown", maxUses: 1, desc: "эксклюзивный титул «Real Clown»" },
+                { code: "RebRoKent", type: "title", titleId: "titleRebroKent", maxUses: 1, desc: "эксклюзивный титул «RebRoKent»" },
+                { code: "Атай окакий", type: "title", titleId: "titleAtay", maxUses: 1, desc: "эксклюзивный титул «Атай окакий»" },
+                { code: "misternyashka", type: "title", titleId: "titleMisternyashka", maxUses: 1, desc: "эксклюзивный титул «Misternyashka»" },
+                { code: "Кингуля", type: "title", titleId: "srb_king", maxUses: 1, desc: "эксклюзивный титул «Кингуля» (белые оттенки)" },
+                { code: "подарок", type: "items", items: { "Сырое мясо": 15, "Сырая Акула Пустоши": 5 }, maxUses: 10, desc: "15x 🥩 Сырое мясо, 5x 🦈 Сырая Акула Пустоши" },
+                { code: "самопал", type: "weapon", wpnId: "pistol", maxUses: 1, desc: "оружие «Самопал»" }
             ]
         };
 
@@ -5613,6 +5675,17 @@ onclick="Core.declineEncounter()">
                     if(!this.p.unlockedTitles.includes(promo.titleId)) this.p.unlockedTitles.push(promo.titleId);
                     const titleDef = DB.titles.find(t => t.id === promo.titleId);
                     this.log(`🎟️ Промокод «${promo.code}» активирован: получен титул «${titleDef ? titleDef.name : promo.titleId}»!`, "loot");
+                } else if(promo.type === 'items') {
+                    let parts = [];
+                    for (let [key, qty] of Object.entries(promo.items)) {
+                        this.p.inv[key] = (this.p.inv[key] || 0) + qty;
+                        parts.push(`${key} +${qty}`);
+                    }
+                    this.log(`🎟️ Промокод «${promo.code}» активирован: ${parts.join(', ')}!`, "loot");
+                } else if(promo.type === 'weapon') {
+                    if(!this.p.weaponsOwned.includes(promo.wpnId)) this.p.weaponsOwned.push(promo.wpnId);
+                    const wpnDef = DB.weapons.find(w => w.id === promo.wpnId);
+                    this.log(`🎟️ Промокод «${promo.code}» активирован: получено оружие «${wpnDef ? wpnDef.name : promo.wpnId}»!`, "loot");
                 }
 
                 Sound.play('loot');
@@ -5785,9 +5858,9 @@ onclick="Core.declineEncounter()">
                 let gainedHp = 0, lostSatiety = 0, gainedRest = 0;
                 let hazardMods = this.getHazardMods();
 
-                // --- Сытость: убывает, но вдвое медленнее, чем онлайн (24с вместо 12с за -1%), плюс модификатор биома ---
+                // --- Сытость: убывает, но вдвое медленнее, чем онлайн (36с вместо 18с за -1%), плюс модификатор биома ---
                 if (this.p.satiety > 0) {
-                    const offlineDecayInterval = (12 * 2) / hazardMods.satietyMult;
+                    const offlineDecayInterval = (18 * 2) / hazardMods.satietyMult;
                     this.satietyDecayAccum = (this.satietyDecayAccum || 0) + elapsedSec;
                     let ticks = Math.floor(this.satietyDecayAccum / offlineDecayInterval);
                     if (ticks > 0) {
@@ -5950,7 +6023,7 @@ onclick="Core.declineEncounter()">
                 // Кнопка покупки уровней БП блокируется на капе
                 const buyLvlBtn = document.getElementById('bp-buy-level-btn');
                 if(buyLvlBtn) {
-                    buyLvlBtn.disabled = this.p.bpLvl >= 50 || this.p.caps < 50;
+                    buyLvlBtn.disabled = this.p.bpLvl >= 100 || this.p.caps < 50;
                 }
 
                 this.renderInventory(); this.renderShop(); this.renderMap(); this.renderBp(); this.renderDaily();
@@ -6144,8 +6217,9 @@ onclick="Core.declineEncounter()">
             log(msg, type = '') { const box = document.getElementById('log'); const e = document.createElement('div'); e.className = `log-entry ${type}`; e.innerHTML = msg; box.appendChild(e); box.scrollTop = box.scrollHeight; Scene.setCaption(msg, type); },
             getRestTime() { return this.p.lvl >= 50 ? 30 : 60; },
 
-            // Скорость регенерации ОЗ зависит от сытости: 100% = 1 ОЗ/5с, 50% = 1 ОЗ/25с, ниже ~20% — совсем медленно. При 0% сытости регенерация вообще не идёт.
-            getHpRegenInterval() { return 5 + (100 - this.p.satiety) * 0.4; },
+            // Скорость регенерации ОЗ зависит от сытости: 100% = 1 ОЗ/3с, 50% = 1 ОЗ/18с, ниже ~20% — совсем медленно. При 0% сытости регенерация вообще не идёт.
+            // (Ускорено по сравнению с прежним — было 5с/25с — но умеренно, не мгновенно.)
+            getHpRegenInterval() { return 3 + (100 - this.p.satiety) * 0.3; },
 
             // Накопление опасности (радиация/холод/токсины/жар/пси-давление — в зависимости от биома)
             exposeRadiation(source) {
@@ -6213,9 +6287,10 @@ onclick="Core.declineEncounter()">
                 let hazardMods = this.getHazardMods();
 
                 // Сытость убывает со временем, в бою — быстрее, в опасных биомах может убывать быстрее (satietyMult)
+                // (Замедлено по сравнению с прежним — было 4с/12с за очко — теперь сытость держится дольше.)
                 if (this.p.satiety > 0) {
                     this.satietyDecayAccum = (this.satietyDecayAccum || 0) + 1;
-                    let decayInterval = (this.combatState ? 4 : 12) / hazardMods.satietyMult;
+                    let decayInterval = (this.combatState ? 6 : 18) / hazardMods.satietyMult;
                     if (this.satietyDecayAccum >= decayInterval) {
                         this.satietyDecayAccum -= decayInterval;
                         this.p.satiety = Math.max(0, this.p.satiety - 1);
@@ -6318,7 +6393,7 @@ onclick="Core.declineEncounter()">
             checkBpLvl() {
                 while(true) {
                     let req = this.bpReqForLevel(this.p.bpLvl);
-                    if(this.p.bpLvl < 50 && this.p.bpPoints >= req) {
+                    if(this.p.bpLvl < 100 && this.p.bpPoints >= req) {
                         this.p.bpPoints -= req;
                         this.p.bpLvl++;
                         this.log(`🌵 Уровень Пустынного Пропуска повышен до ${this.p.bpLvl}!`, "loot");
@@ -6328,7 +6403,7 @@ onclick="Core.declineEncounter()">
 
             // Метод платного пропуска уровня БП за 50 крышек
             buyBpLevelWithCaps() {
-                if(this.p.bpLvl >= 50) return alert("Достигнут максимальный уровень Болевого Пропуска!");
+                if(this.p.bpLvl >= 100) return alert("Достигнут максимальный уровень Болевого Пропуска!");
                 if(this.p.caps < 50) return alert("Недостаточно крышек для покупки уровня!");
                 
                 Sound.play('loot');
@@ -6357,7 +6432,7 @@ onclick="Core.declineEncounter()">
                 setTimeout(() => {
                     if (roll < 0.45) {
                         let petFx = this.getActivePetEffect();
-                        let c = Math.floor(Math.random() * 3) + 1 + (petFx.exploreCapsBonus || 0); this.p.caps += c;
+                        let c = (Math.floor(Math.random() * 3) + 1) * (1 + this.p.currentBiome) + (petFx.exploreCapsBonus || 0); this.p.caps += c;
                         let lootRoll = Math.random();
                         let bonusScrap = '';
                         if (petFx.extraScrapChance && Math.random() < petFx.extraScrapChance) {
@@ -6803,7 +6878,7 @@ startCombat(isBossFight = false) {
             processVictory() {
                 let earned = this.combatState.isBoss ? 15 : 1;
                 this.p.trophies = (this.p.trophies || 0) + earned;
-                this.log(`🏆 Трофейная дорога: +${earned} ${earned === 1 ? 'трофей' : 'трофеев'} (всего ${Math.min(this.p.trophies, 500)} / 500)`, "loot");
+                this.log(`🏆 Трофейная дорога: +${earned} ${earned === 1 ? 'трофей' : 'трофеев'} (всего ${Math.min(this.p.trophies, 1000)} / 1000)`, "loot");
                 this.showTrophyToast(earned, this.combatState.isBoss);
                 if(this.combatState.isBoss) {
                     this.p.bossesDefeated.push(this.p.currentBiome);
@@ -6870,7 +6945,9 @@ startCombat(isBossFight = false) {
 
             checkLvl() {
                 while (this.p.exp >= this.p.nextExp) {
-                    this.p.lvl++; this.p.exp -= this.p.nextExp; this.p.nextExp = Math.floor(this.p.nextExp + 25); this.nextRestTick = null;
+                    this.p.lvl++; this.p.exp -= this.p.nextExp;
+                    let tier = Math.min(DB.levelExpTierStep.length - 1, Math.floor(this.p.lvl / 10));
+                    this.p.nextExp = Math.floor(this.p.nextExp + DB.levelExpTierStep[tier]); this.nextRestTick = null;
                     this.p.maxHp += 5; this.p.armor += 1; this.p.perkPoints = (this.p.perkPoints || 0) + 1;
                     this.log(`🌟 Уровень повышен: ${this.p.lvl}! Макс ОЗ +5, Броня +1, Очко перка +1.`, "system");
                     Scene.levelUpFlash(this.p.lvl);
@@ -7610,7 +7687,7 @@ startCombat(isBossFight = false) {
             renderTrophyRoad() {
                 const el = document.getElementById('trophy-body'); el.innerHTML = '';
                 let trophies = this.p.trophies || 0;
-                let pct = Math.min(100, Math.round((trophies / 500) * 100));
+                let pct = Math.min(100, Math.round((trophies / 1000) * 100));
                 let nextNode = DB.trophyRoad.find((n, idx) => !(this.p.trophyClaimed || []).includes(idx));
                 let nextInfo = nextNode
                     ? (trophies >= nextNode.trophies
@@ -7618,7 +7695,7 @@ startCombat(isBossFight = false) {
                         : `<span style="color:var(--text-muted);">До следующей награды: <b style="color:var(--neon-gold);">${nextNode.trophies - trophies} 🏆</b></span>`)
                     : `<span style="color:var(--neon-green);">Все награды получены!</span>`;
                 el.innerHTML += `<div class="trophy-progress-bar">
-                    <div class="trophy-progress-top"><span>🏆 ${trophies} / 500</span><span style="color: var(--neon-gold);">${pct}%</span></div>
+                    <div class="trophy-progress-top"><span>🏆 ${trophies} / 1000</span><span style="color: var(--neon-gold);">${pct}%</span></div>
                     <div class="trophy-progress-outer"><div class="trophy-progress-fill" style="width:${pct}%;"></div></div>
                     <div class="trophy-progress-next">${nextInfo}</div>
                     <div class="trophy-progress-legend"><span>⚔️ Враг: <b>+1</b></span><span>💀 Босс локации: <b>+15</b></span></div>
@@ -7659,6 +7736,23 @@ startCombat(isBossFight = false) {
                 if ((this.p.trophies || 0) < node.trophies) return;
                 this.p.trophyClaimed.push(idx);
                 this.rewardDispatcher(node.reward, "Трофейной Дороги");
+                this.save(); this.updateUI(); this.renderTrophyRoad();
+            },
+
+            // Забирает разом все доступные на данный момент награды Трофейной Дороги
+            claimAllTrophyRewards() {
+                let trophies = this.p.trophies || 0;
+                if (!this.p.trophyClaimed) this.p.trophyClaimed = [];
+                let claimedCount = 0;
+                DB.trophyRoad.forEach((node, idx) => {
+                    if (this.p.trophyClaimed.includes(idx)) return;
+                    if (trophies < node.trophies) return;
+                    this.p.trophyClaimed.push(idx);
+                    this.rewardDispatcher(node.reward, "Трофейной Дороги");
+                    claimedCount++;
+                });
+                if (claimedCount === 0) { this.log("Нет доступных наград Трофейной Дороги для сбора.", "info"); return; }
+                this.log(`🎁 Собрано наград Трофейной Дороги: ${claimedCount}`, "loot");
                 this.save(); this.updateUI(); this.renderTrophyRoad();
             },
 
@@ -7800,7 +7894,7 @@ startCombat(isBossFight = false) {
             renderMarketEntryLocks() {
                 const mBtn = document.getElementById('market-entry-btn');
                 const bBtn = document.getElementById('blackmarket-entry-btn');
-                if (mBtn) mBtn.classList.toggle('locked', this.p.lvl < 15);
+                if (mBtn) mBtn.classList.toggle('locked', this.p.lvl < 5);
                 if (bBtn) bBtn.classList.toggle('locked', this.p.lvl < 25);
             },
 
@@ -8004,7 +8098,7 @@ startCombat(isBossFight = false) {
                 return null;
             },
             openMarket() {
-                if (this.p.lvl < 15) { Sound.play('hit'); Tips.lock(`Рынок откроется на 15 уровне. Твой текущий уровень: ${this.p.lvl}. Качай уровень разведкой и боями — я дам знать, когда сюда стоит вернуться.`); return; }
+                if (this.p.lvl < 5) { Sound.play('hit'); Tips.lock(`Рынок откроется на 5 уровне. Твой текущий уровень: ${this.p.lvl}. Качай уровень разведкой и боями — я дам знать, когда сюда стоит вернуться.`); return; }
                 Sound.play('click'); this.marketQty = {}; this.renderMarket(); document.getElementById('market-overlay').style.display = 'flex';
                 setTimeout(() => Tips.show('market', "Добро пожаловать на Рынок! Здесь можно и купить нужное, и продать лишние ресурсы за крышки — цена зависит от редкости товара. Присматривайся к ценам, прежде чем сбывать что-то ценное."), 350);
             },
@@ -8016,7 +8110,7 @@ startCombat(isBossFight = false) {
                 if (this.p.marketEarnDay !== today) {
                     this.p.marketEarnDay = today;
                     this.p.marketEarnedToday = 0;
-                    this.p.marketDailyCapValue = 50 + Math.floor(Math.random() * 7) - 3;
+                    this.p.marketDailyCapValue = (50 + this.p.currentBiome * 35) + Math.floor(Math.random() * 7) - 3;
                 }
                 const cap = this.p.marketDailyCapValue || 50;
                 const capReached = this.p.marketEarnedToday >= cap;
@@ -8083,7 +8177,7 @@ startCombat(isBossFight = false) {
                 if (this.p.marketEarnDay !== today) {
                     this.p.marketEarnDay = today;
                     this.p.marketEarnedToday = 0;
-                    this.p.marketDailyCapValue = 50 + Math.floor(Math.random() * 7) - 3;
+                    this.p.marketDailyCapValue = (50 + this.p.currentBiome * 35) + Math.floor(Math.random() * 7) - 3;
                 }
                 let cap = this.p.marketDailyCapValue || 50;
                 let remaining = Math.max(0, cap - this.p.marketEarnedToday);
@@ -8438,7 +8532,7 @@ startCombat(isBossFight = false) {
                 
                 if (chosen.includes("Премиум-пропуск")) {
                     if (!this.p.bpPremium) { this.p.bpPremium = true; chosenIcon = "🎫"; }
-                    else { let bonus = 25; this.p.vouchers += bonus; chosen = `🏷️ Ваучеры x${bonus} (Премиум уже активен)`; chosenIcon = "🏷️"; }
+                    else { let bonus = 50; this.p.caps += bonus; chosen = `🪙 Крышки x${bonus} (Премиум уже активен)`; chosenIcon = "🪙"; }
                 }
                 else if (chosen.includes("🧬")) { this.p.maxHp += 10; this.p.hp = Math.min(this.p.maxHp, this.p.hp + 10); chosenIcon = "🧬"; } 
                 else if (chosen.includes("🔋")) { this.p.energy = Math.min(this.p.maxEnergy, this.p.energy + 20); chosenIcon = "🔋"; } 
@@ -8456,7 +8550,9 @@ startCombat(isBossFight = false) {
                 }
                 else { let clean = chosen.split(" x")[0], qty = parseInt(chosen.split(" x")[1]) || 1; this.p.inv[clean] = (this.p.inv[clean] || 0) + qty; chosenIcon = clean.includes("Запчасти") ? "⚙️" : clean.includes("мясо") ? "🥩" : "⚙️"; }
                 
-                if(Math.random() < 0.15) {
+                // Шанс и количество бонусных ваучеров из ящика намеренно снижены, чтобы контейнеры
+                // не были основным источником премиум-валюты (было 15% шанс и до maxVouchers штук).
+                if(Math.random() < 0.05) {
                     let count = Math.floor(Math.random() * box.maxVouchers) + 1;
                     this.p.vouchers += count; chosen += ` + 🏷️ x${count}`;
                 }
@@ -8610,6 +8706,27 @@ startCombat(isBossFight = false) {
                 this.save(); this.updateUI();
             },
 
+            // Забирает разом все доступные на данный момент награды Пропуска Пустоши (бесплатные и, если открыт премиум, платные)
+            claimAllBpRewards() {
+                let claimedCount = 0;
+                DB.bpRewards.forEach(r => {
+                    if(this.p.bpLvl < r.lvl) return;
+                    if(r.free && !this.p.bpClaimedFree.includes(r.lvl)) {
+                        this.p.bpClaimedFree.push(r.lvl);
+                        this.rewardDispatcher(r.free);
+                        claimedCount++;
+                    }
+                    if(this.p.bpPremium && r.prem && !this.p.bpClaimedPrem.includes(r.lvl)) {
+                        this.p.bpClaimedPrem.push(r.lvl);
+                        this.rewardDispatcher(r.prem);
+                        claimedCount++;
+                    }
+                });
+                if(claimedCount === 0) { this.log("Нет доступных наград Пропуска Пустоши для сбора.", "info"); return; }
+                this.log(`🎁 Собрано наград Пропуска Пустоши: ${claimedCount}`, "loot");
+                this.save(); this.updateUI(); this.renderBp();
+            },
+
             rewardDispatcher(r, sourceLabel = "БП") {
                 if(!r) return; Sound.play('loot');
                 if(r.type === 'item') { this.p.inv[r.item] = (this.p.inv[r.item]||0) + r.qty; this.log(`🎁 Награда ${sourceLabel}: ${r.item} x${r.qty}`); }
@@ -8631,6 +8748,17 @@ startCombat(isBossFight = false) {
                     if (g) this.log(`🎁 Награда ${sourceLabel}: ⚡ ${g.name}`);
                     else { let bonus = 5; this.p.vouchers += bonus; this.log(`🎁 Награда ${sourceLabel}: нет оружия Ур.10 без мегасилы — начислено 🏷️ x${bonus}`); }
                 }
+                else if(r.type === 'skin') {
+                    let skin = DB.skins.find(s => s.id === r.skinId);
+                    if (!skin) return;
+                    if (!this.p.skinsOwned.includes(skin.id)) {
+                        this.p.skinsOwned.push(skin.id);
+                        this.log(`🎁 Награда ${sourceLabel}: ${skin.icon} Скин «${skin.name}»`);
+                    } else {
+                        let bonus = 30; this.p.vouchers += bonus;
+                        this.log(`🎁 Награда ${sourceLabel}: скин «${skin.name}» уже есть — начислено 🏷️ x${bonus}`);
+                    }
+                }
             },
 
             itemIcons: { "Запчасти": "⚙️", "Тяжелый Хлам": "🔩", "Ядерная Батарея": "☢️", "Сырое мясо": "🥩" },
@@ -8648,6 +8776,7 @@ startCombat(isBossFight = false) {
                     case 'lootbox': return '📦';
                     case 'gadget': return '🧰';
                     case 'megasila': return '⚡';
+                    case 'skin': return (DB.skins.find(s => s.id === r.skinId) || {}).icon || '🧥';
                     default: return '🎁';
                 }
             },
@@ -8679,7 +8808,7 @@ startCombat(isBossFight = false) {
                 const tip = document.getElementById('bp-level-tooltip');
                 if (!tip) return;
                 const reqPoints = this.bpReqForLevel(this.p.bpLvl);
-                tip.innerText = this.p.bpLvl >= 50 ? "МАКС УРОВЕНЬ" : `${this.p.bpPoints}/${reqPoints} очков`;
+                tip.innerText = this.p.bpLvl >= 100 ? "МАКС УРОВЕНЬ" : `${this.p.bpPoints}/${reqPoints} очков`;
                 tip.style.display = 'block';
                 clearTimeout(this.bpTooltipTimer);
                 this.bpTooltipTimer = setTimeout(() => { tip.style.display = 'none'; }, 2200);
@@ -8687,19 +8816,19 @@ startCombat(isBossFight = false) {
 
             renderBp() {
                 let reqPoints = this.bpReqForLevel(this.p.bpLvl);
-                let bpPct = this.p.bpLvl >= 50 ? 100 : Math.max(0, Math.min(100, Math.round((this.p.bpPoints / reqPoints) * 100)));
+                let bpPct = this.p.bpLvl >= 100 ? 100 : Math.max(0, Math.min(100, Math.round((this.p.bpPoints / reqPoints) * 100)));
                 let circleEl = document.getElementById('bp-level-circle');
                 if (circleEl) {
                     circleEl.style.background = `conic-gradient(var(--neon-gold) ${bpPct}%, rgba(255,255,255,0.2) ${bpPct}% 100%)`;
                 }
                 let textEl = document.getElementById('bp-level-text');
-                if (textEl) textEl.innerText = this.p.bpLvl >= 50 ? "МАКС УРОВЕНЬ" : `ЭТАП ${this.p.bpLvl}`;
+                if (textEl) textEl.innerText = this.p.bpLvl >= 100 ? "МАКС УРОВЕНЬ" : `ЭТАП ${this.p.bpLvl}`;
                 let collapsedLevelEl = document.getElementById('bp-collapsed-level');
-                if (collapsedLevelEl) collapsedLevelEl.innerText = this.p.bpLvl >= 50 ? "МАКС" : `ЭТАП ${this.p.bpLvl}`;
+                if (collapsedLevelEl) collapsedLevelEl.innerText = this.p.bpLvl >= 100 ? "МАКС" : `ЭТАП ${this.p.bpLvl}`;
                 let trophyCollapsedEl = document.getElementById('trophy-collapsed-level');
-                if (trophyCollapsedEl) trophyCollapsedEl.innerText = `${Math.min(this.p.trophies || 0, 500)} / 500`;
+                if (trophyCollapsedEl) trophyCollapsedEl.innerText = `${Math.min(this.p.trophies || 0, 1000)} / 1000`;
                 let trophyFillEl = document.getElementById('trophy-collapsed-fill');
-                if (trophyFillEl) trophyFillEl.style.width = Math.min(100, Math.round(((this.p.trophies || 0) / 500) * 100)) + '%';
+                if (trophyFillEl) trophyFillEl.style.width = Math.min(100, Math.round(((this.p.trophies || 0) / 1000) * 100)) + '%';
                 let trophyHasClaimable = DB.trophyRoad.some((n, idx) => (this.p.trophies || 0) >= n.trophies && !(this.p.trophyClaimed || []).includes(idx));
                 let profileTabEl = document.getElementById('tab-profile');
                 if (profileTabEl) profileTabEl.classList.toggle('tab-alert', trophyHasClaimable);
@@ -8715,7 +8844,8 @@ startCombat(isBossFight = false) {
                         let premClaimed = this.p.bpClaimedPrem.includes(r.lvl);
 
                         let freeBtn = freeClaimed ? `<div class="track-status claimed">${Icon.check()} ПОЛУЧЕНО</div>` : (isLvlUnlocked ? `<button class="bp-claim-btn" onclick="Core.claimBpReward(${r.lvl}, 'free')">Взять</button>` : `<div class="track-status locked">🔒 ЗАКРЫТО</div>`);
-                        let premBtn = premClaimed ? `<div class="track-status claimed">${Icon.check()} ПОЛУЧЕНО</div>` : ((isLvlUnlocked && this.p.bpPremium) ? `<button class="bp-claim-btn" style="background:var(--neon-gold)" onclick="Core.claimBpReward(${r.lvl}, 'prem')">Взять</button>` : `<div class="track-status locked">🔒 ЗАКРЫТО</div>`);
+                        let premBtn = !r.prem ? '' : (premClaimed ? `<div class="track-status claimed">${Icon.check()} ПОЛУЧЕНО</div>` : ((isLvlUnlocked && this.p.bpPremium) ? `<button class="bp-claim-btn" style="background:var(--neon-gold)" onclick="Core.claimBpReward(${r.lvl}, 'prem')">Взять</button>` : `<div class="track-status locked">🔒 ЗАКРЫТО</div>`));
+                        let premRewardHtml = r.prem ? `${this.rewardIcon(r.prem)} <span style="color:var(--neon-gold)">${this.formatRewardName(r.prem)}</span>` : '';
 
                         container.innerHTML += `
                         <div class="pass-tier-box ${isLvlUnlocked?'unlocked':''}">
@@ -8727,9 +8857,9 @@ startCombat(isBossFight = false) {
                                     ${freeBtn}
                                 </div>
                                 <div class="bp-divider"></div>
-                                <div class="track-card premium">
+                                <div class="track-card premium ${!r.prem?'empty':''}">
                                     <div class="track-label">💎 Премиум</div>
-                                    <div class="track-reward">${this.rewardIcon(r.prem)} <span style="color:var(--neon-gold)">${this.formatRewardName(r.prem)}</span></div>
+                                    <div class="track-reward">${premRewardHtml}</div>
                                     ${premBtn}
                                 </div>
                             </div>
