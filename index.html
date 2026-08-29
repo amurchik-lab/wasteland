@@ -114,6 +114,17 @@
            карточка использует плотный, но не блюрящий фон. Карточка умеет
            переезжать вверх/вниз/в центр экрана в зависимости от шага, чтобы никогда
            не перекрывать нижние вкладки и подсвеченный элемент. */
+        #nickname-gate-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: radial-gradient(ellipse at center top, rgba(0,60,90,0.45) 0%, rgba(4,6,10,0.97) 70%); z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+        .nick-gate-card { background: var(--glass-bg-strong); backdrop-filter: blur(var(--glass-blur)) saturate(180%); -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%); border: 2px solid var(--neon-blue); border-radius: 22px; padding: 26px 22px; width: 100%; max-width: 360px; text-align: center; box-shadow: 0 0 30px rgba(0, 240, 255, 0.35), var(--glass-shadow-soft); animation: rewardCardSlideUp 0.5s cubic-bezier(0.25, 1.4, 0.4, 1); }
+        .nick-gate-icon { font-size: 46px; margin-bottom: 10px; filter: drop-shadow(0 4px 10px rgba(0,240,255,0.4)); }
+        .nick-gate-title { font-size: 17px; font-weight: 900; color: var(--text-main); margin-bottom: 6px; letter-spacing: 0.2px; }
+        .nick-gate-sub { font-size: 12.5px; color: var(--text-muted); line-height: 1.5; margin-bottom: 18px; }
+        .nick-gate-input { width: 100%; box-sizing: border-box; padding: 13px 14px; border-radius: 12px; border: 2px solid var(--border-neon); background: rgba(8,10,16,0.6); color: var(--text-main); font-size: 14px; font-weight: 700; text-align: center; outline: none; transition: border-color 0.2s ease; }
+        .nick-gate-input:focus { border-color: var(--neon-blue); }
+        .nick-gate-feedback { font-size: 10.5px; font-weight: 700; margin-top: 8px; min-height: 14px; color: var(--neon-red); }
+        .nick-gate-btn { width: 100%; margin-top: 14px; padding: 14px; font-size: 13.5px; font-weight: 900; border-radius: 12px; border: none; background: var(--grad-blue); color: #06222b; box-shadow: 0 6px 18px rgba(0,240,255,0.35); cursor: pointer; letter-spacing: 0.3px; }
+        .nick-gate-btn:active { transform: scale(0.98); }
+
         #tutorial-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: rgba(4,6,10,0.55); z-index: 5000; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 16px; padding-top: 118px; pointer-events: none; transition: padding 0.25s ease; }
         #tutorial-overlay.tut-anchor-top { justify-content: flex-start; padding-top: 118px; }
         #tutorial-overlay.tut-anchor-bottom { justify-content: flex-end; padding-bottom: calc(var(--bottom-ui-h, 155px) + 26px); }
@@ -1741,95 +1752,112 @@ transform:scale(1);
         .daily-day.day7.current { border-color: var(--neon-gold); background: rgba(255,183,3,0.12); box-shadow: 0 0 16px rgba(255,183,3,0.5); }
         @keyframes dailyPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.07); } }
 
-        /* ===== Вход в меню скинов (по аналогии с Пропуском Пустоши) ===== */
+        /* ===== Вход в меню скинов (по аналогии с Пропуском Пустоши) — свежий аврора-стиль ===== */
         .skin-collapsed-bar {
-            background: linear-gradient(135deg, rgba(0,240,255,0.22) 0%, rgba(0,240,255,0.08) 100%), var(--glass-bg-strong);
+            position: relative;
+            min-height: 64px;
+            background: linear-gradient(135deg, rgba(191,90,242,0.20) 0%, rgba(0,240,255,0.14) 55%, rgba(255,42,223,0.16) 100%), var(--glass-bg-strong);
             backdrop-filter: blur(var(--glass-blur)) saturate(200%);
             -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(200%);
-            border: 2.5px solid rgba(0, 240, 255, 0.55);
+            border: 1.5px solid rgba(191,90,242,0.5);
             border-radius: 20px;
             padding: 12px 16px;
             margin-top: 14px;
             display: flex;
             align-items: center;
             gap: 12px;
-            box-shadow: 0 0 30px rgba(0, 240, 255, 0.22), 0 8px 24px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.12);
+            box-shadow: 0 0 26px rgba(191,90,242,0.22), 0 8px 24px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.14);
             cursor: pointer;
             transition: transform 0.15s ease, box-shadow 0.15s ease;
         }
         .skin-collapsed-bar:active { transform: scale(0.98); }
-        .skin-collapsed-bar:hover { box-shadow: 0 0 40px rgba(0, 240, 255, 0.38), 0 8px 24px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.12); }
-        .skin-collapsed-icon { width: 42px; height: 42px; flex-shrink: 0; border-radius: 13px; background: radial-gradient(circle, rgba(0,240,255,0.32), rgba(0,240,255,0.06)); border: 1.5px solid var(--neon-blue); display: flex; align-items: center; justify-content: center; font-size: 21px; box-shadow: 0 0 14px rgba(0,240,255,0.4), inset 0 1px 0 rgba(255,255,255,0.2); }
-        .skin-collapsed-text { flex: 1; min-width: 0; }
-        .skin-collapsed-title { color: var(--neon-blue); font-weight: 900; font-size: 13px; letter-spacing: 0.3px; }
-        .skin-collapsed-sub { font-size: 10px; color: var(--text-muted); font-weight: 700; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .skin-collapsed-discount-flag { display: none; font-size: 9.5px; font-weight: 900; color: #fff; background: linear-gradient(135deg, #ff2a5f, #ff6600); padding: 4px 8px; border-radius: 7px; white-space: nowrap; box-shadow: 0 0 10px rgba(255,42,95,0.5); }
+        .skin-collapsed-bar:hover { box-shadow: 0 0 40px rgba(191,90,242,0.35), 0 8px 24px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.14); }
+        .skin-collapsed-icon { position: relative; width: 42px; height: 42px; flex-shrink: 0; border-radius: 14px; background: radial-gradient(circle, rgba(191,90,242,0.35), rgba(0,240,255,0.08)); border: 1.5px solid rgba(255,255,255,0.35); display: flex; align-items: center; justify-content: center; font-size: 21px; box-shadow: 0 0 16px rgba(191,90,242,0.4), inset 0 1px 0 rgba(255,255,255,0.25); z-index: 1; }
+        .skin-collapsed-text { flex: 1; min-width: 0; position: relative; z-index: 1; display: flex; flex-direction: column; justify-content: center; gap: 3px; }
+        .skin-collapsed-title { display: inline-block; line-height: 1.3; color: var(--neon-blue); text-shadow: 0 1px 3px rgba(0,0,0,0.55); font-weight: 900; font-size: 13px; letter-spacing: 0.3px; }
+        .skin-collapsed-sub { font-size: 10px; color: var(--text-muted); font-weight: 700; margin-top: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.3; }
+        .skin-collapsed-discount-flag { display: none; position: relative; z-index: 1; font-size: 9.5px; font-weight: 900; color: #fff; background: linear-gradient(135deg, #ff2a5f, #ff6600); padding: 4px 8px; border-radius: 7px; white-space: nowrap; box-shadow: 0 0 10px rgba(255,42,95,0.5); }
         .skin-collapsed-discount-flag.active { display: inline-block; }
 
         /* ===== Полноэкранное меню скинов ===== */
-        #skin-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: rgba(4,6,10,0.65); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); z-index: 7000; display: none; justify-content: center; align-items: center; padding: 16px; }
+        #skin-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: rgba(4,6,10,0.7); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); z-index: 7000; display: none; justify-content: center; align-items: center; padding: 16px; }
         #skin-overlay.active { display: flex; }
-        .skin-overlay-container { position: relative; max-width: 380px; width: 100%; max-height: 88dvh; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background: linear-gradient(160deg, rgba(10,14,22,0.97) 0%, rgba(6,8,13,0.99) 100%); border: 1.5px solid rgba(0,240,255,0.3); border-radius: 22px; padding: 18px; box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 40px rgba(0,240,255,0.12); }
+        .skin-overlay-container {
+            position: relative; max-width: 380px; width: 100%; max-height: 88dvh; overflow-y: auto;
+            display: flex; flex-direction: column; gap: 14px;
+            background:
+                radial-gradient(140% 90% at 0% 0%, rgba(0,240,255,0.10) 0%, transparent 55%),
+                radial-gradient(120% 80% at 100% 0%, rgba(191,90,242,0.12) 0%, transparent 55%),
+                linear-gradient(165deg, rgba(12,15,24,0.98) 0%, rgba(6,8,13,0.99) 100%);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 26px; padding: 20px 18px 18px;
+            box-shadow: 0 24px 70px rgba(0,0,0,0.65), 0 0 50px rgba(0,240,255,0.10), inset 0 1px 0 rgba(255,255,255,0.06);
+        }
+        .skin-overlay-container::before { content: ''; position: absolute; top: 0; left: 16px; right: 16px; height: 3px; border-radius: 0 0 6px 6px; background: linear-gradient(90deg, #00f0ff, #bf5af2, #ff2adf); box-shadow: 0 0 16px rgba(191,90,242,0.6); }
 
         /* ===== Витрина скинов персонажа ===== */
-        .skin-tab-row { display: flex; gap: 10px; }
-        .skin-tab-btn { flex: 1; padding: 12px 14px; font-size: 12.5px; background: rgba(255,255,255,0.05); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1.5px solid rgba(255,255,255,0.15); color: var(--text-muted); border-radius: 14px; font-weight: 800; letter-spacing: 0.3px; transition: all 0.25s ease; cursor: pointer; }
-        .skin-tab-btn:hover { border-color: rgba(0,240,255,0.4); background: rgba(255,255,255,0.08); }
-        .skin-tab-btn.active { background: linear-gradient(135deg, #00f0ff 0%, #0072ff 100%); color: #001b1f; border: 1.5px solid rgba(0,240,255,0.85); box-shadow: 0 0 25px rgba(0,240,255,0.5), inset 0 1px 0 rgba(255,255,255,0.25); }
+        .skin-tab-row { display: flex; gap: 6px; padding: 5px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; }
+        .skin-tab-btn { flex: 1; padding: 11px 12px; font-size: 12px; background: transparent; border: none; color: var(--text-muted); border-radius: 12px; font-weight: 800; letter-spacing: 0.2px; transition: all 0.25s ease; cursor: pointer; }
+        .skin-tab-btn:hover { color: #fff; }
+        .skin-tab-btn.active { background: linear-gradient(135deg, #00f0ff 0%, #7d5bff 55%, #bf5af2 100%); color: #04121a; box-shadow: 0 4px 16px rgba(125,91,255,0.45), inset 0 1px 0 rgba(255,255,255,0.35); }
         .skin-tab-pane { display: none; flex-direction: column; gap: 12px; }
         .skin-tab-pane.active { display: flex; }
-        .skin-shop-empty-note { text-align: center; font-size: 12px; font-weight: 700; color: var(--text-muted); background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 14px; padding: 18px 14px; }
+        .skin-shop-empty-note { text-align: center; font-size: 12px; font-weight: 700; color: var(--text-muted); background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 16px; padding: 20px 14px; }
         .skin-wardrobe-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .skin-wardrobe-card { position: relative; background: linear-gradient(150deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%), rgba(14,16,25,0.92); border: 1.5px solid color-mix(in srgb, var(--skin-color) 45%, rgba(255,255,255,0.12)); border-radius: 16px; padding: 12px 10px; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
-        .skin-wardrobe-card.equipped { border-color: var(--skin-color); box-shadow: 0 0 18px color-mix(in srgb, var(--skin-color) 40%, transparent); }
-        .skin-wardrobe-preview { width: 56px; height: 70px; flex-shrink: 0; border-radius: 13px; display: flex; align-items: center; justify-content: center; background: linear-gradient(160deg, rgba(255,255,255,0.09), rgba(255,255,255,0.02)); border: 1.5px solid var(--skin-color); box-shadow: inset 0 1px 0 rgba(255,255,255,0.25), 0 0 14px color-mix(in srgb, var(--skin-color) 35%, transparent); overflow: hidden; padding: 3px 6px; }
+        .skin-wardrobe-card { position: relative; background: linear-gradient(155deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.015) 60%, rgba(0,0,0,0.1) 100%), rgba(13,16,26,0.9); border: 1px solid color-mix(in srgb, var(--skin-color) 38%, rgba(255,255,255,0.10)); border-radius: 18px; padding: 14px 10px 12px; display: flex; flex-direction: column; align-items: center; gap: 9px; text-align: center; overflow: hidden; transition: transform 0.18s ease, box-shadow 0.18s ease; }
+        .skin-wardrobe-card::before { content: ''; position: absolute; inset: 0; opacity: 0.14; pointer-events: none; background: radial-gradient(circle at 50% -10%, var(--skin-color) 0%, transparent 62%); }
+        .skin-wardrobe-card.equipped { border-color: var(--skin-color); box-shadow: 0 0 20px color-mix(in srgb, var(--skin-color) 38%, transparent), inset 0 1px 0 rgba(255,255,255,0.12); }
+        .skin-wardrobe-card.equipped::after { content: '⚡'; position: absolute; top: 8px; right: 8px; width: 20px; height: 20px; border-radius: 50%; background: var(--skin-color); color: #04121a; font-size: 11px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 10px color-mix(in srgb, var(--skin-color) 60%, transparent); }
+        .skin-wardrobe-preview { position: relative; width: 58px; height: 72px; flex-shrink: 0; border-radius: 14px; display: flex; align-items: center; justify-content: center; background: linear-gradient(165deg, rgba(255,255,255,0.10), rgba(255,255,255,0.015)); border: 1.5px solid var(--skin-color); box-shadow: inset 0 1px 0 rgba(255,255,255,0.28), 0 0 16px color-mix(in srgb, var(--skin-color) 38%, transparent); overflow: hidden; padding: 3px 6px; z-index: 1; }
         .skin-wardrobe-preview svg { width: 100%; height: 100%; display: block; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.4)); }
-        .skin-wardrobe-name { font-size: 11px; font-weight: 900; color: #fff; line-height: 1.3; }
-        .skin-wardrobe-card .skin-btn-pill { width: 100%; padding: 8px 10px; font-size: 11px; }
-        .skin-shop-banners { display: flex; flex-direction: column; gap: 6px; }
-        .skin-rotation-banner { font-size: 10.5px; font-weight: 700; color: var(--text-muted); background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 12px; padding: 8px 12px; }
+        .skin-wardrobe-name { font-size: 11px; font-weight: 900; color: #fff; line-height: 1.3; position: relative; z-index: 1; }
+        .skin-wardrobe-card .skin-btn-pill { width: 100%; padding: 9px 10px; font-size: 11px; position: relative; z-index: 1; }
+        .skin-shop-banners { display: flex; flex-direction: column; gap: 7px; }
+        .skin-rotation-banner { font-size: 10.5px; font-weight: 700; color: var(--text-muted); background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 14px; padding: 9px 13px; }
         .skin-rotation-banner span { color: var(--neon-blue); font-weight: 900; }
-        .skin-discount-banner { display: none; font-size: 11.5px; font-weight: 900; color: #fff; text-align: center; background: linear-gradient(135deg, rgba(255,42,95,0.35), rgba(255,102,0,0.35)); border: 1.5px solid var(--neon-red); border-radius: 12px; padding: 9px 12px; box-shadow: 0 0 18px rgba(255,42,95,0.35); animation: skinDiscountPulse 1.6s ease-in-out infinite; }
+        .skin-discount-banner { display: none; font-size: 11.5px; font-weight: 900; color: #fff; text-align: center; background: linear-gradient(120deg, rgba(255,42,95,0.4), rgba(255,102,0,0.3), rgba(255,42,95,0.4)); background-size: 200% 100%; border: 1px solid rgba(255,110,80,0.5); border-radius: 14px; padding: 10px 12px; box-shadow: 0 0 20px rgba(255,42,95,0.3); animation: skinDiscountPulse 1.8s ease-in-out infinite; }
         .skin-discount-banner.active { display: block; }
         .skin-discount-banner span { color: #ffe082; }
-        @keyframes skinDiscountPulse { 0%, 100% { box-shadow: 0 0 12px rgba(255,42,95,0.3); } 50% { box-shadow: 0 0 24px rgba(255,42,95,0.6); } }
+        @keyframes skinDiscountPulse { 0%, 100% { box-shadow: 0 0 12px rgba(255,42,95,0.28); background-position: 0% 50%; } 50% { box-shadow: 0 0 26px rgba(255,42,95,0.55); background-position: 100% 50%; } }
 
         .skin-shop-list { display: flex; flex-direction: column; gap: 12px; }
         .skin-card {
             --skin-color: var(--neon-blue);
             position: relative;
             background:
-                radial-gradient(circle at 100% 0%, var(--skin-color) 0%, transparent 55%),
-                linear-gradient(150deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.02) 45%, rgba(0,0,0,0.15) 100%),
-                rgba(14, 16, 25, 0.92);
-            background-blend-mode: normal, normal, normal;
-            backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px);
-            border: 1.5px solid color-mix(in srgb, var(--skin-color) 45%, rgba(255,255,255,0.12));
-            border-radius: 20px; padding: 16px;
+                radial-gradient(120% 100% at 100% 0%, color-mix(in srgb, var(--skin-color) 55%, transparent) 0%, transparent 55%),
+                linear-gradient(155deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.015) 45%, rgba(0,0,0,0.18) 100%),
+                rgba(13, 15, 24, 0.94);
+            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border: 1px solid color-mix(in srgb, var(--skin-color) 40%, rgba(255,255,255,0.10));
+            border-radius: 22px; padding: 16px;
             display: flex; flex-direction: column; gap: 12px; overflow: hidden;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 10px 26px rgba(0,0,0,0.45);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 12px 30px rgba(0,0,0,0.45);
+            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
         }
-        .skin-card::before { content: ''; position: absolute; inset: 0; opacity: 0.16; pointer-events: none; background: radial-gradient(circle at 100% 0%, var(--skin-color) 0%, transparent 60%); }
-        .skin-card::after { content: ''; position: absolute; left: 0; top: 0; width: 5px; height: 100%; background: var(--skin-color); box-shadow: 0 0 12px var(--skin-color); }
-        .skin-card.equipped { border-color: var(--skin-color); box-shadow: inset 0 1px 0 rgba(255,255,255,0.14), 0 0 26px color-mix(in srgb, var(--skin-color) 45%, transparent); }
+        .skin-card:active { transform: scale(0.99); }
+        .skin-card::before { content: ''; position: absolute; width: 130px; height: 130px; top: -50px; right: -50px; border-radius: 50%; opacity: 0.22; pointer-events: none; background: radial-gradient(circle, var(--skin-color) 0%, transparent 70%); filter: blur(2px); }
+        .skin-card::after { content: ''; position: absolute; left: 0; top: 14px; bottom: 14px; width: 3px; border-radius: 3px; background: linear-gradient(180deg, var(--skin-color), transparent); box-shadow: 0 0 10px var(--skin-color); }
+        .skin-card.equipped { border-color: var(--skin-color); box-shadow: inset 0 1px 0 rgba(255,255,255,0.14), 0 0 28px color-mix(in srgb, var(--skin-color) 40%, transparent); }
         .skin-card-header { display: flex; align-items: center; gap: 14px; position: relative; z-index: 1; }
-        .skin-preview-badge { width: 60px; height: 76px; flex-shrink: 0; border-radius: 15px; display: flex; align-items: center; justify-content: center; background: linear-gradient(160deg, rgba(255,255,255,0.09), rgba(255,255,255,0.02)); border: 1.5px solid var(--skin-color); box-shadow: inset 0 1px 0 rgba(255,255,255,0.25), 0 0 16px color-mix(in srgb, var(--skin-color) 35%, transparent); overflow: hidden; padding: 4px 7px; }
+        .skin-preview-badge { position: relative; width: 62px; height: 78px; flex-shrink: 0; border-radius: 17px; display: flex; align-items: center; justify-content: center; background: linear-gradient(165deg, rgba(255,255,255,0.10), rgba(255,255,255,0.015)); border: 1.5px solid var(--skin-color); box-shadow: inset 0 1px 0 rgba(255,255,255,0.28), 0 0 18px color-mix(in srgb, var(--skin-color) 35%, transparent); overflow: hidden; padding: 4px 7px; }
         .skin-preview-badge svg { width: 100%; height: 100%; display: block; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.4)); }
         .skin-info { flex: 1; min-width: 0; }
         .skin-name-row { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
         .skin-name { font-size: 15px; font-weight: 900; color: #fff; letter-spacing: 0.2px; }
-        .skin-discount-tag { font-size: 8.5px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.4px; padding: 2px 7px; border-radius: 6px; background: rgba(255,42,95,0.25); border: 1px solid var(--neon-red); color: #ff8aa8; }
+        .skin-discount-tag { font-size: 8.5px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.4px; padding: 3px 7px; border-radius: 7px; background: linear-gradient(120deg, #ff2a5f, #ff6a3d); color: #fff; box-shadow: 0 0 10px rgba(255,42,95,0.4); }
         .skin-desc { font-size: 11px; color: var(--text-muted); margin-top: 5px; line-height: 1.45; }
-        .skin-equipped-flag { flex-shrink: 0; font-size: 9.5px; font-weight: 900; color: var(--skin-color); background: color-mix(in srgb, var(--skin-color) 18%, transparent); border: 1px solid var(--skin-color); border-radius: 8px; padding: 4px 8px; white-space: nowrap; }
-        .skin-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; position: relative; z-index: 1; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08); }
+        .skin-equipped-flag { flex-shrink: 0; font-size: 9.5px; font-weight: 900; color: #04121a; background: var(--skin-color); border-radius: 9px; padding: 5px 9px; white-space: nowrap; box-shadow: 0 0 12px color-mix(in srgb, var(--skin-color) 55%, transparent); }
+        .skin-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; position: relative; z-index: 1; padding-top: 11px; border-top: 1px solid rgba(255,255,255,0.07); }
         .skin-price-block { display: flex; align-items: baseline; gap: 6px; }
-        .skin-price-old { font-size: 11px; color: var(--text-muted); text-decoration: line-through; opacity: 0.75; }
-        .skin-price-new { font-size: 15px; font-weight: 900; color: var(--neon-gold); }
-        .skin-btn-pill { flex-shrink: 0; padding: 10px 18px; border-radius: 12px; border: none; font-weight: 800; font-size: 12px; cursor: pointer; white-space: nowrap; }
-        .skin-btn-pill.buy { background: linear-gradient(135deg, #da22ff, #9114ff); color: #fff; box-shadow: 0 4px 14px rgba(145,20,255,0.4); }
+        .skin-price-old { font-size: 11px; color: var(--text-muted); text-decoration: line-through; opacity: 0.7; }
+        .skin-price-new { font-size: 15px; font-weight: 900; background: linear-gradient(90deg, #ffd166, #ffb703); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
+        .skin-btn-pill { flex-shrink: 0; padding: 10px 18px; border-radius: 13px; border: none; font-weight: 800; font-size: 12px; cursor: pointer; white-space: nowrap; transition: transform 0.15s ease, box-shadow 0.15s ease; }
+        .skin-btn-pill:active { transform: scale(0.95); }
+        .skin-btn-pill.buy { background: linear-gradient(135deg, #00f0ff 0%, #7d5bff 55%, #da22ff 100%); color: #04121a; box-shadow: 0 4px 16px rgba(145,20,255,0.4); }
         .skin-btn-pill.buy:disabled { background: #2d3748; color: #718096; box-shadow: none; cursor: not-allowed; }
         .skin-btn-pill.equip { background: var(--glass-bg); border: 1px solid var(--skin-color); color: var(--skin-color); }
-        .skin-btn-pill.equip.active { background: var(--skin-color); color: #00161c; cursor: default; }
+        .skin-btn-pill.equip.active { background: var(--skin-color); color: #04121a; cursor: default; }
         .skin-locked-note { font-size: 10px; font-weight: 700; color: var(--text-muted); }
 
         #settings-btn { background: var(--glass-bg-strong); backdrop-filter: blur(var(--glass-blur)) saturate(180%); -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%); border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow-soft); border-radius: 16px; font-size: 13px; font-weight: 800; color: var(--text-main); }
@@ -1881,6 +1909,8 @@ transform:scale(1);
         #build-overlay .schem-tab.active { background: var(--neon-purple); color: #14041f; border-color: var(--neon-purple); }
         #gadgets-overlay .schem-tab { background: rgba(57,255,20,0.06); border-color: rgba(57,255,20,0.3); }
         #gadgets-overlay .schem-tab.active { background: var(--neon-green); color: #062b00; border-color: var(--neon-green); }
+        #market-overlay .schem-tab { background: rgba(255,183,3,0.06); border-color: rgba(255,183,3,0.3); }
+        #market-overlay .schem-tab.active { background: var(--neon-gold); color: #2a1500; border-color: var(--neon-gold); }
         #gadgets-overlay .schem-container { border-color: #39ff14; box-shadow: 0 0 30px rgba(57,255,20,0.28), inset 0 0 20px rgba(57,255,20,0.07); transition: border-color 0.25s, box-shadow 0.25s; }
         #gadgets-overlay .schem-title { color: #39ff14; transition: color 0.25s; }
         #gadgets-overlay .schem-close-btn { background: rgba(57,255,20,0.15); border-color: #39ff14; color: #39ff14; transition: background 0.25s, border-color 0.25s, color 0.25s; }
@@ -2126,6 +2156,21 @@ transform:scale(1);
         .admin-status { font-size: 10px; color: var(--text-muted); text-align: center; margin-top: 4px; }
 
         /* === Визуальный результат сделки на чёрном рынке === */
+        .update-gift-card { position: relative; overflow: hidden; border-radius: 20px; padding: 18px 16px; margin-bottom: 14px; background: linear-gradient(155deg, rgba(191,90,242,0.22) 0%, rgba(255,183,3,0.14) 60%, rgba(10,12,20,0.9) 100%), rgba(12,14,22,0.9); border: 2px solid var(--neon-gold); box-shadow: 0 0 26px rgba(255,183,3,0.35), inset 0 1px 0 rgba(255,255,255,0.12); animation: giftCardPulse 2.4s ease-in-out infinite; }
+        @keyframes giftCardPulse { 0%,100% { box-shadow: 0 0 22px rgba(255,183,3,0.3), inset 0 1px 0 rgba(255,255,255,0.12); } 50% { box-shadow: 0 0 34px rgba(255,183,3,0.55), inset 0 1px 0 rgba(255,255,255,0.18); } }
+        .update-gift-card::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 70% 60% at 20% 0%, rgba(191,90,242,0.35) 0%, transparent 70%); pointer-events: none; }
+        .update-gift-ribbon { position: absolute; top: 10px; right: -30px; background: var(--grad-accent); color: #fff; font-size: 9.5px; font-weight: 900; letter-spacing: 0.5px; padding: 4px 34px; transform: rotate(38deg); box-shadow: 0 2px 8px rgba(0,0,0,0.4); text-transform: uppercase; }
+        .update-gift-top { display: flex; align-items: center; gap: 12px; position: relative; z-index: 1; }
+        .update-gift-icon { font-size: 38px; filter: drop-shadow(0 4px 10px rgba(255,183,3,0.5)); flex-shrink: 0; }
+        .update-gift-title { font-size: 14.5px; font-weight: 900; color: var(--neon-gold); text-shadow: 0 0 10px rgba(255,183,3,0.4); margin-bottom: 3px; }
+        .update-gift-sub { font-size: 11px; color: var(--text-muted); line-height: 1.45; }
+        .update-gift-list { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
+        .update-gift-tag { font-size: 10px; font-weight: 800; padding: 5px 9px; border-radius: 20px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: var(--text-main); }
+        .update-gift-timer { position: relative; z-index: 1; font-size: 11px; font-weight: 800; color: var(--neon-red); text-align: center; margin-bottom: 10px; letter-spacing: 0.3px; }
+        .update-gift-btn { position: relative; z-index: 1; width: 100%; padding: 14px; border-radius: 13px; border: none; font-size: 13.5px; font-weight: 900; letter-spacing: 0.3px; cursor: pointer; background: var(--grad-gold); color: #2a1500; box-shadow: 0 6px 18px rgba(255,183,3,0.4), inset 0 1px 0 rgba(255,255,255,0.35); }
+        .update-gift-btn:active { transform: scale(0.98); }
+        .update-gift-btn.claimed { background: rgba(255,255,255,0.08); color: var(--text-muted); box-shadow: none; cursor: default; }
+
         #bm-result-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: rgba(4,6,10,0.85); z-index: 6650; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(8px); }
 
         /* === Карточка результата крафта (по аналогии с лутбоксом) === */
@@ -2439,8 +2484,8 @@ onclick="Core.declineEncounter()">
             <button class="bp-overlay-close" onclick="Core.closeSkinOverlay()">✕</button>
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
-                    <span style="color: var(--neon-blue); font-weight: 900; font-size: 14px;">🎨 СКИНЫ СТРАННИКА</span>
-                    <div style="font-size: 9px; color: var(--neon-gold); font-weight: bold; text-transform: uppercase;">Косметика для боевой модели</div>
+                    <span style="background: linear-gradient(90deg, #00f0ff, #bf5af2, #ff2adf); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; font-weight: 900; font-size: 15px;">🎨 СКИНЫ СТРАННИКА</span>
+                    <div style="font-size: 9px; color: var(--neon-gold); font-weight: bold; text-transform: uppercase; letter-spacing: 0.4px; margin-top: 2px;">Косметика для боевой модели</div>
                 </div>
             </div>
             <div class="skin-tab-row">
@@ -2584,7 +2629,12 @@ onclick="Core.declineEncounter()">
                     <div class="trader-quote" id="market-trader-quote">«Что продаём, путник? Неси сюда — цену не зажму, честная крышка за честный товар!»</div>
                 </div>
             </div>
+            <div class="schem-tabs">
+                <button class="schem-tab active" id="market-tab-sell" onclick="Core.switchMarketTab('sell')">💰 Продать</button>
+                <button class="schem-tab" id="market-tab-exchange" onclick="Core.switchMarketTab('exchange')">🔄 Обмен</button>
+            </div>
             <div class="schem-body" id="market-list"></div>
+            <div class="schem-body" id="market-exchange-list" style="display:none;"></div>
         </div>
     </div>
 
@@ -2616,6 +2666,16 @@ onclick="Core.declineEncounter()">
                 </div>
             </div>
             <div class="schem-body" id="blackmarket-list"></div>
+        </div>
+    </div>
+
+    <div id="gift-result-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: radial-gradient(ellipse at center top, rgba(255,183,3,0.18) 0%, rgba(4, 6, 10, 0.95) 70%); z-index: 6650; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(8px);">
+        <div class="reward-card" id="gift-result-card" style="display: block; --reward-color-r: 255; --reward-color-g: 183; --reward-color-b: 3;">
+            <div class="reward-icon">🎁</div>
+            <div class="reward-title" style="color:var(--neon-gold);">Подарок к обновлению</div>
+            <div class="reward-name" style="color:var(--neon-gold); text-shadow: 0 0 12px var(--neon-gold);">Полное восстановление сил!</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px; line-height:1.5;">ОЗ, энергия, сытость и привалы восстановлены до максимума. Радиация сброшена в ноль.</div>
+            <button class="primary reward-button" onclick="Core.closeGiftResult()">Отлично!</button>
         </div>
     </div>
 
@@ -2691,6 +2751,18 @@ onclick="Core.declineEncounter()">
             <div class="reward-name" id="craft-result-name"></div>
             <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;" id="craft-result-stat"></div>
             <button class="primary reward-button" onclick="Core.closeCraftResult()">Отлично!</button>
+        </div>
+    </div>
+
+    <div id="nickname-gate-overlay">
+        <div class="nick-gate-card">
+            <div class="nick-gate-icon">🧭</div>
+            <div class="nick-gate-title">Добро пожаловать в Пустошь!</div>
+            <div class="nick-gate-sub">Прежде чем выйти на разведку, представься. Позывной будет виден в рейтингах и профиле — придумай его с умом, первая смена бесплатна, дальше уже за ваучеры.</div>
+            <input type="text" id="nickname-gate-input" class="nick-gate-input" maxlength="18" placeholder="Ваш позывной"
+                onkeydown="if(event.key==='Enter'){Core.submitNicknameGate(); this.blur();}">
+            <div class="nick-gate-feedback" id="nickname-gate-feedback"></div>
+            <button class="nick-gate-btn" onclick="Core.submitNicknameGate()">🚀 В Пустошь!</button>
         </div>
     </div>
 
@@ -2862,6 +2934,7 @@ onclick="Core.declineEncounter()">
     </div>
 
     <div id="screen-shop" class="screen-overlay">
+        <div id="update-gift-container"></div>
         <div class="bp-collapsed-bar" onclick="Core.openBpOverlay()">
             <div>
                 <span class="bp-collapsed-title">ПРОПУСК ПУСТОШИ</span>
@@ -4779,14 +4852,14 @@ onclick="Core.declineEncounter()">
             const list = [];
             const oldRewards = [
                 { lvl: 1, free: { name: "Запчасти x2", type: "item", item: "Запчасти", qty: 2 }, prem: { name: "🔫 Самопал", type: "wpn", wpnId: "pistol" } },
-                { lvl: 2, free: { name: "Крышки x5", type: "caps", qty: 5 }, prem: { name: "Запчасти x10", type: "item", item: "Запчасти", qty: 10 } },
+                { lvl: 2, free: { name: "Крышки x3", type: "caps", qty: 3 }, prem: { name: "Запчасти x10", type: "item", item: "Запчасти", qty: 10 } },
                 { lvl: 3, free: { name: "Сырое мясо x1", type: "item", item: "Сырое мясо", qty: 1 }, prem: { name: "🏷️ Ваучеры x3", type: "voucher", qty: 3 } },
-                { lvl: 4, free: { name: "Крышки x10", type: "caps", qty: 10 }, prem: { name: "🔋 Блок x2", type: "energy_pack", qty: 2 } },
+                { lvl: 4, free: { name: "Крышки x6", type: "caps", qty: 6 }, prem: { name: "🔋 Блок x2", type: "energy_pack", qty: 2 } },
                 { lvl: 5, free: { name: "🏷️ Ваучер x1", type: "voucher", qty: 1 }, prem: { name: "💉 Мед-Пакет x3", type: "hp_pack", qty: 3 } },
                 { lvl: 6, free: { name: "Запчасти x3", type: "item", item: "Запчасти", qty: 3 }, prem: { name: "🏷️ Ваучеры x5", type: "voucher", qty: 5 } },
                 { lvl: 7, free: { name: "Жареная крыса x1", type: "food", food: "Жареное мясо крысы", qty: 1 }, prem: { name: "Тяжелый Хлам x5", type: "item", item: "Тяжелый Хлам", qty: 5 } },
                 { lvl: 8, free: { name: "🏷️ Ваучеры x3", type: "voucher", qty: 3 }, prem: { name: "🏷️ Ваучеры x5", type: "voucher", qty: 5 } },
-                { lvl: 9, free: { name: "Крышки x15", type: "caps", qty: 15 }, prem: { name: "🧬 Сыворотка ОЗ x2", type: "maxhp", qty: 2 } },
+                { lvl: 9, free: { name: "Крышки x9", type: "caps", qty: 9 }, prem: { name: "🧬 Сыворотка ОЗ x2", type: "maxhp", qty: 2 } },
                 { lvl: 10, free: { name: "🏷️ Ваучеры x6", type: "voucher", qty: 6 }, prem: { name: "🔥 Винтовка Гаусса", type: "wpn", wpnId: "gauss" } }
             ];
 
@@ -4801,16 +4874,16 @@ onclick="Core.declineEncounter()">
                     list.push({
                         lvl: i,
                         free: i % 5 === 0
-                            ? { name: `Крышки x${20 + (i%25)}`, type: "caps", qty: 20 + (i%25) }
+                            ? { name: `Крышки x${13 + (i%16)}`, type: "caps", qty: 13 + (i%16) }
                             : { name: `Запчасти x${1 + (i%3)}`, type: "item", item: "Запчасти", qty: 1 + (i%3) },
-                        prem: { name: `Крышки x${10 + (i%5)*2}`, type: "caps", qty: 10 + (i%5)*2 }
+                        prem: { name: `Крышки x${6 + (i%5)}`, type: "caps", qty: 6 + (i%5) }
                     });
                 } else {
                     // Промежуточные новые уровни (без добавления лишних ваучеров)
                     list.push({
                         lvl: i,
                         free: { name: `Запчасти x${1 + (i%3)}`, type: "item", item: "Запчасти", qty: 1 + (i%3) },
-                        prem: { name: `Крышки x${10 + (i%5)*2}`, type: "caps", qty: 10 + (i%5)*2 }
+                        prem: { name: `Крышки x${6 + (i%5)}`, type: "caps", qty: 6 + (i%5) }
                     });
                 }
             }
@@ -4831,7 +4904,7 @@ onclick="Core.declineEncounter()">
             // Принудительно очищаем автогенерацию ваучеров и ставим их строго на их новые позиции (например, х5 от старых)
             list.forEach(item => {
                 if(item.free.type === 'voucher') item.free = { name: "Запчасти x3", type: "item", item: "Запчасти", qty: 3 };
-                if(item.prem.type === 'voucher') item.prem = { name: "Крышки x20", type: "caps", qty: 20 };
+                if(item.prem.type === 'voucher') item.prem = { name: "Крышки x12", type: "caps", qty: 12 };
             });
             
             // Назначаем ваучеры на фиксированные уровни (умноженные на 5, чтобы распределить до 50)
@@ -4877,17 +4950,17 @@ onclick="Core.declineEncounter()">
 
         const DB = {
             biomes: [
-                { id: 0, name: "🪨 Неоновые Руины", minLvl: 1, bossDefeatedId: null, theme: { c1: "#00f0ff", c2: "#bf5af2", c3: "#ff2a5f", c4: "#ffb703", glow: "#111827", atmo: "rgba(0,240,255,0.10)", accent: "#00f0ff", accentSoft: "rgba(0,240,255,0.35)" }, enemies: [{ name: "Рад-Таракан", hp: 32, dmg: 6, armor: 0, class: "Быстрый", exp: 15 }, { name: "Кибер-Крыса", hp: 54, dmg: 7, armor: 1, class: "Обычный", exp: 25 }], boss: { name: "👑 Взбешенный Минори", hp: 95, dmg: 6, armor: 2, class: "Босс", exp: 120, rewardCaps: 25 } },
-                { id: 1, name: "🏚️ Ржавый Посёлок", minLvl: 10, bossDefeatedId: 0, theme: { c1: "#ff8a3d", c2: "#b5651d", c3: "#ffcf6b", c4: "#8c5a2b", glow: "#241a10", atmo: "rgba(255,140,50,0.12)", accent: "#ff9a3d", accentSoft: "rgba(255,154,61,0.35)" }, enemies: [{ name: "Слепой Гуль", hp: 52, dmg: 8, armor: 1, class: "Кровожадный", exp: 35 }, { name: "Сточный Клерк", hp: 64, dmg: 9, armor: 3, class: "Бронированный", exp: 45 }], boss: { name: "👑 Мясник Коллектора", hp: 220, dmg: 16, armor: 6, class: "Босс", exp: 300, rewardCaps: 60 } },
-                { id: 2, name: "🌆 Неоновый Сити-Центр", minLvl: 20, bossDefeatedId: 1, theme: { c1: "#ff00c8", c2: "#00fff2", c3: "#7d2aff", c4: "#0080ff", glow: "#1a0f26", atmo: "rgba(255,0,200,0.10)", accent: "#ff2adf", accentSoft: "rgba(255,42,223,0.35)" }, enemies: [{ name: "Дрон-Охотник", hp: 120, dmg: 18, armor: 6, class: "Быстрый", exp: 70 }, { name: "Штурмотрон v5", hp: 160, dmg: 24, armor: 10, class: "Бронированный", exp: 100 }], boss: { name: "👑 Главный Архитектор", hp: 550, dmg: 38, armor: 15, class: "Босс", exp: 600, rewardCaps: 125 } },
-                { id: 3, name: "☢️ Радиоактивный Лес", minLvl: 30, bossDefeatedId: 2, hazard: { key: "rad", label: "Радиация", icon: "☢️", color: "#39ff14", rate: 6, tiers: [ { min: 25, dmgTakenMult: 1.10 }, { min: 50, dmgTakenMult: 1.20, dodgeDelta: -5 }, { min: 75, dmgTakenMult: 1.35, dodgeDelta: -10, regenMult: 2 } ] }, theme: { c1: "#39ff14", c2: "#a4ff00", c3: "#0f9d58", c4: "#c8ff3d", glow: "#0e1a0a", atmo: "rgba(57,255,20,0.12)", accent: "#39ff14", accentSoft: "rgba(57,255,20,0.35)" }, enemies: [{ name: "Зараженный Олень", hp: 240, dmg: 30, armor: 10, class: "Кровожадный", exp: 150 }, { name: "Лесной Леший", hp: 300, dmg: 35, armor: 14, class: "Тяжеловес", exp: 200 }], boss: { name: "👑 Древесный Кошмар", hp: 950, dmg: 58, armor: 25, class: "Босс", exp: 1200, rewardCaps: 250 } },
-                { id: 4, name: "❄️ Ледяная Пустошь", minLvl: 40, bossDefeatedId: 3, hazard: { key: "cold", label: "Обморожение", icon: "🥶", color: "#7fdfff", rate: 5, tiers: [ { min: 25, dmgDealtMult: 0.95 }, { min: 50, dmgDealtMult: 0.85 }, { min: 75, dmgDealtMult: 0.70, dodgeDelta: -8 } ] }, theme: { c1: "#7fdfff", c2: "#c9f3ff", c3: "#3a8fd6", c4: "#e8fbff", glow: "#0c1a22", atmo: "rgba(150,230,255,0.14)", accent: "#7fdfff", accentSoft: "rgba(127,223,255,0.35)" }, enemies: [{ name: "Замёрзший Беглец", hp: 420, dmg: 48, armor: 16, class: "Быстрый", exp: 300 }, { name: "Ледяной Сталкер", hp: 500, dmg: 56, armor: 22, class: "Кровожадный", exp: 400 }], boss: { name: "👑 Снежный Тиран", hp: 1700, dmg: 90, armor: 45, class: "Босс", exp: 2500, rewardCaps: 500 } },
-                { id: 5, name: "🏭 Заброшенный Завод", minLvl: 50, bossDefeatedId: 4, hazard: { key: "toxic", label: "Токсины", icon: "☣️", color: "#ffcc00", rate: 6, tiers: [ { min: 25, regenMult: 1.5 }, { min: 50, regenMult: 2, satietyMult: 1.5 }, { min: 75, regenBlocked: true, satietyMult: 2 } ] }, theme: { c1: "#ff8800", c2: "#5a5f6b", c3: "#ffcc00", c4: "#802b00", glow: "#1c1a14", atmo: "rgba(255,136,0,0.10)", accent: "#ffb020", accentSoft: "rgba(255,176,32,0.35)" }, enemies: [{ name: "Авто-Турель x4", hp: 680, dmg: 72, armor: 35, class: "Бронированный", exp: 650 }, { name: "Робот-Погрузчик", hp: 850, dmg: 84, armor: 52, class: "Тяжеловес", exp: 800 }], boss: { name: "👑 ИИ 'Центурион'", hp: 3200, dmg: 140, armor: 85, class: "Босс", exp: 5000, rewardCaps: 1000 } },
-                { id: 6, name: "🌋 Огненный Кратер", minLvl: 60, bossDefeatedId: 5, hazard: { key: "heat", label: "Перегрев", icon: "🔥", color: "#ff5722", rate: 7, tiers: [ { min: 25, dmgTakenMult: 1.10 }, { min: 50, dmgTakenMult: 1.25, armorDelta: -3 }, { min: 75, dmgTakenMult: 1.40, armorDelta: -6, dodgeDelta: -5 } ] }, theme: { c1: "#ff3300", c2: "#ff8800", c3: "#990000", c4: "#ffcc00", glow: "#220a04", atmo: "rgba(255,51,0,0.14)", accent: "#ff5722", accentSoft: "rgba(255,87,34,0.4)" }, enemies: [{ name: "Магматический Слизень", hp: 1300, dmg: 115, armor: 65, class: "Кровожадный", exp: 1300 }, { name: "Пепельный Скиталец", hp: 1600, dmg: 135, armor: 80, class: "Тяжеловес", exp: 1600 }], boss: { name: "👑 Владыка Пепла", hp: 6500, dmg: 230, armor: 130, class: "Босс", exp: 9000, rewardCaps: 2500 } },
-                { id: 7, name: "⚡ Грозовые Пустоши", minLvl: 70, bossDefeatedId: 6, hazard: { key: "shock", label: "Электро-Разряд", icon: "⚡", color: "#00e5ff", rate: 7, tiers: [ { min: 25, dodgeDelta: -6 }, { min: 50, dodgeDelta: -12, dmgTakenMult: 1.15 }, { min: 75, dodgeDelta: -18, dmgTakenMult: 1.30, armorDelta: -5 } ] }, theme: { c1: "#00e5ff", c2: "#ffe600", c3: "#3d3d80", c4: "#ffffff", glow: "#0a1420", atmo: "rgba(0,229,255,0.14)", accent: "#ffe600", accentSoft: "rgba(255,230,0,0.4)" }, enemies: [{ name: "Штормовой Мутант", hp: 1550, dmg: 135, armor: 75, class: "Быстрый", exp: 1650 }, { name: "Наэлектризованный Жнец", hp: 1930, dmg: 160, armor: 91, class: "Кровожадный", exp: 2050 }], boss: { name: "👑 Повелитель Грозы", hp: 8200, dmg: 280, armor: 150, class: "Босс", exp: 11500, rewardCaps: 3300 } },
-                { id: 8, name: "🦠 Зона Карантина", minLvl: 80, bossDefeatedId: 7, hazard: { key: "plague", label: "Чумной Мор", icon: "🦠", color: "#a8ff60", rate: 7, tiers: [ { min: 25, satietyMult: 1.3 }, { min: 50, satietyMult: 1.6, regenMult: 1.5 }, { min: 75, satietyMult: 2, regenBlocked: true } ] }, theme: { c1: "#a8ff60", c2: "#004d26", c3: "#e0ffe0", c4: "#1a3d1a", glow: "#0a1a0a", atmo: "rgba(168,255,96,0.12)", accent: "#a8ff60", accentSoft: "rgba(168,255,96,0.4)" }, enemies: [{ name: "Заражённый Санитар", hp: 1850, dmg: 160, armor: 86, class: "Тяжеловес", exp: 2050 }, { name: "Мутант-Носитель", hp: 2330, dmg: 190, armor: 104, class: "Кровожадный", exp: 2600 }], boss: { name: "👑 Пациент Ноль", hp: 10300, dmg: 340, armor: 170, class: "Босс", exp: 15000, rewardCaps: 4300 } },
-                { id: 9, name: "☄️ Обломки Станции «Икар»", minLvl: 90, bossDefeatedId: 8, hazard: { key: "vacuum", label: "Декомпрессия", icon: "🌌", color: "#5566ff", rate: 8, tiers: [ { min: 25, dmgTakenMult: 1.15 }, { min: 50, dmgTakenMult: 1.30, dodgeDelta: -10 }, { min: 75, dmgTakenMult: 1.50, dodgeDelta: -18, dmgDealtMult: 0.85 } ] }, theme: { c1: "#5566ff", c2: "#0a0a2a", c3: "#c0c8ff", c4: "#ff2a5f", glow: "#05050f", atmo: "rgba(85,102,255,0.16)", accent: "#8fa8ff", accentSoft: "rgba(143,168,255,0.4)" }, enemies: [{ name: "Дрон-Разведчик «Икар»", hp: 2200, dmg: 190, armor: 99, class: "Быстрый", exp: 2550 }, { name: "Обезумевший Киборг", hp: 2800, dmg: 225, armor: 118, class: "Бронированный", exp: 3300 }], boss: { name: "👑 Капитан «Призрак»", hp: 13000, dmg: 410, armor: 195, class: "Босс", exp: 19500, rewardCaps: 5700 } },
-                { id: 10, name: "👑 Цитадель Омега", minLvl: 100, bossDefeatedId: 9, hazard: { key: "psi", label: "Пси-Давление", icon: "🧠", color: "#bf5af2", rate: 8, tiers: [ { min: 25, dodgeDelta: -5 }, { min: 50, dodgeDelta: -10, dmgDealtMult: 0.9 }, { min: 75, dodgeDelta: -15, dmgDealtMult: 0.75, dmgTakenMult: 1.15 } ] }, theme: { c1: "#bf5af2", c2: "#ffd700", c3: "#ff2a5f", c4: "#f8fafc", glow: "#180a20", atmo: "rgba(191,90,242,0.14)", accent: "#ffd700", accentSoft: "rgba(255,215,0,0.4)" }, enemies: [{ name: "Страж Цитадели", hp: 2600, dmg: 220, armor: 115, class: "Бронированный", exp: 3200 }, { name: "Гвардеец Омега", hp: 3400, dmg: 260, armor: 135, class: "Тяжеловес", exp: 4200 }], boss: { name: "👑 ИМПЕРАТОР ОМЕГА", hp: 16000, dmg: 480, armor: 220, class: "Босс", exp: 25000, rewardCaps: 7500 } }
+                { id: 0, name: "🪨 Неоновые Руины", minLvl: 1, bossDefeatedId: null, theme: { c1: "#00f0ff", c2: "#bf5af2", c3: "#ff2a5f", c4: "#ffb703", glow: "#111827", atmo: "rgba(0,240,255,0.10)", accent: "#00f0ff", accentSoft: "rgba(0,240,255,0.35)" }, enemies: [{ name: "Рад-Таракан", hp: 32, dmg: 6, armor: 0, class: "Быстрый", exp: 15 }, { name: "Кибер-Крыса", hp: 54, dmg: 7, armor: 1, class: "Обычный", exp: 25 }], boss: { name: "👑 Взбешенный Минори", hp: 95, dmg: 6, armor: 2, class: "Босс", exp: 120, rewardCaps: 18 } },
+                { id: 1, name: "🏚️ Ржавый Посёлок", minLvl: 10, bossDefeatedId: 0, theme: { c1: "#ff8a3d", c2: "#b5651d", c3: "#ffcf6b", c4: "#8c5a2b", glow: "#241a10", atmo: "rgba(255,140,50,0.12)", accent: "#ff9a3d", accentSoft: "rgba(255,154,61,0.35)" }, enemies: [{ name: "Слепой Гуль", hp: 52, dmg: 8, armor: 1, class: "Кровожадный", exp: 35 }, { name: "Сточный Клерк", hp: 64, dmg: 9, armor: 3, class: "Бронированный", exp: 45 }], boss: { name: "👑 Мясник Коллектора", hp: 220, dmg: 16, armor: 6, class: "Босс", exp: 300, rewardCaps: 40 } },
+                { id: 2, name: "🌆 Неоновый Сити-Центр", minLvl: 20, bossDefeatedId: 1, theme: { c1: "#ff00c8", c2: "#00fff2", c3: "#7d2aff", c4: "#0080ff", glow: "#1a0f26", atmo: "rgba(255,0,200,0.10)", accent: "#ff2adf", accentSoft: "rgba(255,42,223,0.35)" }, enemies: [{ name: "Дрон-Охотник", hp: 120, dmg: 18, armor: 6, class: "Быстрый", exp: 70 }, { name: "Штурмотрон v5", hp: 160, dmg: 24, armor: 10, class: "Бронированный", exp: 100 }], boss: { name: "👑 Главный Архитектор", hp: 550, dmg: 38, armor: 15, class: "Босс", exp: 600, rewardCaps: 85 } },
+                { id: 3, name: "☢️ Радиоактивный Лес", minLvl: 30, bossDefeatedId: 2, hazard: { key: "rad", label: "Радиация", icon: "☢️", color: "#39ff14", rate: 6, tiers: [ { min: 25, dmgTakenMult: 1.10 }, { min: 50, dmgTakenMult: 1.20, dodgeDelta: -5 }, { min: 75, dmgTakenMult: 1.35, dodgeDelta: -10, regenMult: 2 } ] }, theme: { c1: "#39ff14", c2: "#a4ff00", c3: "#0f9d58", c4: "#c8ff3d", glow: "#0e1a0a", atmo: "rgba(57,255,20,0.12)", accent: "#39ff14", accentSoft: "rgba(57,255,20,0.35)" }, enemies: [{ name: "Зараженный Олень", hp: 240, dmg: 30, armor: 10, class: "Кровожадный", exp: 150 }, { name: "Лесной Леший", hp: 300, dmg: 35, armor: 14, class: "Тяжеловес", exp: 200 }], boss: { name: "👑 Древесный Кошмар", hp: 950, dmg: 58, armor: 25, class: "Босс", exp: 1200, rewardCaps: 170 } },
+                { id: 4, name: "❄️ Ледяная Пустошь", minLvl: 40, bossDefeatedId: 3, hazard: { key: "cold", label: "Обморожение", icon: "🥶", color: "#7fdfff", rate: 5, tiers: [ { min: 25, dmgDealtMult: 0.95 }, { min: 50, dmgDealtMult: 0.85 }, { min: 75, dmgDealtMult: 0.70, dodgeDelta: -8 } ] }, theme: { c1: "#7fdfff", c2: "#c9f3ff", c3: "#3a8fd6", c4: "#e8fbff", glow: "#0c1a22", atmo: "rgba(150,230,255,0.14)", accent: "#7fdfff", accentSoft: "rgba(127,223,255,0.35)" }, enemies: [{ name: "Замёрзший Беглец", hp: 420, dmg: 48, armor: 16, class: "Быстрый", exp: 300 }, { name: "Ледяной Сталкер", hp: 500, dmg: 56, armor: 22, class: "Кровожадный", exp: 400 }], boss: { name: "👑 Снежный Тиран", hp: 1700, dmg: 90, armor: 45, class: "Босс", exp: 2500, rewardCaps: 340 } },
+                { id: 5, name: "🏭 Заброшенный Завод", minLvl: 50, bossDefeatedId: 4, hazard: { key: "toxic", label: "Токсины", icon: "☣️", color: "#ffcc00", rate: 6, tiers: [ { min: 25, regenMult: 1.5 }, { min: 50, regenMult: 2, satietyMult: 1.5 }, { min: 75, regenBlocked: true, satietyMult: 2 } ] }, theme: { c1: "#ff8800", c2: "#5a5f6b", c3: "#ffcc00", c4: "#802b00", glow: "#1c1a14", atmo: "rgba(255,136,0,0.10)", accent: "#ffb020", accentSoft: "rgba(255,176,32,0.35)" }, enemies: [{ name: "Авто-Турель x4", hp: 680, dmg: 72, armor: 35, class: "Бронированный", exp: 650 }, { name: "Робот-Погрузчик", hp: 850, dmg: 84, armor: 52, class: "Тяжеловес", exp: 800 }], boss: { name: "👑 ИИ 'Центурион'", hp: 3200, dmg: 140, armor: 85, class: "Босс", exp: 5000, rewardCaps: 680 } },
+                { id: 6, name: "🌋 Огненный Кратер", minLvl: 60, bossDefeatedId: 5, hazard: { key: "heat", label: "Перегрев", icon: "🔥", color: "#ff5722", rate: 7, tiers: [ { min: 25, dmgTakenMult: 1.10 }, { min: 50, dmgTakenMult: 1.25, armorDelta: -3 }, { min: 75, dmgTakenMult: 1.40, armorDelta: -6, dodgeDelta: -5 } ] }, theme: { c1: "#ff3300", c2: "#ff8800", c3: "#990000", c4: "#ffcc00", glow: "#220a04", atmo: "rgba(255,51,0,0.14)", accent: "#ff5722", accentSoft: "rgba(255,87,34,0.4)" }, enemies: [{ name: "Магматический Слизень", hp: 1300, dmg: 115, armor: 65, class: "Кровожадный", exp: 1300 }, { name: "Пепельный Скиталец", hp: 1600, dmg: 135, armor: 80, class: "Тяжеловес", exp: 1600 }], boss: { name: "👑 Владыка Пепла", hp: 6500, dmg: 230, armor: 130, class: "Босс", exp: 9000, rewardCaps: 1700 } },
+                { id: 7, name: "⚡ Грозовые Пустоши", minLvl: 70, bossDefeatedId: 6, hazard: { key: "shock", label: "Электро-Разряд", icon: "⚡", color: "#00e5ff", rate: 7, tiers: [ { min: 25, dodgeDelta: -6 }, { min: 50, dodgeDelta: -12, dmgTakenMult: 1.15 }, { min: 75, dodgeDelta: -18, dmgTakenMult: 1.30, armorDelta: -5 } ] }, theme: { c1: "#00e5ff", c2: "#ffe600", c3: "#3d3d80", c4: "#ffffff", glow: "#0a1420", atmo: "rgba(0,229,255,0.14)", accent: "#ffe600", accentSoft: "rgba(255,230,0,0.4)" }, enemies: [{ name: "Штормовой Мутант", hp: 1550, dmg: 135, armor: 75, class: "Быстрый", exp: 1650 }, { name: "Наэлектризованный Жнец", hp: 1930, dmg: 160, armor: 91, class: "Кровожадный", exp: 2050 }], boss: { name: "👑 Повелитель Грозы", hp: 8200, dmg: 280, armor: 150, class: "Босс", exp: 11500, rewardCaps: 2250 } },
+                { id: 8, name: "🦠 Зона Карантина", minLvl: 80, bossDefeatedId: 7, hazard: { key: "plague", label: "Чумной Мор", icon: "🦠", color: "#a8ff60", rate: 7, tiers: [ { min: 25, satietyMult: 1.3 }, { min: 50, satietyMult: 1.6, regenMult: 1.5 }, { min: 75, satietyMult: 2, regenBlocked: true } ] }, theme: { c1: "#a8ff60", c2: "#004d26", c3: "#e0ffe0", c4: "#1a3d1a", glow: "#0a1a0a", atmo: "rgba(168,255,96,0.12)", accent: "#a8ff60", accentSoft: "rgba(168,255,96,0.4)" }, enemies: [{ name: "Заражённый Санитар", hp: 1850, dmg: 160, armor: 86, class: "Тяжеловес", exp: 2050 }, { name: "Мутант-Носитель", hp: 2330, dmg: 190, armor: 104, class: "Кровожадный", exp: 2600 }], boss: { name: "👑 Пациент Ноль", hp: 10300, dmg: 340, armor: 170, class: "Босс", exp: 15000, rewardCaps: 2950 } },
+                { id: 9, name: "☄️ Обломки Станции «Икар»", minLvl: 90, bossDefeatedId: 8, hazard: { key: "vacuum", label: "Декомпрессия", icon: "🌌", color: "#5566ff", rate: 8, tiers: [ { min: 25, dmgTakenMult: 1.15 }, { min: 50, dmgTakenMult: 1.30, dodgeDelta: -10 }, { min: 75, dmgTakenMult: 1.50, dodgeDelta: -18, dmgDealtMult: 0.85 } ] }, theme: { c1: "#5566ff", c2: "#0a0a2a", c3: "#c0c8ff", c4: "#ff2a5f", glow: "#05050f", atmo: "rgba(85,102,255,0.16)", accent: "#8fa8ff", accentSoft: "rgba(143,168,255,0.4)" }, enemies: [{ name: "Дрон-Разведчик «Икар»", hp: 2200, dmg: 190, armor: 99, class: "Быстрый", exp: 2550 }, { name: "Обезумевший Киборг", hp: 2800, dmg: 225, armor: 118, class: "Бронированный", exp: 3300 }], boss: { name: "👑 Капитан «Призрак»", hp: 13000, dmg: 410, armor: 195, class: "Босс", exp: 19500, rewardCaps: 3900 } },
+                { id: 10, name: "👑 Цитадель Омега", minLvl: 100, bossDefeatedId: 9, hazard: { key: "psi", label: "Пси-Давление", icon: "🧠", color: "#bf5af2", rate: 8, tiers: [ { min: 25, dodgeDelta: -5 }, { min: 50, dodgeDelta: -10, dmgDealtMult: 0.9 }, { min: 75, dodgeDelta: -15, dmgDealtMult: 0.75, dmgTakenMult: 1.15 } ] }, theme: { c1: "#bf5af2", c2: "#ffd700", c3: "#ff2a5f", c4: "#f8fafc", glow: "#180a20", atmo: "rgba(191,90,242,0.14)", accent: "#ffd700", accentSoft: "rgba(255,215,0,0.4)" }, enemies: [{ name: "Страж Цитадели", hp: 2600, dmg: 220, armor: 115, class: "Бронированный", exp: 3200 }, { name: "Гвардеец Омега", hp: 3400, dmg: 260, armor: 135, class: "Тяжеловес", exp: 4200 }], boss: { name: "👑 ИМПЕРАТОР ОМЕГА", hp: 16000, dmg: 480, armor: 220, class: "Босс", exp: 25000, rewardCaps: 5100 } }
             ],
             // Прирост порога опыта (nextExp) за левелап, по "тиру" уровня: tier = min(10, floor(lvl/10)).
             // Раньше прирост был всегда фиксированным +25, а награда за опыт по биомам растёт в разы —
@@ -5117,6 +5190,8 @@ onclick="Core.declineEncounter()">
                 fishRarity: { "Обычная": 3, "Необычная": 5, "Редкая": 9, "Эпическая": 16, "Легендарная": 30 },
                 cooked: { "Жареное мясо крысы": 4, "Питательный Рад-Суп": 9 }
             },
+            // ===== Обмен на рынке (Тяжёлый Хлам -> Запчасти, фиксированный курс) =====
+            exchangeRate: { heavyToParts: 3 },
             // ===== Чёрный рынок (оружие, удочки, ядерные батареи; цену назначает игрок) =====
             blackMarket: {
                 voucherRate: 20, // условная оценка: 1 ваучер ≈ 20 крышек
@@ -5203,7 +5278,7 @@ onclick="Core.declineEncounter()">
                 // special/accent/glow задают уникальный (не золотой) оттенок карточки титула и его значка.
                 { id: "amurchikVip", icon: "💜", name: "Награждён Амурчиком", desc: "Выдаётся эксклюзивно по промокоду. Оттенок титула отличается от всех остальных.", check: p => false, special: true, accent: "#bf5af2", glow: "rgba(191,90,242,0.4)" },
                 { id: "titleRealClown", icon: "🤡", name: "Real Clown", desc: "Выдаётся эксклюзивно по промокоду.", check: p => false, special: true, accent: "#ff3b3b", glow: "rgba(255,204,0,0.45)" },
-                { id: "titleRebroKent", icon: "💙", name: "RebRoKent", desc: "Выдаётся эксклюзивно по промокоду.", check: p => false, special: true, accent: "#3b82f6", glow: "rgba(59,130,246,0.4)" },
+                { id: "titleRebroKent", icon: "💙", name: "KabooM", desc: "Выдаётся эксклюзивно по промокоду.", check: p => false, special: true, accent: "#3b82f6", glow: "rgba(59,130,246,0.4)" },
                 { id: "titleAtay", icon: "💚", name: "Атай окакий", desc: "Выдаётся эксклюзивно по промокоду.", check: p => false, special: true, accent: "#22c55e", glow: "rgba(34,197,94,0.4)" },
                 { id: "titleMisternyashka", icon: "💗", name: "Misternyashka", desc: "Выдаётся эксклюзивно по промокоду.", check: p => false, special: true, accent: "#ff6ec7", glow: "rgba(255,110,199,0.4)" },
                 { id: "srb_king", icon: "👑", name: "Кингуля", desc: "Выдаётся эксклюзивно по промокоду.", check: p => false, special: true, accent: "#f8fafc", glow: "rgba(248,250,252,0.5)" }
@@ -5228,7 +5303,7 @@ onclick="Core.declineEncounter()">
             // источник премиум-валюты. Остальные НЕ-валютные награды (ящики, гаджет, мегасила, оружие,
             // аптечка, макс.ОЗ, энергия, редкие ресурсы) не повторяются — каждая встречается ровно один раз.
             trophyRoad: [
-                { trophies: 10, reward: { name: "Крышки x30", type: "caps", qty: 30 } },
+                { trophies: 10, reward: { name: "Крышки x18", type: "caps", qty: 18 } },
                 { trophies: 25, reward: { name: "Запчасти x15", type: "item", item: "Запчасти", qty: 15 } },
                 { trophies: 50, reward: { name: "🏷️ Ваучеры x5", type: "voucher", qty: 5 } },
                 { trophies: 90, reward: { name: "🔋 Энергия +30", type: "energy_pack" } },
@@ -5240,7 +5315,7 @@ onclick="Core.declineEncounter()">
                 { trophies: 410, reward: { name: "🔫 Тяжёлый Револьвер", type: "wpn", wpnId: "revolver" } },
                 { trophies: 480, reward: { name: "🏷️ Ваучеры x7", type: "voucher", qty: 7 } },
                 { trophies: 550, reward: { name: "📦 Продуктовый ящик", type: "lootbox", boxIdx: 1 } },
-                { trophies: 620, reward: { name: "Крышки x60", type: "caps", qty: 60 } },
+                { trophies: 620, reward: { name: "Крышки x36", type: "caps", qty: 36 } },
                 { trophies: 690, reward: { name: "🏷️ Ваучеры x10", type: "voucher", qty: 10 } },
                 { trophies: 760, reward: { name: "📦 Сейф Минори", type: "lootbox", boxIdx: 2 } },
                 { trophies: 830, reward: { name: "Ядерная Батарея x8", type: "item", item: "Ядерная Батарея", qty: 8 } },
@@ -5248,8 +5323,8 @@ onclick="Core.declineEncounter()">
                 { trophies: 1000, reward: { name: "⚡ Мегасила (случайное оружие)", type: "megasila" } }
             ],
             dailyRewardPool: [
-                { name: "Крышки x8", type: "caps", qty: 8, weight: 22 },
-                { name: "Крышки x16", type: "caps", qty: 16, weight: 12 },
+                { name: "Крышки x5", type: "caps", qty: 5, weight: 22 },
+                { name: "Крышки x10", type: "caps", qty: 10, weight: 12 },
                 { name: "Запчасти x6", type: "item", item: "Запчасти", qty: 6, weight: 16 },
                 { name: "Тяжелый Хлам x2", type: "item", item: "Тяжелый Хлам", qty: 2, weight: 8 },
                 { name: "🔋 Восстановление Энергии", type: "energy_pack", weight: 12 },
@@ -5292,7 +5367,7 @@ onclick="Core.declineEncounter()">
                 { code: "aaaa", type: "caps", qty: 30, maxUses: Infinity, desc: "30 крышек" },
                 { code: "vip", type: "title", titleId: "amurchikVip", maxUses: Infinity, desc: "эксклюзивный титул «Награждён Амурчиком»" },
                 { code: "Real Clown", type: "title", titleId: "titleRealClown", maxUses: 1, desc: "эксклюзивный титул «Real Clown»" },
-                { code: "RebRoKent", type: "title", titleId: "titleRebroKent", maxUses: 1, desc: "эксклюзивный титул «RebRoKent»" },
+                { code: "KabooM", type: "title", titleId: "titleRebroKent", maxUses: 1, desc: "эксклюзивный титул «KabooM»" },
                 { code: "Атай окакий", type: "title", titleId: "titleAtay", maxUses: 1, desc: "эксклюзивный титул «Атай окакий»" },
                 { code: "misternyashka", type: "title", titleId: "titleMisternyashka", maxUses: 1, desc: "эксклюзивный титул «Misternyashka»" },
                 { code: "Кингуля", type: "title", titleId: "srb_king", maxUses: 1, desc: "эксклюзивный титул «Кингуля» (белые оттенки)" },
@@ -5422,7 +5497,7 @@ onclick="Core.declineEncounter()">
         };
 
         const Core = {
-            p: { hp: 50, maxHp: 50, energy: 100, maxEnergy: 100, rad: 0, hazards: {}, satiety: 100, lvl: 1, exp: 0, nextExp: 50, caps: 30, vouchers: 0, armor: 2, dodgeChance: 8, inv: { "Запчасти": 6, "Тяжелый Хлам": 0, "Ядерная Батарея": 0, "Сырое мясо": 1 }, weaponsOwned: ["fists"], wpnUpgrades: { "fists": 0, "pipe": 0, "machete": 0, "pistol": 0, "revolver": 0, "shotgun": 0, "assault": 0, "plasma": 0, "minigun": 0, "gauss": 0 }, activeWeapon: "fists", rodsOwned: ["rusty"], activeRod: "rusty", food: { "Жареное мясо крысы": 1 }, currentBiome: 0, bossesDefeated: [], bpLvl: 1, bpPoints: 0, bpPremium: false, bpClaimedFree: [], bpClaimedPrem: [], dailyStreak: 0, lastDailyClaim: null, relicWasteland: 0, redeemedPromoCodes: [], freeBoxes: {}, nickname: "Странник", nicknameSet: false, avatar: "ranger", titleId: "newbie", unlockedTitles: ["newbie"], maxBiomeReached: 0, bmLastSuccessDay: null, bmFailDay: null, bmFailCount: 0, marketEarnDay: null, marketEarnedToday: 0, marketDailyCapValue: null, skinsOwned: ["default"], activeSkin: "default", dailyQuests: [], dailyQuestsDay: null, petsOwned: [], activePet: null,
+            p: { hp: 50, maxHp: 50, energy: 100, maxEnergy: 100, rad: 0, hazards: {}, satiety: 100, lvl: 1, exp: 0, nextExp: 50, caps: 30, vouchers: 0, armor: 2, dodgeChance: 8, inv: { "Запчасти": 6, "Тяжелый Хлам": 0, "Ядерная Батарея": 0, "Сырое мясо": 1 }, weaponsOwned: ["fists"], wpnUpgrades: { "fists": 0, "pipe": 0, "machete": 0, "pistol": 0, "revolver": 0, "shotgun": 0, "assault": 0, "plasma": 0, "minigun": 0, "gauss": 0 }, activeWeapon: "fists", rodsOwned: ["rusty"], activeRod: "rusty", food: { "Жареное мясо крысы": 1 }, currentBiome: 0, bossesDefeated: [], bpLvl: 1, bpPoints: 0, bpPremium: false, bpClaimedFree: [], bpClaimedPrem: [], dailyStreak: 0, lastDailyClaim: null, relicWasteland: 0, redeemedPromoCodes: [], freeBoxes: {}, nickname: "Странник", nicknameSet: false, avatar: "ranger", titleId: "newbie", unlockedTitles: ["newbie"], maxBiomeReached: 0, bmLastSuccessDay: null, bmFailDay: null, bmFailCount: 0, marketEarnDay: null, marketEarnedToday: 0, marketDailyCapValue: null, skinsOwned: ["default"], activeSkin: "default", dailyQuests: [], dailyQuestsDay: null, petsOwned: [], activePet: null, installedAt: Date.now(), updateGiftClaimed: false,
                 perksUnlocked: [], perkPoints: 0, armorOwned: ["rags"], activeArmor: "rags", modsOwned: [], modsEquipped: { optic: null, mag: null, grip: null }, gadgetsOwned: [], megasilaOwned: [], trophies: 0, trophyClaimed: [] },
             combatState: null, restUses: 5, nextRestTick: null, bpSubTab: 'rewards',
             hpRegenAccum: 0, satietyDecayAccum: 0, abilityCooldowns: {},
@@ -5480,10 +5555,40 @@ onclick="Core.declineEncounter()">
                 this.defaultPlayer = JSON.parse(JSON.stringify(this.p));
                 this.defaultQuests = JSON.parse(JSON.stringify(this.quests));
                 this.load();
-                Tut.init();
-                this.generateDailyQuests();
                 this.loadSettings(); this.applyBiomeTheme(this.p.currentBiome); this.updateUI();
                 this.renderCraftIcons();
+                // Первый заход: без позывного игра не пускает дальше стартового экрана.
+                if (!this.p.nicknameSet) {
+                    this.showNicknameGate();
+                } else {
+                    this.completeInit();
+                }
+            },
+            showNicknameGate() {
+                const ov = document.getElementById('nickname-gate-overlay');
+                ov.style.display = 'flex';
+                setTimeout(() => { const inp = document.getElementById('nickname-gate-input'); if (inp) inp.focus(); }, 200);
+            },
+            submitNicknameGate() {
+                const input = document.getElementById('nickname-gate-input');
+                const fb = document.getElementById('nickname-gate-feedback');
+                if (!input) return;
+                let val = input.value.trim().replace(/\s+/g, ' ');
+                if (val.length < 2 || val.length > 18) {
+                    Sound.play('click');
+                    if (fb) fb.textContent = '⚠️ Позывной должен быть от 2 до 18 символов';
+                    return;
+                }
+                Sound.play('loot');
+                this.p.nickname = val;
+                this.p.nicknameSet = true;
+                this.save();
+                document.getElementById('nickname-gate-overlay').style.display = 'none';
+                this.completeInit();
+            },
+            completeInit() {
+                Tut.init();
+                this.generateDailyQuests();
                 setInterval(() => this.loop(), 1000);
                 // Оффлайн-прогресс: досчитываем время, пока вкладка была свёрнута/неактивна
                 document.addEventListener('visibilitychange', () => {
@@ -5840,6 +5945,10 @@ onclick="Core.declineEncounter()">
                     if(!this.p.megasilaOwned) this.p.megasilaOwned = [];
                     if(this.p.trophies === undefined) this.p.trophies = 0;
                     if(!this.p.trophyClaimed) this.p.trophyClaimed = [];
+                    // "Подарок к обновлению" — если это старое сохранение без метки, отсчёт 24ч
+                    // начинается именно сейчас, с момента когда игрок впервые увидел обновление.
+                    if(this.p.installedAt === undefined) this.p.installedAt = Date.now();
+                    if(this.p.updateGiftClaimed === undefined) this.p.updateGiftClaimed = false;
                     this.applyOfflineProgress();
                 } else {
                     this.lastTick = Date.now();
@@ -6331,6 +6440,7 @@ onclick="Core.declineEncounter()">
                 } else { this.nextRestTick = null; let tb = document.getElementById('rest-timer'); if(tb) tb.style.display = 'none'; }
 
                 this.updateDailyTimer();
+                this.updateGiftTimer();
                 this.updateSkinShopTimers();
                 this.generateDailyQuests();
                 this.lastTick = Date.now();
@@ -6432,7 +6542,7 @@ onclick="Core.declineEncounter()">
                 setTimeout(() => {
                     if (roll < 0.45) {
                         let petFx = this.getActivePetEffect();
-                        let c = (Math.floor(Math.random() * 3) + 1) * (1 + this.p.currentBiome) + (petFx.exploreCapsBonus || 0); this.p.caps += c;
+                        let c = (Math.floor(Math.random() * 2) + 1) * (1 + this.p.currentBiome) + (petFx.exploreCapsBonus || 0); this.p.caps += c;
                         let lootRoll = Math.random();
                         let bonusScrap = '';
                         if (petFx.extraScrapChance && Math.random() < petFx.extraScrapChance) {
@@ -7890,7 +8000,71 @@ startCombat(isBossFight = false) {
                 });
                 this.renderMarketEntryLocks();
                 this.renderSkinShop();
+                this.renderUpdateGiftCard();
             },
+
+            // ================= ПОДАРОК К ОБНОВЛЕНИЮ (разово, доступен 24 часа) =================
+            UPDATE_GIFT_WINDOW_MS: 24 * 60 * 60 * 1000,
+            getUpdateGiftRemainingMs() {
+                if (!this.p.installedAt) return 0;
+                return this.p.installedAt + this.UPDATE_GIFT_WINDOW_MS - Date.now();
+            },
+            renderUpdateGiftCard() {
+                const el = document.getElementById('update-gift-container');
+                if (!el) return;
+                if (this.p.updateGiftClaimed) { el.innerHTML = ''; return; }
+                const remaining = this.getUpdateGiftRemainingMs();
+                if (remaining <= 0) { el.innerHTML = ''; return; }
+                el.innerHTML = `
+                <div class="update-gift-card">
+                    <div class="update-gift-ribbon">Только сейчас</div>
+                    <div class="update-gift-top">
+                        <div class="update-gift-icon">🎁</div>
+                        <div>
+                            <div class="update-gift-title">Подарок к обновлению</div>
+                            <div class="update-gift-sub">Разовый бонус для всех выживших. Заберите, пока не поздно — потом пропадёт навсегда.</div>
+                        </div>
+                    </div>
+                    <div class="update-gift-list">
+                        <span class="update-gift-tag">❤️ Полное ОЗ</span>
+                        <span class="update-gift-tag">⚡ Полная энергия</span>
+                        <span class="update-gift-tag">🍗 Полная сытость</span>
+                        <span class="update-gift-tag">⛺ Все привалы</span>
+                        <span class="update-gift-tag">☢️ Радиация в ноль</span>
+                    </div>
+                    <div class="update-gift-timer" id="update-gift-timer">⏳ --:--:--</div>
+                    <button class="update-gift-btn" onclick="Core.claimUpdateGift()">🎁 Забрать подарок</button>
+                </div>`;
+                this.updateGiftTimer();
+            },
+            updateGiftTimer() {
+                const el = document.getElementById('update-gift-timer');
+                if (!el) return;
+                if (this.p.updateGiftClaimed) return;
+                const remaining = this.getUpdateGiftRemainingMs();
+                if (remaining <= 0) { this.renderUpdateGiftCard(); return; }
+                let h = Math.floor(remaining / 3600000);
+                let m = Math.floor((remaining % 3600000) / 60000);
+                let s = Math.floor((remaining % 60000) / 1000);
+                el.textContent = `⏳ Осталось: ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+            },
+            claimUpdateGift() {
+                if (this.p.updateGiftClaimed) return;
+                if (this.getUpdateGiftRemainingMs() <= 0) { this.renderUpdateGiftCard(); return; }
+                Sound.play('loot');
+                this.p.hp = this.p.maxHp;
+                this.p.energy = this.p.maxEnergy;
+                this.p.satiety = 100;
+                this.p.rad = 0;
+                this.p.hazards = {};
+                this.restUses = 5;
+                this.nextRestTick = null;
+                this.p.updateGiftClaimed = true;
+                this.log("🎁 Подарок к обновлению получен: ОЗ, энергия, сытость и привалы восстановлены, радиация сброшена.", "loot");
+                this.save(); this.updateUI(); this.renderUpdateGiftCard();
+                document.getElementById('gift-result-overlay').style.display = 'flex';
+            },
+            closeGiftResult() { Sound.play('click'); document.getElementById('gift-result-overlay').style.display = 'none'; },
             renderMarketEntryLocks() {
                 const mBtn = document.getElementById('market-entry-btn');
                 const bBtn = document.getElementById('blackmarket-entry-btn');
@@ -8100,7 +8274,8 @@ startCombat(isBossFight = false) {
             openMarket() {
                 if (this.p.lvl < 5) { Sound.play('hit'); Tips.lock(`Рынок откроется на 5 уровне. Твой текущий уровень: ${this.p.lvl}. Качай уровень разведкой и боями — я дам знать, когда сюда стоит вернуться.`); return; }
                 Sound.play('click'); this.marketQty = {}; this.renderMarket(); document.getElementById('market-overlay').style.display = 'flex';
-                setTimeout(() => Tips.show('market', "Добро пожаловать на Рынок! Здесь можно и купить нужное, и продать лишние ресурсы за крышки — цена зависит от редкости товара. Присматривайся к ценам, прежде чем сбывать что-то ценное."), 350);
+                this.switchMarketTab('sell');
+                setTimeout(() => Tips.show('market', "Добро пожаловать на Рынок! Здесь можно и купить нужное, и продать лишние ресурсы за крышки, и заглянуть во вкладку «🔄 Обмен», где Тяжёлый Хлам меняется на Запчасти по фиксированному курсу."), 350);
             },
             closeMarket() { document.getElementById('market-overlay').style.display = 'none'; },
             renderMarket() {
@@ -8202,6 +8377,66 @@ startCombat(isBossFight = false) {
                 this.log(`🏛️ Рынок: продано ${name} x${qty} за ${total} 🪙.`, "loot");
                 if (this.marketQty) delete this.marketQty[mKey];
                 this.save(); this.updateUI(); this.renderInventory(); this.renderMarket();
+            },
+
+            // ================= ОБМЕН (Тяжёлый Хлам -> Запчасти по фиксированному курсу) =================
+            switchMarketTab(tab) {
+                Sound.play('click');
+                document.getElementById('market-tab-sell').classList.toggle('active', tab === 'sell');
+                document.getElementById('market-tab-exchange').classList.toggle('active', tab === 'exchange');
+                document.getElementById('market-list').style.display = tab === 'sell' ? '' : 'none';
+                document.getElementById('market-exchange-list').style.display = tab === 'exchange' ? '' : 'none';
+                if (tab === 'exchange') this.renderMarketExchange();
+            },
+            renderMarketExchange() {
+                const el = document.getElementById('market-exchange-list');
+                const rate = DB.exchangeRate.heavyToParts;
+                const owned = this.p.inv["Тяжелый Хлам"] || 0;
+                if (owned <= 0) {
+                    el.innerHTML = `<div style="font-size:12px; color:var(--text-muted); padding:14px; text-align:center;">Нет Тяжёлого Хлама для обмена. Найдите его во время разведки Пустоши.</div>`;
+                    return;
+                }
+                if (!this.exchangeQty) this.exchangeQty = 1;
+                this.exchangeQty = Math.max(1, Math.min(this.exchangeQty, owned));
+                let qty = this.exchangeQty;
+                el.innerHTML = `
+                <div class="mk-card">
+                    <div class="mk-card-icon">🔩</div>
+                    <div>
+                        <div class="mk-card-title">Тяжёлый Хлам → Запчасти</div>
+                        <div class="mk-card-sub">В наличии: ${owned} шт · курс 1 🔩 = ${rate} ⚙️</div>
+                    </div>
+                    <div class="mk-card-controls">
+                        <div class="mk-stepper">
+                            <button onclick="Core.exchangeChangeQty(-1)">−</button>
+                            <span id="mk-exchange-qty">${qty}</span>
+                            <button onclick="Core.exchangeChangeQty(1)">+</button>
+                        </div>
+                        <button class="mk-sell-btn" onclick="Core.exchangeHeavyForParts()">Обменять на <span id="mk-exchange-total">${qty * rate}</span> ⚙️</button>
+                    </div>
+                </div>
+                <div style="font-size:11px; color:var(--text-muted); padding:10px 4px; line-height:1.5;">Дядя Скрап переплавит тяжёлый лом в рабочие запчасти прямо у тебя на глазах. Курс фиксированный и не меняется.</div>`;
+            },
+            exchangeChangeQty(delta) {
+                const owned = this.p.inv["Тяжелый Хлам"] || 0;
+                if (!this.exchangeQty) this.exchangeQty = 1;
+                this.exchangeQty = Math.max(1, Math.min(owned, this.exchangeQty + delta));
+                const qtyEl = document.getElementById('mk-exchange-qty'), totalEl = document.getElementById('mk-exchange-total');
+                if (qtyEl) qtyEl.textContent = this.exchangeQty;
+                if (totalEl) totalEl.textContent = this.exchangeQty * DB.exchangeRate.heavyToParts;
+            },
+            exchangeHeavyForParts() {
+                const owned = this.p.inv["Тяжелый Хлам"] || 0;
+                let qty = Math.min(this.exchangeQty || 1, owned);
+                if (qty <= 0) return;
+                const rate = DB.exchangeRate.heavyToParts;
+                const gained = qty * rate;
+                this.p.inv["Тяжелый Хлам"] -= qty;
+                this.p.inv["Запчасти"] = (this.p.inv["Запчасти"] || 0) + gained;
+                Sound.play('loot');
+                this.log(`🔄 Обмен на рынке: Тяжелый Хлам x${qty} → Запчасти x${gained}.`, "loot");
+                this.exchangeQty = 1;
+                this.save(); this.updateUI(); this.renderInventory(); this.renderMarketExchange();
             },
 
             // ================= ЧЁРНЫЙ РЫНОК (продажа оружия/удочек/батарей, цену задаёт игрок) =================
