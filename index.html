@@ -3134,7 +3134,7 @@ onclick="Core.declineEncounter()">
                 </div>
 
                 <div class="eb-hpblock">
-                    <div class="eb-hp-label"><span>❤️ Здоровье Босса</span><b id="eb-hp-text">10 000 / 10 000</b></div>
+                    <div class="eb-hp-label"><span>❤️ Здоровье Босса</span><b id="eb-hp-text">10 000 000 / 10 000 000</b></div>
                     <div class="eb-hpbar-wrap">
                         <div class="eb-hpbar-outer">
                             <div class="eb-hpbar-fill" id="eb-hp-fill" style="width:100%;"></div>
@@ -5902,14 +5902,14 @@ onclick="Core.declineEncounter()">
             HIT_COOLDOWN_MS: 550,
             FLUSH_DELAY_MS: 1200,
             TIERS: [
-                { at: 7500, key: 't75', label: '5 💠 Жетонов Схрона', apply: p => { p.inv['Жетон Схрона'] = (p.inv['Жетон Схрона'] || 0) + 5; }, icon: '💠' },
-                { at: 5000, key: 't50', label: '10 🏷️ Ваучеров', apply: p => { p.vouchers = (p.vouchers || 0) + 10; }, icon: '🏷️' },
-                { at: 2500, key: 't25', label: '3 🗝️ Реликварий Пустоши', apply: p => { p.relicWasteland = (p.relicWasteland || 0) + 3; }, icon: '🗝️' },
+                { at: 7500000, key: 't75', label: '5 💠 Жетонов Схрона', apply: p => { p.inv['Жетон Схрона'] = (p.inv['Жетон Схрона'] || 0) + 5; }, icon: '💠' },
+                { at: 5000000, key: 't50', label: '10 🏷️ Ваучеров', apply: p => { p.vouchers = (p.vouchers || 0) + 10; }, icon: '🏷️' },
+                { at: 2500000, key: 't25', label: '3 🗝️ Реликварий Пустоши', apply: p => { p.relicWasteland = (p.relicWasteland || 0) + 3; }, icon: '🗝️' },
                 { at: 0, key: 't0', label: '3 ☢️ Ядерные Батареи + 5 💠 Жетонов Схрона', apply: p => { p.inv['Ядерная Батарея'] = (p.inv['Ядерная Батарея'] || 0) + 3; p.inv['Жетон Схрона'] = (p.inv['Жетон Схрона'] || 0) + 5; }, icon: '☢️' }
             ],
 
             active: false, loaded: false, view: false,
-            hp: 10000, maxHp: 10000, endsAt: null,
+            hp: 10000000, maxHp: 10000000, endsAt: null,
             myDamage: 0, claimedTiers: [],
             pendingDamage: 0, flushTimer: null, flushMaxTimer: null, lastHitAt: 0, channel: null, pollInterval: null,
 
