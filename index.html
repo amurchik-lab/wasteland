@@ -488,6 +488,71 @@ transform:scale(1);
         .stage-log-toggle { position: absolute; right: 10px; bottom: 10px; z-index: 7; padding: 7px 11px; font-size: 10.5px; border-radius: 20px; background: rgba(6,8,12,0.62); border: 1px solid rgba(255,255,255,0.16); box-shadow: none; }
         .stage-hint { position: absolute; left: 10px; bottom: 10px; z-index: 4; font-size: 10.5px; color: var(--text-muted); background: rgba(6,8,12,0.5); padding: 6px 10px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.08); pointer-events: none; }
 
+        /* ===================================================================
+           ИВЕНТ: Супер-Босс «Враг Совета» — вся визуалка максимально лёгкая:
+           только transform/opacity в анимациях (GPU-composited), никаких
+           тяжёлых box-shadow-блюров каждый кадр, никакого JS rAF-цикла —
+           только редкие точечные DOM-обновления по интервалу/realtime-событию.
+           =================================================================== */
+        .event-toggle-btn {
+            position: absolute; top: 175px; right: 24px; z-index: 9; pointer-events: auto;
+            padding: 8px 14px; font-size: 11px; font-weight: 800; letter-spacing: .02em;
+            border-radius: 20px; border: 1px solid rgba(255,183,3,0.5);
+            background: linear-gradient(135deg, rgba(191,90,242,0.35), rgba(255,42,95,0.35)), rgba(6,8,12,0.72);
+            color: #fff; box-shadow: 0 0 0 rgba(0,0,0,0); cursor: pointer;
+            display: flex; align-items: center; gap: 5px;
+        }
+        .event-toggle-btn .eb-pulse-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--neon-gold); animation: ebDotPulse 1.4s ease-in-out infinite; }
+        @keyframes ebDotPulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: .35; transform: scale(1.3); } }
+
+        #event-boss-stage {
+            position: absolute; top: 165px; left: 14px; right: 14px;
+            bottom: max(155px, calc(var(--bottom-ui-h, 155px) + 16px));
+            border-radius: 24px; overflow: hidden; pointer-events: auto;
+            background: radial-gradient(ellipse at 50% 20%, rgba(191,90,242,0.16), transparent 60%), linear-gradient(180deg, #14060f 0%, #05070a 100%);
+            border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow);
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+            padding: 14px 12px 10px; box-sizing: border-box;
+        }
+        .eb-header { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+        .eb-title { font-size: 15px; font-weight: 900; letter-spacing: .03em; color: #fff; text-shadow: 0 0 14px rgba(255,42,95,0.65); text-align: center; }
+        .eb-timer { font-size: 10.5px; color: var(--neon-gold); font-weight: 700; }
+        .eb-boss-wrap { flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; min-height: 0; }
+        .eb-boss-figure { width: min(58vw, 230px); animation: ebFloat 3.6s ease-in-out infinite; will-change: transform; }
+        @keyframes ebFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
+        .eb-boss-figure.eb-hit { animation: ebFloat 3.6s ease-in-out infinite, ebHitShake 0.25s ease; }
+        @keyframes ebHitShake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+        .eb-core-glow { animation: ebPulseGlow 2.2s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+        @keyframes ebPulseGlow { 0%,100% { opacity: .55; } 50% { opacity: 1; } }
+        .eb-eye { animation: ebEyeGlow 1.8s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+        @keyframes ebEyeGlow { 0%,100% { opacity: .7; } 50% { opacity: 1; } }
+
+        .eb-hpblock { width: 100%; max-width: 380px; margin: 0 auto; }
+        .eb-hp-label { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--text-muted); margin-bottom: 4px; }
+        .eb-hp-label b { color: #fff; }
+        .eb-hpbar-wrap { position: relative; width: 100%; padding: 7px 0; }
+        .eb-hpbar-outer { position: relative; width: 100%; height: 16px; border-radius: 10px; background: rgba(0,0,0,0.55); border: 1px solid rgba(255,255,255,0.14); overflow: hidden; }
+        .eb-hpbar-fill { height: 100%; background: linear-gradient(90deg, #ff2a5f, #bf5af2); transition: width 0.5s ease; }
+        /* Маленькие иконки наград прямо на полоске HP, на месте прежних длинных строк-наград ниже полоски */
+        .eb-tier-nodes { position: absolute; inset: 0; pointer-events: none; }
+        .eb-tier-node { position: absolute; top: 50%; transform: translate(-50%, -50%); width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; line-height: 1; background: rgba(10,8,14,0.92); border: 1.5px solid rgba(255,255,255,0.3); cursor: pointer; pointer-events: auto; }
+        .eb-tier-node.locked { opacity: .45; }
+        .eb-tier-node.reached { opacity: .9; border-color: rgba(255,255,255,0.55); }
+        .eb-tier-node.claimable { border-color: var(--neon-gold); box-shadow: 0 0 7px rgba(255,183,3,0.8); animation: ebNodePulse 1.3s ease-in-out infinite; }
+        .eb-tier-node.claimed { border-color: rgba(57,255,20,0.65); background: rgba(20,45,20,0.9); }
+        .eb-tier-node.claimed::after { content: '✓'; position: absolute; right: -3px; bottom: -3px; width: 12px; height: 12px; border-radius: 50%; background: #0a080e; color: #39ff14; font-size: 8px; font-weight: 900; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(57,255,20,0.5); }
+        @keyframes ebNodePulse { 0%,100% { transform: translate(-50%,-50%) scale(1); } 50% { transform: translate(-50%,-50%) scale(1.15); } }
+
+        .eb-footer { width: 100%; max-width: 380px; margin: 10px auto 0; display: flex; align-items: center; gap: 10px; }
+        .eb-mydmg { font-size: 10px; color: var(--text-muted); flex: 1; }
+        .eb-mydmg b { color: var(--neon-blue); }
+        .eb-hit-btn { padding: 12px 22px; font-size: 13px; font-weight: 900; border-radius: 30px; border: none; color: #fff; cursor: pointer; background: var(--grad-accent); box-shadow: 0 4px 18px rgba(255,42,95,0.4); transition: transform 0.12s ease, opacity 0.2s ease; }
+        .eb-hit-btn:active { transform: scale(0.94); }
+        .eb-hit-btn:disabled { opacity: 0.45; cursor: default; }
+        .eb-dmg-pop { position: absolute; font-weight: 900; font-size: 20px; color: #fff; text-shadow: 0 0 8px rgba(255,42,95,0.9); pointer-events: none; animation: ebDmgPop 0.7s ease-out forwards; z-index: 20; }
+        @keyframes ebDmgPop { 0% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; transform: translate(-50%, -46px); } }
+        .eb-ended-badge { margin-top: 10px; font-size: 11px; color: var(--text-muted); text-align: center; }
+
         .game-log {
             position: fixed;
             left: 0; right: 0; bottom: 0; width: 100vw;
@@ -864,10 +929,18 @@ transform:scale(1);
         .trophy-node-btn:disabled { opacity: 0.45; cursor: not-allowed; background: rgba(255,255,255,0.07); color: var(--text-muted); box-shadow: none; border-color: rgba(255,183,3,0.2); }
 
         /* ===== Всплывающее уведомление о начислении трофеев (после победы в бою) — ниже верхнего статус-бара (150px), чтобы его не перекрывать ===== */
-        #trophy-toast-layer { position: fixed; top: 164px; left: 50%; transform: translateX(-50%); z-index: 950; display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none; }
+        #trophy-toast-layer { position: fixed; top: 164px; left: 50%; transform: translateX(-50%); z-index: 950; display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none; max-width: 92vw; }
         .trophy-toast { display: flex; align-items: center; gap: 8px; padding: 9px 16px; border-radius: 999px; background: linear-gradient(135deg, rgba(255,183,3,0.95), rgba(255,140,0,0.95)); border: 1.5px solid rgba(255,238,190,0.7); color: #2a1a00; font-weight: 900; font-size: 13px; box-shadow: 0 0 22px rgba(255,183,3,0.55), 0 8px 20px rgba(0,0,0,0.4); white-space: nowrap; animation: trophyToastPop 2.2s ease forwards; }
         .trophy-toast .tt-icon { font-size: 16px; }
         .trophy-toast.tt-boss { background: linear-gradient(135deg, #ffe27a, #ff9500); border-color: #fff2cf; font-size: 14px; }
+        /* Тост награды этапа — отдельный от трофейного: текст длиннее, поэтому
+           переносится на несколько строк и не может вылезти за края экрана. */
+        .tier-toast { display: flex; align-items: flex-start; gap: 8px; padding: 10px 14px; border-radius: 16px; max-width: min(340px, 88vw); width: max-content; white-space: normal; text-align: left; font-weight: 800; font-size: 12.5px; line-height: 1.35; color: #fff; border: 1.5px solid rgba(255,255,255,0.35); box-shadow: 0 8px 20px rgba(0,0,0,0.4); animation: trophyToastPop 2.6s ease forwards; pointer-events: none; }
+        .tier-toast .tt-icon { font-size: 16px; flex-shrink: 0; line-height: 1.2; }
+        .tier-toast.tt-boss { background: linear-gradient(135deg, #ffe27a, #ff9500); border-color: #fff2cf; color: #2a1a00; }
+        .tier-toast.tt-info { background: linear-gradient(135deg, #00d4ff, #7d2aff); border-color: rgba(255,255,255,0.55); }
+        .tier-toast.tt-locked { background: linear-gradient(135deg, #4a4f5c, #23262f); border-color: rgba(255,255,255,0.25); color: #e5e7eb; }
+        .tier-toast.tt-claimed { background: linear-gradient(135deg, #39ff14, #0f9d58); border-color: rgba(255,255,255,0.55); color: #06210f; }
         @keyframes trophyToastPop {
             0% { opacity: 0; transform: translateY(-10px) scale(0.85); }
             12% { opacity: 1; transform: translateY(0) scale(1.06); }
@@ -2047,6 +2120,39 @@ transform:scale(1);
         /* === Питомцы === */
         #pets-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: rgba(16,4,8,0.85); z-index: 5900; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 16px; backdrop-filter: blur(6px); }
         #pets-overlay .schem-container { border-color: var(--neon-red); box-shadow: 0 0 30px rgba(255,42,95,0.28), inset 0 0 20px rgba(255,42,95,0.07); }
+
+        /* ===== Колесо Фортуны ===== */
+        #wheel-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: rgba(12,4,18,0.88); z-index: 5900; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 16px; backdrop-filter: blur(6px); }
+        #wheel-overlay .schem-container { border-color: var(--neon-purple); box-shadow: 0 0 34px rgba(191,90,242,0.32), inset 0 0 22px rgba(191,90,242,0.08); max-height: 90dvh; }
+        .wheel-spin-wrap { position: relative; width: 240px; height: 240px; margin: 6px auto 14px; flex-shrink: 0; }
+        .wheel-pointer { position: absolute; top: -8px; left: 50%; transform: translateX(-50%); font-size: 26px; z-index: 3; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6)); }
+        .wheel-dial { position: absolute; inset: 0; border-radius: 50%; border: 4px solid var(--neon-gold); box-shadow: 0 0 24px rgba(255,183,3,0.4), inset 0 0 16px rgba(0,0,0,0.5); transition: transform 4.4s cubic-bezier(0.12, 0.67, 0.1, 1); }
+        .wheel-dial-label { position: absolute; top: 50%; left: 50%; width: 74px; margin-left: -37px; text-align: center; font-size: 10px; font-weight: 800; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.85); line-height: 1.25; transform-origin: 50% 0; padding-top: 74px; }
+        .wheel-dial-label .wl-icon { font-size: 18px; display: block; margin-bottom: 1px; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.7)); }
+        .wheel-hub { position: absolute; top: 50%; left: 50%; width: 38px; height: 38px; margin: -19px 0 0 -19px; border-radius: 50%; background: radial-gradient(circle, #fff8e0, var(--neon-gold)); border: 3px solid rgba(255,255,255,0.6); box-shadow: 0 0 14px rgba(255,183,3,0.6); z-index: 2; display: flex; align-items: center; justify-content: center; font-size: 17px; }
+        #wheel-container { position: relative; }
+        .wheel-info-btn-row { display: flex; justify-content: flex-end; margin-bottom: 2px; }
+        .wheel-info-btn { width: 30px; height: 30px; border-radius: 50%; border: 1px solid rgba(191,90,242,0.5); background: rgba(191,90,242,0.15); color: var(--neon-purple); font-size: 14px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .wheel-panel-overlay { position: absolute; inset: 0; z-index: 5; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 14px; background: rgba(6,3,10,0.88); backdrop-filter: blur(4px); border-radius: 14px; }
+        .wheel-panel-overlay.active { display: flex; }
+        .wheel-panel { width: 100%; max-height: 100%; display: flex; flex-direction: column; overflow: hidden; }
+        .wheel-panel-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px dashed rgba(191,90,242,0.35); padding-bottom: 8px; flex-shrink: 0; }
+        .wheel-panel-title { font-weight: 900; font-size: 13px; color: var(--neon-purple); }
+        .wheel-panel-close { background: rgba(191,90,242,0.15); border: 1px solid var(--neon-purple); color: var(--neon-purple); border-radius: 8px; width: 28px; height: 28px; font-size: 13px; font-weight: 900; cursor: pointer; }
+        .wheel-panel-body { overflow-y: auto; flex: 1; font-size: 11.5px; color: var(--text-muted); line-height: 1.5; }
+        .wheel-panel-body p { margin-bottom: 8px; }
+        .wheel-panel-body b { color: var(--neon-gold); }
+        .wheel-status { text-align: center; font-size: 11.5px; color: var(--text-muted); font-weight: 700; margin-bottom: 10px; line-height: 1.5; }
+        .wheel-status b { color: var(--neon-gold); }
+        .wheel-spin-btn { width: 100%; padding: 13px; border-radius: 12px; border: none; font-weight: 900; font-size: 14px; cursor: pointer; background: linear-gradient(135deg, #da22ff, #9114ff); color: #fff; box-shadow: 0 4px 16px rgba(191,90,242,0.4); margin-bottom: 12px; }
+        .wheel-spin-btn:disabled { opacity: 0.45; cursor: not-allowed; filter: grayscale(0.4); }
+        .wheel-prize-list { display: flex; flex-direction: column; gap: 5px; }
+        .wheel-prize-row { display: flex; align-items: center; gap: 8px; padding: 6px 9px; border-radius: 9px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); font-size: 11.5px; }
+        .wheel-prize-row .wp-icon { font-size: 16px; flex-shrink: 0; }
+        .wheel-prize-row .wp-name { flex: 1; min-width: 0; color: var(--text-main); font-weight: 700; }
+        .wheel-prize-row .wp-chance { flex-shrink: 0; font-weight: 900; color: var(--neon-gold); }
+        #wheel-reward-overlay .reward-card { max-width: 260px; padding: 22px 18px; }
+        #wheel-reward-overlay .reward-icon { font-size: 52px; }
         #pets-overlay .schem-title { color: var(--neon-red); }
         #pets-overlay .schem-close-btn { background: rgba(255,42,95,0.15); border-color: var(--neon-red); color: var(--neon-red); }
         .pets-points-bar { display:flex; justify-content:space-between; align-items:center; background: rgba(255,42,95,0.1); border: 1px solid rgba(255,42,95,0.35); border-radius: 10px; padding: 8px 12px; margin-bottom: 10px; font-size: 12px; font-weight: 800; color: #fff; }
@@ -2076,13 +2182,16 @@ transform:scale(1);
         .market-entry-btn::before { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 12% 15%, rgba(255,255,255,0.14), transparent 55%); pointer-events: none; }
         .market-entry-normal { background: linear-gradient(120deg, rgba(255,183,3,0.2), rgba(255,110,0,0.05) 60%, rgba(20,14,0,0.5)); border-color: rgba(255,183,3,0.5); box-shadow: 0 4px 18px rgba(255,140,0,0.12), inset 0 1px 0 rgba(255,255,255,0.08); }
         .market-entry-black { background: linear-gradient(120deg, rgba(255,42,95,0.22), rgba(120,0,30,0.08) 60%, rgba(10,2,5,0.55)); border-color: rgba(255,42,95,0.55); box-shadow: 0 4px 18px rgba(255,42,95,0.15), inset 0 1px 0 rgba(255,255,255,0.06); }
+        .market-entry-wheel { background: linear-gradient(120deg, rgba(191,90,242,0.22), rgba(255,183,3,0.08) 60%, rgba(14,6,20,0.55)); border-color: rgba(191,90,242,0.55); box-shadow: 0 4px 18px rgba(191,90,242,0.15), inset 0 1px 0 rgba(255,255,255,0.06); }
         .market-entry-icon-badge { position: relative; z-index: 1; flex-shrink: 0; width: 46px; height: 46px; border-radius: 13px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
         .market-entry-normal .market-entry-icon-badge { background: radial-gradient(circle, rgba(255,183,3,0.3), rgba(255,183,3,0.06)); border: 1px solid rgba(255,183,3,0.5); box-shadow: 0 0 14px rgba(255,183,3,0.35); }
         .market-entry-black .market-entry-icon-badge { background: radial-gradient(circle, rgba(255,42,95,0.32), rgba(255,42,95,0.06)); border: 1px solid rgba(255,42,95,0.55); box-shadow: 0 0 14px rgba(255,42,95,0.4); }
+        .market-entry-wheel .market-entry-icon-badge { background: radial-gradient(circle, rgba(191,90,242,0.32), rgba(191,90,242,0.06)); border: 1px solid rgba(191,90,242,0.55); box-shadow: 0 0 14px rgba(191,90,242,0.4); }
         .market-entry-text { position: relative; z-index: 1; min-width: 0; flex: 1; }
         .market-entry-title { font-weight: 900; font-size: 14.5px; letter-spacing: 0.2px; }
         .market-entry-normal .market-entry-title { color: var(--neon-gold); }
         .market-entry-black .market-entry-title { color: var(--neon-red); }
+        .market-entry-wheel .market-entry-title { color: var(--neon-purple); }
         .market-entry-sub { font-size: 10px; color: var(--text-muted); margin-top: 3px; font-weight: 600; }
         .market-entry-arrow { position: relative; z-index: 1; margin-left: auto; font-size: 20px; color: var(--text-muted); flex-shrink: 0; }
         .market-entry-lock { position: relative; z-index: 1; margin-left: auto; flex-shrink: 0; display: none; align-items: center; gap: 5px; font-size: 10.5px; font-weight: 800; color: #fff; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.25); padding: 6px 10px; border-radius: 10px; white-space: nowrap; }
@@ -2668,6 +2777,50 @@ onclick="Core.declineEncounter()">
         </div>
     </div>
 
+    <div id="wheel-overlay">
+        <div class="schem-container" id="wheel-container">
+            <div class="schem-header" style="border-bottom-color: rgba(191,90,242,0.35);">
+                <div class="schem-title" style="color:var(--neon-purple);">🎡 Колесо Фортуны</div>
+                <button class="schem-close-btn" style="background:rgba(191,90,242,0.15); border-color:var(--neon-purple); color:var(--neon-purple);" onclick="Core.closeWheel()"><svg class="mini-ico" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5.2 5.2l9.6 9.6M14.8 5.2L5.2 14.8" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg> Закрыть</button>
+            </div>
+            <div class="wheel-info-btn-row">
+                <button class="wheel-info-btn" onclick="Core.toggleWheelInfo()">❓</button>
+            </div>
+            <div class="wheel-spin-wrap">
+                <div class="wheel-pointer">🔻</div>
+                <div class="wheel-dial" id="wheel-dial"></div>
+                <div class="wheel-hub">🍀</div>
+            </div>
+            <div class="wheel-status" id="wheel-status">Загрузка...</div>
+            <button class="wheel-spin-btn" id="wheel-spin-btn" onclick="Core.spinWheel()">Крутить</button>
+
+            <!-- Панель правил и шансов (открывается по ❓) -->
+            <div class="wheel-panel-overlay" id="wheel-info-overlay">
+                <div class="wheel-panel">
+                    <div class="wheel-panel-head">
+                        <div class="wheel-panel-title">❓ Как работает колесо</div>
+                        <button class="wheel-panel-close" onclick="Core.toggleWheelInfo()">✕</button>
+                    </div>
+                    <div class="wheel-panel-body">
+                        <p>Раз в день доступна <b>бесплатная</b> крутка. Дальше каждая попытка стоит <b>25 🪙</b>. Максимум — <b>15 круток</b> в день, лимит сбрасывается в полночь.</p>
+                        <p>Чем ценнее приз — тем ниже шанс его получить.</p>
+                        <div class="wheel-prize-list" id="wheel-prize-list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Карточка выпавшей награды (как из ящиков) -->
+            <div class="wheel-panel-overlay" id="wheel-reward-overlay">
+                <div class="reward-card" id="wheel-reward-card" style="display:block;">
+                    <div class="reward-icon" id="wheel-reward-icon"></div>
+                    <div class="reward-title">Выпало</div>
+                    <div class="reward-name" id="wheel-reward-name"></div>
+                    <button class="primary reward-button" onclick="Core.closeWheelReward()">Принять</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="lootinfo-overlay">
         <div class="schem-container">
             <div class="schem-header">
@@ -2947,6 +3100,60 @@ onclick="Core.declineEncounter()">
                 <div class="stage-hint" id="stage-hint">🚶 Разведайте местность</div>
                 <button class="stage-log-toggle" id="stage-log-toggle" onclick="Scene.toggleLog()">📜 Журнал</button>
             </div>
+
+            <!-- ==================== ИВЕНТ: Супер-Босс «Враг Совета» ==================== -->
+            <div id="event-boss-stage" style="display:none;">
+                <div class="eb-header">
+                    <div class="eb-title">☠️ ВРАГ СОВ СОВЕТА</div>
+                    <div class="eb-timer" id="eb-timer">—</div>
+                </div>
+
+                <div class="eb-boss-wrap">
+                    <div class="eb-boss-figure" id="eb-boss-figure">
+                        <svg viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg" style="overflow:visible;">
+                            <ellipse cx="100" cy="225" rx="70" ry="10" fill="#000" opacity="0.45"/>
+                            <path class="eb-core-glow" d="M100 215 C40 215 30 150 40 100 C48 55 70 15 100 15 C130 15 152 55 160 100 C170 150 160 215 100 215 Z" fill="url(#ebBodyGrad)"/>
+                            <path d="M100 20 C75 20 60 55 55 95 C50 135 55 175 70 200 L70 150 C70 120 80 95 100 95 C120 95 130 120 130 150 L130 200 C145 175 150 135 145 95 C140 55 125 20 100 20 Z" fill="#0b0710" opacity="0.55"/>
+                            <path d="M100 12 C70 12 30 40 30 95 C30 100 34 102 37 98 C46 62 70 34 100 34 C130 34 154 62 163 98 C166 102 170 100 170 95 C170 40 130 12 100 12 Z" fill="#1b0e22" stroke="#bf5af2" stroke-width="1.5" opacity="0.9"/>
+                            <ellipse class="eb-eye" cx="82" cy="88" rx="7" ry="10" fill="#ff2a5f"/>
+                            <ellipse class="eb-eye" cx="118" cy="88" rx="7" ry="10" fill="#ff2a5f"/>
+                            <path d="M60 130 Q100 150 140 130 Q120 145 100 145 Q80 145 60 130 Z" fill="#ff2a5f" opacity="0.55"/>
+                            <path d="M100 34 L100 8 M78 40 L60 18 M122 40 L140 18" stroke="#ffb703" stroke-width="4" stroke-linecap="round" opacity="0.85"/>
+                            <circle cx="100" cy="8" r="5" fill="#ffb703"/>
+                            <circle cx="60" cy="18" r="4" fill="#ffb703"/>
+                            <circle cx="140" cy="18" r="4" fill="#ffb703"/>
+                            <defs>
+                                <radialGradient id="ebBodyGrad" cx="50%" cy="35%" r="70%">
+                                    <stop offset="0%" stop-color="#3a1046"/>
+                                    <stop offset="60%" stop-color="#1a0a1f"/>
+                                    <stop offset="100%" stop-color="#08050a"/>
+                                </radialGradient>
+                            </defs>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="eb-hpblock">
+                    <div class="eb-hp-label"><span>❤️ Здоровье Босса</span><b id="eb-hp-text">10 000 / 10 000</b></div>
+                    <div class="eb-hpbar-wrap">
+                        <div class="eb-hpbar-outer">
+                            <div class="eb-hpbar-fill" id="eb-hp-fill" style="width:100%;"></div>
+                        </div>
+                        <div class="eb-tier-nodes" id="eb-tier-nodes"></div>
+                    </div>
+                </div>
+
+                <div class="eb-footer">
+                    <div class="eb-mydmg">Твой урон боссу: <b id="eb-my-dmg">0</b></div>
+                    <button class="eb-hit-btn" id="eb-hit-btn" onclick="EventBoss.hit()">👊 УДАРИТЬ</button>
+                </div>
+                <div class="eb-ended-badge" id="eb-ended-badge" style="display:none;"></div>
+            </div>
+
+            <button class="event-toggle-btn" id="event-toggle-btn" onclick="Scene.toggleEventView()" style="display:none;">
+                <span class="eb-pulse-dot" id="event-toggle-dot" style="display:none;"></span>
+                <span id="event-toggle-label">⚔️ Ивент</span>
+            </button>
         </div>
         <div class="game-log" id="log"></div>
     </div>
@@ -3046,6 +3253,16 @@ onclick="Core.declineEncounter()">
                 </div>
                 <div class="market-entry-arrow">›</div>
                 <div class="market-entry-lock">🔒 Ур. 25</div>
+            </button>
+        </div>
+        <div class="market-entry-row">
+            <button class="market-entry-btn market-entry-wheel" id="wheel-entry-btn" onclick="Core.openWheel()">
+                <div class="market-entry-icon-badge">🎡</div>
+                <div class="market-entry-text">
+                    <div class="market-entry-title">Колесо Фортуны</div>
+                    <div class="market-entry-sub" id="wheel-entry-sub">Бесплатная крутка сегодня</div>
+                </div>
+                <div class="market-entry-arrow">›</div>
             </button>
         </div>
         <div class="skin-collapsed-bar" id="skin-collapsed-bar" onclick="Core.openSkinOverlay()">
@@ -3325,19 +3542,44 @@ onclick="Core.declineEncounter()">
                 else this._scheduleAmbient(ctx, bus, gen);
             },
 
-            // ---- Спокойная фоновая тема: плывущие аккорды + ветер пустоши ----
+            // ---- Спокойная фоновая тема: мистический эмбиент фэнтези-пустоши ----
+            // Вместо статичного белого шума — дрейфующий "туман" с плавающим
+            // фильтром, лёгкое эхо для объёма и хоровые (детюнированные)
+            // аккорды с хрустальными колокольчиками поверх.
             _scheduleAmbient(ctx, bus, gen) {
-                const noise = ctx.createBufferSource();
-                noise.buffer = this.noiseBuffer(ctx); noise.loop = true;
-                const windFilter = ctx.createBiquadFilter();
-                windFilter.type = 'bandpass'; windFilter.frequency.value = 500; windFilter.Q.value = 0.6;
-                const windGain = ctx.createGain(); windGain.gain.value = 0.05;
-                noise.connect(windFilter); windFilter.connect(windGain); windGain.connect(bus);
-                noise.start();
-                const lfo = ctx.createOscillator(); lfo.frequency.value = 0.07;
-                const lfoGain = ctx.createGain(); lfoGain.gain.value = 0.035;
-                lfo.connect(lfoGain); lfoGain.connect(windGain.gain); lfo.start();
-                this._cleanupFns.push(() => { noise.stop(); lfo.stop(); });
+                // Простое алгоритмическое эхо (пара отражений с обратной связью)
+                const echoSend = ctx.createGain(); echoSend.gain.value = 0.3;
+                const delay1 = ctx.createDelay(2); delay1.delayTime.value = 0.44;
+                const delay2 = ctx.createDelay(2); delay2.delayTime.value = 0.67;
+                const fb1 = ctx.createGain(); fb1.gain.value = 0.34;
+                const fb2 = ctx.createGain(); fb2.gain.value = 0.3;
+                const echoFilter = ctx.createBiquadFilter(); echoFilter.type = 'lowpass'; echoFilter.frequency.value = 2100;
+                bus.connect(echoSend);
+                echoSend.connect(delay1); delay1.connect(echoFilter); echoFilter.connect(fb1); fb1.connect(delay1);
+                echoSend.connect(delay2); delay2.connect(fb2); fb2.connect(delay2);
+                echoFilter.connect(bus); delay2.connect(bus);
+
+                // Дрейфующая туманная текстура вместо статичного шума ветра —
+                // частота полосового фильтра медленно "плывёт", создавая
+                // ощущение зачарованной дымки, а не плоского шипения
+                const mist = ctx.createBufferSource();
+                mist.buffer = this.noiseBuffer(ctx); mist.loop = true;
+                const mistFilter = ctx.createBiquadFilter();
+                mistFilter.type = 'bandpass'; mistFilter.frequency.value = 650; mistFilter.Q.value = 1.4;
+                const mistGain = ctx.createGain(); mistGain.gain.value = 0.04;
+                mist.connect(mistFilter); mistFilter.connect(mistGain); mistGain.connect(bus);
+                mist.start();
+                const mistLfo = ctx.createOscillator(); mistLfo.type = 'sine'; mistLfo.frequency.value = 0.045;
+                const mistLfoGain = ctx.createGain(); mistLfoGain.gain.value = 340;
+                mistLfo.connect(mistLfoGain); mistLfoGain.connect(mistFilter.frequency); mistLfo.start();
+                const breathLfo = ctx.createOscillator(); breathLfo.frequency.value = 0.06;
+                const breathGain = ctx.createGain(); breathGain.gain.value = 0.02;
+                breathLfo.connect(breathGain); breathGain.connect(mistGain.gain); breathLfo.start();
+
+                this._cleanupFns.push(() => {
+                    mist.stop(); mistLfo.stop(); breathLfo.stop();
+                    try { echoSend.disconnect(); delay1.disconnect(); delay2.disconnect(); fb1.disconnect(); fb2.disconnect(); echoFilter.disconnect(); } catch(e) {}
+                });
 
                 const progressions = [
                     [220.00, 261.63, 329.63],
@@ -3351,28 +3593,43 @@ onclick="Core.declineEncounter()">
                     const chord = progressions[chordIdx % progressions.length]; chordIdx++;
                     const dur = 9;
                     const now = ctx.currentTime;
+                    // Каждая нота аккорда играется тремя слегка расстроенными
+                    // голосами — лёгкий эффект хора, свойственный фэнтези-эмбиенту
                     chord.forEach((freq, i) => {
-                        const osc = ctx.createOscillator();
-                        osc.type = i === 0 ? 'triangle' : 'sine';
-                        osc.frequency.value = freq * (i === 2 ? 2 : 1);
-                        const g = ctx.createGain();
-                        g.gain.setValueAtTime(0, now);
-                        g.gain.linearRampToValueAtTime(0.09 / chord.length * (i === 0 ? 1.4 : 1), now + 2.5);
-                        g.gain.linearRampToValueAtTime(0, now + dur);
-                        osc.connect(g); g.connect(bus);
-                        osc.start(now); osc.stop(now + dur + 0.1);
+                        [-6, 0, 6].forEach(detune => {
+                            const osc = ctx.createOscillator();
+                            osc.type = i === 0 ? 'triangle' : 'sine';
+                            osc.frequency.value = freq * (i === 2 ? 2 : 1);
+                            osc.detune.value = detune;
+                            const g = ctx.createGain();
+                            const base = 0.09 / chord.length * (i === 0 ? 1.4 : 1);
+                            const peak = detune === 0 ? base / 1.6 : base / 3.4;
+                            g.gain.setValueAtTime(0, now);
+                            g.gain.linearRampToValueAtTime(peak, now + 3);
+                            g.gain.linearRampToValueAtTime(0, now + dur);
+                            osc.connect(g); g.connect(bus);
+                            osc.start(now); osc.stop(now + dur + 0.1);
+                        });
                     });
-                    if (Math.random() < 0.6) {
-                        const pentatonic = [523.25, 587.33, 659.25, 783.99, 880.00];
+                    // Хрустальные колокольчики вместо простой одноголосой пентатоники
+                    if (Math.random() < 0.65) {
+                        const pentatonic = [523.25, 587.33, 659.25, 783.99, 880.00, 1046.50];
                         const pf = pentatonic[Math.floor(Math.random() * pentatonic.length)];
                         const t = now + 1 + Math.random() * 4;
-                        const posc = ctx.createOscillator(); posc.type = 'sine'; posc.frequency.value = pf;
-                        const pg = ctx.createGain();
-                        pg.gain.setValueAtTime(0, t);
-                        pg.gain.linearRampToValueAtTime(0.05, t + 0.3);
-                        pg.gain.linearRampToValueAtTime(0, t + 2.2);
-                        posc.connect(pg); pg.connect(bus);
-                        posc.start(t); posc.stop(t + 2.3);
+                        const bell = ctx.createOscillator(); bell.type = 'sine'; bell.frequency.value = pf;
+                        const overtone = ctx.createOscillator(); overtone.type = 'sine'; overtone.frequency.value = pf * 2.01;
+                        const bg = ctx.createGain();
+                        bg.gain.setValueAtTime(0, t);
+                        bg.gain.linearRampToValueAtTime(0.055, t + 0.04);
+                        bg.gain.exponentialRampToValueAtTime(0.0005, t + 3.2);
+                        const og = ctx.createGain();
+                        og.gain.setValueAtTime(0, t);
+                        og.gain.linearRampToValueAtTime(0.017, t + 0.04);
+                        og.gain.exponentialRampToValueAtTime(0.0004, t + 2);
+                        bell.connect(bg); bg.connect(bus); bg.connect(echoSend);
+                        overtone.connect(og); og.connect(bus);
+                        bell.start(t); bell.stop(t + 3.3);
+                        overtone.start(t); overtone.stop(t + 2.1);
                     }
                     this.timers.push(setTimeout(playChord, (dur - 1.5) * 1000));
                 };
@@ -4759,6 +5016,20 @@ onclick="Core.declineEncounter()">
                 const open = log.classList.toggle('expanded');
                 if (btn) btn.innerHTML = open ? `${Icon.cross()} Закрыть` : '📜 Журнал';
                 if (open) log.scrollTop = log.scrollHeight;
+            },
+
+            // ---- Переключение: сцена разведки <-> сцена ивент-босса ----
+            toggleEventView() {
+                const exploreEl = document.getElementById('stage-scene');
+                const eventEl = document.getElementById('event-boss-stage');
+                const label = document.getElementById('event-toggle-label');
+                if (!exploreEl || !eventEl) return;
+                EventBoss.view = !EventBoss.view;
+                exploreEl.style.display = EventBoss.view ? 'none' : '';
+                eventEl.style.display = EventBoss.view ? 'flex' : 'none';
+                if (label) label.textContent = EventBoss.view ? '🗺️ Карта' : '⚔️ Ивент';
+                Sound.play('click');
+                if (EventBoss.view) EventBoss.renderAll();
             }
         };
 
@@ -5038,19 +5309,22 @@ onclick="Core.declineEncounter()">
                 { id: 2, name: "🌆 Неоновый Сити-Центр", minLvl: 20, bossDefeatedId: 1, theme: { c1: "#ff00c8", c2: "#00fff2", c3: "#7d2aff", c4: "#0080ff", glow: "#1a0f26", atmo: "rgba(255,0,200,0.10)", accent: "#ff2adf", accentSoft: "rgba(255,42,223,0.35)" }, enemies: [{ name: "Дрон-Охотник", hp: 120, dmg: 18, armor: 6, class: "Быстрый", exp: 70 }, { name: "Штурмотрон v5", hp: 160, dmg: 24, armor: 10, class: "Бронированный", exp: 100 }], boss: { name: "👑 Главный Архитектор", hp: 360, dmg: 28, armor: 11, class: "Босс", exp: 600, rewardCaps: 85 } },
                 { id: 3, name: "☢️ Радиоактивный Лес", minLvl: 30, bossDefeatedId: 2, hazard: { key: "rad", label: "Радиация", icon: "☢️", color: "#39ff14", rate: 6, tiers: [ { min: 25, dmgTakenMult: 1.10 }, { min: 50, dmgTakenMult: 1.20, dodgeDelta: -5 }, { min: 75, dmgTakenMult: 1.35, dodgeDelta: -10, regenMult: 2 } ] }, theme: { c1: "#39ff14", c2: "#a4ff00", c3: "#0f9d58", c4: "#c8ff3d", glow: "#0e1a0a", atmo: "rgba(57,255,20,0.12)", accent: "#39ff14", accentSoft: "rgba(57,255,20,0.35)" }, enemies: [{ name: "Зараженный Олень", hp: 240, dmg: 30, armor: 10, class: "Кровожадный", exp: 150 }, { name: "Лесной Леший", hp: 300, dmg: 35, armor: 14, class: "Тяжеловес", exp: 200 }], boss: { name: "👑 Древесный Кошмар", hp: 620, dmg: 43, armor: 18, class: "Босс", exp: 1200, rewardCaps: 170 } },
                 { id: 4, name: "❄️ Ледяная Пустошь", minLvl: 40, bossDefeatedId: 3, hazard: { key: "cold", label: "Обморожение", icon: "🥶", color: "#7fdfff", rate: 5, tiers: [ { min: 25, dmgDealtMult: 0.95 }, { min: 50, dmgDealtMult: 0.85 }, { min: 75, dmgDealtMult: 0.70, dodgeDelta: -8 } ] }, theme: { c1: "#7fdfff", c2: "#c9f3ff", c3: "#3a8fd6", c4: "#e8fbff", glow: "#0c1a22", atmo: "rgba(150,230,255,0.14)", accent: "#7fdfff", accentSoft: "rgba(127,223,255,0.35)" }, enemies: [{ name: "Замёрзший Беглец", hp: 420, dmg: 48, armor: 16, class: "Быстрый", exp: 300 }, { name: "Ледяной Сталкер", hp: 500, dmg: 56, armor: 22, class: "Кровожадный", exp: 400 }], boss: { name: "👑 Снежный Тиран", hp: 1100, dmg: 68, armor: 32, class: "Босс", exp: 2500, rewardCaps: 340 } },
-                { id: 5, name: "🏭 Заброшенный Завод", minLvl: 50, bossDefeatedId: 4, hazard: { key: "toxic", label: "Токсины", icon: "☣️", color: "#ffcc00", rate: 6, tiers: [ { min: 25, regenMult: 1.5 }, { min: 50, regenMult: 2, satietyMult: 1.5 }, { min: 75, regenBlocked: true, satietyMult: 2 } ] }, theme: { c1: "#ff8800", c2: "#5a5f6b", c3: "#ffcc00", c4: "#802b00", glow: "#1c1a14", atmo: "rgba(255,136,0,0.10)", accent: "#ffb020", accentSoft: "rgba(255,176,32,0.35)" }, enemies: [{ name: "Авто-Турель x4", hp: 680, dmg: 72, armor: 35, class: "Бронированный", exp: 650 }, { name: "Робот-Погрузчик", hp: 850, dmg: 84, armor: 52, class: "Тяжеловес", exp: 800 }], boss: { name: "👑 ИИ 'Центурион'", hp: 2080, dmg: 105, armor: 60, class: "Босс", exp: 5000, rewardCaps: 680 } },
-                { id: 6, name: "🌋 Огненный Кратер", minLvl: 60, bossDefeatedId: 5, hazard: { key: "heat", label: "Перегрев", icon: "🔥", color: "#ff5722", rate: 7, tiers: [ { min: 25, dmgTakenMult: 1.10 }, { min: 50, dmgTakenMult: 1.25, armorDelta: -3 }, { min: 75, dmgTakenMult: 1.40, armorDelta: -6, dodgeDelta: -5 } ] }, theme: { c1: "#ff3300", c2: "#ff8800", c3: "#990000", c4: "#ffcc00", glow: "#220a04", atmo: "rgba(255,51,0,0.14)", accent: "#ff5722", accentSoft: "rgba(255,87,34,0.4)" }, enemies: [{ name: "Магматический Слизень", hp: 1300, dmg: 115, armor: 65, class: "Кровожадный", exp: 1300 }, { name: "Пепельный Скиталец", hp: 1600, dmg: 135, armor: 80, class: "Тяжеловес", exp: 1600 }], boss: { name: "👑 Владыка Пепла", hp: 4225, dmg: 173, armor: 91, class: "Босс", exp: 9000, rewardCaps: 1700 } },
-                { id: 7, name: "⚡ Грозовые Пустоши", minLvl: 70, bossDefeatedId: 6, hazard: { key: "shock", label: "Электро-Разряд", icon: "⚡", color: "#00e5ff", rate: 7, tiers: [ { min: 25, dodgeDelta: -6 }, { min: 50, dodgeDelta: -12, dmgTakenMult: 1.15 }, { min: 75, dodgeDelta: -18, dmgTakenMult: 1.30, armorDelta: -5 } ] }, theme: { c1: "#00e5ff", c2: "#ffe600", c3: "#3d3d80", c4: "#ffffff", glow: "#0a1420", atmo: "rgba(0,229,255,0.14)", accent: "#ffe600", accentSoft: "rgba(255,230,0,0.4)" }, enemies: [{ name: "Штормовой Мутант", hp: 1550, dmg: 135, armor: 75, class: "Быстрый", exp: 1650 }, { name: "Наэлектризованный Жнец", hp: 1930, dmg: 160, armor: 91, class: "Кровожадный", exp: 2050 }], boss: { name: "👑 Повелитель Грозы", hp: 5330, dmg: 210, armor: 105, class: "Босс", exp: 11500, rewardCaps: 2250 } },
-                { id: 8, name: "🦠 Зона Карантина", minLvl: 80, bossDefeatedId: 7, hazard: { key: "plague", label: "Чумной Мор", icon: "🦠", color: "#a8ff60", rate: 7, tiers: [ { min: 25, satietyMult: 1.3 }, { min: 50, satietyMult: 1.6, regenMult: 1.5 }, { min: 75, satietyMult: 2, regenBlocked: true } ] }, theme: { c1: "#a8ff60", c2: "#004d26", c3: "#e0ffe0", c4: "#1a3d1a", glow: "#0a1a0a", atmo: "rgba(168,255,96,0.12)", accent: "#a8ff60", accentSoft: "rgba(168,255,96,0.4)" }, enemies: [{ name: "Заражённый Санитар", hp: 1850, dmg: 160, armor: 86, class: "Тяжеловес", exp: 2050 }, { name: "Мутант-Носитель", hp: 2330, dmg: 190, armor: 104, class: "Кровожадный", exp: 2600 }], boss: { name: "👑 Пациент Ноль", hp: 6700, dmg: 255, armor: 119, class: "Босс", exp: 15000, rewardCaps: 2950 } },
-                { id: 9, name: "☄️ Обломки Станции «Икар»", minLvl: 90, bossDefeatedId: 8, hazard: { key: "vacuum", label: "Декомпрессия", icon: "🌌", color: "#5566ff", rate: 8, tiers: [ { min: 25, dmgTakenMult: 1.15 }, { min: 50, dmgTakenMult: 1.30, dodgeDelta: -10 }, { min: 75, dmgTakenMult: 1.50, dodgeDelta: -18, dmgDealtMult: 0.85 } ] }, theme: { c1: "#5566ff", c2: "#0a0a2a", c3: "#c0c8ff", c4: "#ff2a5f", glow: "#05050f", atmo: "rgba(85,102,255,0.16)", accent: "#8fa8ff", accentSoft: "rgba(143,168,255,0.4)" }, enemies: [{ name: "Дрон-Разведчик «Икар»", hp: 2200, dmg: 190, armor: 99, class: "Быстрый", exp: 2550 }, { name: "Обезумевший Киборг", hp: 2800, dmg: 225, armor: 118, class: "Бронированный", exp: 3300 }], boss: { name: "👑 Капитан «Призрак»", hp: 8450, dmg: 308, armor: 137, class: "Босс", exp: 19500, rewardCaps: 3900 } },
-                { id: 10, name: "👑 Цитадель Омега", minLvl: 100, bossDefeatedId: 9, hazard: { key: "psi", label: "Пси-Давление", icon: "🧠", color: "#bf5af2", rate: 8, tiers: [ { min: 25, dodgeDelta: -5 }, { min: 50, dodgeDelta: -10, dmgDealtMult: 0.9 }, { min: 75, dodgeDelta: -15, dmgDealtMult: 0.75, dmgTakenMult: 1.15 } ] }, theme: { c1: "#bf5af2", c2: "#ffd700", c3: "#ff2a5f", c4: "#f8fafc", glow: "#180a20", atmo: "rgba(191,90,242,0.14)", accent: "#ffd700", accentSoft: "rgba(255,215,0,0.4)" }, enemies: [{ name: "Страж Цитадели", hp: 2600, dmg: 220, armor: 115, class: "Бронированный", exp: 3200 }, { name: "Гвардеец Омега", hp: 3400, dmg: 260, armor: 135, class: "Тяжеловес", exp: 4200 }], boss: { name: "👑 ИМПЕРАТОР ОМЕГА", hp: 10400, dmg: 360, armor: 154, class: "Босс", exp: 25000, rewardCaps: 5100 } }
+                { id: 5, name: "🏭 Заброшенный Завод", minLvl: 50, bossDefeatedId: 4, hazard: { key: "toxic", label: "Токсины", icon: "☣️", color: "#ffcc00", rate: 6, tiers: [ { min: 25, regenMult: 1.5 }, { min: 50, regenMult: 2, satietyMult: 1.5 }, { min: 75, regenBlocked: true, satietyMult: 2 } ] }, theme: { c1: "#ff8800", c2: "#5a5f6b", c3: "#ffcc00", c4: "#802b00", glow: "#1c1a14", atmo: "rgba(255,136,0,0.10)", accent: "#ffb020", accentSoft: "rgba(255,176,32,0.35)" }, enemies: [{ name: "Авто-Турель x4", hp: 680, dmg: 72, armor: 35, class: "Бронированный", exp: 650 }, { name: "Робот-Погрузчик", hp: 850, dmg: 84, armor: 52, class: "Тяжеловес", exp: 800 }], boss: { name: "👑 ИИ 'Центурион'", hp: 2080, dmg: 105, armor: 60, class: "Босс", exp: 5000, rewardCaps: 170 } },
+                { id: 6, name: "🌋 Огненный Кратер", minLvl: 60, bossDefeatedId: 5, hazard: { key: "heat", label: "Перегрев", icon: "🔥", color: "#ff5722", rate: 7, tiers: [ { min: 25, dmgTakenMult: 1.10 }, { min: 50, dmgTakenMult: 1.25, armorDelta: -3 }, { min: 75, dmgTakenMult: 1.40, armorDelta: -6, dodgeDelta: -5 } ] }, theme: { c1: "#ff3300", c2: "#ff8800", c3: "#990000", c4: "#ffcc00", glow: "#220a04", atmo: "rgba(255,51,0,0.14)", accent: "#ff5722", accentSoft: "rgba(255,87,34,0.4)" }, enemies: [{ name: "Магматический Слизень", hp: 1300, dmg: 115, armor: 65, class: "Кровожадный", exp: 1300 }, { name: "Пепельный Скиталец", hp: 1600, dmg: 135, armor: 80, class: "Тяжеловес", exp: 1600 }], boss: { name: "👑 Владыка Пепла", hp: 4225, dmg: 173, armor: 91, class: "Босс", exp: 9000, rewardCaps: 425 } },
+                { id: 7, name: "⚡ Грозовые Пустоши", minLvl: 70, bossDefeatedId: 6, hazard: { key: "shock", label: "Электро-Разряд", icon: "⚡", color: "#00e5ff", rate: 7, tiers: [ { min: 25, dodgeDelta: -6 }, { min: 50, dodgeDelta: -12, dmgTakenMult: 1.15 }, { min: 75, dodgeDelta: -18, dmgTakenMult: 1.30, armorDelta: -5 } ] }, theme: { c1: "#00e5ff", c2: "#ffe600", c3: "#3d3d80", c4: "#ffffff", glow: "#0a1420", atmo: "rgba(0,229,255,0.14)", accent: "#ffe600", accentSoft: "rgba(255,230,0,0.4)" }, enemies: [{ name: "Штормовой Мутант", hp: 1550, dmg: 135, armor: 75, class: "Быстрый", exp: 1650 }, { name: "Наэлектризованный Жнец", hp: 1930, dmg: 160, armor: 91, class: "Кровожадный", exp: 2050 }], boss: { name: "👑 Повелитель Грозы", hp: 5330, dmg: 210, armor: 105, class: "Босс", exp: 11500, rewardCaps: 565 } },
+                { id: 8, name: "🦠 Зона Карантина", minLvl: 80, bossDefeatedId: 7, hazard: { key: "plague", label: "Чумной Мор", icon: "🦠", color: "#a8ff60", rate: 7, tiers: [ { min: 25, satietyMult: 1.3 }, { min: 50, satietyMult: 1.6, regenMult: 1.5 }, { min: 75, satietyMult: 2, regenBlocked: true } ] }, theme: { c1: "#a8ff60", c2: "#004d26", c3: "#e0ffe0", c4: "#1a3d1a", glow: "#0a1a0a", atmo: "rgba(168,255,96,0.12)", accent: "#a8ff60", accentSoft: "rgba(168,255,96,0.4)" }, enemies: [{ name: "Заражённый Санитар", hp: 1850, dmg: 160, armor: 86, class: "Тяжеловес", exp: 2050 }, { name: "Мутант-Носитель", hp: 2330, dmg: 190, armor: 104, class: "Кровожадный", exp: 2600 }], boss: { name: "👑 Пациент Ноль", hp: 6700, dmg: 255, armor: 119, class: "Босс", exp: 15000, rewardCaps: 740 } },
+                { id: 9, name: "☄️ Обломки Станции «Икар»", minLvl: 90, bossDefeatedId: 8, hazard: { key: "vacuum", label: "Декомпрессия", icon: "🌌", color: "#5566ff", rate: 8, tiers: [ { min: 25, dmgTakenMult: 1.15 }, { min: 50, dmgTakenMult: 1.30, dodgeDelta: -10 }, { min: 75, dmgTakenMult: 1.50, dodgeDelta: -18, dmgDealtMult: 0.85 } ] }, theme: { c1: "#5566ff", c2: "#0a0a2a", c3: "#c0c8ff", c4: "#ff2a5f", glow: "#05050f", atmo: "rgba(85,102,255,0.16)", accent: "#8fa8ff", accentSoft: "rgba(143,168,255,0.4)" }, enemies: [{ name: "Дрон-Разведчик «Икар»", hp: 2200, dmg: 190, armor: 99, class: "Быстрый", exp: 2550 }, { name: "Обезумевший Киборг", hp: 2800, dmg: 225, armor: 118, class: "Бронированный", exp: 3300 }], boss: { name: "👑 Капитан «Призрак»", hp: 8450, dmg: 308, armor: 137, class: "Босс", exp: 19500, rewardCaps: 975 } },
+                { id: 10, name: "👑 Цитадель Омега", minLvl: 100, bossDefeatedId: 9, hazard: { key: "psi", label: "Пси-Давление", icon: "🧠", color: "#bf5af2", rate: 8, tiers: [ { min: 25, dodgeDelta: -5 }, { min: 50, dodgeDelta: -10, dmgDealtMult: 0.9 }, { min: 75, dodgeDelta: -15, dmgDealtMult: 0.75, dmgTakenMult: 1.15 } ] }, theme: { c1: "#bf5af2", c2: "#ffd700", c3: "#ff2a5f", c4: "#f8fafc", glow: "#180a20", atmo: "rgba(191,90,242,0.14)", accent: "#ffd700", accentSoft: "rgba(255,215,0,0.4)" }, enemies: [{ name: "Страж Цитадели", hp: 2600, dmg: 220, armor: 115, class: "Бронированный", exp: 3200 }, { name: "Гвардеец Омега", hp: 3400, dmg: 260, armor: 135, class: "Тяжеловес", exp: 4200 }], boss: { name: "👑 ИМПЕРАТОР ОМЕГА", hp: 10400, dmg: 360, armor: 154, class: "Босс", exp: 25000, rewardCaps: 1275 } }
             ],
             // Прирост порога опыта (nextExp) за левелап, по "тиру" уровня: tier = min(10, floor(lvl/10)).
             // Раньше прирост был всегда фиксированным +25, а награда за опыт по биомам растёт в разы —
             // из-за этого один поздний босс мог пробить разом 8-10 уровней. Теперь прирост растёт вместе
             // с биомами (но мягче их собственного роста) — скачки почти исчезают, а суммарное время до
             // 50 уровня растёт лишь примерно на 15%. Тир 0 (уровни 1-9) не тронут — ранняя игра как была.
-            levelExpTierStep: [25, 29, 34, 40, 47, 55, 65, 76, 89, 104, 122],
+            // ЗАМЕДЛЕНИЕ x1.7 (~70%): вся кривая (все тиры, включая ранний) домножена на 1.7 —
+            // форма и плавность прогрессии не меняются, просто требуется в 1.7 раза больше опыта
+            // на каждом уровне, из-за чего левелап в целом идёт примерно на 70% медленнее.
+            levelExpTierStep: [42.5, 49.3, 57.8, 68, 79.9, 93.5, 110.5, 129.2, 151.3, 176.8, 207.4],
             weapons: [
                 { id: "fists", name: "Кулаки", dmg: 5, crit: 5, icon: "👊", color: "#9aa4b2", tier: "Стартовое", class: "Ближний бой" },
                 { id: "pipe", name: "Ржавая Труба", dmg: 9, crit: 8, icon: "🔧", color: "#39ff14", tier: "Обычное", class: "Ближний бой" },
@@ -5127,15 +5401,19 @@ onclick="Core.declineEncounter()">
                     { key: "gauss_pierce", label: "🎯 Пробивающий выстрел", cd: 4, dmgMult: 1.15, critBonus: 30, cls: "primary", sty: "background: var(--grad-blue);" }
                 ]
             },
+            // ===== Разблокировка оружия теперь завязана в первую очередь на "Жетоны Схрона" —
+            // их можно найти только в разведке. Чем реже и сильнее оружие, тем больше жетонов нужно.
+            // Обычные ресурсы (Запчасти/Хлам/Батареи) остались как вторичное требование,
+            // но их количество сокращено примерно в 3 раза относительно прежней системы.
             blueprints: [
-                { id: "craft_pipe", name: "Ржавая Труба", reqLvl: 1, cost: { "Запчасти": 4 }, type: "weapon", targetId: "pipe" },
-                { id: "craft_machete", name: "Мачете Скитальца", reqLvl: 3, cost: { "Запчасти": 7 }, type: "weapon", targetId: "machete" },
-                { id: "craft_pistol", name: "Самопал", reqLvl: 6, cost: { "Запчасти": 12, "Тяжелый Хлам": 2 }, type: "weapon", targetId: "pistol" },
-                { id: "craft_revolver", name: "Тяжёлый Револьвер", reqLvl: 9, cost: { "Запчасти": 16, "Тяжелый Хлам": 3 }, type: "weapon", targetId: "revolver" },
-                { id: "craft_shotgun", name: "Дробовик «Костолом»", reqLvl: 26, cost: { "Запчасти": 45, "Тяжелый Хлам": 12, "Ядерная Батарея": 2 }, type: "weapon", targetId: "shotgun" },
-                { id: "craft_assault", name: "Штурмовая АК-74Рад", reqLvl: 30, cost: { "Запчасти": 60, "Тяжелый Хлам": 18, "Ядерная Батарея": 4 }, type: "weapon", targetId: "assault" },
-                { id: "craft_minigun", name: "Миниган «Молотилка»", reqLvl: 50, cost: { "Запчасти": 140, "Тяжелый Хлам": 35, "Ядерная Батарея": 8 }, type: "weapon", targetId: "minigun" },
-                { id: "craft_gauss", name: "Винтовка Гаусса", reqLvl: 65, cost: { "Запчасти": 150, "Тяжелый Хлам": 40, "Ядерная Батарея": 10 }, type: "weapon", targetId: "gauss" }
+                { id: "craft_pipe", name: "Ржавая Труба", reqLvl: 1, cost: { "Жетон Схрона": 3, "Запчасти": 1 }, type: "weapon", targetId: "pipe" },
+                { id: "craft_machete", name: "Мачете Скитальца", reqLvl: 3, cost: { "Жетон Схрона": 5, "Запчасти": 2 }, type: "weapon", targetId: "machete" },
+                { id: "craft_pistol", name: "Самопал", reqLvl: 6, cost: { "Жетон Схрона": 10, "Запчасти": 4, "Тяжелый Хлам": 1 }, type: "weapon", targetId: "pistol" },
+                { id: "craft_revolver", name: "Тяжёлый Револьвер", reqLvl: 9, cost: { "Жетон Схрона": 14, "Запчасти": 5, "Тяжелый Хлам": 1 }, type: "weapon", targetId: "revolver" },
+                { id: "craft_shotgun", name: "Дробовик «Костолом»", reqLvl: 26, cost: { "Жетон Схрона": 25, "Запчасти": 15, "Тяжелый Хлам": 4, "Ядерная Батарея": 1 }, type: "weapon", targetId: "shotgun" },
+                { id: "craft_assault", name: "Штурмовая АК-74Рад", reqLvl: 30, cost: { "Жетон Схрона": 32, "Запчасти": 20, "Тяжелый Хлам": 6, "Ядерная Батарея": 1 }, type: "weapon", targetId: "assault" },
+                { id: "craft_minigun", name: "Миниган «Молотилка»", reqLvl: 50, cost: { "Жетон Схрона": 55, "Запчасти": 47, "Тяжелый Хлам": 12, "Ядерная Батарея": 3 }, type: "weapon", targetId: "minigun" },
+                { id: "craft_gauss", name: "Винтовка Гаусса", reqLvl: 65, cost: { "Жетон Схрона": 65, "Запчасти": 50, "Тяжелый Хлам": 13, "Ядерная Батарея": 3 }, type: "weapon", targetId: "gauss" }
             ],
             // ===== Перки Билда: 3 ветки прокачки, по очку за уровень персонажа =====
             perks: [
@@ -5366,7 +5644,8 @@ onclick="Core.declineEncounter()">
                 { id: "titleMisternyashka", icon: "💗", name: "Misternyashka", desc: "Выдаётся эксклюзивно по промокоду.", check: p => false, special: true, accent: "#ff6ec7", glow: "rgba(255,110,199,0.4)" },
                 { id: "srb_king", icon: "👑", name: "Кингуля", desc: "Выдаётся эксклюзивно по промокоду.", check: p => false, special: true, accent: "#f8fafc", glow: "rgba(248,250,252,0.5)" },
                 { id: "titlePolihip", icon: "💠", name: "Полихайп", desc: "Выдаётся эксклюзивно по промокоду. Сине-розовое сияние.", check: p => false, special: true, accent: "#ff2adf", glow: "rgba(0,200,255,0.45)" },
-                { id: "titlePolihip15", icon: "🔥", name: "Полихайп", desc: "Выдаётся эксклюзивно по промокоду. Жёлто-оранжевое сияние.", check: p => false, special: true, accent: "#ffb703", glow: "rgba(255,140,0,0.45)" }
+                { id: "titlePolihip15", icon: "🔥", name: "Полихайп", desc: "Выдаётся эксклюзивно по промокоду. Жёлто-оранжевое сияние.", check: p => false, special: true, accent: "#ffb703", glow: "rgba(255,140,0,0.45)" },
+                { id: "titleTrueShampignon", icon: "🍄", name: "True шампиньон", desc: "Выдаётся эксклюзивно по промокоду.", check: p => false, special: true, accent: "#a8ff60", glow: "rgba(168,255,96,0.45)" }
             ],
             // Косметические скины персонажа. Цена — исключительно в ваучерах (премиум-валюта),
             // не влияют ни на один игровой показатель — только внешний вид боевой модели.
@@ -5419,6 +5698,18 @@ onclick="Core.declineEncounter()">
                 { name: "🏷️ Ваучер x1", type: "voucher", qty: 1, weight: 4 },
                 { name: "🧬 Сыворотка ОЗ (+10 к Макс ОЗ)", type: "maxhp", weight: 2 }
             ],
+            // Колесо Фортуны: 8 секторов, шанс = weight (сумма весов = 100, т.е. это проценты).
+            // Чем ценнее приз — тем ниже вес; Премиум-пропуск нарочно закреплён на 0.3%.
+            wheelPrizes: [
+                { name: "Запчасти x12", icon: "⚙️", color: "#8fa3b8", weight: 32, reward: { type: "item", item: "Запчасти", qty: 12 } },
+                { name: "Немного еды", icon: "🍗", color: "#ff9a3d", weight: 22, reward: { type: "food", food: "Жареное мясо крысы", qty: 2 } },
+                { name: "Крышки x25", icon: "🪙", color: "#ffd700", weight: 18, reward: { type: "caps", qty: 25 } },
+                { name: "Ядерная Батарея x2", icon: "☢️", color: "#39ff14", weight: 12, reward: { type: "item", item: "Ядерная Батарея", qty: 2 } },
+                { name: "Полное восстановление ОЗ", icon: "💉", color: "#ff2a5f", weight: 8, reward: { type: "full_heal" } },
+                { name: "Ваучеры x2", icon: "🏷️", color: "#00f0ff", weight: 5, reward: { type: "voucher", qty: 2 } },
+                { name: "Реликварий Пустоши", icon: "🗝️", color: "#bf5af2", weight: 2.7, reward: { type: "relic_wasteland", qty: 1 } },
+                { name: "🎫 Премиум-пропуск", icon: "🎫", color: "#ffffff", weight: 0.3, reward: { type: "premium_pass" } }
+            ],
             bpRewards: generateBpRewards(),
             // Пул шаблонов ежедневных заданий Пропуска Пустоши: каждый день выбирается
             // 3 случайных незанятых шаблона, они действуют 24 часа и сменяются на новые.
@@ -5459,7 +5750,9 @@ onclick="Core.declineEncounter()">
                 { code: "Кингуля", type: "title", titleId: "srb_king", maxUses: 1, desc: "эксклюзивный титул «Кингуля» (белые оттенки)" },
                 { code: "подарок", type: "items", items: { "Сырое мясо": 15, "Сырая Акула Пустоши": 5 }, maxUses: 10, desc: "15x 🥩 Сырое мясо, 5x 🦈 Сырая Акула Пустоши" },
                 { code: "самопал", type: "weapon", wpnId: "pistol", maxUses: 1, desc: "оружие «Самопал»" },
-                { code: "компенсация", type: "items", items: { "Ядерная Батарея": 3 }, maxUses: 2, desc: "3x ☢️ Ядерная Батарея" }
+                { code: "компенсация", type: "items", items: { "Ядерная Батарея": 3 }, maxUses: 2, desc: "3x ☢️ Ядерная Батарея" },
+                { code: "титул67", type: "title", titleId: "titleTrueShampignon", maxUses: 1, desc: "эксклюзивный титул «True шампиньон»" },
+                { code: "релиз", type: "voucher", qty: 3, maxUses: 15, desc: "3 🏷️ Ваучера" }
             ]
         };
 
@@ -5592,8 +5885,304 @@ onclick="Core.declineEncounter()">
             }
         };
 
+        // ===================================================================
+        // EventBoss: мировой супер-босс «Враг Совета» — общий на всех игроков.
+        // Оптимизация сети/производительности:
+        //  - клики бьют по локальному optimistic-HP мгновенно (без ожидания сети);
+        //  - реальный урон копится в буфере и улетает на сервер одним RPC-вызовом
+        //    раз в ~1.2с (дебаунс, как и Cloud.push) — а не на каждый клик;
+        //  - синхронизация HP от других игроков идёт через один Realtime-канал
+        //    (push, а не поллинг), с редким фоновым опросом раз в 20с как fallback;
+        //  - никаких rAF-циклов и тяжёлых фильтров — только CSS-transform/opacity.
+        // ===================================================================
+        const EventBoss = {
+            TABLE_BOSS: 'event_boss',
+            TABLE_PART: 'event_boss_participants',
+            ROW_ID: 1,
+            HIT_COOLDOWN_MS: 550,
+            FLUSH_DELAY_MS: 1200,
+            TIERS: [
+                { at: 7500, key: 't75', label: '5 💠 Жетонов Схрона', apply: p => { p.inv['Жетон Схрона'] = (p.inv['Жетон Схрона'] || 0) + 5; }, icon: '💠' },
+                { at: 5000, key: 't50', label: '10 🏷️ Ваучеров', apply: p => { p.vouchers = (p.vouchers || 0) + 10; }, icon: '🏷️' },
+                { at: 2500, key: 't25', label: '3 🗝️ Реликварий Пустоши', apply: p => { p.relicWasteland = (p.relicWasteland || 0) + 3; }, icon: '🗝️' },
+                { at: 0, key: 't0', label: '3 ☢️ Ядерные Батареи + 5 💠 Жетонов Схрона', apply: p => { p.inv['Ядерная Батарея'] = (p.inv['Ядерная Батарея'] || 0) + 3; p.inv['Жетон Схрона'] = (p.inv['Жетон Схрона'] || 0) + 5; }, icon: '☢️' }
+            ],
+
+            active: false, loaded: false, view: false,
+            hp: 10000, maxHp: 10000, endsAt: null,
+            myDamage: 0, claimedTiers: [],
+            pendingDamage: 0, flushTimer: null, flushMaxTimer: null, lastHitAt: 0, channel: null, pollInterval: null,
+
+            async init() {
+                if (!Cloud.ready || !Cloud.client) return;
+                try {
+                    const { data: boss, error } = await Cloud.client.from(this.TABLE_BOSS).select('*').eq('id', this.ROW_ID).maybeSingle();
+                    if (error || !boss) { this.loaded = false; return; }
+                    // Первая загрузка — принимаем значение как есть, клэмп ещё не нужен
+                    this.maxHp = boss.max_hp; this.hp = boss.hp; this.endsAt = boss.ends_at;
+                    this.active = true; this.loaded = true;
+
+                    const { data: part } = await Cloud.client.from(this.TABLE_PART).select('*').eq('player_id', Cloud.userId).maybeSingle();
+                    if (part) { this.myDamage = part.damage_dealt || 0; this.claimedTiers = part.claimed_tiers || []; }
+
+                    document.getElementById('event-toggle-btn').style.display = 'flex';
+                    this.updateToggleDot();
+                    this.renderAll();
+                    this.subscribeRealtime();
+                    // Фоновой fallback-опрос — редкий, только на случай обрыва Realtime-канала
+                    this.pollInterval = setInterval(() => this.pollState(), 20000);
+                } catch (e) { console.warn('EventBoss: init не удался', e.message); }
+            },
+
+            subscribeRealtime() {
+                if (!Cloud.client) return;
+                this.channel = Cloud.client.channel('event_boss_hp')
+                    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: this.TABLE_BOSS, filter: `id=eq.${this.ROW_ID}` }, payload => {
+                        if (!payload.new) return;
+                        this.applyServerHp(payload.new.hp, payload.new.max_hp, payload.new.ends_at);
+                        this.renderHp();
+                        this.renderTiers();
+                    })
+                    .subscribe();
+            },
+
+            async pollState() {
+                if (!Cloud.ready) return;
+                const { data: boss } = await Cloud.client.from(this.TABLE_BOSS).select('hp, max_hp, ends_at').eq('id', this.ROW_ID).maybeSingle();
+                if (boss) { this.applyServerHp(boss.hp, boss.max_hp, boss.ends_at); this.renderHp(); this.renderTiers(); }
+            },
+
+            // Полоска ХП босса никогда не должна визуально "отхиливаться".
+            // Из-за задержек сети (дебаунс отправки урона, Realtime-события от
+            // других игроков, редкий фоновый опрос) сервер иногда присылает
+            // значение ХП, которое временно "старше" того, что уже видно у нас
+            // на экране — если применить его напрямую, полоска на секунду
+            // прыгнет вверх и будет выглядеть как исцеление босса.
+            // Поэтому любое новое значение принимаем, только если оно ниже
+            // текущего (то есть отражает дополнительный урон), а не выше.
+            // Исключение — начало нового цикла ивента (сервер прислал другой
+            // ends_at или max_hp): тогда босс правда восстановлен, это не баг,
+            // и мы полностью сбрасываем локальное состояние.
+            applyServerHp(newHp, newMaxHp, newEndsAt) {
+                if (typeof newHp !== 'number') return;
+                const isNewCycle = (newEndsAt && this.endsAt && newEndsAt !== this.endsAt) ||
+                                    (newMaxHp && this.maxHp && newMaxHp !== this.maxHp);
+                if (isNewCycle) {
+                    this.hp = newHp;
+                    if (newMaxHp) this.maxHp = newMaxHp;
+                    if (newEndsAt) this.endsAt = newEndsAt;
+                    this.myDamage = 0;
+                    this.claimedTiers = [];
+                } else {
+                    this.hp = Math.min(this.hp, newHp);
+                    if (newMaxHp) this.maxHp = newMaxHp;
+                    if (newEndsAt) this.endsAt = newEndsAt;
+                }
+            },
+
+            isExpired() { return this.endsAt && Date.now() > new Date(this.endsAt).getTime(); },
+            isOver() { return !this.active || this.hp <= 0 || this.isExpired(); },
+
+            // Вызывается раз в секунду из общего Core.loop() — не заводим отдельный таймер
+            tick() {
+                if (!this.active || !this.view) return;
+                const timerEl = document.getElementById('eb-timer');
+                if (!timerEl) return;
+                if (this.hp <= 0) { timerEl.textContent = '☠️ Босс уничтожен!'; return; }
+                if (this.isExpired()) { timerEl.textContent = '⏱️ Ивент завершён'; return; }
+                const ms = new Date(this.endsAt).getTime() - Date.now();
+                const d = Math.floor(ms / 86400000), h = Math.floor(ms % 86400000 / 3600000), m = Math.floor(ms % 3600000 / 60000), s = Math.floor(ms % 60000 / 1000);
+                timerEl.textContent = `⏱️ Осталось: ${d}д ${h}ч ${m}м ${s}с`;
+            },
+
+            calcDamage() {
+                let p = Core.p;
+                let wpn = DB.weapons.find(w => w.id === p.activeWeapon) || DB.weapons[0];
+                let upLvl = p.wpnUpgrades[p.activeWeapon] || 0;
+                let build = Core.getBuildBonus();
+                let base = wpn.dmg * (1 + upLvl * 0.25) * (1 + build.dmgMult);
+                let spread = (Math.random() * 0.4) - 0.2;
+                let dmg = Math.round(base * (1 + spread));
+                let critChance = wpn.crit + upLvl + build.crit;
+                let isCrit = Math.random() * 100 < critChance;
+                if (isCrit) dmg = Math.round(dmg * 1.75);
+                return { dmg: Math.max(1, dmg), isCrit };
+            },
+
+            hit() {
+                if (this.isOver()) { this.renderAll(); return; }
+                let now = Date.now();
+                if (now - this.lastHitAt < this.HIT_COOLDOWN_MS) return;
+                this.lastHitAt = now;
+
+                let { dmg, isCrit } = this.calcDamage();
+                Sound.play('hit');
+
+                // Оптимистичное локальное обновление — мгновенный отклик без ожидания сети
+                this.hp = Math.max(0, this.hp - dmg);
+                this.myDamage += dmg;
+                this.pendingDamage += dmg;
+
+                this.popDamage(dmg, isCrit);
+                const fig = document.getElementById('eb-boss-figure');
+                if (fig) { fig.classList.remove('eb-hit'); void fig.offsetWidth; fig.classList.add('eb-hit'); }
+                this.renderHp(); this.renderTiers(); this.renderMyDmg();
+
+                // Дебаунс: ждём паузу в кликах 1.2с — но если игрок бьёт без остановки,
+                // принудительно сливаем буфер не реже раза в 3с, чтобы урон не копился
+                // бесконечно и другие игроки видели прогресс почти в реальном времени.
+                clearTimeout(this.flushTimer);
+                this.flushTimer = setTimeout(() => this.flush(), this.FLUSH_DELAY_MS);
+                if (!this.flushMaxTimer) {
+                    this.flushMaxTimer = setTimeout(() => this.flush(), 3000);
+                }
+
+                if (this.hp <= 0) this.log('☠️ Ты нанёс смертельный удар! Совет повержен... пока боевые системы не восстановят его.', 'combat-win');
+            },
+
+            async flush() {
+                clearTimeout(this.flushTimer); clearTimeout(this.flushMaxTimer);
+                this.flushMaxTimer = null;
+                if (this.pendingDamage <= 0 || !Cloud.ready) return;
+                let dmgToSend = this.pendingDamage;
+                this.pendingDamage = 0;
+                try {
+                    const { data, error } = await Cloud.client.rpc('event_boss_hit', { p_damage: dmgToSend, p_nickname: Core.p.nickname });
+                    if (error) { console.warn('EventBoss: hit RPC не удался', error.message); this.pendingDamage += dmgToSend; this.flushTimer = setTimeout(() => this.flush(), this.FLUSH_DELAY_MS); return; }
+                    if (data && data.length) {
+                        this.applyServerHp(data[0].hp, data[0].max_hp, data[0].ends_at);
+                        this.myDamage = data[0].damage_dealt;
+                        this.renderHp(); this.renderTiers(); this.renderMyDmg();
+                    }
+                } catch (e) { this.pendingDamage += dmgToSend; this.flushTimer = setTimeout(() => this.flush(), this.FLUSH_DELAY_MS); }
+            },
+
+            popDamage(dmg, isCrit) {
+                const wrap = document.querySelector('.eb-boss-wrap');
+                if (!wrap) return;
+                const el = document.createElement('div');
+                el.className = 'eb-dmg-pop';
+                el.style.left = (40 + Math.random() * 20) + '%';
+                el.style.top = '35%';
+                el.style.color = isCrit ? 'var(--neon-gold)' : '#fff';
+                el.style.fontSize = isCrit ? '26px' : '19px';
+                el.textContent = (isCrit ? '🔥 ' : '') + '-' + dmg;
+                wrap.appendChild(el);
+                setTimeout(() => el.remove(), 700);
+            },
+
+            async claim(tierKey) {
+                let tier = this.TIERS.find(t => t.key === tierKey);
+                if (!tier || this.claimedTiers.includes(tierKey) || this.hp > tier.at || this.myDamage <= 0) return;
+                try {
+                    const { data, error } = await Cloud.client.rpc('event_boss_claim_tier', { p_tier_key: tierKey });
+                    if (error || !data) { Core.log('⚠️ Не удалось забрать награду, попробуй ещё раз.', 'system'); return; }
+                    if (data === true || (data.ok !== undefined && data.ok)) {
+                        this.claimedTiers.push(tierKey);
+                        tier.apply(Core.p);
+                        Core.save(); Core.updateUI(); Core.renderInventory && Core.renderInventory();
+                        Sound.play('loot');
+                        Core.log(`🎁 Награда этапа получена: ${tier.label}!`, 'loot');
+                        this.renderTiers();
+                    } else {
+                        Core.log('⚠️ Награда уже была получена ранее.', 'system');
+                    }
+                } catch (e) { Core.log('⚠️ Ошибка сети при получении награды.', 'system'); }
+            },
+
+            log(msg, type) { if (Core && Core.log) Core.log(msg, type); },
+
+            // Всплывающая подпись прямо по центру экрана — показывает, какая
+            // именно награда стоит за этапом, когда игрок тапает по иконке.
+            // Отдельно от игрового журнала, чтобы это точно было заметно сразу.
+            showTierToast(icon, text, variant) {
+                const layer = document.getElementById('trophy-toast-layer');
+                if (!layer) return;
+                const d = document.createElement('div');
+                d.className = 'tier-toast tt-' + (variant || 'info');
+                d.innerHTML = `<span class="tt-icon">${icon}</span><span>${text}</span>`;
+                layer.appendChild(d);
+                setTimeout(() => d.remove(), 2600);
+            },
+
+            updateToggleDot() {
+                const dot = document.getElementById('event-toggle-dot');
+                if (!dot) return;
+                let hasClaimable = this.TIERS.some(t => this.hp <= t.at && this.myDamage > 0 && !this.claimedTiers.includes(t.key));
+                dot.style.display = hasClaimable ? 'inline-block' : 'none';
+            },
+
+            renderHp() {
+                const fill = document.getElementById('eb-hp-fill');
+                const text = document.getElementById('eb-hp-text');
+                if (fill) fill.style.width = Math.max(0, (this.hp / this.maxHp) * 100) + '%';
+                if (text) text.textContent = `${this.hp.toLocaleString('ru-RU')} / ${this.maxHp.toLocaleString('ru-RU')}`;
+                this.updateToggleDot();
+                if (this.isOver()) {
+                    const btn = document.getElementById('eb-hit-btn');
+                    if (btn) btn.disabled = true;
+                    const badge = document.getElementById('eb-ended-badge');
+                    if (badge) {
+                        badge.style.display = 'block';
+                        badge.textContent = this.hp <= 0 ? '☠️ Босс уничтожен! Забери оставшиеся награды ниже.' : '⏱️ Время ивента истекло.';
+                    }
+                }
+            },
+
+            renderMyDmg() {
+                const el = document.getElementById('eb-my-dmg');
+                if (el) el.textContent = this.myDamage.toLocaleString('ru-RU');
+            },
+
+            renderTiers() {
+                const box = document.getElementById('eb-tier-nodes');
+                if (!box) return;
+                // Позиция иконки на полоске считается прямо от порога этапа — всегда совпадает
+                // с местом, где заполнение полоски дойдёт до этой отметки, и не может разъехаться
+                // с реальными порогами (раньше позиции задавались отдельным списком и рассинхронились).
+                box.innerHTML = this.TIERS.map(t => {
+                    let reached = this.hp <= t.at;
+                    let claimed = this.claimedTiers.includes(t.key);
+                    let claimable = reached && !claimed && this.myDamage > 0;
+                    let cls = claimed ? 'claimed' : claimable ? 'claimable' : reached ? 'reached' : 'locked';
+                    let pos = Math.min(100, Math.max(0, (t.at / this.maxHp) * 100));
+                    return `<div class="eb-tier-node ${cls}" style="left:${pos}%;" title="${t.label}" onclick="EventBoss.tapTier('${t.key}')">${t.icon}</div>`;
+                }).join('');
+            },
+
+            // Тап по маленькой иконке этапа: если награда доступна — забирает её,
+            // иначе коротким сообщением в журнал показывает, что это за этап и когда откроется.
+            tapTier(tierKey) {
+                let t = this.TIERS.find(x => x.key === tierKey);
+                if (!t) return;
+                let reached = this.hp <= t.at;
+                let claimed = this.claimedTiers.includes(tierKey);
+                if (claimed) {
+                    this.showTierToast(t.icon, `${t.label} — уже получено`, 'claimed');
+                    this.log(`✅ ${t.icon} ${t.label} — уже получено.`, 'system');
+                    return;
+                }
+                if (reached && this.myDamage > 0) {
+                    this.showTierToast(t.icon, `Награда: ${t.label}`, 'boss');
+                    this.claim(tierKey);
+                    return;
+                }
+                if (reached) {
+                    this.showTierToast(t.icon, `Награда: ${t.label} — нанеси урон боссу, чтобы забрать`, 'info');
+                    this.log(`🔓 ${t.icon} ${t.label} — этап открыт, но нужно нанести урон боссу, чтобы забрать награду.`, 'system');
+                    return;
+                }
+                this.showTierToast(t.icon, `Награда: ${t.label} — откроется при ${t.at.toLocaleString('ru-RU')} ОЗ у босса`, 'locked');
+                this.log(`🔒 ${t.icon} ${t.label} — откроется при ${t.at.toLocaleString('ru-RU')} ОЗ у босса.`, 'system');
+            },
+
+            renderAll() {
+                this.renderHp(); this.renderTiers(); this.renderMyDmg(); this.tick();
+            }
+        };
+
         const Core = {
-            p: { hp: 50, maxHp: 50, energy: 100, maxEnergy: 100, rad: 0, hazards: {}, satiety: 100, lvl: 1, exp: 0, nextExp: 50, caps: 30, vouchers: 0, armor: 2, dodgeChance: 8, inv: { "Запчасти": 6, "Тяжелый Хлам": 0, "Ядерная Батарея": 0, "Сырое мясо": 1 }, weaponsOwned: ["fists"], wpnUpgrades: { "fists": 0, "pipe": 0, "machete": 0, "pistol": 0, "revolver": 0, "shotgun": 0, "assault": 0, "plasma": 0, "minigun": 0, "gauss": 0 }, activeWeapon: "fists", rodsOwned: ["rusty"], activeRod: "rusty", food: { "Жареное мясо крысы": 1 }, currentBiome: 0, bossesDefeated: [], bpLvl: 1, bpPoints: 0, bpPremium: false, bpClaimedFree: [], bpClaimedPrem: [], dailyStreak: 0, lastDailyClaim: null, relicWasteland: 0, redeemedPromoCodes: [], freeBoxes: {}, nickname: "Странник", nicknameSet: false, avatar: "ranger", titleId: "newbie", unlockedTitles: ["newbie"], maxBiomeReached: 0, bmLastSuccessDay: null, bmFailDay: null, bmFailCount: 0, marketEarnDay: null, marketEarnedToday: 0, marketDailyCapValue: null, skinsOwned: ["default"], activeSkin: "default", dailyQuests: [], dailyQuestsDay: null, petsOwned: [], activePet: null, installedAt: Date.now(), updateGiftClaimed: false,
+            p: { hp: 50, maxHp: 50, energy: 100, maxEnergy: 100, rad: 0, hazards: {}, satiety: 100, lvl: 1, exp: 0, nextExp: 85, caps: 30, vouchers: 0, armor: 2, dodgeChance: 8, inv: { "Запчасти": 6, "Тяжелый Хлам": 0, "Ядерная Батарея": 0, "Сырое мясо": 1, "Жетон Схрона": 0 }, weaponsOwned: ["fists"], wpnUpgrades: { "fists": 0, "pipe": 0, "machete": 0, "pistol": 0, "revolver": 0, "shotgun": 0, "assault": 0, "plasma": 0, "minigun": 0, "gauss": 0 }, activeWeapon: "fists", rodsOwned: ["rusty"], activeRod: "rusty", food: { "Жареное мясо крысы": 1 }, currentBiome: 0, bossesDefeated: [], bpLvl: 1, bpPoints: 0, bpPremium: false, bpClaimedFree: [], bpClaimedPrem: [], dailyStreak: 0, lastDailyClaim: null, relicWasteland: 0, redeemedPromoCodes: [], freeBoxes: {}, nickname: "Странник", nicknameSet: false, avatar: "ranger", titleId: "newbie", unlockedTitles: ["newbie"], maxBiomeReached: 0, bmLastSuccessDay: null, bmFailDay: null, bmFailCount: 0, marketEarnDay: null, marketEarnedToday: 0, marketDailyCapValue: null, skinsOwned: ["default"], activeSkin: "default", dailyQuests: [], dailyQuestsDay: null, petsOwned: [], activePet: null, installedAt: Date.now(), updateGiftClaimed: false, wheelDay: null, wheelSpinsToday: 0, wheelFreeClaimed: false,
                 perksUnlocked: [], perkPoints: 0, armorOwned: ["rags"], activeArmor: "rags", modsOwned: [], modsEquipped: { optic: null, mag: null, grip: null }, gadgetsOwned: [], megasilaOwned: [], trophies: 0, trophyClaimed: [] },
             combatState: null, restUses: 5, nextRestTick: null, bpSubTab: 'rewards',
             hpRegenAccum: 0, satietyDecayAccum: 0, abilityCooldowns: {},
@@ -5694,7 +6283,7 @@ onclick="Core.declineEncounter()">
                         this.applyOfflineProgress(); this.updateUI(); this.save();
                     }
                 });
-                window.addEventListener('pagehide', () => { this.lastTick = Date.now(); this.save(); });
+                window.addEventListener('pagehide', () => { this.lastTick = Date.now(); this.save(); if (typeof EventBoss !== 'undefined') EventBoss.flush(); });
                 this.log("☢️ Мега-обновление систем выживания запущено.", "system");
                 Cloud.init().then(ok => { // подключение к облаку — асинхронно, не блокирует запуск игры
                     if (ok) {
@@ -5702,6 +6291,7 @@ onclick="Core.declineEncounter()">
                         // Дальше проверяем место в рейтинге раз в минуту — не при каждом действии,
                         // чтобы не долбить Supabase лишними запросами.
                         setInterval(() => this.checkTopRankTitle(), 60000);
+                        EventBoss.init();
                     }
                 });
             },
@@ -6512,6 +7102,7 @@ onclick="Core.declineEncounter()">
                 this.updateGiftTimer();
                 this.updateSkinShopTimers();
                 this.generateDailyQuests();
+                if (typeof EventBoss !== 'undefined') EventBoss.tick();
                 this.lastTick = Date.now();
             },
 
@@ -6611,16 +7202,26 @@ onclick="Core.declineEncounter()">
                 setTimeout(() => {
                     if (roll < 0.45) {
                         let petFx = this.getActivePetEffect();
-                        let c = (Math.floor(Math.random() * 2) + 1) * (1 + this.p.currentBiome) + (petFx.exploreCapsBonus || 0); this.p.caps += c;
+                        // От 5-го биома (50+ уровень) множитель находок больше не растёт линейно —
+                        // иначе крышки с разведки на поздних биомах разгонялись до неадекватных чисел.
+                        let capsBiomeMult = 1 + Math.min(this.p.currentBiome, 4);
+                        let c = (Math.floor(Math.random() * 2) + 1) * capsBiomeMult + (petFx.exploreCapsBonus || 0); this.p.caps += c;
                         let lootRoll = Math.random();
                         let bonusScrap = '';
                         if (petFx.extraScrapChance && Math.random() < petFx.extraScrapChance) {
                             this.p.inv["Запчасти"] = (this.p.inv["Запчасти"] || 0) + 1;
                             bonusScrap = ` 🐕 Лом раскопал ещё Запчасти x1!`;
                         }
-                        if(lootRoll < 0.5) { this.p.inv["Запчасти"]++; this.log(`🎁 Найдено: Запчасти x1, Крышки (+${c} 🪙).${bonusScrap} +10 XP.`, "loot"); Scene.findEffect('scrap'); }
-                        else if(lootRoll < 0.8) { this.p.inv["Сырое мясо"] = (this.p.inv["Сырое мясо"]||0)+1; this.log(`🥩 Найдено: Сырое мясо x1, Крышки (+${c} 🪙).${bonusScrap} +10 XP.`, "loot"); Scene.findEffect('meat'); }
-                        else { this.p.inv["Тяжелый Хлам"] = (this.p.inv["Тяжелый Хлам"]||0)+1; this.log(`⚙️ Найдено: Тяжелый Хлам x1, Крышки (+${c} 🪙).${bonusScrap} +15 XP.`, "loot"); Scene.findEffect('heavy'); }
+                        // Жетоны Схрона: отдельный фиксированный шанс, не зависящий от типа находки и от биома.
+                        let tokenMsg = '';
+                        if (Math.random() < 0.12) {
+                            let tokenQty = 1 + Math.floor(Math.random() * 3);
+                            this.p.inv["Жетон Схрона"] = (this.p.inv["Жетон Схрона"] || 0) + tokenQty;
+                            tokenMsg = ` 💠 Жетон Схрона +${tokenQty}!`;
+                        }
+                        if(lootRoll < 0.5) { this.p.inv["Запчасти"]++; this.log(`🎁 Найдено: Запчасти x1, Крышки (+${c} 🪙).${bonusScrap}${tokenMsg} +10 XP.`, "loot"); Scene.findEffect('scrap'); }
+                        else if(lootRoll < 0.8) { this.p.inv["Сырое мясо"] = (this.p.inv["Сырое мясо"]||0)+1; this.log(`🥩 Найдено: Сырое мясо x1, Крышки (+${c} 🪙).${bonusScrap}${tokenMsg} +10 XP.`, "loot"); Scene.findEffect('meat'); }
+                        else { this.p.inv["Тяжелый Хлам"] = (this.p.inv["Тяжелый Хлам"]||0)+1; this.log(`⚙️ Найдено: Тяжелый Хлам x1, Крышки (+${c} 🪙).${bonusScrap}${tokenMsg} +15 XP.`, "loot"); Scene.findEffect('heavy'); }
                         this.p.exp += 10; this.checkLvl();
                     } else if (roll < 0.58) {
                         if (this.p.lvl < 5) { this.log("Локация чиста. Ничего интересного."); Scene.findEffect('empty'); }
@@ -7173,10 +7774,10 @@ startCombat(isBossFight = false) {
 
             buyDirectPack(type) {
                 if(type === 'hp') {
-                    if(this.p.caps < 20) return alert("Мало крышек!"); this.p.caps -= 20; this.triggerQuest("spend_caps", 20);
+                    if(this.p.caps < 50) return alert("Мало крышек!"); this.p.caps -= 50; this.triggerQuest("spend_caps", 50);
                     let allowedMax = Math.max(5, this.p.maxHp - this.getHazard()); this.p.hp = Math.min(allowedMax, this.p.hp + 20); this.log("💉 Мед-Пакет: +20 ОЗ.");
                 } else if(type === 'energy') {
-                    if(this.p.caps < 15) return alert("Мало крышек!"); this.p.caps -= 15; this.triggerQuest("spend_caps", 15);
+                    if(this.p.caps < 45) return alert("Мало крышек!"); this.p.caps -= 45; this.triggerQuest("spend_caps", 45);
                     this.p.energy = Math.min(this.p.maxEnergy, this.p.energy + 20); this.log("🔋 Батарейный Блок: +20 Энергии.");
                 }
                 Sound.play('loot'); this.save(); this.updateUI();
@@ -7330,7 +7931,7 @@ startCombat(isBossFight = false) {
             openSchematics() {
                 Sound.play('click'); this.schemTab = this.schemTab || 'weapon'; this.renderSchematics(); document.getElementById('schematics-overlay').style.display = 'flex';
                 Tut.actionTriggered('craft-schematics-entry');
-                setTimeout(() => Tips.show('schematics', "Тех-Схемы — чертежи снаряжения. Переключай вкладки «⚔️ Оружие» и «🎣 Удочки» сверху. Для крафта нужны и ресурсы, и иногда минимальный уровень — то, чего не хватает, будет красным, а кнопка крафта заблокирована, пока не наберёшь требуемое."), 350);
+                setTimeout(() => Tips.show('schematics', "Тех-Схемы — чертежи снаряжения. Переключай вкладки «⚔️ Оружие» и «🎣 Удочки» сверху. Оружие теперь открывается в первую очередь за 💠 Жетоны Схрона — их можно найти только в разведке, и чем мощнее ствол, тем больше жетонов нужно. Обычные ресурсы тоже нужны, но по чуть-чуть. Чего не хватает — будет красным, кнопка крафта заблокирована, пока не наберёшь требуемое."), 350);
             },
             closeSchematics() { document.getElementById('schematics-overlay').style.display = 'none'; Tut.actionTriggered('schem-close-btn'); },
             switchSchemTab(tab) { this.schemTab = tab; this.renderSchematics(); },
@@ -7637,6 +8238,146 @@ startCombat(isBossFight = false) {
                 setTimeout(() => Tips.show('pets', "Питомцы — прирученные спутники Пустоши. Каждый крафтится разом из большого набора ресурсов и крышек, зато даёт постоянный пассивный бонус. Активным можно держать только одного питомца одновременно — переключайтесь под ситуацию."), 350);
             },
             closePets() { document.getElementById('pets-overlay').style.display = 'none'; Tut.actionTriggered('pets-close-btn'); },
+
+            // ===== Колесо Фортуны: 1 бесплатная крутка в день, докупка за 25 крышек, максимум 15 круток/день =====
+            wheelResetIfNewDay() {
+                const today = new Date().toDateString();
+                if (this.p.wheelDay !== today) { this.p.wheelDay = today; this.p.wheelSpinsToday = 0; this.p.wheelFreeClaimed = false; }
+            },
+            openWheel() {
+                Sound.play('click');
+                this.wheelResetIfNewDay();
+                this.buildWheelDial();
+                this.renderWheelPrizeList();
+                this.renderWheelInfo();
+                document.getElementById('wheel-overlay').style.display = 'flex';
+                setTimeout(() => Tips.show('wheel', "Раз в день крутка колеса бесплатна. Дальше — 25 🪙 за попытку, но не больше 15 круток за день. Чем ценнее приз, тем реже он выпадает — 🎫 Премиум-пропуск всего 0.3% шанс!"), 350);
+            },
+            closeWheel() {
+                document.getElementById('wheel-overlay').style.display = 'none';
+                document.getElementById('wheel-info-overlay').classList.remove('active');
+                document.getElementById('wheel-reward-overlay').classList.remove('active');
+            },
+
+            toggleWheelInfo() {
+                Sound.play('click');
+                this.renderWheelPrizeList();
+                document.getElementById('wheel-info-overlay').classList.toggle('active');
+            },
+
+            buildWheelDial() {
+                const dial = document.getElementById('wheel-dial');
+                if (dial.dataset.built) return;
+                const table = DB.wheelPrizes;
+                const segAngle = 360 / table.length;
+                let gradientParts = [], labelsHtml = '';
+                table.forEach((pz, i) => {
+                    const start = i * segAngle, end = start + segAngle;
+                    gradientParts.push(`${pz.color} ${start}deg ${end}deg`);
+                    // +180: сама метка растёт вниз (padding-top) от центра колеса ДО поворота,
+                    // т.е. изначально смотрит на юг (180°), поэтому доворачиваем на 180° больше,
+                    // чтобы после rotate() иконка встала точно в свой цветной сектор, а не в
+                    // противоположный (иначе стрелка указывает на один приз, а выдаётся другой).
+                    const labelAngle = start + segAngle / 2 + 180;
+                    labelsHtml += `<div class="wheel-dial-label" style="transform: rotate(${labelAngle}deg);"><span class="wl-icon">${pz.icon}</span></div>`;
+                });
+                dial.style.background = `conic-gradient(${gradientParts.join(', ')})`;
+                dial.insertAdjacentHTML('beforeend', labelsHtml);
+                dial.dataset.built = '1';
+            },
+
+            renderWheelPrizeList() {
+                const list = document.getElementById('wheel-prize-list');
+                if (list.dataset.built) return;
+                list.innerHTML = DB.wheelPrizes.map(pz => `
+                    <div class="wheel-prize-row">
+                        <span class="wp-icon">${pz.icon}</span>
+                        <span class="wp-name">${pz.name}</span>
+                        <span class="wp-chance">${pz.weight}%</span>
+                    </div>
+                `).join('');
+                list.dataset.built = '1';
+            },
+
+            renderWheelInfo() {
+                this.wheelResetIfNewDay();
+                const spinsLeft = Math.max(0, 15 - (this.p.wheelSpinsToday || 0));
+                const statusEl = document.getElementById('wheel-status');
+                const btn = document.getElementById('wheel-spin-btn');
+                const sub = document.getElementById('wheel-entry-sub');
+                const freeAvailable = !this.p.wheelFreeClaimed;
+
+                if (spinsLeft <= 0) {
+                    statusEl.innerHTML = `Дневной лимит круток исчерпан (<b>15/15</b>). Возвращайся завтра!`;
+                    btn.disabled = true; btn.textContent = "Лимит на сегодня исчерпан";
+                    if (sub) sub.textContent = "Лимит круток исчерпан";
+                } else if (freeAvailable) {
+                    statusEl.innerHTML = `Сегодня доступна <b>бесплатная</b> крутка. Осталось круток: <b>${spinsLeft}/15</b>.`;
+                    btn.disabled = false; btn.textContent = "🎡 Крутить бесплатно";
+                    if (sub) sub.textContent = "Бесплатная крутка сегодня";
+                } else {
+                    const canAfford = this.p.caps >= 25;
+                    statusEl.innerHTML = `Бесплатная крутка использована. Ещё попытка — <b>25 🪙</b>. Осталось круток: <b>${spinsLeft}/15</b>.`;
+                    btn.disabled = !canAfford; btn.textContent = canAfford ? "🎡 Крутить за 25 🪙" : "Недостаточно крышек";
+                    if (sub) sub.textContent = "Докупить крутку — 25 🪙";
+                }
+            },
+
+            spinWheel() {
+                if (this._wheelSpinning) return;
+                this.wheelResetIfNewDay();
+                if ((this.p.wheelSpinsToday || 0) >= 15) { Sound.play('hit'); this.renderWheelInfo(); return; }
+
+                let usedFree = false;
+                if (!this.p.wheelFreeClaimed) {
+                    usedFree = true;
+                } else {
+                    if (this.p.caps < 25) { Sound.play('hit'); return; }
+                    this.p.caps -= 25;
+                }
+
+                // Выбор приза по весам (шансам)
+                const table = DB.wheelPrizes;
+                const total = table.reduce((s, r) => s + r.weight, 0);
+                let rand = Math.random() * total, accum = 0, idx = 0;
+                for (let i = 0; i < table.length; i++) { accum += table[i].weight; if (rand <= accum) { idx = i; break; } }
+                const prize = table[idx];
+
+                this._wheelSpinning = true;
+                Sound.play('click');
+                const dial = document.getElementById('wheel-dial');
+                const segAngle = 360 / table.length;
+                const segCenter = idx * segAngle + segAngle / 2;
+                const jitter = (Math.random() - 0.5) * (segAngle * 0.6);
+                this.wheelRotation = this.wheelRotation || 0;
+                const currentMod = ((this.wheelRotation % 360) + 360) % 360;
+                const targetMod = ((360 - segCenter - jitter) % 360 + 360) % 360;
+                let delta = targetMod - currentMod; if (delta <= 0) delta += 360;
+                this.wheelRotation += delta + 360 * 5;
+                dial.style.transform = `rotate(${this.wheelRotation}deg)`;
+
+                this.p.wheelSpinsToday = (this.p.wheelSpinsToday || 0) + 1;
+                if (usedFree) this.p.wheelFreeClaimed = true;
+                this.save();
+                this.renderWheelInfo();
+                document.getElementById('wheel-spin-btn').disabled = true;
+
+                setTimeout(() => {
+                    this._wheelSpinning = false;
+                    this.rewardDispatcher(prize.reward, "🎡 Колесо Фортуны");
+                    this.save(); this.updateUI();
+                    document.getElementById('wheel-reward-icon').textContent = prize.icon;
+                    document.getElementById('wheel-reward-name').textContent = prize.name;
+                    document.getElementById('wheel-reward-overlay').classList.add('active');
+                    Sound.play('loot');
+                }, 4500);
+            },
+
+            closeWheelReward() {
+                Sound.play('click');
+                document.getElementById('wheel-reward-overlay').classList.remove('active');
+                this.renderWheelInfo();
+            },
 
             renderPetsList() {
                 const el = document.getElementById('pets-body'); el.innerHTML = '';
@@ -8085,6 +8826,14 @@ startCombat(isBossFight = false) {
             },
 
             renderShop() {
+                this.wheelResetIfNewDay();
+                const wSub = document.getElementById('wheel-entry-sub');
+                if (wSub) {
+                    const spinsLeft = Math.max(0, 15 - (this.p.wheelSpinsToday || 0));
+                    if (spinsLeft <= 0) wSub.textContent = "Лимит круток исчерпан";
+                    else if (!this.p.wheelFreeClaimed) wSub.textContent = "Бесплатная крутка сегодня";
+                    else wSub.textContent = "Докупить крутку — 25 🪙";
+                }
                 const dEl = document.getElementById('direct-shop-list'); dEl.innerHTML = `
                     <div class="direct-card" style="--dc-color:#ff2a5f;">
                         <div class="direct-card-left">
@@ -8094,7 +8843,7 @@ startCombat(isBossFight = false) {
                                 <div class="direct-card-sub">Восстанавливает +20 ОЗ</div>
                             </div>
                         </div>
-                        <button class="direct-buy-btn" onclick="Core.buyDirectPack('hp')">20 🪙</button>
+                        <button class="direct-buy-btn" onclick="Core.buyDirectPack('hp')">50 🪙</button>
                     </div>
                     <div class="direct-card" style="--dc-color:#00c8ff;">
                         <div class="direct-card-left">
@@ -8104,7 +8853,7 @@ startCombat(isBossFight = false) {
                                 <div class="direct-card-sub">Восстанавливает +20⚡ энергии</div>
                             </div>
                         </div>
-                        <button class="direct-buy-btn" onclick="Core.buyDirectPack('energy')">15 🪙</button>
+                        <button class="direct-buy-btn" onclick="Core.buyDirectPack('energy')">45 🪙</button>
                     </div>
                 `;
 
@@ -8813,7 +9562,7 @@ startCombat(isBossFight = false) {
                 val = Math.min(999, val);
                 this.p.lvl = val;
                 this.p.exp = 0;
-                this.p.nextExp = Math.floor(50 + 25 * (val - 1));
+                this.p.nextExp = Math.floor(85 + 42.5 * (val - 1));
                 this.log(`⚙ Панель разработчика: уровень установлен на ${val}.`, "loot");
                 this.save(); this.updateUI(); this.renderShop(); this.checkTitles(); this.renderProfile();
             },
@@ -9209,6 +9958,12 @@ startCombat(isBossFight = false) {
                 else if(r.type === 'energy_pack') { this.p.energy = Math.min(this.p.maxEnergy, this.p.energy + 30); this.log(`🎁 Награда ${sourceLabel}: Энергия +30`); }
                 else if(r.type === 'hp_pack') { this.p.hp = Math.min(this.p.maxHp, this.p.hp + 40); this.log(`🎁 Награда ${sourceLabel}: Восстановление ОЗ +40`); }
                 else if(r.type === 'maxhp') { this.p.maxHp += 20; this.log(`🎁 Награда ${sourceLabel}: Лимит здоровья увеличен на +20 ОЗ`); }
+                else if(r.type === 'full_heal') { this.p.hp = this.p.maxHp; this.log(`🎁 Награда ${sourceLabel}: ОЗ полностью восстановлены`); }
+                else if(r.type === 'relic_wasteland') { this.p.relicWasteland = (this.p.relicWasteland || 0) + (r.qty || 1); this.log(`🎁 Награда ${sourceLabel}: 🗝️ Реликварий Пустоши x${r.qty || 1}`); }
+                else if(r.type === 'premium_pass') {
+                    if (!this.p.bpPremium) { this.p.bpPremium = true; this.log(`🎁 Награда ${sourceLabel}: 🎫 Премиум-пропуск активирован!`); }
+                    else { let bonus = 50; this.p.caps += bonus; this.log(`🎁 Награда ${sourceLabel}: Премиум уже активен — начислено 🪙 x${bonus}`); }
+                }
                 else if(r.type === 'lootbox') { this.log(`🎁 Награда: Бесплатный ${DB.lootboxes[r.boxIdx].name}!`); this.openLootboxAnimated(DB.lootboxes[r.boxIdx]); }
                 else if(r.type === 'gadget') {
                     let g = this.grantRandomGadget();
@@ -9233,7 +9988,7 @@ startCombat(isBossFight = false) {
                 }
             },
 
-            itemIcons: { "Запчасти": "⚙️", "Тяжелый Хлам": "🔩", "Ядерная Батарея": "☢️", "Сырое мясо": "🥩" },
+            itemIcons: { "Запчасти": "⚙️", "Тяжелый Хлам": "🔩", "Ядерная Батарея": "☢️", "Сырое мясо": "🥩", "Жетон Схрона": "💠" },
             rewardIcon(r) {
                 if(!r) return '➖';
                 if(r.type === 'item') return this.itemIcons[r.item] || '📦';
@@ -9245,6 +10000,9 @@ startCombat(isBossFight = false) {
                     case 'energy_pack': return '🔋';
                     case 'hp_pack': return '💉';
                     case 'maxhp': return '🧬';
+                    case 'full_heal': return '💉';
+                    case 'relic_wasteland': return '🗝️';
+                    case 'premium_pass': return '🎫';
                     case 'lootbox': return '📦';
                     case 'gadget': return '🧰';
                     case 'megasila': return '⚡';
