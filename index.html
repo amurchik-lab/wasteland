@@ -5755,7 +5755,8 @@ onclick="Core.declineEncounter()">
                 { code: "релиз", type: "voucher", qty: 3, maxUses: 15, desc: "3 🏷️ Ваучера" },
                 { code: "Реклама", type: "bp_premium", maxUses: 1, desc: "Премиум-пропуск Пустоши" },
                 { code: "Вестер", type: "voucher", qty: 3, maxUses: Infinity, desc: "3 🏷️ Ваучера" },
-                { code: "Приз", type: "caps", qty: 50, maxUses: 30, desc: "50 🪙 Крышек" }
+                { code: "Приз", type: "caps", qty: 50, maxUses: 30, desc: "50 🪙 Крышек" },
+                { code: "реклама1", type: "full_restore", maxUses: 15, desc: "полное восстановление ❤️ здоровья и 🍖 сытости" }
             ]
         };
 
@@ -6480,6 +6481,10 @@ onclick="Core.declineEncounter()">
                 } else if(promo.type === 'bp_premium') {
                     this.p.bpPremium = true;
                     this.log(`🎟️ Промокод «${promo.code}» активирован: 🎫 Премиум-пропуск Пустоши активирован!`, "loot");
+                } else if(promo.type === 'full_restore') {
+                    this.p.hp = this.p.maxHp;
+                    this.p.satiety = 100;
+                    this.log(`🎟️ Промокод «${promo.code}» активирован: ❤️ Здоровье и 🍖 Сытость полностью восстановлены!`, "loot");
                 }
 
                 Sound.play('loot');
