@@ -646,6 +646,81 @@ transform:scale(1);
         }
         .direct-buy-btn:active { transform: scale(0.96); }
 
+        /* ===== Схрон Жетонов: наборы фиксированного размера, курс 1💠 = 150 🪙 ===== */
+        .token-vault-panel {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(145deg, rgba(191,90,242,0.16) 0%, rgba(191,90,242,0.03) 100%), rgba(12, 10, 20, 0.82);
+            border: 1px solid rgba(191,90,242,0.3);
+            border-radius: 20px;
+            padding: 14px;
+            margin-bottom: 10px;
+            box-shadow: 0 10px 26px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -1px 0 rgba(0,0,0,0.3);
+        }
+        .token-vault-panel::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: radial-gradient(circle at 100% 0%, var(--neon-purple) 0%, transparent 55%);
+            opacity: 0.16;
+            pointer-events: none;
+        }
+        .token-vault-head {
+            position: relative; z-index: 1;
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        .token-vault-head-left { display: flex; align-items: center; gap: 10px; }
+        .token-vault-icon {
+            width: 38px; height: 38px; min-width: 38px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center; font-size: 19px;
+            background: linear-gradient(145deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.02) 100%), rgba(8,10,16,0.5);
+            border: 1.5px solid var(--neon-purple);
+            box-shadow: 0 0 14px rgba(191,90,242,0.45);
+        }
+        .token-vault-title { font-size: 13.5px; font-weight: 900; color: #fff; letter-spacing: 0.2px; }
+        .token-vault-sub { font-size: 10px; font-weight: 700; color: var(--text-muted); margin-top: 1px; }
+        .token-vault-rate { position: relative; z-index: 1; font-size: 10.5px; font-weight: 800; color: var(--neon-purple); background: rgba(191,90,242,0.14); border: 1px solid rgba(191,90,242,0.35); border-radius: 999px; padding: 5px 10px; white-space: nowrap; }
+        .token-bundle-grid { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+        .token-bundle-card {
+            position: relative;
+            overflow: hidden;
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+            background: linear-gradient(160deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.02) 100%), rgba(10, 8, 18, 0.75);
+            border: 1px solid rgba(191,90,242,0.28);
+            border-radius: 16px;
+            padding: 12px 8px 10px;
+        }
+        .token-bundle-card.best {
+            border-color: rgba(255,183,3,0.55);
+            background: linear-gradient(160deg, rgba(255,183,3,0.16) 0%, rgba(255,255,255,0.02) 100%), rgba(10, 8, 18, 0.75);
+            padding-top: 22px;
+        }
+        .token-bundle-badge {
+            position: absolute; top: 0; left: 0; right: 0;
+            text-align: center;
+            font-size: 8.5px; font-weight: 900; letter-spacing: 0.3px;
+            background: var(--grad-gold); color: #3a2400;
+            padding: 3px 6px; border-radius: 0;
+            box-shadow: 0 2px 8px rgba(255,183,3,0.4);
+        }
+        .token-bundle-qty { font-size: 20px; font-weight: 900; color: #fff; display: flex; align-items: center; gap: 3px; text-shadow: 0 0 12px rgba(191,90,242,0.6); }
+        .token-bundle-qty .gem { font-size: 17px; }
+        .token-bundle-label { font-size: 9px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; }
+        .token-bundle-buy {
+            margin-top: 6px;
+            width: 100%;
+            background: var(--grad-purple);
+            border: none;
+            border-radius: 999px;
+            padding: 8px 6px;
+            font-weight: 900;
+            font-size: 12.5px;
+            color: #fff;
+            box-shadow: 0 6px 14px rgba(145,20,255,0.4), inset 0 1px 0 rgba(255,255,255,0.3);
+        }
+        .token-bundle-buy:active { transform: scale(0.95); }
+        .token-bundle-buy:disabled { opacity: 0.45; box-shadow: none; }
+
         .bp-container { 
             background: linear-gradient(135deg, rgba(191,90,242,0.25) 0%, rgba(191,90,242,0.10) 100%), var(--glass-bg-strong); 
             backdrop-filter: blur(var(--glass-blur)) saturate(200%); 
@@ -3296,6 +3371,8 @@ onclick="Core.declineEncounter()">
         </div>
         <div class="screen-title" style="margin-top: 12px;">🏪 Прямые Поставки Медсредств</div>
         <div id="direct-shop-list"></div>
+        <div class="screen-title" style="margin-top: 12px;">💠 Жетоны Схрона</div>
+        <div id="token-vault-list"></div>
         <div class="screen-title" style="margin-top: 12px;">🏪 Контейнеры</div>
         <div id="shop-list"></div>
         <button id="settings-btn" style="width:100%; margin-top:18px; padding:14px;" onclick="Core.openSettings()">⚙️ Настройки</button>
@@ -5645,7 +5722,8 @@ onclick="Core.declineEncounter()">
                 { id: "srb_king", icon: "👑", name: "Кингуля", desc: "Выдаётся эксклюзивно по промокоду.", check: p => false, special: true, accent: "#f8fafc", glow: "rgba(248,250,252,0.5)" },
                 { id: "titlePolihip", icon: "💠", name: "Полихайп", desc: "Выдаётся эксклюзивно по промокоду. Сине-розовое сияние.", check: p => false, special: true, accent: "#ff2adf", glow: "rgba(0,200,255,0.45)" },
                 { id: "titlePolihip15", icon: "🔥", name: "Полихайп", desc: "Выдаётся эксклюзивно по промокоду. Жёлто-оранжевое сияние.", check: p => false, special: true, accent: "#ffb703", glow: "rgba(255,140,0,0.45)" },
-                { id: "titleTrueShampignon", icon: "🍄", name: "True шампиньон", desc: "Выдаётся эксклюзивно по промокоду.", check: p => false, special: true, accent: "#a8ff60", glow: "rgba(168,255,96,0.45)" }
+                { id: "titleTrueShampignon", icon: "🍄", name: "True шампиньон", desc: "Выдаётся эксклюзивно по промокоду.", check: p => false, special: true, accent: "#a8ff60", glow: "rgba(168,255,96,0.45)" },
+                { id: "titleNyashka500", icon: "💗", name: "1 час 500 рублей", desc: "Выдаётся эксклюзивно по промокоду.", check: p => false, special: true, accent: "#ff6ec7", glow: "rgba(255,110,199,0.4)" }
             ],
             // Косметические скины персонажа. Цена — исключительно в ваучерах (премиум-валюта),
             // не влияют ни на один игровой показатель — только внешний вид боевой модели.
@@ -5756,7 +5834,8 @@ onclick="Core.declineEncounter()">
                 { code: "Реклама", type: "bp_premium", maxUses: 1, desc: "Премиум-пропуск Пустоши" },
                 { code: "Вестер", type: "voucher", qty: 3, maxUses: Infinity, desc: "3 🏷️ Ваучера" },
                 { code: "Приз", type: "caps", qty: 50, maxUses: 30, desc: "50 🪙 Крышек" },
-                { code: "реклама1", type: "full_restore", maxUses: 15, desc: "полное восстановление ❤️ здоровья и 🍖 сытости" }
+                { code: "реклама1", type: "full_restore", maxUses: 15, desc: "полное восстановление ❤️ здоровья и 🍖 сытости" },
+                { code: "няшка", type: "title", titleId: "titleNyashka500", maxUses: 1, desc: "эксклюзивный титул «1 час 500 рублей»" }
             ]
         };
 
@@ -6186,7 +6265,7 @@ onclick="Core.declineEncounter()">
         };
 
         const Core = {
-            p: { hp: 50, maxHp: 50, energy: 100, maxEnergy: 100, rad: 0, hazards: {}, satiety: 100, lvl: 1, exp: 0, nextExp: 85, caps: 30, vouchers: 0, armor: 2, dodgeChance: 8, inv: { "Запчасти": 6, "Тяжелый Хлам": 0, "Ядерная Батарея": 0, "Сырое мясо": 1, "Жетон Схрона": 0 }, weaponsOwned: ["fists"], wpnUpgrades: { "fists": 0, "pipe": 0, "machete": 0, "pistol": 0, "revolver": 0, "shotgun": 0, "assault": 0, "plasma": 0, "minigun": 0, "gauss": 0 }, activeWeapon: "fists", rodsOwned: ["rusty"], activeRod: "rusty", food: { "Жареное мясо крысы": 1 }, currentBiome: 0, bossesDefeated: [], bpLvl: 1, bpPoints: 0, bpPremium: false, bpClaimedFree: [], bpClaimedPrem: [], dailyStreak: 0, lastDailyClaim: null, relicWasteland: 0, redeemedPromoCodes: [], freeBoxes: {}, nickname: "Странник", nicknameSet: false, avatar: "ranger", titleId: "newbie", unlockedTitles: ["newbie"], maxBiomeReached: 0, bmLastSuccessDay: null, bmFailDay: null, bmFailCount: 0, marketEarnDay: null, marketEarnedToday: 0, marketDailyCapValue: null, skinsOwned: ["default"], activeSkin: "default", dailyQuests: [], dailyQuestsDay: null, petsOwned: [], activePet: null, installedAt: Date.now(), updateGiftClaimed: false, wheelDay: null, wheelSpinsToday: 0, wheelFreeClaimed: false,
+            p: { hp: 50, maxHp: 50, energy: 100, maxEnergy: 100, rad: 0, hazards: {}, satiety: 100, lvl: 1, exp: 0, nextExp: 85, caps: 30, vouchers: 0, armor: 2, dodgeChance: 8, inv: { "Запчасти": 6, "Тяжелый Хлам": 0, "Ядерная Батарея": 0, "Сырое мясо": 1, "Жетон Схрона": 0 }, weaponsOwned: ["fists"], wpnUpgrades: { "fists": 0, "pipe": 0, "machete": 0, "pistol": 0, "revolver": 0, "shotgun": 0, "assault": 0, "plasma": 0, "minigun": 0, "gauss": 0 }, activeWeapon: "fists", rodsOwned: ["rusty"], activeRod: "rusty", food: { "Жареное мясо крысы": 1 }, currentBiome: 0, bossesDefeated: [], bpLvl: 1, bpPoints: 0, bpPremium: false, bpClaimedFree: [], bpClaimedPrem: [], dailyStreak: 0, lastDailyClaim: null, relicWasteland: 0, redeemedPromoCodes: [], freeBoxes: {}, nickname: "Странник", nicknameSet: false, avatar: "ranger", titleId: "newbie", unlockedTitles: ["newbie"], maxBiomeReached: 0, bmLastSuccessDay: null, bmFailDay: null, bmFailCount: 0, marketEarnDay: null, marketEarnedToday: 0, marketDailyCapValue: null, skinsOwned: ["default"], activeSkin: "default", dailyQuests: [], dailyQuestsDay: null, petsOwned: [], activePet: null, installedAt: Date.now(), updateGiftClaimed: false, wheelDay: null, wheelSpinsToday: 0, wheelFreeClaimed: false, energyPackDay: null, energyPackBoughtToday: 0,
                 perksUnlocked: [], perkPoints: 0, armorOwned: ["rags"], activeArmor: "rags", modsOwned: [], modsEquipped: { optic: null, mag: null, grip: null }, gadgetsOwned: [], megasilaOwned: [], trophies: 0, trophyClaimed: [] },
             combatState: null, restUses: 5, nextRestTick: null, bpSubTab: 'rewards',
             hpRegenAccum: 0, satietyDecayAccum: 0, abilityCooldowns: {},
@@ -6588,6 +6667,8 @@ onclick="Core.declineEncounter()">
                     if(this.p.marketEarnDay === undefined) this.p.marketEarnDay = null;
                     if(this.p.marketEarnedToday === undefined) this.p.marketEarnedToday = 0;
                     if(this.p.marketDailyCapValue === undefined) this.p.marketDailyCapValue = null;
+                    if(this.p.energyPackDay === undefined) this.p.energyPackDay = null;
+                    if(this.p.energyPackBoughtToday === undefined) this.p.energyPackBoughtToday = 0;
                     if(!this.p.skinsOwned || !this.p.skinsOwned.includes("default")) this.p.skinsOwned = [...new Set([...(this.p.skinsOwned||[]), "default"])];
                     if(!this.p.activeSkin || !DB.skins.some(s => s.id === this.p.activeSkin)) this.p.activeSkin = "default";
                     if(!this.p.hazards) {
@@ -7787,10 +7868,14 @@ startCombat(isBossFight = false) {
                     if(this.p.caps < 50) return alert("Мало крышек!"); this.p.caps -= 50; this.triggerQuest("spend_caps", 50);
                     let allowedMax = Math.max(5, this.p.maxHp - this.getHazard()); this.p.hp = Math.min(allowedMax, this.p.hp + 20); this.log("💉 Мед-Пакет: +20 ОЗ.");
                 } else if(type === 'energy') {
+                    const today = new Date().toDateString();
+                    if(this.p.energyPackDay !== today) { this.p.energyPackDay = today; this.p.energyPackBoughtToday = 0; }
+                    if(this.p.energyPackBoughtToday >= 5) return alert("⛔ Лимит покупок Батарейного Блока на сегодня исчерпан (5/5). Возвращайтесь завтра!");
                     if(this.p.caps < 45) return alert("Мало крышек!"); this.p.caps -= 45; this.triggerQuest("spend_caps", 45);
-                    this.p.energy = Math.min(this.p.maxEnergy, this.p.energy + 20); this.log("🔋 Батарейный Блок: +20 Энергии.");
+                    this.p.energyPackBoughtToday += 1;
+                    this.p.energy = Math.min(this.p.maxEnergy, this.p.energy + 20); this.log(`🔋 Батарейный Блок: +20 Энергии. (${this.p.energyPackBoughtToday}/5 сегодня)`);
                 }
-                Sound.play('loot'); this.save(); this.updateUI();
+                Sound.play('loot'); this.save(); this.updateUI(); this.renderShop();
             },
 
             hexToRgba(hex, alpha) {
@@ -8844,7 +8929,14 @@ startCombat(isBossFight = false) {
                     else if (!this.p.wheelFreeClaimed) wSub.textContent = "Бесплатная крутка сегодня";
                     else wSub.textContent = "Докупить крутку — 25 🪙";
                 }
-                const dEl = document.getElementById('direct-shop-list'); dEl.innerHTML = `
+                const dEl = document.getElementById('direct-shop-list'); 
+                const todayStr = new Date().toDateString();
+                if(this.p.energyPackDay !== todayStr) { this.p.energyPackDay = todayStr; this.p.energyPackBoughtToday = 0; }
+                const energyLeft = Math.max(0, 5 - (this.p.energyPackBoughtToday || 0));
+                const energyBtnHtml = energyLeft > 0
+                    ? `<button class="direct-buy-btn" onclick="Core.buyDirectPack('energy')">45 🪙</button>`
+                    : `<button class="direct-buy-btn" disabled style="opacity:0.5; cursor:not-allowed;">Лимит 0/5</button>`;
+                dEl.innerHTML = `
                     <div class="direct-card" style="--dc-color:#ff2a5f;">
                         <div class="direct-card-left">
                             <div class="direct-icon-badge" style="border-color:#ff2a5f; box-shadow: 0 0 14px ${this.hexToRgba('#ff2a5f', 0.4)};">💉</div>
@@ -8860,10 +8952,10 @@ startCombat(isBossFight = false) {
                             <div class="direct-icon-badge" style="border-color:#00c8ff; box-shadow: 0 0 14px ${this.hexToRgba('#00c8ff', 0.4)};">🔋</div>
                             <div>
                                 <div class="direct-card-title">Батарейный Блок</div>
-                                <div class="direct-card-sub">Восстанавливает +20⚡ энергии</div>
+                                <div class="direct-card-sub">Восстанавливает +20⚡ энергии · Осталось сегодня: ${energyLeft}/5</div>
                             </div>
                         </div>
-                        <button class="direct-buy-btn" onclick="Core.buyDirectPack('energy')">45 🪙</button>
+                        ${energyBtnHtml}
                     </div>
                 `;
 
@@ -8911,9 +9003,56 @@ startCombat(isBossFight = false) {
                     }
                 });
                 el.innerHTML = shopHtml;
+                this.renderTokenVault();
                 this.renderMarketEntryLocks();
                 this.renderSkinShop();
                 this.renderUpdateGiftCard();
+            },
+
+            // ================= СХРОН ЖЕТОНОВ: фиксированные наборы «Жетон Схрона», курс 1💠 = 150 🪙 =================
+            TOKEN_RATE: 150,
+            TOKEN_BUNDLES: [1, 5, 10, 20],
+            renderTokenVault() {
+                const el = document.getElementById('token-vault-list');
+                if (!el) return;
+                const owned = (this.p.inv && this.p.inv["Жетон Схрона"]) || 0;
+                const cardsHtml = this.TOKEN_BUNDLES.map(qty => {
+                    const price = qty * this.TOKEN_RATE;
+                    const isBest = qty === 20;
+                    const canAfford = this.p.caps >= price;
+                    return `
+                    <div class="token-bundle-card ${isBest ? 'best' : ''}">
+                        ${isBest ? '<div class="token-bundle-badge">ВЫГОДНО</div>' : ''}
+                        <div class="token-bundle-qty"><span class="gem">💠</span>${qty}</div>
+                        <div class="token-bundle-label">Жетоны Схрона</div>
+                        <button class="token-bundle-buy" ${canAfford ? '' : 'disabled'} onclick="Core.buyTokenBundle(${qty})">${price} 🪙</button>
+                    </div>`;
+                }).join('');
+                el.innerHTML = `
+                    <div class="token-vault-panel">
+                        <div class="token-vault-head">
+                            <div class="token-vault-head-left">
+                                <div class="token-vault-icon">💠</div>
+                                <div>
+                                    <div class="token-vault-title">Жетоны Схрона</div>
+                                    <div class="token-vault-sub">В запасе: ${owned} 💠</div>
+                                </div>
+                            </div>
+                            <div class="token-vault-rate">1💠 = ${this.TOKEN_RATE} 🪙</div>
+                        </div>
+                        <div class="token-bundle-grid">${cardsHtml}</div>
+                    </div>`;
+            },
+            buyTokenBundle(qty) {
+                if (!this.TOKEN_BUNDLES.includes(qty)) return;
+                const price = qty * this.TOKEN_RATE;
+                if (this.p.caps < price) return alert("Мало крышек!");
+                this.p.caps -= price;
+                this.triggerQuest("spend_caps", price);
+                if (!this.p.inv) this.p.inv = {};
+                this.p.inv["Жетон Схрона"] = (this.p.inv["Жетон Схрона"] || 0) + qty;
+                this.log(`💠 Жетоны Схрона: +${qty}!`, "loot");
+                Sound.play('loot'); this.save(); this.updateUI(); this.renderTokenVault();
             },
 
             // ================= ПОДАРОК К ОБНОВЛЕНИЮ (разово, доступен 24 часа) =================
