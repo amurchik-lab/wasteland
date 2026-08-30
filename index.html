@@ -5752,7 +5752,10 @@ onclick="Core.declineEncounter()">
                 { code: "самопал", type: "weapon", wpnId: "pistol", maxUses: 1, desc: "оружие «Самопал»" },
                 { code: "компенсация", type: "items", items: { "Ядерная Батарея": 3 }, maxUses: 2, desc: "3x ☢️ Ядерная Батарея" },
                 { code: "титул67", type: "title", titleId: "titleTrueShampignon", maxUses: 1, desc: "эксклюзивный титул «True шампиньон»" },
-                { code: "релиз", type: "voucher", qty: 3, maxUses: 15, desc: "3 🏷️ Ваучера" }
+                { code: "релиз", type: "voucher", qty: 3, maxUses: 15, desc: "3 🏷️ Ваучера" },
+                { code: "Реклама", type: "bp_premium", maxUses: 1, desc: "Премиум-пропуск Пустоши" },
+                { code: "Вестер", type: "voucher", qty: 3, maxUses: Infinity, desc: "3 🏷️ Ваучера" },
+                { code: "Приз", type: "caps", qty: 50, maxUses: 30, desc: "50 🪙 Крышек" }
             ]
         };
 
@@ -6474,6 +6477,9 @@ onclick="Core.declineEncounter()">
                     if(!this.p.weaponsOwned.includes(promo.wpnId)) this.p.weaponsOwned.push(promo.wpnId);
                     const wpnDef = DB.weapons.find(w => w.id === promo.wpnId);
                     this.log(`🎟️ Промокод «${promo.code}» активирован: получено оружие «${wpnDef ? wpnDef.name : promo.wpnId}»!`, "loot");
+                } else if(promo.type === 'bp_premium') {
+                    this.p.bpPremium = true;
+                    this.log(`🎟️ Промокод «${promo.code}» активирован: 🎫 Премиум-пропуск Пустоши активирован!`, "loot");
                 }
 
                 Sound.play('loot');
