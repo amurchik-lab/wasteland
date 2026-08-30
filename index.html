@@ -91,6 +91,16 @@
         body { background-color: var(--bg-main); background-image: radial-gradient(circle at 50% 10%, var(--biome-glow, #111827) 0%, var(--bg-main) 80%); color: var(--text-main); overflow: hidden; height: 100dvh; display: flex; flex-direction: column; padding-bottom: env(safe-area-inset-bottom); position: relative; transition: background-image 1.4s ease; }
         body::after { content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 9997; opacity: 0.035; mix-blend-mode: overlay; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
         body.no-glass * { text-shadow: none; }
+        /* Эффект "жидкого стекла" (backdrop-filter: blur — размытие фона под панелями)
+           полностью удалён из игры: класс no-glass теперь навешивается на body всегда,
+           без переключателя и без возможности включить эффект обратно. Правило ниже —
+           universal-селектор с !important — гарантированно убирает backdrop-filter
+           везде по файлу, включая инлайновые style="...", т.к. часть из полусотни мест,
+           где встречался этот эффект, использовала переменную --glass-blur (она обнулена
+           в no-glass), а часть — жёстко прописанные значения blur(6px..30px), которые
+           переменную не слушали. */
+        body.no-glass * { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+
 
         #neon-bg-layer { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
         .neon-blob { position: absolute; opacity: 0.7; mix-blend-mode: screen; will-change: transform, filter, border-radius; transition: background 1.4s ease; }
@@ -2267,26 +2277,6 @@ transform:scale(1);
                     <input type="checkbox" id="setting-perf-mode" onchange="Core.togglePerfMode(this.checked)">
                     <span class="track"><span class="thumb"></span></span>
                 </label>
-            </div>
-            <div class="settings-row">
-                <div>
-                    <div class="settings-label">✨ Liquid Glass</div>
-                    <div class="settings-sub">Стеклянный эффект интерфейса (по умолчанию выключен)</div>
-                </div>
-                <label class="ios-switch">
-                    <input type="checkbox" id="setting-glass" onchange="Core.toggleGlass(this.checked)">
-                    <span class="track"><span class="thumb"></span></span>
-                </label>
-            </div>
-            <div class="settings-row" style="flex-direction: column; align-items: stretch; gap: 10px;">
-                <div>
-                    <div class="settings-label">🎚️ Мощность эффекта</div>
-                    <div class="settings-sub">Настройте силу размытия и прозрачности стекла</div>
-                </div>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <input type="range" id="setting-glass-intensity" min="0" max="100" value="70" oninput="Core.setGlassIntensity(this.value)" style="flex: 1; accent-color: var(--neon-blue);">
-                    <span id="glass-intensity-val" style="font-size: 12px; color: var(--text-muted); min-width: 36px; text-align: right; font-weight: 700;">70%</span>
-                </div>
             </div>
             <div class="settings-row" style="flex-direction: column; align-items: stretch; gap: 10px;">
                 <div>
@@ -5375,7 +5365,8 @@ onclick="Core.declineEncounter()">
                 { id: "titleAtay", icon: "💚", name: "Атай окакий", desc: "Выдаётся эксклюзивно по промокоду.", check: p => false, special: true, accent: "#22c55e", glow: "rgba(34,197,94,0.4)" },
                 { id: "titleMisternyashka", icon: "💗", name: "Misternyashka", desc: "Выдаётся эксклюзивно по промокоду.", check: p => false, special: true, accent: "#ff6ec7", glow: "rgba(255,110,199,0.4)" },
                 { id: "srb_king", icon: "👑", name: "Кингуля", desc: "Выдаётся эксклюзивно по промокоду.", check: p => false, special: true, accent: "#f8fafc", glow: "rgba(248,250,252,0.5)" },
-                { id: "titlePolihip", icon: "💠", name: "Полихайп", desc: "Выдаётся эксклюзивно по промокоду. Сине-розовое сияние.", check: p => false, special: true, accent: "#ff2adf", glow: "rgba(0,200,255,0.45)" }
+                { id: "titlePolihip", icon: "💠", name: "Полихайп", desc: "Выдаётся эксклюзивно по промокоду. Сине-розовое сияние.", check: p => false, special: true, accent: "#ff2adf", glow: "rgba(0,200,255,0.45)" },
+                { id: "titlePolihip15", icon: "🔥", name: "Полихайп", desc: "Выдаётся эксклюзивно по промокоду. Жёлто-оранжевое сияние.", check: p => false, special: true, accent: "#ffb703", glow: "rgba(255,140,0,0.45)" }
             ],
             // Косметические скины персонажа. Цена — исключительно в ваучерах (премиум-валюта),
             // не влияют ни на один игровой показатель — только внешний вид боевой модели.
@@ -5456,6 +5447,7 @@ onclick="Core.declineEncounter()">
                 { code: "clownboy", type: "caps", qty: 35, maxUses: Infinity, desc: "35 крышек" },
                 { code: "bob", type: "caps", qty: 40, maxUses: Infinity, desc: "40 крышек" },
                 { code: "polihip", type: "title", titleId: "titlePolihip", maxUses: 1, desc: "эксклюзивный титул «Полихайп» (сине-розовые тона)" },
+                { code: "polihip15", type: "title", titleId: "titlePolihip15", maxUses: 1, desc: "эксклюзивный титул «Полихайп» (жёлто-оранжевые тона)" },
                 { code: "august", type: "caps", qty: 15, maxUses: Infinity, desc: "15 крышек" },
                 { code: "srb_king", type: "relic_wasteland", qty: 1, maxUses: Infinity, desc: "1x 🗝️ Реликварий Пустоши" },
                 { code: "aaaa", type: "caps", qty: 30, maxUses: Infinity, desc: "30 крышек" },
@@ -5759,26 +5751,23 @@ onclick="Core.declineEncounter()">
 
             loadSettings() {
                 let raw = localStorage.getItem('w_settings_v1');
-                this.settings = raw ? JSON.parse(raw) : { glass: false, glassIntensity: 70, soundVolume: 70, musicVolume: 45, perfMode: false };
-                if (this.settings.glassIntensity === undefined) this.settings.glassIntensity = 70;
+                this.settings = raw ? JSON.parse(raw) : { soundVolume: 70, musicVolume: 45, perfMode: false };
                 // Миграция со старого формата "sound: true/false" на громкость в процентах
                 if (this.settings.soundVolume === undefined) {
                     this.settings.soundVolume = (this.settings.sound === false) ? 0 : 70;
                 }
                 if (this.settings.musicVolume === undefined) this.settings.musicVolume = 45;
                 if (this.settings.perfMode === undefined) this.settings.perfMode = false;
-                document.body.classList.toggle('no-glass', !this.settings.glass);
+                // Эффект "жидкого стекла" полностью удалён из игры — класс no-glass
+                // навсегда включён (без переключателя и без опции вернуть эффект обратно).
+                document.body.classList.add('no-glass');
                 document.body.classList.toggle('perf-mode', this.settings.perfMode);
                 Sound.enabled = this.settings.soundVolume > 0;
                 Sound.setVolume(this.settings.soundVolume);
                 Music.enabled = this.settings.musicVolume > 0;
                 Music.volume = this.settings.musicVolume;
                 Music.mode = 'ambient';
-                this.applyGlassIntensity(this.settings.glassIntensity);
                 document.getElementById('setting-perf-mode').checked = this.settings.perfMode;
-                document.getElementById('setting-glass').checked = this.settings.glass;
-                document.getElementById('setting-glass-intensity').value = this.settings.glassIntensity;
-                document.getElementById('glass-intensity-val').innerText = this.settings.glassIntensity + '%';
                 document.getElementById('setting-sound-volume').value = this.settings.soundVolume;
                 document.getElementById('sound-volume-val').innerText = this.settings.soundVolume + '%';
                 document.getElementById('setting-music-volume').value = this.settings.musicVolume;
@@ -5938,7 +5927,6 @@ onclick="Core.declineEncounter()">
             closeBpOverlay() { document.getElementById('bp-overlay').classList.remove('active'); },
             openSkinOverlay() { document.getElementById('skin-overlay').classList.add('active'); this.setSkinTab('shop'); this.renderSkinShop(); },
             closeSkinOverlay() { document.getElementById('skin-overlay').classList.remove('active'); },
-            toggleGlass(val) { this.settings.glass = val; document.body.classList.toggle('no-glass', !val); this.saveSettings(); },
             setSoundVolume(val) {
                 val = +val;
                 this.settings.soundVolume = val;
@@ -5956,39 +5944,6 @@ onclick="Core.declineEncounter()">
                 this.saveSettings();
             },
 
-            setGlassIntensity(val) {
-                val = parseInt(val);
-                this.settings.glassIntensity = val;
-                document.getElementById('glass-intensity-val').innerText = val + '%';
-                this.applyGlassIntensity(val);
-                this.saveSettings();
-            },
-
-            // Пересчитывает переменные стеклянного эффекта по значению 0-100 (0 = почти прозрачно и без размытия, 100 = максимальный Liquid Glass)
-            applyGlassIntensity(intensity) {
-                let t = Math.max(0, Math.min(100, intensity)) / 100;
-                let root = document.documentElement.style;
-                let blur = Math.round(36 * t);
-                let bgTop = (0.03 + 0.13 * t).toFixed(3);
-                let bgBottom = (0.01 + 0.03 * t).toFixed(3);
-                let bgBase = (0.25 + 0.25 * t).toFixed(3);
-                let sTop = (0.05 + 0.17 * t).toFixed(3);
-                let sBottom = (0.02 + 0.04 * t).toFixed(3);
-                let sBase = (0.3 + 0.3 * t).toFixed(3);
-                let borderA = (0.10 + 0.28 * t).toFixed(3);
-                let shOuter = (0.2 + 0.3 * t).toFixed(3);
-                let shInTop = (0.08 + 0.22 * t).toFixed(3);
-                let shInBot = (0.06 + 0.19 * t).toFixed(3);
-                let softTop = (0.05 + 0.17 * t).toFixed(3);
-                let softBot = (0.04 + 0.16 * t).toFixed(3);
-
-                root.setProperty('--glass-blur', blur + 'px');
-                root.setProperty('--glass-bg', `linear-gradient(145deg, rgba(255,255,255,${bgTop}) 0%, rgba(255,255,255,${bgBottom}) 100%), rgba(8, 10, 16, ${bgBase})`);
-                root.setProperty('--glass-bg-strong', `linear-gradient(145deg, rgba(255,255,255,${sTop}) 0%, rgba(255,255,255,${sBottom}) 100%), rgba(10, 12, 18, ${sBase})`);
-                root.setProperty('--glass-border', `rgba(255, 255, 255, ${borderA})`);
-                root.setProperty('--glass-shadow', `0 10px 40px rgba(0, 0, 0, ${shOuter}), inset 0 1px 0 rgba(255, 255, 255, ${shInTop}), inset 0 -1px 0 rgba(0, 0, 0, ${shInBot})`);
-                root.setProperty('--glass-shadow-soft', `inset 0 1px 0 rgba(255, 255, 255, ${softTop}), inset 0 -1px 0 rgba(0, 0, 0, ${softBot})`);
-            },
             save() { localStorage.setItem('w_save_v7', JSON.stringify({ p: this.p, restUses: this.restUses, t: this.nextRestTick, q: this.quests, lt: this.lastTick, sda: this.satietyDecayAccum || 0, hra: this.hpRegenAccum || 0 })); Cloud.push(); },
             load() { 
                 let data = localStorage.getItem('w_save_v7'); 
@@ -6239,8 +6194,18 @@ onclick="Core.declineEncounter()">
                     buyLvlBtn.disabled = this.p.bpLvl >= 100 || this.p.caps < 50;
                 }
 
-                this.renderInventory(); this.renderShop(); this.renderMap(); this.renderBp(); this.renderDaily();
-                this.checkTitles(); this.renderProfile();
+                // Оптимизация: тяжёлые re-render списков (инвентарь/магазин/карта/бп/профиль)
+                // выполняются только если соответствующий экран сейчас реально виден на
+                // экране, а не при каждом вызове updateUI() (который дергается очень часто —
+                // из боевого цикла, таймеров и т.д.). Это резко снижает число innerHTML-перестроек.
+                const isVisible = (id) => { const e = document.getElementById(id); return !!e && e.classList.contains('active'); };
+                if (isVisible('screen-inv')) this.renderInventory();
+                if (isVisible('screen-shop')) { this.renderShop(); this.renderDaily(); }
+                if (isVisible('screen-map')) this.renderMap();
+                const bpOverlay = document.getElementById('bp-overlay');
+                if (bpOverlay && bpOverlay.classList.contains('active')) this.renderBp();
+                this.checkTitles();
+                if (isVisible('screen-profile')) this.renderProfile();
                 Scene.syncPlayerHp(); Scene.syncWeaponBadge();
             },
 
@@ -7224,7 +7189,7 @@ startCombat(isBossFight = false) {
             },
 
             renderInventory() {
-                const wEl = document.getElementById('weapon-list'); wEl.innerHTML = '';
+                const wEl = document.getElementById('weapon-list'); let wHtml = '';
                 this.p.weaponsOwned.forEach(wId => {
                     let wpn = DB.weapons.find(w => w.id === wId);
                     let upLvl = this.p.wpnUpgrades[wId] || 0;
@@ -7238,7 +7203,7 @@ startCombat(isBossFight = false) {
                     let pipsHtml = Array.from({length: pipTotal}, (_, i) => `<div class="weapon-pip ${i < pipFilled ? 'filled' : ''}"></div>`).join('');
                     let overflowLvl = '';
 
-                    wEl.innerHTML += `
+                    wHtml += `
                         <div class="weapon-card ${isActive?'active':''}" style="--wpn-color:${wpn.color}; --wpn-glow:${this.hexToRgba(wpn.color, 0.45)}">
                             <div class="weapon-card-header">
                                 <div class="weapon-icon-badge">${Sprites.weapon(wpn.id)}</div>
@@ -7266,14 +7231,15 @@ startCombat(isBossFight = false) {
                             </div>
                         </div>`;
                 });
+                wEl.innerHTML = wHtml;
 
-                const rdEl = document.getElementById('rod-list'); rdEl.innerHTML = '';
+                const rdEl = document.getElementById('rod-list'); let rdHtml = '';
                 const rodTierColors = ['#9aa4b2', '#39ff14', '#00f0ff', '#ff2a5f', '#ffb703', '#bf5af2'];
                 this.p.rodsOwned.forEach(rId => {
                     let rod = DB.rods.find(r => r.id === rId);
                     let isActive = this.p.activeRod === rId;
                     let rodColor = rodTierColors[(rod.tier - 1) % rodTierColors.length] || '#00f0ff';
-                    rdEl.innerHTML += `
+                    rdHtml += `
                         <div class="rod-card ${isActive?'active':''}" style="--rod-color:${rodColor}; --rod-glow:${this.hexToRgba(rodColor, 0.45)}">
                             <div class="rod-card-header">
                                 <div class="rod-icon-badge">${rod.icon}</div>
@@ -7295,15 +7261,16 @@ startCombat(isBossFight = false) {
                             </button>
                         </div>`;
                 });
+                rdEl.innerHTML = rdHtml;
 
-                const fEl = document.getElementById('food-list'); fEl.innerHTML = ''; let hasFood = false;
+                const fEl = document.getElementById('food-list'); let fHtml = ''; let hasFood = false;
                 for(let key in this.p.food) {
                     if(this.p.food[key] > 0) {
                         hasFood = true;
                         const foodDef = DB.cooking.find(c => c.name === key) || DB.fish.find(f => f.cookedName === key);
                         const icon = foodDef ? foodDef.icon : '🍏';
                         const heal = foodDef ? foodDef.heal : 10;
-                        fEl.innerHTML += `
+                        fHtml += `
                             <div class="supply-card" style="--sup-color:var(--neon-green); --sup-glow:rgba(57,255,20,0.35);">
                                 <div class="supply-icon">${icon}</div>
                                 <div class="supply-info">
@@ -7315,13 +7282,13 @@ startCombat(isBossFight = false) {
                             </div>`;
                     }
                 }
-                if(!hasFood) fEl.innerHTML = `<div class="supply-empty">🍽️ Нет готовой еды. Приготовьте что-нибудь на костре во вкладке «Крафт».</div>`;
+                fEl.innerHTML = hasFood ? fHtml : `<div class="supply-empty">🍽️ Нет готовой еды. Приготовьте что-нибудь на костре во вкладке «Крафт».</div>`;
 
-                const rEl = document.getElementById('inv-list'); rEl.innerHTML = ''; let hasRes = false;
+                const rEl = document.getElementById('inv-list'); let rHtml = ''; let hasRes = false;
                 for (let k in this.p.inv) {
                     if (this.p.inv[k] > 0) {
                         hasRes = true;
-                        rEl.innerHTML += `
+                        rHtml += `
                             <div class="supply-card" style="--sup-color:var(--neon-blue); --sup-glow:rgba(0,240,255,0.3);">
                                 <div class="supply-icon">${this.itemIcons[k] || '📦'}</div>
                                 <div class="supply-info">
@@ -7332,7 +7299,7 @@ startCombat(isBossFight = false) {
                             </div>`;
                     }
                 }
-                if(!hasRes) rEl.innerHTML = `<div class="supply-empty">📦 Ресурсов пока нет. Разведайте местность или разберите хлам.</div>`;
+                rEl.innerHTML = hasRes ? rHtml : `<div class="supply-empty">📦 Ресурсов пока нет. Разведайте местность или разберите хлам.</div>`;
             },
 
             // === Книга Рецептов ===
@@ -8052,7 +8019,7 @@ startCombat(isBossFight = false) {
             },
 
             renderMap() {
-                const el = document.getElementById('map-list'); el.innerHTML = '';
+                const el = document.getElementById('map-list'); let mHtml = '';
                 DB.biomes.forEach(b => {
                     let isLvlLocked = this.p.lvl < b.minLvl;
                     let isBossLocked = b.bossDefeatedId !== null && !this.p.bossesDefeated.includes(b.bossDefeatedId);
@@ -8079,7 +8046,7 @@ startCombat(isBossFight = false) {
                         bossBtn = `<div class="map-boss-row"><div class="map-boss-done">🏆 Босс ликвидирован</div></div>`;
                     }
 
-                    el.innerHTML += `
+                    mHtml += `
                         <div class="map-card ${isCurrent?'current':''} ${locked?'locked':''}" style="--map-color:${b.theme.accent}; --map-glow:${b.theme.accentSoft};">
                             <div class="map-card-header">
                                 <div class="map-icon-badge">${icon}</div>
@@ -8096,7 +8063,7 @@ startCombat(isBossFight = false) {
 
                 const echoUnlocked = this.p.lvl >= 110;
                 if(echoUnlocked) {
-                    el.innerHTML += `
+                    mHtml += `
                         <div class="echo-project-card">
                             <div class="echo-project-shimmer"></div>
                             <div class="echo-project-badge">📡 В РАЗРАБОТКЕ</div>
@@ -8107,13 +8074,14 @@ startCombat(isBossFight = false) {
                             <div class="echo-project-desc">За гранью Цитадели Омега пробуждается нечто древнее и куда более значительное. Мы готовим следующий этап вашего путешествия — совсем скоро завеса приоткроется.</div>
                         </div>`;
                 } else {
-                    el.innerHTML += `
+                    mHtml += `
                         <div class="echo-project-card locked">
                             <div class="echo-project-icon">📡</div>
                             <div class="echo-project-title">??? НЕИЗВЕСТНЫЙ СИГНАЛ</div>
                             <div class="echo-project-sub">Источник сигнала будет обнаружен на 110 уровне</div>
                         </div>`;
                 }
+                el.innerHTML = mHtml;
             },
 
             renderShop() {
@@ -8140,7 +8108,7 @@ startCombat(isBossFight = false) {
                     </div>
                 `;
 
-                const el = document.getElementById('shop-list'); el.innerHTML = '';
+                const el = document.getElementById('shop-list'); let shopHtml = '';
                 DB.lootboxes.forEach((box, idx) => {
                     let isPremium = !!box.premium;
                     let currency = box.currency || 'caps';
@@ -8150,7 +8118,7 @@ startCombat(isBossFight = false) {
                         let owned = this.p.relicWasteland || 0;
                         let ownedNote = owned > 0 ? `<div style="margin-top:5px; font-size:10.5px; font-weight:800; color:var(--neon-green);">🎁 Бесплатных в запасе: ${owned}</div>` : '';
                         let freeOpenBtn = owned > 0 ? `<button class="direct-buy-btn" style="background: linear-gradient(135deg, #39ff14, #1eb800); color:#062b00; margin-top:6px; width:100%;" onclick="Core.openFreeRelic()">Открыть бесплатный (${owned})</button>` : '';
-                        el.innerHTML += `
+                        shopHtml += `
                         <div class="loot-card premium-box" style="--box-color: ${box.color}; flex-wrap: wrap;" onclick="Core.showLootInfo(${idx})">
                             <div class="premium-ribbon">ЭКСКЛЮЗИВ</div>
                             ${Sprites.crateThumb(box.tier, box.color)}
@@ -8166,7 +8134,7 @@ startCombat(isBossFight = false) {
                         let owned = this.getFreeBoxCount(idx);
                         let ownedNote = owned > 0 ? `<div style="margin-top:4px; font-size:10px; font-weight:800; color:var(--neon-green);">🎁 Бесплатных в запасе: ${owned}</div>` : '';
                         let freeOpenBtn = owned > 0 ? `<button class="direct-buy-btn" style="background: linear-gradient(135deg, #39ff14, #1eb800); color:#062b00; margin-top:6px; width:100%;" onclick="event.stopPropagation(); Core.openFreeBox(${idx})">Открыть бесплатный (${owned})</button>` : '';
-                        el.innerHTML += `
+                        shopHtml += `
                         <div class="direct-card lootbox-card" style="--dc-color: ${box.color}; flex-direction: column; align-items: stretch; gap: 10px;" onclick="Core.showLootInfo(${idx})">
                             <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
                                 <div class="direct-card-left">
@@ -8183,6 +8151,7 @@ startCombat(isBossFight = false) {
                         </div>`;
                     }
                 });
+                el.innerHTML = shopHtml;
                 this.renderMarketEntryLocks();
                 this.renderSkinShop();
                 this.renderUpdateGiftCard();
@@ -9339,7 +9308,7 @@ startCombat(isBossFight = false) {
                 if(this.p.bpPremium) { statusEl.innerHTML = `<span style="color: var(--neon-gold); font-weight:bold;">✨ ПУСТЫННЫЙ ПРЕМИУМ АКТИВЕН</span>`; }
                 else { statusEl.innerHTML = `<button class="purple" style="padding:4px 10px; font-size:11px; border-radius:6px; margin: 4px 0;" onclick="Core.buyBpPremium()">Открыть Премиум (49 🏷️)</button>`; }
 
-                let container = document.getElementById('bp-content-render'); container.innerHTML = '';
+                let container = document.getElementById('bp-content-render'); let bpHtml = '';
                 if(this.bpSubTab === 'rewards') {
                     DB.bpRewards.forEach(r => {
                         let isLvlUnlocked = this.p.bpLvl >= r.lvl;
@@ -9350,7 +9319,7 @@ startCombat(isBossFight = false) {
                         let premBtn = !r.prem ? '' : (premClaimed ? `<div class="track-status claimed">${Icon.check()} ПОЛУЧЕНО</div>` : ((isLvlUnlocked && this.p.bpPremium) ? `<button class="bp-claim-btn" style="background:var(--neon-gold)" onclick="Core.claimBpReward(${r.lvl}, 'prem')">Взять</button>` : `<div class="track-status locked">🔒 ЗАКРЫТО</div>`));
                         let premRewardHtml = r.prem ? `${this.rewardIcon(r.prem)} <span style="color:var(--neon-gold)">${this.formatRewardName(r.prem)}</span>` : '';
 
-                        container.innerHTML += `
+                        bpHtml += `
                         <div class="pass-tier-box ${isLvlUnlocked?'unlocked':''}">
                             <div style="font-size:10.5px; font-weight:900; color:var(--neon-purple)">ЭТАП №${r.lvl} ${isLvlUnlocked?'🔓':'🔒'}</div>
                             <div class="bp-tracks-row">
@@ -9368,6 +9337,7 @@ startCombat(isBossFight = false) {
                             </div>
                         </div>`;
                     });
+                    container.innerHTML = bpHtml;
                 } else {
                     let html = `<div style="font-size:11px; font-weight:900; color:var(--neon-gold); display:flex; justify-content:space-between; align-items:center; margin:2px 0 2px;">
                         <span>🔄 Ежедневные задания</span>
@@ -9408,7 +9378,13 @@ startCombat(isBossFight = false) {
                 } else {
                     document.getElementById('main-view').style.display = 'none';
                     document.getElementById(`screen-${tab}`).classList.add('active');
+                    // Рендерим содержимое экрана сразу при открытии вкладки (а не ждём
+                    // следующего тика updateUI), т.к. updateUI теперь пропускает рендер
+                    // скрытых вкладок ради производительности.
                     if (tab === 'profile') this.renderProfile();
+                    else if (tab === 'inv') this.renderInventory();
+                    else if (tab === 'shop') { this.renderShop(); this.renderDaily(); }
+                    else if (tab === 'map') this.renderMap();
                 }
                 Tut.actionTriggered(btn.id);
             }
