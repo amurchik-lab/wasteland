@@ -5406,14 +5406,14 @@ onclick="Core.declineEncounter()">
             // Обычные ресурсы (Запчасти/Хлам/Батареи) остались как вторичное требование,
             // но их количество сокращено примерно в 3 раза относительно прежней системы.
             blueprints: [
-                { id: "craft_pipe", name: "Ржавая Труба", reqLvl: 1, cost: { "Жетон Схрона": 3, "Запчасти": 1 }, type: "weapon", targetId: "pipe" },
-                { id: "craft_machete", name: "Мачете Скитальца", reqLvl: 3, cost: { "Жетон Схрона": 5, "Запчасти": 2 }, type: "weapon", targetId: "machete" },
-                { id: "craft_pistol", name: "Самопал", reqLvl: 6, cost: { "Жетон Схрона": 10, "Запчасти": 4, "Тяжелый Хлам": 1 }, type: "weapon", targetId: "pistol" },
-                { id: "craft_revolver", name: "Тяжёлый Револьвер", reqLvl: 9, cost: { "Жетон Схрона": 14, "Запчасти": 5, "Тяжелый Хлам": 1 }, type: "weapon", targetId: "revolver" },
-                { id: "craft_shotgun", name: "Дробовик «Костолом»", reqLvl: 26, cost: { "Жетон Схрона": 25, "Запчасти": 15, "Тяжелый Хлам": 4, "Ядерная Батарея": 1 }, type: "weapon", targetId: "shotgun" },
-                { id: "craft_assault", name: "Штурмовая АК-74Рад", reqLvl: 30, cost: { "Жетон Схрона": 32, "Запчасти": 20, "Тяжелый Хлам": 6, "Ядерная Батарея": 1 }, type: "weapon", targetId: "assault" },
-                { id: "craft_minigun", name: "Миниган «Молотилка»", reqLvl: 50, cost: { "Жетон Схрона": 55, "Запчасти": 47, "Тяжелый Хлам": 12, "Ядерная Батарея": 3 }, type: "weapon", targetId: "minigun" },
-                { id: "craft_gauss", name: "Винтовка Гаусса", reqLvl: 65, cost: { "Жетон Схрона": 65, "Запчасти": 50, "Тяжелый Хлам": 13, "Ядерная Батарея": 3 }, type: "weapon", targetId: "gauss" }
+                { id: "craft_pipe", name: "Ржавая Труба", reqLvl: 1, cost: { "Жетон Схрона": 12, "Запчасти": 1 }, type: "weapon", targetId: "pipe" },
+                { id: "craft_machete", name: "Мачете Скитальца", reqLvl: 3, cost: { "Жетон Схрона": 20, "Запчасти": 2 }, type: "weapon", targetId: "machete" },
+                { id: "craft_pistol", name: "Самопал", reqLvl: 6, cost: { "Жетон Схрона": 40, "Запчасти": 4, "Тяжелый Хлам": 1 }, type: "weapon", targetId: "pistol" },
+                { id: "craft_revolver", name: "Тяжёлый Револьвер", reqLvl: 9, cost: { "Жетон Схрона": 56, "Запчасти": 5, "Тяжелый Хлам": 1 }, type: "weapon", targetId: "revolver" },
+                { id: "craft_shotgun", name: "Дробовик «Костолом»", reqLvl: 26, cost: { "Жетон Схрона": 100, "Запчасти": 15, "Тяжелый Хлам": 4, "Ядерная Батарея": 1 }, type: "weapon", targetId: "shotgun" },
+                { id: "craft_assault", name: "Штурмовая АК-74Рад", reqLvl: 30, cost: { "Жетон Схрона": 128, "Запчасти": 20, "Тяжелый Хлам": 6, "Ядерная Батарея": 1 }, type: "weapon", targetId: "assault" },
+                { id: "craft_minigun", name: "Миниган «Молотилка»", reqLvl: 50, cost: { "Жетон Схрона": 220, "Запчасти": 47, "Тяжелый Хлам": 12, "Ядерная Батарея": 3 }, type: "weapon", targetId: "minigun" },
+                { id: "craft_gauss", name: "Винтовка Гаусса", reqLvl: 65, cost: { "Жетон Схрона": 260, "Запчасти": 50, "Тяжелый Хлам": 13, "Ядерная Батарея": 3 }, type: "weapon", targetId: "gauss" }
             ],
             // ===== Перки Билда: 3 ветки прокачки, по очку за уровень персонажа =====
             perks: [
@@ -7202,10 +7202,9 @@ onclick="Core.declineEncounter()">
                 setTimeout(() => {
                     if (roll < 0.45) {
                         let petFx = this.getActivePetEffect();
-                        // От 5-го биома (50+ уровень) множитель находок больше не растёт линейно —
-                        // иначе крышки с разведки на поздних биомах разгонялись до неадекватных чисел.
-                        let capsBiomeMult = 1 + Math.min(this.p.currentBiome, 4);
-                        let c = (Math.floor(Math.random() * 2) + 1) * capsBiomeMult + (petFx.exploreCapsBonus || 0); this.p.caps += c;
+                        // Крышки с разведки больше не зависят от биома вообще — на любом
+                        // биоме находка даёт столько же, сколько в самом первом (1-2 шт.).
+                        let c = (Math.floor(Math.random() * 2) + 1) + (petFx.exploreCapsBonus || 0); this.p.caps += c;
                         let lootRoll = Math.random();
                         let bonusScrap = '';
                         if (petFx.extraScrapChance && Math.random() < petFx.extraScrapChance) {
