@@ -7057,7 +7057,13 @@ startCombat(isBossFight = false) {
                 while (this.p.exp >= this.p.nextExp) {
                     this.p.lvl++; this.p.exp -= this.p.nextExp;
                     let tier = Math.min(DB.levelExpTierStep.length - 1, Math.floor(this.p.lvl / 10));
-                    this.p.nextExp = Math.floor(this.p.nextExp + DB.levelExpTierStep[tier]); this.nextRestTick = null;
+                    let step = DB.levelExpTierStep[tier];
+                    // После 20 уровня требуемый опыт растёт по экспоненте, а не линейно,
+                    // чтобы прокачка на высоких уровнях не была такой быстрой.
+                    if (this.p.lvl > 20) {
+                        step = step * Math.pow(1.045, this.p.lvl - 20);
+                    }
+                    this.p.nextExp = Math.floor(this.p.nextExp + step); this.nextRestTick = null;
                     this.p.maxHp += 5; this.p.armor += 1; this.p.perkPoints = (this.p.perkPoints || 0) + 1;
                     this.log(`🌟 Уровень повышен: ${this.p.lvl}! Макс ОЗ +5, Броня +1, Очко перка +1.`, "system");
                     Scene.levelUpFlash(this.p.lvl);
