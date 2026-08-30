@@ -736,8 +736,12 @@ transform:scale(1);
         .podium-avatar {
             width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
             font-weight: 900; font-size: 16px; color: #1a1206; margin-bottom: 6px; border: 2px solid rgba(255,255,255,0.5);
-            position: relative; flex-shrink: 0;
+            position: relative; flex-shrink: 0; overflow: hidden; cursor: pointer; background: #141c24;
+            transition: transform 0.15s ease, box-shadow 0.2s ease;
         }
+        .podium-avatar svg, .leader-avatar svg, .pp-avatar-img svg { width: 100%; height: 100%; display: block; }
+        .podium-avatar:active, .leader-avatar:active { transform: scale(0.9); }
+        .podium-avatar:hover, .leader-avatar:hover { box-shadow: 0 0 16px rgba(0,240,255,0.5); }
         .podium-slot.rank1 .podium-avatar { width: 58px; height: 58px; font-size: 20px; background: linear-gradient(155deg, #ffe9a8, #ffb703 55%, #d98b00); border-color: #ffe9a8; box-shadow: 0 0 22px rgba(255,183,3,0.65), inset 0 1px 0 rgba(255,255,255,0.5); }
         .podium-slot.rank2 .podium-avatar { background: linear-gradient(155deg, #f1f5f9, #c2cbd6 55%, #93a0b0); box-shadow: 0 0 16px rgba(200,210,225,0.4), inset 0 1px 0 rgba(255,255,255,0.5); }
         .podium-slot.rank3 .podium-avatar { background: linear-gradient(155deg, #f3c79a, #cd7f32 55%, #9a5b1e); box-shadow: 0 0 16px rgba(205,127,50,0.4), inset 0 1px 0 rgba(255,255,255,0.5); }
@@ -775,7 +779,7 @@ transform:scale(1);
         .leader-avatar {
             width: 32px; height: 32px; flex-shrink: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center;
             font-weight: 900; font-size: 12.5px; color: #cfe9ff; background: linear-gradient(155deg, rgba(0,240,255,0.22), rgba(0,240,255,0.04));
-            border: 1.5px solid rgba(0,240,255,0.35);
+            border: 1.5px solid rgba(0,240,255,0.35); overflow: hidden; cursor: pointer; transition: transform 0.15s ease, box-shadow 0.2s ease;
         }
         .leader-row.me .leader-avatar { color: #06141a; background: linear-gradient(155deg, #7fe9ff, #00c2e0); border-color: #bff4ff; }
         .leader-info { flex: 1; min-width: 0; }
@@ -784,6 +788,28 @@ transform:scale(1);
         .leader-trophies { font-size: 12px; font-weight: 900; color: var(--neon-gold); display: flex; align-items: center; gap: 4px; flex-shrink: 0; white-space: nowrap; text-shadow: 0 0 10px rgba(255,183,3,0.4); }
         .leaderboard-list-label { font-size: 9.5px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.6px; margin: 4px 2px 8px; }
         .leaderboard-empty, .leaderboard-loading { text-align: center; padding: 26px 10px; color: var(--text-muted); font-size: 12px; font-weight: 600; }
+
+        /* ===== Публичный профиль игрока (открывается по клику на аватар в лидерборде) ===== */
+        #player-profile-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: rgba(4,8,12,0.78); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); z-index: 7100; display: none; justify-content: center; align-items: center; padding: 16px; }
+        #player-profile-overlay.active { display: flex; }
+        .player-profile-container {
+            max-width: 380px; width: 100%; max-height: 88dvh;
+            background: linear-gradient(165deg, rgba(10,22,30,0.96) 0%, rgba(5,9,15,0.98) 60%);
+            backdrop-filter: blur(var(--glass-blur));
+            border: 1.5px solid rgba(0,240,255,0.35);
+            border-radius: 22px;
+            padding: 20px 16px 16px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            box-shadow: 0 24px 70px rgba(0,0,0,0.65), 0 0 44px rgba(0,240,255,0.14), inset 0 1px 0 rgba(255,255,255,0.06);
+        }
+        .pp-header { display: flex; align-items: center; gap: 14px; margin-bottom: 6px; }
+        .pp-avatar-img { width: 76px; height: 76px; border-radius: 50%; background: rgba(255,255,255,0.08); border: 3px solid var(--avatar-color, var(--neon-blue)); overflow: hidden; box-shadow: 0 0 14px var(--avatar-color, var(--neon-blue)), inset 0 1px 0 rgba(255,255,255,0.2); flex-shrink: 0; }
+        .pp-nickname { font-size: 16.5px; font-weight: 900; color: #fff; letter-spacing: 0.2px; word-break: break-word; }
+        .pp-empty { text-align: center; padding: 24px 10px; color: var(--text-muted); font-size: 12px; font-weight: 600; }
 
         #trophy-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: radial-gradient(circle at 50% 20%, rgba(255,150,0,0.10), rgba(16,10,2,0.9) 65%); z-index: 5900; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 16px; backdrop-filter: blur(6px); }
         #trophy-overlay .schem-container { border-color: var(--neon-gold); box-shadow: 0 0 34px rgba(255,183,3,0.32), inset 0 0 22px rgba(255,183,3,0.08); background: linear-gradient(160deg, rgba(32,22,4,0.94), rgba(10,7,2,0.97)); }
@@ -1465,28 +1491,44 @@ transform:scale(1);
             bottom: 0; 
             left: 0; 
             width: 100vw; 
-            background: var(--glass-bg); 
+            background: var(--glass-bg-strong); 
             backdrop-filter: blur(var(--glass-blur)) saturate(180%);
             -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
-            box-shadow: var(--glass-shadow);
+            box-shadow: 0 -12px 34px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.14);
+            border-top-left-radius: 22px;
+            border-top-right-radius: 22px;
+            border-top: 1px solid rgba(255,255,255,0.14);
             z-index: 400; 
+            overflow: hidden;
         }
-        .action-panel { padding: 12px 14px 8px 14px; }
+        .action-panel { padding: 15px 14px 10px 14px; position: relative; }
         .buttons-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         
         button { background: var(--glass-bg); backdrop-filter: blur(var(--glass-blur)) saturate(160%); -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(160%); border: 1px solid rgba(255,255,255,0.14); box-shadow: var(--glass-shadow-soft); color: var(--text-main); padding: 14px; border-radius: 16px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
         button:active { transform: scale(0.97); }
-        button.primary { background: linear-gradient(135deg, rgba(255,42,95,0.55), rgba(255,0,160,0.55)); border: 1px solid rgba(255,255,255,0.16); }
-        button.success { background: linear-gradient(135deg, rgba(0,240,255,0.5), rgba(0,114,255,0.5)); border: 1px solid rgba(255,255,255,0.16); }
-        button.gold { background: linear-gradient(135deg, rgba(255,183,3,0.6), rgba(255,102,0,0.6)); border: 1px solid rgba(255,255,255,0.16); color: #000; }
-        button.purple { background: linear-gradient(135deg, rgba(218,34,255,0.55), rgba(145,20,255,0.55)); border: 1px solid rgba(255,255,255,0.16); color: #fff; }
+        button.primary { background: linear-gradient(135deg, rgba(255,42,95,0.55), rgba(255,0,160,0.55)); border: 1px solid rgba(255,255,255,0.16); box-shadow: 0 4px 16px rgba(255,42,95,0.3), var(--glass-shadow-soft); }
+        button.success { background: linear-gradient(135deg, rgba(0,240,255,0.5), rgba(0,114,255,0.5)); border: 1px solid rgba(255,255,255,0.16); box-shadow: 0 4px 16px rgba(0,180,255,0.3), var(--glass-shadow-soft); }
+        button.gold { background: linear-gradient(135deg, rgba(255,183,3,0.6), rgba(255,102,0,0.6)); border: 1px solid rgba(255,255,255,0.16); color: #000; box-shadow: 0 4px 16px rgba(255,150,0,0.3), var(--glass-shadow-soft); }
+        button.purple { background: linear-gradient(135deg, rgba(218,34,255,0.55), rgba(145,20,255,0.55)); border: 1px solid rgba(255,255,255,0.16); color: #fff; box-shadow: 0 4px 16px rgba(180,20,255,0.3), var(--glass-shadow-soft); }
         button:disabled { opacity: 0.25; transform: none; cursor: not-allowed; z-index: 1 !important; }
 
-        .tabs { display: flex; background: var(--glass-bg); backdrop-filter: blur(var(--glass-blur)); height: 60px; padding: 6px 8px; gap: 6px; width: 100vw; box-sizing: border-box; }
-        .tab-btn { position: relative; flex: 1 1 0; min-width: 0; max-width: none; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; color: var(--text-muted); display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 3px; height: 100%; padding: 4px 2px; overflow: hidden; transition: all 0.2s; }
-        .tab-btn.active { color: var(--neon-blue); background: rgba(0, 240, 255, 0.08); border: 1px solid var(--neon-blue); }
-        .tab-icon { font-size: 16px; line-height: 1; }
-        .tab-label { font-size: clamp(8px, 2.4vw, 10.5px); line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+        .tabs { display: flex; background: rgba(255,255,255,0.02); border-top: 1px solid rgba(255,255,255,0.08); height: 66px; padding: 8px 10px; gap: 8px; width: 100vw; box-sizing: border-box; }
+        .tab-btn { position: relative; flex: 1 1 0; min-width: 0; max-width: none; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; color: var(--text-muted); display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px; height: 100%; padding: 4px 2px; overflow: hidden; transition: transform 0.22s cubic-bezier(.25,1.4,.4,1), background 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease, color 0.22s ease; }
+        .tab-btn::before {
+            content: '';
+            position: absolute; top: 0; left: 50%; width: 0; height: 3px;
+            background: var(--neon-blue); border-radius: 0 0 6px 6px;
+            box-shadow: 0 0 8px var(--neon-blue);
+            transform: translateX(-50%);
+            transition: width 0.25s ease;
+        }
+        .tab-btn .tab-icon { transition: transform 0.22s cubic-bezier(.25,1.4,.4,1), filter 0.22s ease; }
+        .tab-btn.active { color: var(--neon-blue); background: linear-gradient(160deg, rgba(0,240,255,0.16), rgba(0,240,255,0.04)); border: 1px solid rgba(0,240,255,0.55); box-shadow: 0 0 16px rgba(0,240,255,0.28), inset 0 1px 0 rgba(255,255,255,0.12); transform: translateY(-3px); }
+        .tab-btn.active::before { width: 46%; }
+        .tab-btn.active .tab-icon { transform: scale(1.14); filter: drop-shadow(0 0 6px rgba(0,240,255,0.7)); }
+        .tab-btn:active { transform: scale(0.94); }
+        .tab-icon { font-size: 17px; line-height: 1; }
+        .tab-label { font-size: clamp(8px, 2.4vw, 10.5px); line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; font-weight: 700; letter-spacing: 0.2px; }
         .tab-btn.tab-alert::after {
             content: ''; position: absolute; top: 6px; right: 10px; width: 9px; height: 9px; border-radius: 50%;
             background: var(--neon-red, #ff2a5f); box-shadow: 0 0 6px rgba(255,42,95,0.9), 0 0 0 2px rgba(10,10,14,0.9);
@@ -1970,6 +2012,27 @@ transform:scale(1);
         .mega-list-btn.owned { border-color: rgba(191,90,242,0.6); background: linear-gradient(135deg, rgba(191,90,242,0.4), rgba(191,90,242,0.14)); }
         .mega-list-btn:disabled { cursor: not-allowed; }
         .mega-list-btn:disabled:not(.locked):not(.owned) { opacity: 0.4; }
+
+        /* === Инфо о шансах выпадения контейнера === */
+        #lootinfo-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: rgba(6,6,12,0.82); z-index: 5950; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 16px; backdrop-filter: blur(8px); }
+        #lootinfo-overlay.active { display: flex; }
+        #lootinfo-overlay .schem-container { border-color: var(--lootinfo-color, var(--neon-blue)); box-shadow: 0 0 34px var(--lootinfo-glow, rgba(0,240,255,0.3)), inset 0 0 22px var(--lootinfo-glow, rgba(0,240,255,0.08)); max-height: 82dvh; }
+        #lootinfo-overlay .schem-title { color: var(--lootinfo-color, var(--neon-blue)); }
+        #lootinfo-overlay .schem-close-btn { background: var(--lootinfo-color-15, rgba(0,240,255,0.15)); border-color: var(--lootinfo-color, var(--neon-blue)); color: var(--lootinfo-color, var(--neon-blue)); }
+        .lootinfo-head { display: flex; align-items: center; gap: 12px; padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px dashed var(--lootinfo-color-35, rgba(0,240,255,0.35)); }
+        .lootinfo-head-text { flex: 1; min-width: 0; }
+        .lootinfo-head-name { font-weight: 900; font-size: 14.5px; color: #fff; line-height: 1.3; }
+        .lootinfo-head-sub { font-size: 11px; color: var(--text-muted); margin-top: 3px; line-height: 1.4; }
+        .lootinfo-subtitle { font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); margin: 2px 0 10px 0; }
+        .lootinfo-row { position: relative; border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); overflow: hidden; }
+        .lootinfo-row-fill { position: absolute; top: 0; left: 0; bottom: 0; z-index: 0; background: linear-gradient(90deg, var(--row-color-30, rgba(0,240,255,0.3)), var(--row-color-6, rgba(0,240,255,0.06))); transition: width 0.5s cubic-bezier(.2,.9,.25,1); }
+        .lootinfo-row-top { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .lootinfo-row-name { font-size: 12px; font-weight: 700; color: #fff; line-height: 1.35; }
+        .lootinfo-row-pct { flex-shrink: 0; font-size: 12.5px; font-weight: 900; color: var(--row-color, var(--neon-blue)); text-shadow: 0 0 8px var(--row-color-60, rgba(0,240,255,0.6)); }
+        .lootinfo-row-tag { position: relative; z-index: 1; display: inline-block; margin-top: 5px; font-size: 8.5px; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; padding: 2px 7px; border-radius: 5px; color: var(--row-color, var(--neon-blue)); background: var(--row-color-16, rgba(0,240,255,0.16)); border: 1px solid var(--row-color-40, rgba(0,240,255,0.4)); }
+        .lootinfo-hint { margin-top: 12px; padding-top: 10px; border-top: 1px dashed rgba(255,255,255,0.1); font-size: 10.5px; font-style: italic; color: var(--text-muted); line-height: 1.5; text-align: center; }
+        .loot-card, .direct-card.lootbox-card { cursor: pointer; transition: transform 0.15s ease, box-shadow 0.15s ease; }
+        .loot-card:active, .direct-card.lootbox-card:active { transform: scale(0.985); }
 
         /* === Питомцы === */
         #pets-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: rgba(16,4,8,0.85); z-index: 5900; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 16px; backdrop-filter: blur(6px); }
@@ -2479,6 +2542,26 @@ onclick="Core.declineEncounter()">
         </div>
     </div>
 
+    <div id="player-profile-overlay">
+        <div class="player-profile-container">
+            <button class="bp-overlay-close" onclick="Core.closePlayerProfile()">✕</button>
+            <div class="pp-header">
+                <div id="pp-avatar" class="pp-avatar-img"></div>
+                <div class="profile-id-col">
+                    <div id="pp-nickname" class="pp-nickname"></div>
+                    <div class="profile-badges-row">
+                        <span id="pp-level-badge" class="profile-pill level">⭐ Лвл 1</span>
+                        <span id="pp-title-badge" class="profile-pill profile-title-badge">🔰 Новичок Пустошей</span>
+                    </div>
+                </div>
+            </div>
+            <div class="screen-title" style="margin-top: 14px;">📊 Данные Выжившего</div>
+            <div id="pp-stats" class="profile-data-card"></div>
+            <div class="screen-title" style="margin-top: 12px;">🏆 Титулы (<span id="pp-titles-count">0</span>)</div>
+            <div id="pp-titles-list" style="display:flex; flex-direction:column; gap:8px;"></div>
+        </div>
+    </div>
+
     <div id="skin-overlay">
         <div class="skin-overlay-container">
             <button class="bp-overlay-close" onclick="Core.closeSkinOverlay()">✕</button>
@@ -2592,6 +2675,16 @@ onclick="Core.declineEncounter()">
                 <button class="schem-close-btn" id="pets-close-btn" onclick="Core.closePets()"><svg class="mini-ico" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5.2 5.2l9.6 9.6M14.8 5.2L5.2 14.8" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg> Закрыть</button>
             </div>
             <div class="schem-body" id="pets-body"></div>
+        </div>
+    </div>
+
+    <div id="lootinfo-overlay">
+        <div class="schem-container">
+            <div class="schem-header">
+                <div class="schem-title">🎲 Шансы выпадения</div>
+                <button class="schem-close-btn" id="lootinfo-close-btn" onclick="Core.closeLootInfo()"><svg class="mini-ico" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5.2 5.2l9.6 9.6M14.8 5.2L5.2 14.8" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg> Закрыть</button>
+            </div>
+            <div class="schem-body" id="lootinfo-body"></div>
         </div>
     </div>
 
@@ -5281,7 +5374,8 @@ onclick="Core.declineEncounter()">
                 { id: "titleRebroKent", icon: "💙", name: "KabooM", desc: "Выдаётся эксклюзивно по промокоду.", check: p => false, special: true, accent: "#3b82f6", glow: "rgba(59,130,246,0.4)" },
                 { id: "titleAtay", icon: "💚", name: "Атай окакий", desc: "Выдаётся эксклюзивно по промокоду.", check: p => false, special: true, accent: "#22c55e", glow: "rgba(34,197,94,0.4)" },
                 { id: "titleMisternyashka", icon: "💗", name: "Misternyashka", desc: "Выдаётся эксклюзивно по промокоду.", check: p => false, special: true, accent: "#ff6ec7", glow: "rgba(255,110,199,0.4)" },
-                { id: "srb_king", icon: "👑", name: "Кингуля", desc: "Выдаётся эксклюзивно по промокоду.", check: p => false, special: true, accent: "#f8fafc", glow: "rgba(248,250,252,0.5)" }
+                { id: "srb_king", icon: "👑", name: "Кингуля", desc: "Выдаётся эксклюзивно по промокоду.", check: p => false, special: true, accent: "#f8fafc", glow: "rgba(248,250,252,0.5)" },
+                { id: "titlePolihip", icon: "💠", name: "Полихайп", desc: "Выдаётся эксклюзивно по промокоду. Сине-розовое сияние.", check: p => false, special: true, accent: "#ff2adf", glow: "rgba(0,200,255,0.45)" }
             ],
             // Косметические скины персонажа. Цена — исключительно в ваучерах (премиум-валюта),
             // не влияют ни на один игровой показатель — только внешний вид боевой модели.
@@ -5294,8 +5388,8 @@ onclick="Core.declineEncounter()">
             lootboxes: [
                 { name: "Скрап-Ящик", price: 15, color: "#00f0ff", tier: 1, maxVouchers: 1, table: [{ item: "Запчасти x4", chance: 0.679 }, { item: "🧬 Сыворотка ОЗ (+10 к Макс ОЗ)", chance: 0.291 }, { item: "⛺ Привал x1", chance: 0.03 }] },
                 { name: "Продуктовый ящик", price: 20, color: "#39ff14", tier: 2, maxVouchers: 1, table: [{ item: "Сырое мясо x2", chance: 0.57 }, { item: "Жареное мясо крысы x1", chance: 0.38 }, { item: "⛺ Привал x1", chance: 0.05 }] },
-                { name: "Сейф Минори", price: 45, color: "#ffb703", tier: 3, maxVouchers: 2, table: [{ item: "🧬 Сыворотка ОЗ (+10 к Макс ОЗ)", chance: 0.33 }, { item: "🔋 Микро-батарея (+20 Энергии)", chance: 0.25 }, { item: "Сырое мясо x3", chance: 0.24 }, { item: "⛺ Привал x1", chance: 0.10 }, { item: "🧰 Гаджет (случайное оружие)", chance: 0.06 }, { item: "⚡ Мегасила (случайное оружие)", chance: 0.02 }] },
-                { name: "Реликварий Пустоши", price: 5, color: "#ffd700", currency: "vouchers", premium: true, tier: 4, maxVouchers: 2, table: [{ item: "🎫 Пустынный Премиум-пропуск", chance: 0.01 }, { item: "⚡ Мегасила (случайное оружие)", chance: 0.05 }, { item: "🧰 Гаджет (случайное оружие)", chance: 0.09 }, { item: "🧬 Сыворотка ОЗ (+10 к Макс ОЗ)", chance: 0.27 }, { item: "🔋 Микро-батарея (+20 Энергии)", chance: 0.25 }, { item: "Запчасти x15", chance: 0.18 }, { item: "⛺ Привал x1", chance: 0.15 }] }
+                { name: "Сейф Минори", price: 45, color: "#ffb703", tier: 3, maxVouchers: 2, table: [{ item: "🧬 Сыворотка ОЗ (+10 к Макс ОЗ)", chance: 0.33 }, { item: "🔋 Микро-батарея (+20 Энергии)", chance: 0.25 }, { item: "Сырое мясо x3", chance: 0.22 }, { item: "⛺ Привал x1", chance: 0.10 }, { item: "🧰 Гаджет (случайное оружие)", chance: 0.06 }, { item: "⚡ Мегасила (случайное оружие)", chance: 0.02 }, { item: "Ядерная Батарея x1", chance: 0.02 }] },
+                { name: "Реликварий Пустоши", price: 5, color: "#ffd700", currency: "vouchers", premium: true, tier: 4, maxVouchers: 2, table: [{ item: "🎫 Пустынный Премиум-пропуск", chance: 0.01 }, { item: "⚡ Мегасила (случайное оружие)", chance: 0.05 }, { item: "🧰 Гаджет (случайное оружие)", chance: 0.09 }, { item: "🧬 Сыворотка ОЗ (+10 к Макс ОЗ)", chance: 0.27 }, { item: "🔋 Микро-батарея (+20 Энергии)", chance: 0.25 }, { item: "Запчасти x15", chance: 0.16 }, { item: "⛺ Привал x1", chance: 0.15 }, { item: "Ядерная Батарея x1", chance: 0.02 }] }
             ],
             // ===== Трофейная Дорога: постоянная (не сезонная) шкала за победы в бою, 1 трофей за обычного врага, 15 за босса =====
             // Продлена до 1000 трофеев. Ваучеры на всей дороге специально ограничены суммарно 50 штуками
@@ -5361,7 +5455,7 @@ onclick="Core.declineEncounter()">
                 { code: "amurchik", type: "caps", qty: 25, maxUses: Infinity, desc: "25 крышек" },
                 { code: "clownboy", type: "caps", qty: 35, maxUses: Infinity, desc: "35 крышек" },
                 { code: "bob", type: "caps", qty: 40, maxUses: Infinity, desc: "40 крышек" },
-                { code: "polihip", type: "caps", qty: 30, maxUses: Infinity, desc: "30 крышек" },
+                { code: "polihip", type: "title", titleId: "titlePolihip", maxUses: 1, desc: "эксклюзивный титул «Полихайп» (сине-розовые тона)" },
                 { code: "august", type: "caps", qty: 15, maxUses: Infinity, desc: "15 крышек" },
                 { code: "srb_king", type: "relic_wasteland", qty: 1, maxUses: Infinity, desc: "1x 🗝️ Реликварий Пустоши" },
                 { code: "aaaa", type: "caps", qty: 30, maxUses: Infinity, desc: "30 крышек" },
@@ -5476,8 +5570,17 @@ onclick="Core.declineEncounter()">
                 this.client.from('players').upsert(row).then(({ error }) => {
                     if (error) { console.warn("Cloud: сохранение не отправилось", error.message); return; }
                     // Лидерборд обновляем тем же вызовом — не критично, если иногда промахнётся мимо сети
+                    // Помимо ника/трофеев/уровня, отправляем и данные, нужные для публичного профиля
+                    // игрока (аватар, надетый титул, список открытых титулов и пара счётчиков) —
+                    // это позволяет открывать чужой профиль по клику на аватар в лидерборде без
+                    // дополнительного запроса к приватной таблице 'players'.
                     this.client.from('leaderboard').upsert({
-                        player_id: this.userId, nickname: p.nickname, trophies: p.trophies || 0, lvl: p.lvl
+                        player_id: this.userId, nickname: p.nickname, trophies: p.trophies || 0, lvl: p.lvl,
+                        avatar: p.avatar, title_id: p.titleId, unlocked_titles: p.unlockedTitles,
+                        bosses_defeated: (p.bossesDefeated || []).length,
+                        weapons_owned: (p.weaponsOwned || []).length,
+                        rods_owned: (p.rodsOwned || []).length,
+                        daily_streak: p.dailyStreak || 0
                     }).then(() => {});
                 });
             },
@@ -7757,6 +7860,17 @@ startCombat(isBossFight = false) {
                         const initial = (name) => (name || 'С').trim().charAt(0).toUpperCase();
                         const mainStat = (row) => sort === 'lvl' ? `⭐ Ур. ${row.lvl}` : `🏆 ${row.trophies}`;
                         const subStat = (row) => sort === 'lvl' ? `🏆 ${row.trophies} трофеев` : `Уровень ${row.lvl}`;
+                        // Настоящая аватарка игрока (та, что выбрана в игре), а не первая буква ника.
+                        // Если у записи в лидерборде почему-то нет валидного avatar-id (например, старые
+                        // записи до появления этого поля), аккуратно откатываемся на инициал ника.
+                        const avatarHtml = (row) => {
+                            const av = DB.avatars.find(a => a.id === row.avatar);
+                            return av ? av.svg : initial(row.nickname);
+                        };
+
+                        // Кэшируем полный ответ, чтобы открытие профиля игрока по клику на аватар
+                        // не требовало отдельного запроса к облаку — все нужные поля уже здесь.
+                        this.leaderboardCache = data;
 
                         const top3 = data.slice(0, 3);
                         const rest = data.slice(3);
@@ -7772,7 +7886,7 @@ startCombat(isBossFight = false) {
                                     const isMe = row.player_id === Cloud.userId;
                                     return `<div class="podium-slot rank${idx + 1} ${isMe ? 'me' : ''}">
                                         <div class="podium-crown">${crowns[idx]}</div>
-                                        <div class="podium-avatar">${initial(row.nickname)}</div>
+                                        <div class="podium-avatar" onclick="event.stopPropagation(); Core.openPlayerProfile('${row.player_id}')">${avatarHtml(row)}</div>
                                         <div class="podium-name">${esc(row.nickname || 'Странник')}${isMe ? ' (вы)' : ''}</div>
                                         <div class="podium-trophies">${mainStat(row)}</div>
                                         <div class="podium-base">${idx + 1}</div>
@@ -7786,7 +7900,7 @@ startCombat(isBossFight = false) {
                                 const rank = i + 4;
                                 return `<div class="leader-row ${isMe ? 'me' : ''}">
                                     <div class="leader-rank">${rank}</div>
-                                    <div class="leader-avatar">${initial(row.nickname)}</div>
+                                    <div class="leader-avatar" onclick="event.stopPropagation(); Core.openPlayerProfile('${row.player_id}')">${avatarHtml(row)}</div>
                                     <div class="leader-info">
                                         <div class="leader-name">${esc(row.nickname || 'Странник')}${isMe ? ' (вы)' : ''}</div>
                                         <div class="leader-sub">${subStat(row)}</div>
@@ -7799,6 +7913,70 @@ startCombat(isBossFight = false) {
                         el.innerHTML = podiumHtml + listHtml;
                     });
             },
+
+            // ===== Публичный профиль игрока из лидерборда =====
+            // Использует уже загруженные данные лидерборда (this.leaderboardCache), поэтому
+            // открывается мгновенно, без дополнительного запроса к облаку.
+            openPlayerProfile(playerId) {
+                const row = (this.leaderboardCache || []).find(r => r.player_id === playerId);
+                if (!row) return;
+                Sound.play('click');
+
+                const isMe = playerId === Cloud.userId;
+                const av = DB.avatars.find(a => a.id === row.avatar) || DB.avatars[0];
+                const avatarEl = document.getElementById('pp-avatar');
+                avatarEl.innerHTML = av.svg;
+                avatarEl.style.setProperty('--avatar-color', av.accent);
+
+                document.getElementById('pp-nickname').innerText = `${row.nickname || 'Странник'}${isMe ? ' (вы)' : ''}`;
+                document.getElementById('pp-level-badge').innerText = `⭐ Лвл ${row.lvl}`;
+
+                const equippedTitle = DB.titles.find(t => t.id === row.title_id) || DB.titles[0];
+                const titleBadge = document.getElementById('pp-title-badge');
+                titleBadge.innerText = `${equippedTitle.icon} ${equippedTitle.name}`;
+                titleBadge.classList.toggle('title-special', !!equippedTitle.special);
+                if (equippedTitle.special) {
+                    titleBadge.style.setProperty('--title-accent', equippedTitle.accent || 'var(--neon-purple)');
+                    titleBadge.style.setProperty('--title-glow', equippedTitle.glow || 'rgba(191,90,242,0.35)');
+                } else {
+                    titleBadge.style.removeProperty('--title-accent');
+                    titleBadge.style.removeProperty('--title-glow');
+                }
+
+                const stats = [
+                    { icon: '🏆', color: '#ffb703', label: 'Трофеи', value: `${row.trophies || 0}` },
+                    { icon: '👑', color: '#bf5af2', label: 'Боссы повержены', value: `${row.bosses_defeated ?? 0}` },
+                    { icon: '⚔️', color: '#ff2a5f', label: 'Оружие открыто', value: `${row.weapons_owned ?? 0}/${DB.weapons.length}` },
+                    { icon: '🎣', color: '#39ff14', label: 'Удочки открыто', value: `${row.rods_owned ?? 0}/${DB.rods.length}` },
+                    { icon: '🔥', color: '#ff6600', label: 'Серия', value: `${row.daily_streak ?? 0} дней` }
+                ];
+                document.getElementById('pp-stats').innerHTML = stats.map(s => `<div class="profile-data-row" style="--dc-color:${s.color};"><div class="data-row-icon" style="border-color:${s.color}; box-shadow: 0 0 14px ${this.hexToRgba(s.color, 0.4)}, inset 0 1px 0 rgba(255,255,255,0.15);">${s.icon}</div><span class="data-row-label">${s.label}</span><span class="data-row-value">${s.value}</span></div>`).join('');
+
+                let unlocked = row.unlocked_titles || ['newbie'];
+                if (typeof unlocked === 'string') { try { unlocked = JSON.parse(unlocked); } catch (e) { unlocked = ['newbie']; } }
+                if (!Array.isArray(unlocked)) unlocked = ['newbie'];
+                document.getElementById('pp-titles-count').innerText = `${unlocked.length}/${DB.titles.length}`;
+                const titlesListEl = document.getElementById('pp-titles-list');
+                const ownedTitles = DB.titles.filter(t => unlocked.includes(t.id));
+                titlesListEl.innerHTML = ownedTitles.length ? ownedTitles.map(t => {
+                    const equipped = t.id === row.title_id;
+                    const tag = equipped
+                        ? (t.special ? '<span class="title-card-tag title-tag-special">Надет</span>' : '<span class="title-card-tag" style="color:var(--neon-gold);">Надет</span>')
+                        : '';
+                    const specialVars = t.special ? ` style="--title-accent:${t.accent || 'var(--neon-purple)'}; --title-glow:${t.glow || 'rgba(191,90,242,0.35)'};"` : '';
+                    return `<div class="title-card unlocked ${equipped ? 'equipped' : ''} ${t.special ? 'title-special' : ''}"${specialVars}>
+                        <div class="title-card-icon">${t.icon}</div>
+                        <div class="title-card-info">
+                            <div class="title-card-name">${t.name}</div>
+                            <div class="title-card-desc">${t.desc}</div>
+                        </div>
+                        ${tag}
+                    </div>`;
+                }).join('') : `<div class="pp-empty">Пока нет открытых титулов.</div>`;
+
+                document.getElementById('player-profile-overlay').classList.add('active');
+            },
+            closePlayerProfile() { document.getElementById('player-profile-overlay').classList.remove('active'); },
 
             renderTrophyRoad() {
                 const el = document.getElementById('trophy-body'); el.innerHTML = '';
@@ -7972,7 +8150,7 @@ startCombat(isBossFight = false) {
                         let ownedNote = owned > 0 ? `<div style="margin-top:5px; font-size:10.5px; font-weight:800; color:var(--neon-green);">🎁 Бесплатных в запасе: ${owned}</div>` : '';
                         let freeOpenBtn = owned > 0 ? `<button class="direct-buy-btn" style="background: linear-gradient(135deg, #39ff14, #1eb800); color:#062b00; margin-top:6px; width:100%;" onclick="Core.openFreeRelic()">Открыть бесплатный (${owned})</button>` : '';
                         el.innerHTML += `
-                        <div class="loot-card premium-box" style="--box-color: ${box.color}; flex-wrap: wrap;">
+                        <div class="loot-card premium-box" style="--box-color: ${box.color}; flex-wrap: wrap;" onclick="Core.showLootInfo(${idx})">
                             <div class="premium-ribbon">ЭКСКЛЮЗИВ</div>
                             ${Sprites.crateThumb(box.tier, box.color)}
                             <div class="loot-card-info">
@@ -7980,15 +8158,15 @@ startCombat(isBossFight = false) {
                                 <div class="loot-card-sub">Древний тайник со шансом на крайне редкий приз... и щедрые ресурсы</div>
                                 ${ownedNote}
                             </div>
-                            <button class="direct-buy-btn" style="background: linear-gradient(135deg, #ffb703, #ff6600); color:#fff; box-shadow: 0 6px 16px rgba(255,183,3,0.4), inset 0 1px 0 rgba(255,255,255,0.35);" onclick="Core.buyBox(${idx})">${box.price} ${currencyIcon}</button>
-                            ${freeOpenBtn}
+                            <button class="direct-buy-btn" style="background: linear-gradient(135deg, #ffb703, #ff6600); color:#fff; box-shadow: 0 6px 16px rgba(255,183,3,0.4), inset 0 1px 0 rgba(255,255,255,0.35);" onclick="event.stopPropagation(); Core.buyBox(${idx})">${box.price} ${currencyIcon}</button>
+                            ${freeOpenBtn ? freeOpenBtn.replace('onclick="', 'onclick="event.stopPropagation(); ') : ''}
                         </div>`;
                     } else {
                         let owned = this.getFreeBoxCount(idx);
                         let ownedNote = owned > 0 ? `<div style="margin-top:4px; font-size:10px; font-weight:800; color:var(--neon-green);">🎁 Бесплатных в запасе: ${owned}</div>` : '';
-                        let freeOpenBtn = owned > 0 ? `<button class="direct-buy-btn" style="background: linear-gradient(135deg, #39ff14, #1eb800); color:#062b00; margin-top:6px; width:100%;" onclick="Core.openFreeBox(${idx})">Открыть бесплатный (${owned})</button>` : '';
+                        let freeOpenBtn = owned > 0 ? `<button class="direct-buy-btn" style="background: linear-gradient(135deg, #39ff14, #1eb800); color:#062b00; margin-top:6px; width:100%;" onclick="event.stopPropagation(); Core.openFreeBox(${idx})">Открыть бесплатный (${owned})</button>` : '';
                         el.innerHTML += `
-                        <div class="direct-card" style="--dc-color: ${box.color}; flex-direction: column; align-items: stretch; gap: 10px;">
+                        <div class="direct-card lootbox-card" style="--dc-color: ${box.color}; flex-direction: column; align-items: stretch; gap: 10px;" onclick="Core.showLootInfo(${idx})">
                             <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
                                 <div class="direct-card-left">
                                     ${Sprites.crateThumb(box.tier, box.color)}
@@ -7997,7 +8175,7 @@ startCombat(isBossFight = false) {
                                         <div class="direct-card-sub">Ресурсы, расходники и небольшой шанс на бонусный привал</div>
                                     </div>
                                 </div>
-                                <button class="direct-buy-btn" onclick="Core.buyBox(${idx})">${box.price} ${currencyIcon}</button>
+                                <button class="direct-buy-btn" onclick="event.stopPropagation(); Core.buyBox(${idx})">${box.price} ${currencyIcon}</button>
                             </div>
                             ${ownedNote}
                             ${freeOpenBtn}
@@ -8740,6 +8918,89 @@ startCombat(isBossFight = false) {
                 this.openLootboxAnimated(box);
             },
 
+            // ================= ИНФО О ШАНСАХ ВЫПАДЕНИЯ КОНТЕЙНЕРА =================
+            // Открывается по тапу на карточку контейнера (не на кнопку покупки/открытия).
+            // Показывает полную таблицу дропа с процентами шансов, отсортированную по убыванию.
+            showLootInfo(idx) {
+                const box = DB.lootboxes[idx];
+                if (!box) return;
+                Sound.play('click');
+
+                const color = box.color || '#00f0ff';
+                const overlay = document.getElementById('lootinfo-overlay');
+                overlay.style.setProperty('--lootinfo-color', color);
+                overlay.style.setProperty('--lootinfo-color-15', this.hexToRgba(color, 0.15));
+                overlay.style.setProperty('--lootinfo-color-35', this.hexToRgba(color, 0.35));
+                overlay.style.setProperty('--lootinfo-glow', this.hexToRgba(color, 0.3));
+
+                const currency = box.currency || 'caps';
+                const currencyIcon = currency === 'vouchers' ? '🏷️' : '🪙';
+                const priceText = box.premium ? `${box.price} ${currencyIcon}` : `${box.price} ${currencyIcon}`;
+
+                const table = (box.table || []).slice().sort((a, b) => b.chance - a.chance);
+                // Цвет строки по редкости: чем ниже шанс — тем "горячее" оттенок
+                const rowColor = (chance) => {
+                    if (chance < 0.03) return '#ff2adf';   // ультра-редкое — розовый неон
+                    if (chance < 0.08) return '#bf5af2';   // редкое — фиолетовый
+                    if (chance < 0.2) return '#ffb703';    // необычное — золото
+                    return '#39ff14';                       // обычное — зелёный
+                };
+                const rarityLabel = (chance) => {
+                    if (chance < 0.03) return 'Крайне редко';
+                    if (chance < 0.08) return 'Редко';
+                    if (chance < 0.2) return 'Необычно';
+                    return 'Часто';
+                };
+
+                const rowsHtml = table.map(entry => {
+                    const pct = (entry.chance * 100);
+                    const pctText = pct < 1 ? pct.toFixed(2) : (pct < 10 ? pct.toFixed(1) : Math.round(pct));
+                    const rc = rowColor(entry.chance);
+                    return `<div class="lootinfo-row" style="--row-color:${rc}; --row-color-30:${this.hexToRgba(rc, 0.3)}; --row-color-6:${this.hexToRgba(rc, 0.06)}; --row-color-60:${this.hexToRgba(rc, 0.6)}; --row-color-16:${this.hexToRgba(rc, 0.16)}; --row-color-40:${this.hexToRgba(rc, 0.4)};">
+                        <div class="lootinfo-row-fill" style="width:${Math.max(pct, 2)}%;"></div>
+                        <div class="lootinfo-row-top">
+                            <div class="lootinfo-row-name">${entry.item}</div>
+                            <div class="lootinfo-row-pct">${pctText}%</div>
+                        </div>
+                        <div class="lootinfo-row-tag">${rarityLabel(entry.chance)}</div>
+                    </div>`;
+                }).join('');
+
+                // Дополнительный (скрытый в основной таблице) шанс на бонусные ваучеры сверху основного приза
+                let bonusRowHtml = '';
+                if (box.maxVouchers) {
+                    const bc = '#00e5ff';
+                    const bonusLabel = box.maxVouchers > 1 ? `1–${box.maxVouchers}` : `${box.maxVouchers}`;
+                    bonusRowHtml = `<div class="lootinfo-row" style="--row-color:${bc}; --row-color-30:${this.hexToRgba(bc, 0.3)}; --row-color-6:${this.hexToRgba(bc, 0.06)}; --row-color-60:${this.hexToRgba(bc, 0.6)}; --row-color-16:${this.hexToRgba(bc, 0.16)}; --row-color-40:${this.hexToRgba(bc, 0.4)};">
+                        <div class="lootinfo-row-fill" style="width:5%;"></div>
+                        <div class="lootinfo-row-top">
+                            <div class="lootinfo-row-name">🏷️ Бонусные ваучеры x${bonusLabel} <span style="color:var(--text-muted); font-weight:600;">(доп. к основному призу)</span></div>
+                            <div class="lootinfo-row-pct">5%</div>
+                        </div>
+                        <div class="lootinfo-row-tag">Бонус</div>
+                    </div>`;
+                }
+
+                document.getElementById('lootinfo-body').innerHTML = `
+                    <div class="lootinfo-head">
+                        ${Sprites.crateThumb(box.tier, color)}
+                        <div class="lootinfo-head-text">
+                            <div class="lootinfo-head-name">${box.name}</div>
+                            <div class="lootinfo-head-sub">Цена: ${priceText}</div>
+                        </div>
+                    </div>
+                    <div class="lootinfo-subtitle">Таблица дропа</div>
+                    ${rowsHtml}
+                    ${bonusRowHtml}
+                    <div class="lootinfo-hint">Проценты — реальные шансы выпадения при открытии этого контейнера. Совпадение результатов не гарантировано при каждой попытке.</div>
+                `;
+
+                overlay.classList.add('active');
+            },
+            closeLootInfo() {
+                document.getElementById('lootinfo-overlay').classList.remove('active');
+            },
+
             // Анимация открытия ящика (используется и платным магазином, и бесплатными наградами вроде ежедневного пайка)
             openLootboxAnimated(box) {
                 const overlay = document.getElementById('gacha-overlay');
@@ -8789,7 +9050,7 @@ startCombat(isBossFight = false) {
                     if (g) { chosen = `🧰 ${g.name}`; chosenIcon = g.icon; }
                     else { let bonus = 3; this.p.vouchers += bonus; chosen = `🏷️ Ваучеры x${bonus} (нет оружия Ур.5 без гаджета)`; chosenIcon = "🏷️"; }
                 }
-                else { let clean = chosen.split(" x")[0], qty = parseInt(chosen.split(" x")[1]) || 1; this.p.inv[clean] = (this.p.inv[clean] || 0) + qty; chosenIcon = clean.includes("Запчасти") ? "⚙️" : clean.includes("мясо") ? "🥩" : "⚙️"; }
+                else { let clean = chosen.split(" x")[0], qty = parseInt(chosen.split(" x")[1]) || 1; this.p.inv[clean] = (this.p.inv[clean] || 0) + qty; chosenIcon = this.itemIcons[clean] || (clean.includes("мясо") ? "🥩" : "⚙️"); }
                 
                 // Шанс и количество бонусных ваучеров из ящика намеренно снижены, чтобы контейнеры
                 // не были основным источником премиум-валюты (было 15% шанс и до maxVouchers штук).
