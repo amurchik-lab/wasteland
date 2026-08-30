@@ -5335,7 +5335,7 @@ onclick="Core.declineEncounter()">
                 { id: "assault", name: "Штурмовая АК-74Рад", dmg: 38, crit: 18, icon: "🎯", color: "#ff2a5f", tier: "Эпическое", class: "Штурмовые винтовки" },
                 { id: "plasma", name: "Плазменный Резак", dmg: 35, crit: 15, icon: "🔥", color: "#ff2a5f", tier: "Эпическое", class: "Энергетическое" },
                 { id: "minigun", name: "Миниган «Молотилка»", dmg: 95, crit: 12, icon: "🌀", color: "#ffb703", tier: "Легендарное", class: "Тяжёлое оружие" },
-                { id: "gauss", name: "Винтовка Гаусса", dmg: 80, crit: 25, icon: "⚡", color: "#ffb703", tier: "Легендарное", class: "Энергетическое" }
+                { id: "gauss", name: "Винтовка Гаусса", dmg: 62, crit: 18, icon: "⚡", color: "#ffb703", tier: "Легендарное", class: "Энергетическое" }
             ],
             // ===== Слабости/сопротивления архетипов врагов к классам оружия (весь Босс/Обычный намеренно нейтральны) =====
             classMatchups: {
@@ -5470,7 +5470,7 @@ onclick="Core.declineEncounter()">
                 { weaponId: "assault", name: "Шквальный огонь", icon: "🔥", desc: "Магазин уходит в цель одной длинной очередью.", stats: "x2.8 урона", type: "strike", dmgMult: 2.8, cost: 4 },
                 { weaponId: "plasma", name: "Перегрузка ядра", icon: "☢️", desc: "Ядро идёт вразнос, жар плавит броню изнутри.", stats: "x3.0 урона · Гарантированный крит", type: "strike", dmgMult: 3.0, guaranteedCrit: true, cost: 4 },
                 { weaponId: "minigun", name: "Шквал свинца", icon: "🌀", desc: "Ствол раскручен до предела, свинец льётся сплошной стеной.", stats: "x3.6 урона · Гарантированное оглушение", type: "strike", dmgMult: 3.6, guaranteedStun: true, cost: 5 },
-                { weaponId: "gauss", name: "Пробивной заряд", icon: "⚡", desc: "Заряд прошивает броню насквозь, будто её и не было.", stats: "x4.0 урона в обход брони · Гарантированный крит", type: "strike", dmgMult: 4.0, guaranteedCrit: true, ignoreArmor: true, cost: 5 }
+                { weaponId: "gauss", name: "Пробивной заряд", icon: "⚡", desc: "Заряд прошивает броню насквозь, будто её и не было.", stats: "x3.2 урона в обход брони · Гарантированный крит", type: "strike", dmgMult: 3.2, guaranteedCrit: true, ignoreArmor: true, cost: 5 }
             ],
             // ===== Мегасилы: пассивный бонус оружия, разблокируется на 10 (максимальном) уровне прокачки конкретного оружия =====
             // Действует автоматически, пока это оружие экипировано — активировать отдельно не нужно
@@ -5484,7 +5484,7 @@ onclick="Core.declineEncounter()">
                 { weaponId: "assault", name: "Стабилизированная очередь", icon: "🎯", desc: "Гасители отдачи держат ствол на линии огня даже в длинной очереди.", stats: "+12% урона · +6% шанс крита", effect: { dmgMult: 0.12, crit: 6 }, cost: 5 },
                 { weaponId: "plasma", name: "Резонансный контур", icon: "🌌", desc: "Контур настроен в резонанс с ядром — разряд бьёт точно в уязвимость.", stats: "+25% крит-урона", effect: { critDmgMult: 0.25 }, cost: 5 },
                 { weaponId: "minigun", name: "Раскрученный ротор", icon: "🌀", desc: "Ротор больше не сбавляет обороты — шквал не ослабевает ни на миг.", stats: "+20% урона оружием", effect: { dmgMult: 0.20 }, cost: 6 },
-                { weaponId: "gauss", name: "Магнитный ускоритель", icon: "🧲", desc: "Катушки разогнаны до предела — снаряд проходит цель, не заметив.", stats: "+30% крит-урона (дальний бой) · +10% шанс крита", effect: { rangedCritDmgMult: 0.30, crit: 10 }, cost: 6 }
+                { weaponId: "gauss", name: "Магнитный ускоритель", icon: "🧲", desc: "Катушки разогнаны до предела — снаряд проходит цель, не заметив.", stats: "+20% крит-урона (дальний бой) · +6% шанс крита", effect: { rangedCritDmgMult: 0.20, crit: 6 }, cost: 6 }
             ],
             // ---- Питомцы: раскрываются с 30 уровня, крафтятся из редких ресурсов одновременно ----
             pets: [
