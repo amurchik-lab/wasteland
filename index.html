@@ -3085,7 +3085,7 @@ onclick="Core.declineEncounter()">
             <div class="reward-icon">🎁</div>
             <div class="reward-title" style="color:var(--neon-blue);">Подарок к обновлению</div>
             <div class="reward-name" style="color:var(--neon-blue); text-shadow: 0 0 12px var(--neon-blue);">💠 5 Жетонов Схрона + 🪙 25 Крышек!</div>
-            <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px; line-height:1.5;">Спасибо, что вы с нами ещё до этого обновления. Награда уже зачислена на счёт.</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px; line-height:1.5;">Награда уже зачислена на счёт.</div>
             <button class="primary reward-button" onclick="Core.closeGiftResult()">Отлично!</button>
         </div>
     </div>
@@ -6629,7 +6629,7 @@ onclick="Core.declineEncounter()">
                     clearInterval(this._cdTimer); this._cdTimer = null;
                     this.winnerId = row.winner_id;
                     this.iWon = (row.winner_id === Cloud.userId);
-                    this.state = 'result'; this.render(); this.applyResult();
+                    this.state = 'result'; this.applyResult(); this.render();
                     return;
                 }
             },
@@ -6665,7 +6665,7 @@ onclick="Core.declineEncounter()">
                 clearInterval(this.battleTimer); this.battleTimer = null;
                 clearInterval(this._cdTimer); this._cdTimer = null;
                 this.code = null; this.role = null; this.room = null; this.myReady = false;
-                this.logEntries = []; this.winnerId = null; this.iWon = false;
+                this.logEntries = []; this.winnerId = null; this.iWon = false; this.trophiesLimited = false;
             },
 
             startCountdown() {
@@ -6749,12 +6749,49 @@ onclick="Core.declineEncounter()">
                     if (data) this.onRoomUpdate(data);
                 }).catch(() => { this.attackPending = false; this.renderAbilityGrid(); });
             },
+            // ===== Лимит трофейных дуэлей с одним и тем же соперником: не более 5 в час. =====
+            // Считаем каждую ЗАВЕРШЁННУЮ дуэль (и победу, и поражение) с данным соперником —
+            // начиная с 6-й дуэли за скользящий час трофеи за победу больше не начисляются
+            // (сама дуэль при этом играется как обычно).
+            PVP_TROPHY_LIMIT: 5,
+            PVP_TROPHY_WINDOW_MS: 60 * 60 * 1000,
+            trophiesLimited: false,
+            opponentId() {
+                const room = this.room; if (!room) return null;
+                return this.role === 'host'
+                    ? (room.guest_id || room.guest_nickname || 'unknown')
+                    : (room.host_id || room.host_nickname || 'unknown');
+            },
+            duelCountThisHour(oppId) {
+                if (!oppId) return 0;
+                const log = Core.p.pvpDuelLog || (Core.p.pvpDuelLog = {});
+                const now = Date.now();
+                const arr = (log[oppId] || []).filter(t => now - t < this.PVP_TROPHY_WINDOW_MS);
+                log[oppId] = arr;
+                return arr.length;
+            },
+            registerDuel(oppId) {
+                if (!oppId) return;
+                const log = Core.p.pvpDuelLog || (Core.p.pvpDuelLog = {});
+                const now = Date.now();
+                const arr = (log[oppId] || []).filter(t => now - t < this.PVP_TROPHY_WINDOW_MS);
+                arr.push(now);
+                log[oppId] = arr;
+            },
             applyResult() {
                 const oppName = this.role === 'host' ? this.room.guest_nickname : this.room.host_nickname;
+                const oppId = this.opponentId();
+                const priorDuels = this.duelCountThisHour(oppId);
+                this.trophiesLimited = priorDuels >= this.PVP_TROPHY_LIMIT;
+                this.registerDuel(oppId);
                 if (this.iWon) {
-                    Core.p.trophies = (Core.p.trophies || 0) + 3;
-                    Core.log(`🏆 Победа в PvP-дуэли против ${oppName || 'соперника'}! +3 трофея (всего ${Math.min(Core.p.trophies, 5000)} / 5000).`, 'loot');
-                    if (typeof Core.showTrophyToast === 'function') Core.showTrophyToast(3, false);
+                    if (this.trophiesLimited) {
+                        Core.log(`🏆 Победа в PvP-дуэли против ${oppName || 'соперника'}! Лимит трофейных дуэлей с этим игроком (5 в час) исчерпан — трофеи не начислены.`, 'loot');
+                    } else {
+                        Core.p.trophies = (Core.p.trophies || 0) + 3;
+                        Core.log(`🏆 Победа в PvP-дуэли против ${oppName || 'соперника'}! +3 трофея (всего ${Math.min(Core.p.trophies, 5000)} / 5000).`, 'loot');
+                        if (typeof Core.showTrophyToast === 'function') Core.showTrophyToast(3, false);
+                    }
                 } else {
                     Core.log(`☠️ Поражение в PvP-дуэли против ${oppName || 'соперника'}.`, 'combat-lose');
                 }
@@ -6961,7 +6998,10 @@ onclick="Core.declineEncounter()">
                 const room = this.room; if (!room) return '';
                 const oppName = this.role === 'host' ? room.guest_nickname : room.host_nickname;
                 if (this.iWon) {
-                    return `<div class="pvp-result-banner win"><div class="pvp-result-title">🏆 ПОБЕДА!</div><div class="pvp-result-sub">Соперник ${oppName || ''} повержен. +3 трофея!</div></div>
+                    const trophyText = this.trophiesLimited
+                        ? `Соперник ${oppName || ''} повержен. Лимит трофейных дуэлей с этим игроком исчерпан (5/час) — без трофеев.`
+                        : `Соперник ${oppName || ''} повержен. +3 трофея!`;
+                    return `<div class="pvp-result-banner win"><div class="pvp-result-title">🏆 ПОБЕДА!</div><div class="pvp-result-sub">${trophyText}</div></div>
                         <div class="pvp-btn-row"><button onclick="PvP.close()">Закрыть</button><button class="primary" onclick="PvP.playAgain()">Новая дуэль</button></div>`;
                 }
                 return `<div class="pvp-result-banner lose"><div class="pvp-result-title">☠️ ПОРАЖЕНИЕ</div><div class="pvp-result-sub">${oppName || 'Соперник'} оказался сильнее в этот раз.</div></div>
@@ -6970,7 +7010,7 @@ onclick="Core.declineEncounter()">
         };
 
         const Core = {
-            p: { hp: 50, maxHp: 50, energy: 100, maxEnergy: 100, rad: 0, hazards: {}, satiety: 100, lvl: 1, exp: 0, nextExp: 85, caps: 30, vouchers: 0, armor: 2, dodgeChance: 8, inv: { "Запчасти": 6, "Тяжелый Хлам": 0, "Ядерная Батарея": 0, "Сырое мясо": 1, "Жетон Схрона": 0 }, weaponsOwned: ["fists"], wpnUpgrades: { "fists": 0, "pipe": 0, "machete": 0, "pistol": 0, "revolver": 0, "shotgun": 0, "assault": 0, "plasma": 0, "minigun": 0, "gauss": 0 }, activeWeapon: "fists", rodsOwned: ["rusty"], activeRod: "rusty", food: { "Жареное мясо крысы": 1 }, currentBiome: 0, bossesDefeated: [], bpLvl: 1, bpPoints: 0, bpPremium: false, bpClaimedFree: [], bpClaimedPrem: [], dailyStreak: 0, lastDailyClaim: null, relicWasteland: 0, redeemedPromoCodes: [], freeBoxes: {}, nickname: "Странник", nicknameSet: false, avatarsOwned: ["ranger", "raider", "cyborg"], avatar: "ranger", titleId: "newbie", unlockedTitles: ["newbie"], maxBiomeReached: 0, bmLastSuccessDay: null, bmFailDay: null, bmFailCount: 0, marketEarnDay: null, marketEarnedToday: 0, marketDailyCapValue: null, exchangeDay: null, exchangeUsed: {}, marketBuyDay: null, marketBuySpentToday: 0, marketBuyDailyCapValue: null, skinsOwned: ["default"], activeSkin: "default", dailyQuests: [], dailyQuestsDay: null, petsOwned: [], activePet: null, installedAt: Date.now(), updateGiftClaimed: false, restockGiftEligible: false, restockGiftClaimed: false, restockGiftAt: null, wheelDay: null, wheelSpinsToday: 0, wheelFreeClaimed: false, energyPackDay: null, energyPackBoughtToday: 0,
+            p: { hp: 50, maxHp: 50, energy: 100, maxEnergy: 100, rad: 0, hazards: {}, satiety: 100, lvl: 1, exp: 0, nextExp: 85, caps: 30, vouchers: 0, armor: 2, dodgeChance: 8, inv: { "Запчасти": 6, "Тяжелый Хлам": 0, "Ядерная Батарея": 0, "Сырое мясо": 1, "Жетон Схрона": 0 }, weaponsOwned: ["fists"], wpnUpgrades: { "fists": 0, "pipe": 0, "machete": 0, "pistol": 0, "revolver": 0, "shotgun": 0, "assault": 0, "plasma": 0, "minigun": 0, "gauss": 0 }, activeWeapon: "fists", rodsOwned: ["rusty"], activeRod: "rusty", food: { "Жареное мясо крысы": 1 }, currentBiome: 0, bossesDefeated: [], bpLvl: 1, bpPoints: 0, bpPremium: false, bpClaimedFree: [], bpClaimedPrem: [], dailyStreak: 0, lastDailyClaim: null, relicWasteland: 0, redeemedPromoCodes: [], freeBoxes: {}, nickname: "Странник", nicknameSet: false, avatarsOwned: ["ranger", "raider", "cyborg"], avatar: "ranger", titleId: "newbie", unlockedTitles: ["newbie"], maxBiomeReached: 0, bmLastSuccessDay: null, bmFailDay: null, bmFailCount: 0, marketEarnDay: null, marketEarnedToday: 0, marketDailyCapValue: null, exchangeDay: null, exchangeUsed: {}, marketBuyDay: null, marketBuySpentToday: 0, marketBuyDailyCapValue: null, skinsOwned: ["default"], activeSkin: "default", dailyQuests: [], dailyQuestsDay: null, petsOwned: [], activePet: null, installedAt: Date.now(), updateGiftClaimed: false, restockGiftEligible: false, restockGiftClaimed: false, restockGiftAt: null, pvpDuelLog: {}, wheelDay: null, wheelSpinsToday: 0, wheelFreeClaimed: false, energyPackDay: null, energyPackBoughtToday: 0,
                 perksUnlocked: [], perkPoints: 0, armorOwned: ["rags"], activeArmor: "rags", modsOwned: [], modsEquipped: { optic: null, mag: null, grip: null }, gadgetsOwned: [], megasilaOwned: [], trophies: 0, trophyClaimed: [] },
             combatState: null, restUses: 5, nextRestTick: null, bpSubTab: 'rewards',
             hpRegenAccum: 0, satietyDecayAccum: 0, abilityCooldowns: {},
@@ -7413,6 +7453,7 @@ onclick="Core.declineEncounter()">
                     if(!this.p.trophyClaimed) this.p.trophyClaimed = [];
                     if(this.p.installedAt === undefined) this.p.installedAt = Date.now();
                     if(this.p.updateGiftClaimed === undefined) this.p.updateGiftClaimed = false;
+                    if(!this.p.pvpDuelLog) this.p.pvpDuelLog = {};
                     // "Подарок к обновлению" (5 Жетонов Схрона + 25 Крышек) доступен только тем,
                     // кто уже играл ДО этого патча — определяем это по отсутствию самого поля
                     // restockGiftEligible в сохранении (у новых персонажей, созданных уже после
