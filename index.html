@@ -6048,7 +6048,8 @@ onclick="Core.declineEncounter()">
                 { code: "реклама1", type: "full_restore", maxUses: 15, desc: "полное восстановление ❤️ здоровья и 🍖 сытости" },
                 { code: "няшка", type: "title", titleId: "titleNyashka500", maxUses: 1, desc: "эксклюзивный титул «1 час 500 рублей»" },
                 { code: "аватаркакинга", type: "avatar", avatarId: "kingAvatar", maxUses: 2, desc: "эксклюзивная аватарка «Аватарка Кинга»" },
-                { code: "авабоба", type: "avatar", avatarId: "zeusAvatar", maxUses: 1, desc: "эксклюзивная аватарка «Зевс Олимпиец»" }
+                { code: "авабоба", type: "avatar", avatarId: "zeusAvatar", maxUses: 1, desc: "эксклюзивная аватарка «Зевс Олимпиец»" },
+                { code: "топ3", type: "wheelSpins", qty: 5, maxUses: 3, desc: "5 бесплатных круток 🎡 Колеса Фортуны" }
             ]
         };
 
@@ -7010,7 +7011,7 @@ onclick="Core.declineEncounter()">
         };
 
         const Core = {
-            p: { hp: 50, maxHp: 50, energy: 100, maxEnergy: 100, rad: 0, hazards: {}, satiety: 100, lvl: 1, exp: 0, nextExp: 85, caps: 30, vouchers: 0, armor: 2, dodgeChance: 8, inv: { "Запчасти": 6, "Тяжелый Хлам": 0, "Ядерная Батарея": 0, "Сырое мясо": 1, "Жетон Схрона": 0 }, weaponsOwned: ["fists"], wpnUpgrades: { "fists": 0, "pipe": 0, "machete": 0, "pistol": 0, "revolver": 0, "shotgun": 0, "assault": 0, "plasma": 0, "minigun": 0, "gauss": 0 }, activeWeapon: "fists", rodsOwned: ["rusty"], activeRod: "rusty", food: { "Жареное мясо крысы": 1 }, currentBiome: 0, bossesDefeated: [], bpLvl: 1, bpPoints: 0, bpPremium: false, bpClaimedFree: [], bpClaimedPrem: [], dailyStreak: 0, lastDailyClaim: null, relicWasteland: 0, redeemedPromoCodes: [], freeBoxes: {}, nickname: "Странник", nicknameSet: false, avatarsOwned: ["ranger", "raider", "cyborg"], avatar: "ranger", titleId: "newbie", unlockedTitles: ["newbie"], maxBiomeReached: 0, bmLastSuccessDay: null, bmFailDay: null, bmFailCount: 0, marketEarnDay: null, marketEarnedToday: 0, marketDailyCapValue: null, exchangeDay: null, exchangeUsed: {}, marketBuyDay: null, marketBuySpentToday: 0, marketBuyDailyCapValue: null, skinsOwned: ["default"], activeSkin: "default", dailyQuests: [], dailyQuestsDay: null, petsOwned: [], activePet: null, installedAt: Date.now(), updateGiftClaimed: false, restockGiftEligible: false, restockGiftClaimed: false, restockGiftAt: null, pvpDuelLog: {}, wheelDay: null, wheelSpinsToday: 0, wheelFreeClaimed: false, energyPackDay: null, energyPackBoughtToday: 0,
+            p: { hp: 50, maxHp: 50, energy: 100, maxEnergy: 100, rad: 0, hazards: {}, satiety: 100, lvl: 1, exp: 0, nextExp: 85, caps: 30, vouchers: 0, armor: 2, dodgeChance: 8, inv: { "Запчасти": 6, "Тяжелый Хлам": 0, "Ядерная Батарея": 0, "Сырое мясо": 1, "Жетон Схрона": 0 }, weaponsOwned: ["fists"], wpnUpgrades: { "fists": 0, "pipe": 0, "machete": 0, "pistol": 0, "revolver": 0, "shotgun": 0, "assault": 0, "plasma": 0, "minigun": 0, "gauss": 0 }, activeWeapon: "fists", rodsOwned: ["rusty"], activeRod: "rusty", food: { "Жареное мясо крысы": 1 }, currentBiome: 0, bossesDefeated: [], bpLvl: 1, bpPoints: 0, bpPremium: false, bpClaimedFree: [], bpClaimedPrem: [], dailyStreak: 0, lastDailyClaim: null, relicWasteland: 0, redeemedPromoCodes: [], freeBoxes: {}, nickname: "Странник", nicknameSet: false, avatarsOwned: ["ranger", "raider", "cyborg"], avatar: "ranger", titleId: "newbie", unlockedTitles: ["newbie"], maxBiomeReached: 0, bmLastSuccessDay: null, bmFailDay: null, bmFailCount: 0, marketEarnDay: null, marketEarnedToday: 0, marketDailyCapValue: null, exchangeDay: null, exchangeUsed: {}, marketBuyDay: null, marketBuySpentToday: 0, marketBuyDailyCapValue: null, skinsOwned: ["default"], activeSkin: "default", dailyQuests: [], dailyQuestsDay: null, petsOwned: [], activePet: null, installedAt: Date.now(), updateGiftClaimed: false, restockGiftEligible: false, restockGiftClaimed: false, restockGiftAt: null, pvpDuelLog: {}, wheelDay: null, wheelSpinsToday: 0, wheelFreeClaimed: false, wheelBonusSpins: 0, energyPackDay: null, energyPackBoughtToday: 0,
                 perksUnlocked: [], perkPoints: 0, armorOwned: ["rags"], activeArmor: "rags", modsOwned: [], modsEquipped: { optic: null, mag: null, grip: null }, gadgetsOwned: [], megasilaOwned: [], trophies: 0, trophyClaimed: [] },
             combatState: null, restUses: 5, nextRestTick: null, bpSubTab: 'rewards',
             hpRegenAccum: 0, satietyDecayAccum: 0, abilityCooldowns: {},
@@ -7320,6 +7321,10 @@ onclick="Core.declineEncounter()">
                     this.p.hp = this.p.maxHp;
                     this.p.satiety = 100;
                     this.log(`🎟️ Промокод «${promo.code}» активирован: ❤️ Здоровье и 🍖 Сытость полностью восстановлены!`, "loot");
+                } else if(promo.type === 'wheelSpins') {
+                    this.p.wheelBonusSpins = (this.p.wheelBonusSpins || 0) + promo.qty;
+                    this.log(`🎟️ Промокод «${promo.code}» активирован: +${promo.qty} 🎡 бесплатных круток Колеса Фортуны!`, "loot");
+                    this.renderWheelInfo && this.renderWheelInfo();
                 }
 
                 Sound.play('loot');
@@ -9197,11 +9202,16 @@ startCombat(isBossFight = false) {
                 const btn = document.getElementById('wheel-spin-btn');
                 const sub = document.getElementById('wheel-entry-sub');
                 const freeAvailable = !this.p.wheelFreeClaimed;
+                const bonusSpins = this.p.wheelBonusSpins || 0;
 
                 if (spinsLeft <= 0) {
                     statusEl.innerHTML = `Дневной лимит круток исчерпан (<b>15/15</b>). Возвращайся завтра!`;
                     btn.disabled = true; btn.textContent = "Лимит на сегодня исчерпан";
                     if (sub) sub.textContent = "Лимит круток исчерпан";
+                } else if (bonusSpins > 0) {
+                    statusEl.innerHTML = `У вас есть <b>${bonusSpins}</b> 🎡 бесплатных круток по промокоду. Осталось круток: <b>${spinsLeft}/15</b>.`;
+                    btn.disabled = false; btn.textContent = `🎡 Крутить бесплатно (${bonusSpins})`;
+                    if (sub) sub.textContent = "Бесплатная крутка по промокоду";
                 } else if (freeAvailable) {
                     statusEl.innerHTML = `Сегодня доступна <b>бесплатная</b> крутка. Осталось круток: <b>${spinsLeft}/15</b>.`;
                     btn.disabled = false; btn.textContent = "🎡 Крутить бесплатно";
@@ -9219,8 +9229,10 @@ startCombat(isBossFight = false) {
                 this.wheelResetIfNewDay();
                 if ((this.p.wheelSpinsToday || 0) >= 15) { Sound.play('hit'); this.renderWheelInfo(); return; }
 
-                let usedFree = false;
-                if (!this.p.wheelFreeClaimed) {
+                let usedFree = false, usedBonus = false;
+                if ((this.p.wheelBonusSpins || 0) > 0) {
+                    usedBonus = true;
+                } else if (!this.p.wheelFreeClaimed) {
                     usedFree = true;
                 } else {
                     if (this.p.caps < 25) { Sound.play('hit'); return; }
@@ -9248,6 +9260,7 @@ startCombat(isBossFight = false) {
                 dial.style.transform = `rotate(${this.wheelRotation}deg)`;
 
                 this.p.wheelSpinsToday = (this.p.wheelSpinsToday || 0) + 1;
+                if (usedBonus) this.p.wheelBonusSpins = Math.max(0, (this.p.wheelBonusSpins || 0) - 1);
                 if (usedFree) this.p.wheelFreeClaimed = true;
                 this.save();
                 this.renderWheelInfo();
@@ -9722,6 +9735,7 @@ startCombat(isBossFight = false) {
                 if (wSub) {
                     const spinsLeft = Math.max(0, 15 - (this.p.wheelSpinsToday || 0));
                     if (spinsLeft <= 0) wSub.textContent = "Лимит круток исчерпан";
+                    else if ((this.p.wheelBonusSpins || 0) > 0) wSub.textContent = `Бесплатных круток: ${this.p.wheelBonusSpins}`;
                     else if (!this.p.wheelFreeClaimed) wSub.textContent = "Бесплатная крутка сегодня";
                     else wSub.textContent = "Докупить крутку — 25 🪙";
                 }
