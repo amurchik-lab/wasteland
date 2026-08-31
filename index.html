@@ -486,6 +486,18 @@ transform:scale(1);
         .dmg-float.crit-dmg { color: var(--neon-gold); font-size: 24px; }
         .dmg-float.heal-dmg { color: var(--neon-green); }
         .stage-log-toggle { position: absolute; right: 10px; bottom: 10px; z-index: 7; padding: 7px 11px; font-size: 10.5px; border-radius: 20px; background: rgba(6,8,12,0.62); border: 1px solid rgba(255,255,255,0.16); box-shadow: none; }
+        .stage-pvp-btn {
+            position: absolute; left: 10px; bottom: 10px; z-index: 7;
+            display: flex; align-items: center; gap: 6px;
+            padding: 8px 14px 8px 10px; border-radius: 20px;
+            font-size: 11.5px; font-weight: 900; letter-spacing: 0.4px; color: #fff;
+            background: linear-gradient(150deg, rgba(255,42,95,0.5), rgba(255,20,60,0.22));
+            border: 1.5px solid rgba(255,110,150,0.7);
+            box-shadow: 0 0 16px rgba(255,42,95,0.4), 0 4px 14px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.22);
+            transition: transform 0.12s ease, box-shadow 0.2s ease;
+        }
+        .stage-pvp-btn .stage-pvp-btn-icon { font-size: 15px; filter: drop-shadow(0 0 4px rgba(255,42,95,0.6)); }
+        .stage-pvp-btn:active { transform: scale(0.94); box-shadow: 0 0 10px rgba(255,42,95,0.35), inset 0 1px 0 rgba(255,255,255,0.18); }
         .stage-hint { position: absolute; left: 10px; bottom: 10px; z-index: 4; font-size: 10.5px; color: var(--text-muted); background: rgba(6,8,12,0.5); padding: 6px 10px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.08); pointer-events: none; }
 
         /* ===================================================================
@@ -862,6 +874,68 @@ transform:scale(1);
         }
         .leaderboard-header-title { color: #fff; font-weight: 900; font-size: 15px; letter-spacing: 0.3px; line-height: 1.25; }
         .leaderboard-header-sub { font-size: 9.5px; color: var(--neon-gold); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+
+        /* ===== PvP-дуэли 1на1 (сетевой бой по коду комнаты) ===== */
+        #pvp-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: rgba(4,8,12,0.78); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); z-index: 7100; display: none; justify-content: center; align-items: center; padding: 16px; }
+        #pvp-overlay.active { display: flex; }
+        .pvp-container {
+            max-width: 380px; width: 100%; max-height: 90dvh;
+            background: linear-gradient(165deg, rgba(20,8,16,0.97) 0%, rgba(5,9,15,0.98) 60%);
+            border: 1.5px solid rgba(255,42,95,0.4); border-radius: 22px; padding: 18px 16px 16px;
+            position: relative; display: flex; flex-direction: column; overflow: hidden;
+            box-shadow: 0 24px 70px rgba(0,0,0,0.65), 0 0 44px rgba(255,42,95,0.16), inset 0 1px 0 rgba(255,255,255,0.06);
+        }
+        .pvp-body { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding-right: 2px; }
+        .pvp-header-row { flex-shrink: 0; display: flex; align-items: center; gap: 12px; padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+        .pvp-header-badge { flex-shrink: 0; width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; background: linear-gradient(155deg, rgba(255,42,95,0.32), rgba(255,42,95,0.05)); border: 1.5px solid rgba(255,90,140,0.6); box-shadow: 0 0 16px rgba(255,42,95,0.4), inset 0 1px 0 rgba(255,255,255,0.2); }
+        .pvp-header-title { color: #fff; font-weight: 900; font-size: 15px; letter-spacing: 0.3px; }
+        .pvp-header-sub { font-size: 9.5px; color: var(--neon-red); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+        .pvp-choice-row { display: flex; gap: 10px; margin-bottom: 12px; }
+        .pvp-choice-btn { flex: 1; padding: 16px 8px; border-radius: 14px; border: 1.5px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.04); color: #fff; font-weight: 800; font-size: 12.5px; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
+        .pvp-choice-btn .pvp-choice-icon { font-size: 24px; }
+        .pvp-choice-btn:active { transform: scale(0.96); }
+        .pvp-join-row { display: flex; gap: 8px; margin-bottom: 10px; }
+        .pvp-code-input { flex: 1; min-width: 0; background: rgba(255,255,255,0.06); border: 1.5px solid rgba(255,255,255,0.18); border-radius: 12px; padding: 12px 10px; color: #fff; font-weight: 900; font-size: 18px; letter-spacing: 4px; text-align: center; text-transform: uppercase; }
+        .pvp-code-display { text-align: center; margin: 6px 0 14px; }
+        .pvp-code-display .pvp-code-val { font-size: 32px; font-weight: 900; letter-spacing: 8px; color: var(--neon-gold); text-shadow: 0 0 18px rgba(255,183,3,0.6); }
+        .pvp-code-display .pvp-code-hint { font-size: 10px; color: var(--text-muted); margin-top: 4px; }
+        .pvp-vs-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 10px 0; }
+        .pvp-fighter-card { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 12px 8px; text-align: center; }
+        .pvp-fighter-card.me { border-color: rgba(0,240,255,0.4); }
+        .pvp-fighter-card.opp { border-color: rgba(255,42,95,0.4); }
+        .pvp-fighter-avatar { width: 52px; height: 52px; border-radius: 50%; overflow: hidden; background: #141c24; border: 2px solid rgba(255,255,255,0.3); flex-shrink: 0; }
+        .pvp-fighter-avatar svg { width: 100%; height: 100%; display: block; }
+        .pvp-fighter-name { font-size: 11.5px; font-weight: 800; color: #fff; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .pvp-fighter-lvl { font-size: 9.5px; color: var(--text-muted); font-weight: 700; }
+        .pvp-fighter-ready { font-size: 9.5px; font-weight: 900; padding: 3px 8px; border-radius: 8px; margin-top: 2px; background: rgba(255,255,255,0.08); color: var(--text-muted); }
+        .pvp-fighter-ready.is-ready { background: rgba(57,255,20,0.18); color: var(--neon-green); box-shadow: 0 0 10px rgba(57,255,20,0.3); }
+        .pvp-vs-badge { flex-shrink: 0; font-size: 13px; font-weight: 900; color: var(--neon-red); text-shadow: 0 0 10px rgba(255,42,95,0.6); }
+        .pvp-hpbar-outer { width: 100%; height: 9px; border-radius: 6px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.16); overflow: hidden; margin-top: 4px; }
+        .pvp-hpbar-fill { height: 100%; width: 100%; background: var(--grad-blue); transition: width 0.4s ease; }
+        .pvp-fighter-card.opp .pvp-hpbar-fill { background: linear-gradient(135deg, #ff2a5f, #ff6a00); }
+        .pvp-hp-label { font-size: 9px; color: var(--text-muted); font-weight: 700; margin-top: 2px; }
+        .pvp-log { background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 8px 10px; font-size: 10.5px; line-height: 1.5; color: var(--text-muted); height: 110px; overflow-y: auto; margin: 10px 0; }
+        .pvp-log .pvp-log-entry { margin-bottom: 3px; }
+        .pvp-log .pvp-log-win { color: var(--neon-green); font-weight: 800; }
+        .pvp-log .pvp-log-lose { color: var(--neon-red); font-weight: 800; }
+        .pvp-countdown { text-align: center; font-size: 42px; font-weight: 900; color: var(--neon-gold); text-shadow: 0 0 22px rgba(255,183,3,0.7); margin: 18px 0; }
+        .pvp-result-banner { text-align: center; padding: 18px 10px; border-radius: 16px; margin: 10px 0 14px; }
+        .pvp-result-banner.win { background: linear-gradient(155deg, rgba(57,255,20,0.18), rgba(57,255,20,0.03)); border: 1.5px solid rgba(57,255,20,0.5); }
+        .pvp-result-banner.lose { background: linear-gradient(155deg, rgba(255,42,95,0.18), rgba(255,42,95,0.03)); border: 1.5px solid rgba(255,42,95,0.5); }
+        .pvp-result-title { font-size: 20px; font-weight: 900; color: #fff; margin-bottom: 4px; }
+        .pvp-result-sub { font-size: 12px; font-weight: 700; color: var(--neon-gold); }
+        .pvp-status-msg { text-align: center; font-size: 11.5px; color: var(--text-muted); font-weight: 700; margin: 8px 0; }
+        .pvp-btn-row { display: flex; gap: 8px; margin-top: 6px; flex-shrink: 0; }
+        .pvp-btn-row button { flex: 1; }
+        .pvp-spinner { width: 26px; height: 26px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.15); border-top-color: var(--neon-red); margin: 14px auto; animation: pvpSpin 0.8s linear infinite; }
+        @keyframes pvpSpin { to { transform: rotate(360deg); } }
+        .pvp-attack-main-btn { font-size: 16px; font-weight: 900; padding: 16px 8px; border-radius: 14px; letter-spacing: 0.3px; transition: transform 0.12s ease, opacity 0.2s ease; }
+        .pvp-attack-main-btn:not(:disabled):active { transform: scale(0.95); }
+        .pvp-attack-main-btn:disabled { opacity: 0.55; cursor: default; }
+        #pvp-ability-grid { display: flex; flex-direction: column; gap: 8px; }
+        #pvp-ability-grid button { font-size: 12.5px; font-weight: 800; padding: 12px 6px; border-radius: 12px; transition: transform 0.12s ease, opacity 0.2s ease; }
+        #pvp-ability-grid button:not(:disabled):active { transform: scale(0.95); }
+        #pvp-ability-grid button:disabled { opacity: 0.5; cursor: default; }
 
         /* --- Переключатель сортировки: трофеи / уровень --- */
         .leaderboard-sort-toggle { flex-shrink: 0; display: flex; gap: 6px; margin-bottom: 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 4px; }
@@ -2413,18 +2487,18 @@ transform:scale(1);
         .admin-status { font-size: 10px; color: var(--text-muted); text-align: center; margin-top: 4px; }
 
         /* === Визуальный результат сделки на чёрном рынке === */
-        .update-gift-card { position: relative; overflow: hidden; border-radius: 20px; padding: 18px 16px; margin-bottom: 14px; background: linear-gradient(155deg, rgba(191,90,242,0.22) 0%, rgba(255,183,3,0.14) 60%, rgba(10,12,20,0.9) 100%), rgba(12,14,22,0.9); border: 2px solid var(--neon-gold); box-shadow: 0 0 26px rgba(255,183,3,0.35), inset 0 1px 0 rgba(255,255,255,0.12); animation: giftCardPulse 2.4s ease-in-out infinite; }
-        @keyframes giftCardPulse { 0%,100% { box-shadow: 0 0 22px rgba(255,183,3,0.3), inset 0 1px 0 rgba(255,255,255,0.12); } 50% { box-shadow: 0 0 34px rgba(255,183,3,0.55), inset 0 1px 0 rgba(255,255,255,0.18); } }
-        .update-gift-card::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 70% 60% at 20% 0%, rgba(191,90,242,0.35) 0%, transparent 70%); pointer-events: none; }
-        .update-gift-ribbon { position: absolute; top: 10px; right: -30px; background: var(--grad-accent); color: #fff; font-size: 9.5px; font-weight: 900; letter-spacing: 0.5px; padding: 4px 34px; transform: rotate(38deg); box-shadow: 0 2px 8px rgba(0,0,0,0.4); text-transform: uppercase; }
+        .update-gift-card { position: relative; overflow: hidden; border-radius: 20px; padding: 18px 16px; margin-bottom: 14px; background: linear-gradient(155deg, rgba(0,240,255,0.20) 0%, rgba(191,90,242,0.10) 60%, rgba(10,12,20,0.9) 100%), rgba(12,14,22,0.9); border: 2px solid var(--neon-blue); box-shadow: 0 0 26px rgba(0,240,255,0.35), inset 0 1px 0 rgba(255,255,255,0.12); animation: giftCardPulse 2.4s ease-in-out infinite; }
+        @keyframes giftCardPulse { 0%,100% { box-shadow: 0 0 22px rgba(0,240,255,0.3), inset 0 1px 0 rgba(255,255,255,0.12); } 50% { box-shadow: 0 0 34px rgba(0,240,255,0.55), inset 0 1px 0 rgba(255,255,255,0.18); } }
+        .update-gift-card::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 70% 60% at 20% 0%, rgba(0,240,255,0.30) 0%, transparent 70%); pointer-events: none; }
+        .update-gift-ribbon { position: absolute; top: 10px; right: -30px; background: linear-gradient(135deg, #00c4ff, #0066ff); color: #fff; font-size: 9.5px; font-weight: 900; letter-spacing: 0.5px; padding: 4px 34px; transform: rotate(38deg); box-shadow: 0 2px 8px rgba(0,0,0,0.4); text-transform: uppercase; }
         .update-gift-top { display: flex; align-items: center; gap: 12px; position: relative; z-index: 1; }
-        .update-gift-icon { font-size: 38px; filter: drop-shadow(0 4px 10px rgba(255,183,3,0.5)); flex-shrink: 0; }
-        .update-gift-title { font-size: 14.5px; font-weight: 900; color: var(--neon-gold); text-shadow: 0 0 10px rgba(255,183,3,0.4); margin-bottom: 3px; }
+        .update-gift-icon { font-size: 38px; filter: drop-shadow(0 4px 10px rgba(0,240,255,0.5)); flex-shrink: 0; }
+        .update-gift-title { font-size: 14.5px; font-weight: 900; color: var(--neon-blue); text-shadow: 0 0 10px rgba(0,240,255,0.45); margin-bottom: 3px; }
         .update-gift-sub { font-size: 11px; color: var(--text-muted); line-height: 1.45; }
         .update-gift-list { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
-        .update-gift-tag { font-size: 10px; font-weight: 800; padding: 5px 9px; border-radius: 20px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: var(--text-main); }
-        .update-gift-timer { position: relative; z-index: 1; font-size: 11px; font-weight: 800; color: var(--neon-red); text-align: center; margin-bottom: 10px; letter-spacing: 0.3px; }
-        .update-gift-btn { position: relative; z-index: 1; width: 100%; padding: 14px; border-radius: 13px; border: none; font-size: 13.5px; font-weight: 900; letter-spacing: 0.3px; cursor: pointer; background: var(--grad-gold); color: #2a1500; box-shadow: 0 6px 18px rgba(255,183,3,0.4), inset 0 1px 0 rgba(255,255,255,0.35); }
+        .update-gift-tag { font-size: 10px; font-weight: 800; padding: 5px 9px; border-radius: 20px; background: rgba(0,240,255,0.10); border: 1px solid rgba(0,240,255,0.30); color: var(--text-main); }
+        .update-gift-timer { position: relative; z-index: 1; font-size: 11px; font-weight: 800; color: var(--neon-blue); text-align: center; margin-bottom: 10px; letter-spacing: 0.3px; }
+        .update-gift-btn { position: relative; z-index: 1; width: 100%; padding: 14px; border-radius: 13px; border: none; font-size: 13.5px; font-weight: 900; letter-spacing: 0.3px; cursor: pointer; background: linear-gradient(135deg, #00e0ff, #0066ff); color: #001a2e; box-shadow: 0 6px 18px rgba(0,240,255,0.4), inset 0 1px 0 rgba(255,255,255,0.35); }
         .update-gift-btn:active { transform: scale(0.98); }
         .update-gift-btn.claimed { background: rgba(255,255,255,0.08); color: var(--text-muted); box-shadow: none; cursor: default; }
 
@@ -2481,6 +2555,16 @@ transform:scale(1);
                     <input type="range" id="setting-music-volume" min="0" max="100" value="45" oninput="Core.setMusicVolume(this.value)" style="flex: 1; accent-color: var(--neon-blue);">
                     <span id="music-volume-val" style="font-size: 12px; color: var(--text-muted); min-width: 36px; text-align: right; font-weight: 700;">45%</span>
                 </div>
+            </div>
+            <div class="settings-row">
+                <div>
+                    <div class="settings-label">🎣 Шанс на рыбалку</div>
+                    <div class="settings-sub">Отключите, чтобы озёра больше не предлагали порыбачить при разведке</div>
+                </div>
+                <label class="ios-switch">
+                    <input type="checkbox" id="setting-fishing-enabled" checked onchange="Core.toggleFishing(this.checked)">
+                    <span class="track"><span class="thumb"></span></span>
+                </label>
             </div>
             <div class="settings-row" style="flex-direction: column; align-items: stretch; gap: 10px;">
                 <div>
@@ -2716,6 +2800,20 @@ onclick="Core.declineEncounter()">
         </div>
     </div>
 
+    <div id="pvp-overlay">
+        <div class="pvp-container">
+            <button class="bp-overlay-close" onclick="PvP.close()">✕</button>
+            <div class="pvp-header-row">
+                <div class="pvp-header-badge">⚔️</div>
+                <div>
+                    <div class="pvp-header-title">PvP-Дуэль 1на1</div>
+                    <div class="pvp-header-sub">Сетевой бой на своём билде</div>
+                </div>
+            </div>
+            <div class="pvp-body" id="pvp-body"></div>
+        </div>
+    </div>
+
     <div id="player-profile-overlay">
         <div class="player-profile-container">
             <button class="bp-overlay-close" onclick="Core.closePlayerProfile()">✕</button>
@@ -2942,9 +3040,11 @@ onclick="Core.declineEncounter()">
             </div>
             <div class="schem-tabs">
                 <button class="schem-tab active" id="market-tab-sell" onclick="Core.switchMarketTab('sell')">💰 Продать</button>
+                <button class="schem-tab" id="market-tab-buy" onclick="Core.switchMarketTab('buy')">🛒 Купить</button>
                 <button class="schem-tab" id="market-tab-exchange" onclick="Core.switchMarketTab('exchange')">🔄 Обмен</button>
             </div>
             <div class="schem-body" id="market-list"></div>
+            <div class="schem-body" id="market-buy-list" style="display:none;"></div>
             <div class="schem-body" id="market-exchange-list" style="display:none;"></div>
         </div>
     </div>
@@ -2980,12 +3080,12 @@ onclick="Core.declineEncounter()">
         </div>
     </div>
 
-    <div id="gift-result-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: radial-gradient(ellipse at center top, rgba(255,183,3,0.18) 0%, rgba(4, 6, 10, 0.95) 70%); z-index: 6650; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(8px);">
-        <div class="reward-card" id="gift-result-card" style="display: block; --reward-color-r: 255; --reward-color-g: 183; --reward-color-b: 3;">
+    <div id="gift-result-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: radial-gradient(ellipse at center top, rgba(0,240,255,0.18) 0%, rgba(4, 6, 10, 0.95) 70%); z-index: 6650; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(8px);">
+        <div class="reward-card" id="gift-result-card" style="display: block; --reward-color-r: 0; --reward-color-g: 240; --reward-color-b: 255;">
             <div class="reward-icon">🎁</div>
-            <div class="reward-title" style="color:var(--neon-gold);">Подарок к обновлению</div>
-            <div class="reward-name" style="color:var(--neon-gold); text-shadow: 0 0 12px var(--neon-gold);">Полное восстановление сил!</div>
-            <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px; line-height:1.5;">ОЗ, энергия, сытость и привалы восстановлены до максимума. Радиация сброшена в ноль.</div>
+            <div class="reward-title" style="color:var(--neon-blue);">Подарок к обновлению</div>
+            <div class="reward-name" style="color:var(--neon-blue); text-shadow: 0 0 12px var(--neon-blue);">💠 5 Жетонов Схрона + 🪙 25 Крышек!</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px; line-height:1.5;">Спасибо, что вы с нами ещё до этого обновления. Награда уже зачислена на счёт.</div>
             <button class="primary reward-button" onclick="Core.closeGiftResult()">Отлично!</button>
         </div>
     </div>
@@ -3171,8 +3271,7 @@ onclick="Core.declineEncounter()">
                     <div class="fx-layer" id="fx-layer"></div>
                 </div>
 
-                <div class="stage-zoom-hint" id="stage-zoom-hint">🔍</div>
-                <div class="stage-hint" id="stage-hint">🚶 Разведайте местность</div>
+                <button class="stage-pvp-btn" id="stage-pvp-btn" onclick="PvP.open()"><span class="stage-pvp-btn-icon">⚔️</span>ДУЭЛЬ</button>
                 <button class="stage-log-toggle" id="stage-log-toggle" onclick="Scene.toggleLog()">📜 Журнал</button>
             </div>
 
@@ -3408,7 +3507,7 @@ onclick="Core.declineEncounter()">
                 <div class="trophy-collapsed-mini-track"><div id="trophy-collapsed-fill" class="trophy-collapsed-mini-fill"></div></div>
             </div>
             <div class="bp-collapsed-right">
-                <span id="trophy-collapsed-level" class="trophy-collapsed-level">0 / 1000</span>
+                <span id="trophy-collapsed-level" class="trophy-collapsed-level">0 / 5000</span>
                 <span class="bp-collapsed-arrow" style="color:var(--neon-gold);">›</span>
             </div>
         </div>
@@ -3448,7 +3547,7 @@ onclick="Core.declineEncounter()">
             <div id="default-actions" class="buttons-grid">
                 <button id="btn-explore" class="primary" onclick="Core.explore()">🚶 Разведка (3⚡)</button>
                 <button id="btn-rest" onclick="Core.rest()">
-                    ⛺ Привал (<span id="rest-count">5</span>/5)
+                    ⛺ Привал (<span id="rest-count">5</span>/<span id="rest-max">5</span>)
                     <span id="rest-timer" class="timer-badge" style="display:none;">Откат</span>
                 </button>
             </div>
@@ -5376,6 +5475,13 @@ onclick="Core.declineEncounter()">
             list[94].prem = { name: "🏷️ Ваучеры x25", type: "voucher", qty: 25 };
             list[99].prem = { name: "🌌 Скин «Космо-Странник»", type: "skin", skinId: "cosmo" };
 
+            // ===== Жетоны Схрона в премиум-дороге: 10 штук по 1 шт., раскиданы равномерно
+            // по всей длине пропуска (не задевают уже занятые "круглые" этапы с уникальным контентом) =====
+            const tokenLevels = [8, 18, 28, 38, 48, 58, 68, 78, 88, 98];
+            tokenLevels.forEach(lvl => {
+                list[lvl - 1].prem = { name: "💠 Жетон Схрона x1", type: "item", item: "Жетон Схрона", qty: 1 };
+            });
+
             return list;
         };
 
@@ -5624,12 +5730,18 @@ onclick="Core.declineEncounter()">
             ],
             // ===== Рынок (обычная торговля за крышки, цену назначает игра) =====
             marketPrices: {
-                resources: { "Запчасти": 2, "Тяжелый Хлам": 5, "Сырое мясо": 3 },
+                resources: { "Запчасти": 2, "Тяжелый Хлам": 5, "Сырое мясо": 3, "Ядерная Батарея": 16 },
                 fishRarity: { "Обычная": 3, "Необычная": 5, "Редкая": 9, "Эпическая": 16, "Легендарная": 30 },
                 cooked: { "Жареное мясо крысы": 4, "Питательный Рад-Суп": 9 }
             },
-            // ===== Обмен на рынке (Тяжёлый Хлам -> Запчасти, фиксированный курс) =====
-            exchangeRate: { heavyToParts: 3 },
+            // ===== Покупка ресурсов на рынке (за крышки, цена выше продажной, свой дневной лимит трат) =====
+            marketBuyPrices: { "Запчасти": 4, "Тяжелый Хлам": 9, "Сырое мясо": 6 },
+            // ===== Обмен на рынке: несколько направлений конвертации ресурсов, каждое со своим дневным лимитом =====
+            exchangeRecipes: [
+                { id: "heavyToParts", name: "Тяжёлый Хлам → Запчасти", fromKey: "Тяжелый Хлам", fromQty: 1, toKey: "Запчасти", toQty: 3, fromIcon: "🔩", toIcon: "⚙️", dailyLimitBatches: 40, desc: "Дядя Скрап переплавит тяжёлый лом в рабочие запчасти прямо у тебя на глазах." },
+                { id: "partsToHeavy", name: "Запчасти → Тяжёлый Хлам", fromKey: "Запчасти", fromQty: 5, toKey: "Тяжелый Хлам", toQty: 1, fromIcon: "⚙️", toIcon: "🔩", dailyLimitBatches: 20, desc: "Если запчастей скопилось слишком много, Дядя Скрап спрессует их обратно в тяжёлый лом — курс менее выгодный, чем в обратную сторону." },
+                { id: "batteryToHeavy", name: "Ядерная Батарея → Тяжёлый Хлам", fromKey: "Ядерная Батарея", fromQty: 1, toKey: "Тяжелый Хлам", toQty: 6, fromIcon: "☢️", toIcon: "🔩", dailyLimitBatches: 5, desc: "Разрядившиеся батареи Дядя Скрап разберёт на тяжёлый лом. Курс щедрый, но батарей мало, поэтому лимит небольшой." }
+            ],
             // ===== Чёрный рынок (оружие, удочки, ядерные батареи; цену назначает игрок) =====
             blackMarket: {
                 voucherRate: 20, // условная оценка: 1 ваучер ≈ 20 крышек
@@ -5688,6 +5800,19 @@ onclick="Core.declineEncounter()">
                         <path d="M40 72 C46 76 54 76 60 72" stroke="#1c2130" stroke-width="2.4" fill="none" stroke-linecap="round"/>
                         <path d="M50 59 L50 68" stroke="#20242f" stroke-width="2"/>
                     </svg>`
+                },
+                {
+                    id: "kingAvatar", name: "Аватарка Кинга", accent: "#f5c518",
+                    svg: `<svg viewBox="0 0 100 100" width="100" height="100" xmlns="http://www.w3.org/2000/svg">
+                        <image href="data:image/jpeg;base64,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" x="0" y="0" width="100" height="100" preserveAspectRatio="xMidYMid slice"/>
+                    </svg>`
+                },
+                {
+                    id: "zeusAvatar", name: "Зевс Олимпиец", accent: "#ffd700",
+                    svg: `<svg viewBox="0 0 100 100" width="100" height="100" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="100" height="100" fill="#0d3b3f"/>
+                        <image href="data:image/jpeg;base64,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" x="0" y="0" width="100" height="100" preserveAspectRatio="xMidYMid slice"/>
+                    </svg>`
                 }
             ],
             // Система титулов: разблокируются автоматически по достижениям и навсегда остаются в профиле игрока
@@ -5709,6 +5834,7 @@ onclick="Core.declineEncounter()">
                 { id: "capsMagnate", icon: "🪙", name: "Крышечный Магнат", desc: "Накопите 1000 крышек одновременно.", check: p => (p.caps || 0) >= 1000 },
                 { id: "bpMaster", icon: "🎫", name: "Хозяин Пропуска Пустоши", desc: "Достигните 100 уровня Пропуска Пустоши.", check: p => (p.bpLvl || 0) >= 100 },
                 { id: "trophyChampion", icon: "🏆", name: "Чемпион Трофейной Дороги", desc: "Наберите 1000 трофеев.", check: p => (p.trophies || 0) >= 1000 },
+                { id: "trophyLegend", icon: "👑", name: "Легенда Трофейной Дороги", desc: "Пройдите Трофейную Дорогу полностью — наберите 5000 трофеев.", check: p => (p.trophies || 0) >= 5000 },
                 // Проверяется не локально (check всегда false), а отдельно через Core.checkTopRankTitle(),
                 // поскольку требует сравнения с остальными игроками из общей таблицы лидеров в облаке.
                 { id: "bestInGame", icon: "👑", name: "Лучший в игре", desc: "Займите 1-е место в общей таблице лидеров по трофеям.", check: p => false },
@@ -5736,33 +5862,117 @@ onclick="Core.declineEncounter()">
             lootboxes: [
                 { name: "Скрап-Ящик", price: 15, color: "#00f0ff", tier: 1, maxVouchers: 1, table: [{ item: "Запчасти x4", chance: 0.679 }, { item: "🧬 Сыворотка ОЗ (+10 к Макс ОЗ)", chance: 0.291 }, { item: "⛺ Привал x1", chance: 0.03 }] },
                 { name: "Продуктовый ящик", price: 20, color: "#39ff14", tier: 2, maxVouchers: 1, table: [{ item: "Сырое мясо x2", chance: 0.57 }, { item: "Жареное мясо крысы x1", chance: 0.38 }, { item: "⛺ Привал x1", chance: 0.05 }] },
-                { name: "Сейф Минори", price: 45, color: "#ffb703", tier: 3, maxVouchers: 2, table: [{ item: "🧬 Сыворотка ОЗ (+10 к Макс ОЗ)", chance: 0.30 }, { item: "🔋 Микро-батарея (+20 Энергии)", chance: 0.22 }, { item: "Сырое мясо x3", chance: 0.22 }, { item: "⛺ Привал x1", chance: 0.10 }, { item: "🧰 Гаджет (случайное оружие)", chance: 0.06 }, { item: "⚡ Мегасила (случайное оружие)", chance: 0.02 }, { item: "Ядерная Батарея x1", chance: 0.08 }] },
-                { name: "Реликварий Пустоши", price: 5, color: "#ffd700", currency: "vouchers", premium: true, tier: 4, maxVouchers: 2, table: [{ item: "🎫 Пустынный Премиум-пропуск", chance: 0.01 }, { item: "⚡ Мегасила (случайное оружие)", chance: 0.05 }, { item: "🧰 Гаджет (случайное оружие)", chance: 0.09 }, { item: "🧬 Сыворотка ОЗ (+10 к Макс ОЗ)", chance: 0.24 }, { item: "🔋 Микро-батарея (+20 Энергии)", chance: 0.22 }, { item: "Запчасти x15", chance: 0.16 }, { item: "⛺ Привал x1", chance: 0.15 }, { item: "Ядерная Батарея x1", chance: 0.08 }] }
+                { name: "Сейф Минори", price: 45, color: "#ffb703", tier: 3, maxVouchers: 2, table: [{ item: "🧬 Сыворотка ОЗ (+10 к Макс ОЗ)", chance: 0.29 }, { item: "🔋 Микро-батарея (+20 Энергии)", chance: 0.22 }, { item: "Сырое мясо x3", chance: 0.22 }, { item: "⛺ Привал x1", chance: 0.10 }, { item: "🧰 Гаджет (случайное оружие)", chance: 0.06 }, { item: "⚡ Мегасила (случайное оружие)", chance: 0.02 }, { item: "Ядерная Батарея x1", chance: 0.08 }, { item: "Жетон Схрона x1", chance: 0.01 }] },
+                { name: "Реликварий Пустоши", price: 5, color: "#ffd700", currency: "vouchers", premium: true, tier: 4, maxVouchers: 2, table: [{ item: "🎫 Пустынный Премиум-пропуск", chance: 0.01 }, { item: "⚡ Мегасила (случайное оружие)", chance: 0.05 }, { item: "🧰 Гаджет (случайное оружие)", chance: 0.09 }, { item: "🧬 Сыворотка ОЗ (+10 к Макс ОЗ)", chance: 0.23 }, { item: "🔋 Микро-батарея (+20 Энергии)", chance: 0.22 }, { item: "Запчасти x15", chance: 0.15 }, { item: "⛺ Привал x1", chance: 0.15 }, { item: "Ядерная Батарея x1", chance: 0.08 }, { item: "Жетон Схрона x2", chance: 0.02 } ] }
             ],
             // ===== Трофейная Дорога: постоянная (не сезонная) шкала за победы в бою, 1 трофей за обычного врага, 15 за босса =====
-            // Продлена до 1000 трофеев. Ваучеры на всей дороге специально ограничены суммарно 50 штуками
-            // (раскиданы по 5 этапам: 50/280/480/690/900), чтобы дорога не превращалась в отдельный
-            // источник премиум-валюты. Остальные НЕ-валютные награды (ящики, гаджет, мегасила, оружие,
-            // аптечка, макс.ОЗ, энергия, редкие ресурсы) не повторяются — каждая встречается ровно один раз.
+            // Награда на КАЖДОМ этапе, кратном 50 (100 этапов, от 50 до 5000 трофеев). Ваучеры специально
+            // ограничены суммарно 100 штуками: 50 в первой половине (до 2500 трофеев, каждые 250 этапов)
+            // и 50 во второй половине (после 2500, тоже каждые 250 этапов), чтобы дорога не превращалась
+            // в отдельный источник премиум-валюты. Остальные награды — крышки и ресурсы (растут вместе
+            // с этапом), а также точечные "особые" призы (ящики, гаджет, мегасила, оружие, аптечка,
+            // макс.ОЗ, энергия), расставленные по всей дороге для разнообразия.
             trophyRoad: [
-                { trophies: 10, reward: { name: "Крышки x18", type: "caps", qty: 18 } },
-                { trophies: 25, reward: { name: "Запчасти x15", type: "item", item: "Запчасти", qty: 15 } },
-                { trophies: 50, reward: { name: "🏷️ Ваучеры x5", type: "voucher", qty: 5 } },
-                { trophies: 90, reward: { name: "🔋 Энергия +30", type: "energy_pack" } },
-                { trophies: 130, reward: { name: "📦 Скрап-Ящик", type: "lootbox", boxIdx: 0 } },
-                { trophies: 180, reward: { name: "💉 Восстановление ОЗ +40", type: "hp_pack" } },
-                { trophies: 230, reward: { name: "🧬 Макс. ОЗ +20", type: "maxhp" } },
-                { trophies: 280, reward: { name: "🏷️ Ваучеры x8", type: "voucher", qty: 8 } },
-                { trophies: 340, reward: { name: "🧰 Гаджет (случайное оружие)", type: "gadget" } },
-                { trophies: 410, reward: { name: "🔫 Тяжёлый Револьвер", type: "wpn", wpnId: "revolver" } },
-                { trophies: 480, reward: { name: "🏷️ Ваучеры x7", type: "voucher", qty: 7 } },
-                { trophies: 550, reward: { name: "📦 Продуктовый ящик", type: "lootbox", boxIdx: 1 } },
-                { trophies: 620, reward: { name: "Крышки x36", type: "caps", qty: 36 } },
-                { trophies: 690, reward: { name: "🏷️ Ваучеры x10", type: "voucher", qty: 10 } },
-                { trophies: 760, reward: { name: "📦 Сейф Минори", type: "lootbox", boxIdx: 2 } },
-                { trophies: 830, reward: { name: "Ядерная Батарея x8", type: "item", item: "Ядерная Батарея", qty: 8 } },
-                { trophies: 900, reward: { name: "🏷️ Ваучеры x20", type: "voucher", qty: 20 } },
-                { trophies: 1000, reward: { name: "⚡ Мегасила (случайное оружие)", type: "megasila" } }
+                { trophies: 50, reward: { name: "Крышки x18", type: "caps", qty: 18 } },
+                { trophies: 100, reward: { name: "Запчасти x6", type: "item", item: "Запчасти", qty: 6 } },
+                { trophies: 150, reward: { name: "📦 Скрап-Ящик", type: "lootbox", boxIdx: 0 } },
+                { trophies: 200, reward: { name: "Крышки x27", type: "caps", qty: 27 } },
+                { trophies: 250, reward: { name: "🏷️ Ваучеры x2", type: "voucher", qty: 2 } },
+                { trophies: 300, reward: { name: "💉 Восстановление ОЗ +40", type: "hp_pack" } },
+                { trophies: 350, reward: { name: "🧬 Макс. ОЗ +20", type: "maxhp" } },
+                { trophies: 400, reward: { name: "Тяжелый Хлам x6", type: "item", item: "Тяжелый Хлам", qty: 6 } },
+                { trophies: 450, reward: { name: "🧰 Гаджет (случайное оружие)", type: "gadget" } },
+                { trophies: 500, reward: { name: "🏷️ Ваучеры x3", type: "voucher", qty: 3 } },
+                { trophies: 550, reward: { name: "🔫 Тяжёлый Револьвер", type: "wpn", wpnId: "revolver" } },
+                { trophies: 600, reward: { name: "Крышки x51", type: "caps", qty: 51 } },
+                { trophies: 650, reward: { name: "📦 Продуктовый ящик", type: "lootbox", boxIdx: 1 } },
+                { trophies: 700, reward: { name: "Сырое мясо x8", type: "item", item: "Сырое мясо", qty: 8 } },
+                { trophies: 750, reward: { name: "🏷️ Ваучеры x4", type: "voucher", qty: 4 } },
+                { trophies: 800, reward: { name: "Крышки x63", type: "caps", qty: 63 } },
+                { trophies: 850, reward: { name: "Ядерная Батарея x3", type: "item", item: "Ядерная Батарея", qty: 3 } },
+                { trophies: 900, reward: { name: "📦 Сейф Минори", type: "lootbox", boxIdx: 2 } },
+                { trophies: 950, reward: { name: "Крышки x72", type: "caps", qty: 72 } },
+                { trophies: 1000, reward: { name: "🏷️ Ваучеры x4", type: "voucher", qty: 4 } },
+                { trophies: 1050, reward: { name: "Жетон Схрона x3", type: "item", item: "Жетон Схрона", qty: 3 } },
+                { trophies: 1100, reward: { name: "Крышки x81", type: "caps", qty: 81 } },
+                { trophies: 1150, reward: { name: "⚡ Мегасила (случайное оружие)", type: "megasila" } },
+                { trophies: 1200, reward: { name: "Запчасти x24", type: "item", item: "Запчасти", qty: 24 } },
+                { trophies: 1250, reward: { name: "🏷️ Ваучеры x5", type: "voucher", qty: 5 } },
+                { trophies: 1300, reward: { name: "Крышки x93", type: "caps", qty: 93 } },
+                { trophies: 1350, reward: { name: "Тяжелый Хлам x12", type: "item", item: "Тяжелый Хлам", qty: 12 } },
+                { trophies: 1400, reward: { name: "Крышки x99", type: "caps", qty: 99 } },
+                { trophies: 1450, reward: { name: "🧬 Макс. ОЗ +20", type: "maxhp" } },
+                { trophies: 1500, reward: { name: "🏷️ Ваучеры x5", type: "voucher", qty: 5 } },
+                { trophies: 1550, reward: { name: "Сырое мясо x16", type: "item", item: "Сырое мясо", qty: 16 } },
+                { trophies: 1600, reward: { name: "Крышки x111", type: "caps", qty: 111 } },
+                { trophies: 1650, reward: { name: "Ядерная Батарея x5", type: "item", item: "Ядерная Батарея", qty: 5 } },
+                { trophies: 1700, reward: { name: "📦 Сейф Минори", type: "lootbox", boxIdx: 2 } },
+                { trophies: 1750, reward: { name: "🏷️ Ваучеры x6", type: "voucher", qty: 6 } },
+                { trophies: 1800, reward: { name: "Крышки x123", type: "caps", qty: 123 } },
+                { trophies: 1850, reward: { name: "Жетон Схрона x5", type: "item", item: "Жетон Схрона", qty: 5 } },
+                { trophies: 1900, reward: { name: "Крышки x129", type: "caps", qty: 129 } },
+                { trophies: 1950, reward: { name: "Запчасти x30", type: "item", item: "Запчасти", qty: 30 } },
+                { trophies: 2000, reward: { name: "🏷️ Ваучеры x6", type: "voucher", qty: 6 } },
+                { trophies: 2050, reward: { name: "🔋 Энергия +30", type: "energy_pack" } },
+                { trophies: 2100, reward: { name: "Крышки x141", type: "caps", qty: 141 } },
+                { trophies: 2150, reward: { name: "Тяжелый Хлам x18", type: "item", item: "Тяжелый Хлам", qty: 18 } },
+                { trophies: 2200, reward: { name: "Крышки x147", type: "caps", qty: 147 } },
+                { trophies: 2250, reward: { name: "🏷️ Ваучеры x7", type: "voucher", qty: 7 } },
+                { trophies: 2300, reward: { name: "Сырое мясо x24", type: "item", item: "Сырое мясо", qty: 24 } },
+                { trophies: 2350, reward: { name: "💉 Восстановление ОЗ +40", type: "hp_pack" } },
+                { trophies: 2400, reward: { name: "Крышки x159", type: "caps", qty: 159 } },
+                { trophies: 2450, reward: { name: "Ядерная Батарея x7", type: "item", item: "Ядерная Батарея", qty: 7 } },
+                { trophies: 2500, reward: { name: "🏷️ Ваучеры x8", type: "voucher", qty: 8 } },
+                { trophies: 2550, reward: { name: "Крышки x168", type: "caps", qty: 168 } },
+                { trophies: 2600, reward: { name: "Жетон Схрона x7", type: "item", item: "Жетон Схрона", qty: 7 } },
+                { trophies: 2650, reward: { name: "🧬 Макс. ОЗ +20", type: "maxhp" } },
+                { trophies: 2700, reward: { name: "Крышки x177", type: "caps", qty: 177 } },
+                { trophies: 2750, reward: { name: "🏷️ Ваучеры x2", type: "voucher", qty: 2 } },
+                { trophies: 2800, reward: { name: "Запчасти x48", type: "item", item: "Запчасти", qty: 48 } },
+                { trophies: 2850, reward: { name: "Крышки x186", type: "caps", qty: 186 } },
+                { trophies: 2900, reward: { name: "📦 Сейф Минори", type: "lootbox", boxIdx: 2 } },
+                { trophies: 2950, reward: { name: "Тяжелый Хлам x24", type: "item", item: "Тяжелый Хлам", qty: 24 } },
+                { trophies: 3000, reward: { name: "🏷️ Ваучеры x3", type: "voucher", qty: 3 } },
+                { trophies: 3050, reward: { name: "Крышки x198", type: "caps", qty: 198 } },
+                { trophies: 3100, reward: { name: "Сырое мясо x32", type: "item", item: "Сырое мясо", qty: 32 } },
+                { trophies: 3150, reward: { name: "⚡ Мегасила (случайное оружие)", type: "megasila" } },
+                { trophies: 3200, reward: { name: "Крышки x207", type: "caps", qty: 207 } },
+                { trophies: 3250, reward: { name: "🏷️ Ваучеры x4", type: "voucher", qty: 4 } },
+                { trophies: 3300, reward: { name: "Ядерная Батарея x9", type: "item", item: "Ядерная Батарея", qty: 9 } },
+                { trophies: 3350, reward: { name: "Крышки x216", type: "caps", qty: 216 } },
+                { trophies: 3400, reward: { name: "🔋 Энергия +30", type: "energy_pack" } },
+                { trophies: 3450, reward: { name: "Жетон Схрона x9", type: "item", item: "Жетон Схрона", qty: 9 } },
+                { trophies: 3500, reward: { name: "🏷️ Ваучеры x4", type: "voucher", qty: 4 } },
+                { trophies: 3550, reward: { name: "Крышки x228", type: "caps", qty: 228 } },
+                { trophies: 3600, reward: { name: "Запчасти x60", type: "item", item: "Запчасти", qty: 60 } },
+                { trophies: 3650, reward: { name: "💉 Восстановление ОЗ +40", type: "hp_pack" } },
+                { trophies: 3700, reward: { name: "Крышки x237", type: "caps", qty: 237 } },
+                { trophies: 3750, reward: { name: "🏷️ Ваучеры x5", type: "voucher", qty: 5 } },
+                { trophies: 3800, reward: { name: "Тяжелый Хлам x30", type: "item", item: "Тяжелый Хлам", qty: 30 } },
+                { trophies: 3850, reward: { name: "Крышки x246", type: "caps", qty: 246 } },
+                { trophies: 3900, reward: { name: "🧬 Макс. ОЗ +40", type: "maxhp" } },
+                { trophies: 3950, reward: { name: "Сырое мясо x40", type: "item", item: "Сырое мясо", qty: 40 } },
+                { trophies: 4000, reward: { name: "🏷️ Ваучеры x5", type: "voucher", qty: 5 } },
+                { trophies: 4050, reward: { name: "Крышки x258", type: "caps", qty: 258 } },
+                { trophies: 4100, reward: { name: "Ядерная Батарея x11", type: "item", item: "Ядерная Батарея", qty: 11 } },
+                { trophies: 4150, reward: { name: "📦 Сейф Минори", type: "lootbox", boxIdx: 2 } },
+                { trophies: 4200, reward: { name: "Крышки x267", type: "caps", qty: 267 } },
+                { trophies: 4250, reward: { name: "🏷️ Ваучеры x6", type: "voucher", qty: 6 } },
+                { trophies: 4300, reward: { name: "Жетон Схрона x11", type: "item", item: "Жетон Схрона", qty: 11 } },
+                { trophies: 4350, reward: { name: "Крышки x276", type: "caps", qty: 276 } },
+                { trophies: 4400, reward: { name: "⚡ Мегасила (случайное оружие)", type: "megasila" } },
+                { trophies: 4450, reward: { name: "Запчасти x72", type: "item", item: "Запчасти", qty: 72 } },
+                { trophies: 4500, reward: { name: "🏷️ Ваучеры x6", type: "voucher", qty: 6 } },
+                { trophies: 4550, reward: { name: "Крышки x288", type: "caps", qty: 288 } },
+                { trophies: 4600, reward: { name: "Тяжелый Хлам x36", type: "item", item: "Тяжелый Хлам", qty: 36 } },
+                { trophies: 4650, reward: { name: "🔋 Энергия +30", type: "energy_pack" } },
+                { trophies: 4700, reward: { name: "Крышки x297", type: "caps", qty: 297 } },
+                { trophies: 4750, reward: { name: "🏷️ Ваучеры x7", type: "voucher", qty: 7 } },
+                { trophies: 4800, reward: { name: "Сырое мясо x52", type: "item", item: "Сырое мясо", qty: 52 } },
+                { trophies: 4850, reward: { name: "🏷️ Ваучеры x8", type: "voucher", qty: 8 } },
+                { trophies: 4900, reward: { name: "⚡ Мегасила (случайное оружие)", type: "megasila" } },
+                { trophies: 4950, reward: { name: "Крышки x312", type: "caps", qty: 312 } },
+                { trophies: 5000, reward: { name: "🗝️ Реликварий Пустоши x3", type: "relic_wasteland", qty: 3 } }
             ],
             dailyRewardPool: [
                 { name: "Крышки x5", type: "caps", qty: 5, weight: 22 },
@@ -5786,6 +5996,7 @@ onclick="Core.declineEncounter()">
                 { name: "Полное восстановление ОЗ", icon: "💉", color: "#ff2a5f", weight: 8, reward: { type: "full_heal" } },
                 { name: "Ваучеры x2", icon: "🏷️", color: "#00f0ff", weight: 5, reward: { type: "voucher", qty: 2 } },
                 { name: "Реликварий Пустоши", icon: "🗝️", color: "#bf5af2", weight: 2.7, reward: { type: "relic_wasteland", qty: 1 } },
+                { name: "💠 Жетон Схрона x2", icon: "💠", color: "#00c4ff", weight: 1, reward: { type: "item", item: "Жетон Схрона", qty: 2 } },
                 { name: "🎫 Премиум-пропуск", icon: "🎫", color: "#ffffff", weight: 0.3, reward: { type: "premium_pass" } }
             ],
             bpRewards: generateBpRewards(),
@@ -5835,7 +6046,9 @@ onclick="Core.declineEncounter()">
                 { code: "Вестер", type: "voucher", qty: 3, maxUses: Infinity, desc: "3 🏷️ Ваучера" },
                 { code: "Приз", type: "caps", qty: 50, maxUses: 30, desc: "50 🪙 Крышек" },
                 { code: "реклама1", type: "full_restore", maxUses: 15, desc: "полное восстановление ❤️ здоровья и 🍖 сытости" },
-                { code: "няшка", type: "title", titleId: "titleNyashka500", maxUses: 1, desc: "эксклюзивный титул «1 час 500 рублей»" }
+                { code: "няшка", type: "title", titleId: "titleNyashka500", maxUses: 1, desc: "эксклюзивный титул «1 час 500 рублей»" },
+                { code: "аватаркакинга", type: "avatar", avatarId: "kingAvatar", maxUses: 2, desc: "эксклюзивная аватарка «Аватарка Кинга»" },
+                { code: "авабоба", type: "avatar", avatarId: "zeusAvatar", maxUses: 1, desc: "эксклюзивная аватарка «Зевс Олимпиец»" }
             ]
         };
 
@@ -6264,8 +6477,500 @@ onclick="Core.declineEncounter()">
             }
         };
 
+        // ===================================================================
+        // PvP: сетевые дуэли 1на1 по коду комнаты (через Supabase Realtime).
+        // Игроки создают/входят в комнату, оба жмут «Готов», после чего бой
+        // разыгрывается детерминированно (общий сид + снимки билдов обоих
+        // игроков известны заранее), поэтому оба клиента без доп. сетевых
+        // вызовов приходят к одинаковому результату. Победитель получает
+        // 3 трофея. Формулы урона/крита/брони/уворота — те же, что в PvE-бою.
+        // ===================================================================
+        const PvP = {
+            state: 'menu', // menu | join_form | creating | lobby | countdown | battling | result | offline
+            code: null, role: null, room: null, myReady: false,
+            channel: null, pollTimer: null, battleTimer: null, _cdTimer: null,
+            countdownVal: 0, logEntries: [], errorMsg: '',
+            hostHp: 0, guestHp: 0, hostMax: 0, guestMax: 0, round: 0, rng: null,
+            winnerId: null, iWon: false,
+
+            open() {
+                document.getElementById('pvp-overlay').classList.add('active');
+                if (!Cloud.ready) {
+                    this.state = 'offline'; this.render();
+                    Cloud.init().then(ok => { if (ok) { this.state = 'menu'; this.render(); } });
+                    return;
+                }
+                if (!this.room) this.state = 'menu';
+                this.render();
+            },
+            close() {
+                document.getElementById('pvp-overlay').classList.remove('active');
+            },
+
+            buildSnapshot() {
+                const p = Core.p;
+                const b = Core.getBuildBonus();
+                const wpn = DB.weapons.find(w => w.id === p.activeWeapon) || DB.weapons[0];
+                return {
+                    weaponId: p.activeWeapon,
+                    wpnUpgrade: p.wpnUpgrades[p.activeWeapon] || 0,
+                    // Базовые характеристики оружия нужны серверной функции pvp_attack,
+                    // т.к. таблица оружия существует только в клиентском JS (DB.weapons) —
+                    // сервер не пересчитывает урон "за игрока", а лишь применяет формулу
+                    // к тому удару, который игрок сам инициировал нажатием кнопки.
+                    wpnDmg: wpn.dmg, wpnCrit: wpn.crit, wpnClass: wpn.class, wpnIcon: wpn.icon, wpnName: wpn.name,
+                    armor: p.armor, dodgeChance: p.dodgeChance, maxHp: p.maxHp, lvl: p.lvl,
+                    build: {
+                        dmgMult: b.dmgMult || 0, crit: b.crit || 0, critDmgMult: b.critDmgMult || 0,
+                        rangedCritDmgMult: b.rangedCritDmgMult || 0, armor: b.armor || 0, dodgeChance: b.dodgeChance || 0
+                    }
+                };
+            },
+
+            createRoom() {
+                if (!Cloud.ready) return;
+                this.errorMsg = ''; this.state = 'creating'; this.render();
+                Cloud.client.rpc('create_pvp_room', {
+                    p_nickname: Core.p.nickname || 'Странник',
+                    p_avatar: Core.p.avatar || 'ranger',
+                    p_build: this.buildSnapshot()
+                }).then(({ data, error }) => {
+                    if (error || !data) { this.state = 'menu'; this.errorMsg = 'Не удалось создать комнату. Проверьте соединение.'; this.render(); return; }
+                    this.code = data.code; this.role = 'host'; this.room = data; this.myReady = false;
+                    this.state = 'lobby'; this.subscribeRoom(data.code); this.render();
+                }).catch(() => { this.state = 'menu'; this.errorMsg = 'Ошибка сети.'; this.render(); });
+            },
+
+            showJoinForm() { this.errorMsg = ''; this.state = 'join_form'; this.render(); },
+            backToMenu() { this.errorMsg = ''; this.state = 'menu'; this.render(); },
+
+            joinRoom() {
+                const input = document.getElementById('pvp-join-code-input');
+                const code = input ? input.value.trim().toUpperCase() : '';
+                if (code.length < 4) { this.errorMsg = 'Введите код комнаты.'; this.render(); return; }
+                this.errorMsg = ''; this.state = 'creating'; this.render();
+                Cloud.client.rpc('join_pvp_room', {
+                    p_code: code,
+                    p_nickname: Core.p.nickname || 'Странник',
+                    p_avatar: Core.p.avatar || 'ranger',
+                    p_build: this.buildSnapshot()
+                }).then(({ data, error }) => {
+                    if (error || !data) {
+                        this.state = 'join_form';
+                        const m = (error && error.message) || '';
+                        this.errorMsg = /room_not_found/.test(m) ? 'Комната с таким кодом не найдена.' :
+                            /room_not_joinable/.test(m) ? 'Эта комната уже недоступна.' :
+                            /room_full/.test(m) ? 'В комнате уже два игрока.' :
+                            /cannot_join_own_room/.test(m) ? 'Нельзя войти в собственную комнату.' :
+                            'Не удалось войти в комнату.';
+                        this.render(); return;
+                    }
+                    this.code = data.code; this.role = 'guest'; this.room = data; this.myReady = false;
+                    this.state = 'lobby'; this.subscribeRoom(data.code); this.render();
+                }).catch(() => { this.state = 'join_form'; this.errorMsg = 'Ошибка сети.'; this.render(); });
+            },
+
+            subscribeRoom(code) {
+                this.unsubscribe();
+                this.channel = Cloud.client.channel('pvp_room_' + code)
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'pvp_rooms', filter: 'code=eq.' + code }, (payload) => {
+                        if (payload.eventType === 'DELETE') { this.onRoomGone(); return; }
+                        this.onRoomUpdate(payload.new);
+                    })
+                    .subscribe();
+                // Резервный опрос на случай пропуска realtime-события (например, разрыв соединения).
+                // Во время самого боя опрашиваем чаще — от этого зависит, увидим ли мы вовремя
+                // удар соперника, если realtime-событие потерялось.
+                this.pollTimer = setInterval(() => {
+                    if (!this.code || this.state === 'result') return;
+                    Cloud.client.from('pvp_rooms').select('*').eq('code', this.code).maybeSingle()
+                        .then(({ data }) => { if (data) this.onRoomUpdate(data); else this.onRoomGone(); }).catch(() => {});
+                }, 2000);
+            },
+            unsubscribe() {
+                if (this.channel) { try { Cloud.client.removeChannel(this.channel); } catch (e) {} this.channel = null; }
+                if (this.pollTimer) { clearInterval(this.pollTimer); this.pollTimer = null; }
+            },
+
+            onRoomGone() {
+                if (this.state === 'battling' || this.state === 'result') return;
+                this.errorMsg = 'Комната закрыта.';
+                this.resetRoomState();
+                this.state = 'menu'; this.render();
+            },
+            onRoomUpdate(row) {
+                if (!row || row.code !== this.code) return;
+                this.room = row;
+                if (row.status === 'cancelled') { this.onRoomGone(); return; }
+                if (row.status === 'waiting') {
+                    if (this.state !== 'battling' && this.state !== 'result') { this.state = 'lobby'; this.render(); }
+                    return;
+                }
+                if (row.status === 'battling') {
+                    if (this.state === 'battling') {
+                        // Обновление после чужого (или нашего) удара — синхронизируем ОЗ и лог,
+                        // но урон здесь НИКОГДА не считается, только отображается то, что уже
+                        // посчитал сервер в ответ на чей-то реальный клик по «Атаковать».
+                        this.hostHp = (row.host_hp != null) ? row.host_hp : this.hostHp;
+                        this.guestHp = (row.guest_hp != null) ? row.guest_hp : this.guestHp;
+                        this.logEntries = this.logEntriesFromRoom(row);
+                        this.renderBattleHp(); this.renderAbilityGrid(); this.rerenderLog();
+                        return;
+                    }
+                    if (this.state === 'result' || this.state === 'countdown') return;
+                    this.state = 'countdown'; this.render(); this.startCountdown();
+                    return;
+                }
+                if (row.status === 'finished') {
+                    if (this.state === 'result') return;
+                    // Соперник завершил дуэль раньше нас (форфейт при выходе, либо он первым отправил итог) —
+                    // показываем детерминированно совпадающий результат.
+                    clearInterval(this.battleTimer); this.battleTimer = null;
+                    clearInterval(this._cdTimer); this._cdTimer = null;
+                    this.winnerId = row.winner_id;
+                    this.iWon = (row.winner_id === Cloud.userId);
+                    this.state = 'result'; this.render(); this.applyResult();
+                    return;
+                }
+            },
+
+            toggleReady() {
+                if (!this.room || !this.room.guest_id) return;
+                this.myReady = !this.myReady;
+                if (this.role === 'host') this.room.host_ready = this.myReady; else this.room.guest_ready = this.myReady;
+                this.render();
+                Cloud.client.rpc('set_pvp_ready', { p_code: this.code, p_ready: this.myReady }).then(({ data, error }) => {
+                    if (error) {
+                        this.myReady = !this.myReady;
+                        if (this.role === 'host') this.room.host_ready = this.myReady; else this.room.guest_ready = this.myReady;
+                        this.render(); return;
+                    }
+                    if (data) this.room = data;
+                    this.render();
+                }).catch(() => {
+                    this.myReady = !this.myReady;
+                    if (this.role === 'host') this.room.host_ready = this.myReady; else this.room.guest_ready = this.myReady;
+                    this.render();
+                });
+            },
+
+            leaveRoom() {
+                if (this.code) Cloud.client.rpc('leave_pvp_room', { p_code: this.code }).catch(() => {});
+                this.resetRoomState();
+                this.state = 'menu'; this.render();
+            },
+            playAgain() { this.resetRoomState(); this.state = 'menu'; this.render(); },
+            resetRoomState() {
+                this.unsubscribe();
+                clearInterval(this.battleTimer); this.battleTimer = null;
+                clearInterval(this._cdTimer); this._cdTimer = null;
+                this.code = null; this.role = null; this.room = null; this.myReady = false;
+                this.logEntries = []; this.winnerId = null; this.iWon = false;
+            },
+
+            startCountdown() {
+                const startAt = new Date(this.room.start_at).getTime();
+                const tick = () => {
+                    const msLeft = startAt - Date.now();
+                    this.countdownVal = Math.max(0, Math.ceil(msLeft / 1000));
+                    this.renderCountdown();
+                    if (msLeft <= 0) {
+                        clearInterval(this._cdTimer); this._cdTimer = null;
+                        this.state = 'battling'; this.render(); this.enterBattle();
+                    }
+                };
+                clearInterval(this._cdTimer);
+                this._cdTimer = setInterval(tick, 200);
+                tick();
+            },
+
+            // =====================================================================
+            // РУЧНОЙ бой: атакует только сам игрок, нажимая кнопку «Атаковать».
+            // Никакой автосимуляции с обеих сторон — каждый удар это отдельный вызов
+            // серверной функции pvp_attack (Supabase RPC), которая считает урон по
+            // билду/оружию нападавшего и сразу пишет новый ОЗ соперника + запись в
+            // лог в общую строку комнаты. Realtime разносит это изменение до обоих
+            // клиентов, поэтому у соперника всё обновляется само — но инициировать
+            // удар может только тот, кто реально нажал кнопку у себя на экране.
+            // =====================================================================
+            enterBattle() {
+                const room = this.room;
+                this.hostMax = (room.host_build && room.host_build.maxHp) || 50;
+                this.guestMax = (room.guest_build && room.guest_build.maxHp) || 50;
+                this.hostHp = (room.host_hp != null) ? room.host_hp : this.hostMax;
+                this.guestHp = (room.guest_hp != null) ? room.guest_hp : this.guestMax;
+                this.logEntries = this.logEntriesFromRoom(room);
+                this.attackPending = false;
+                Sound.play && Sound.play('hit');
+                this.render();
+                clearInterval(this.battleTimer);
+                // Тикер раз в 150мс только переоценивает, какие атаки разблокировались
+                // по кулдауну — сам он ни разу не наносит урон и не действует за игрока.
+                this.battleTimer = setInterval(() => this.renderAbilityGrid(), 150);
+            },
+            logEntriesFromRoom(room) {
+                const arr = (room && room.battle_log) || [];
+                return arr.map(e => ({ text: e.text, cls: e.kind === 'crit' ? 'pvp-log-win' : '' }));
+            },
+            // Возвращает полный список видов атаки текущего оружия игрока — тот же
+            // набор, что и в обычном PvE-бою (DB.weaponAbilities), взятый из билда,
+            // отправленного на сервер при входе в комнату (там же сидит weaponId).
+            myAbilities() {
+                const room = this.room; if (!room) return DB.weaponAbilities['fists'];
+                const build = this.role === 'host' ? room.host_build : room.guest_build;
+                const wid = (build && build.weaponId) || 'fists';
+                return DB.weaponAbilities[wid] || DB.weaponAbilities['fists'];
+            },
+            myCooldowns() {
+                const room = this.room; if (!room) return {};
+                return (this.role === 'host' ? room.host_cooldowns : room.guest_cooldowns) || {};
+            },
+            myLastAtk() { return this.room ? (this.role === 'host' ? this.room.host_last_atk : this.room.guest_last_atk) : null; },
+            myAtkStreak() { return this.room ? ((this.role === 'host' ? this.room.host_atk_streak : this.room.guest_atk_streak) || 0) : 0; },
+            // Единственное место, которое наносит урон в PvP — и вызывается ИСКЛЮЧИТЕЛЬНО
+            // по прямому клику игрока на конкретную кнопку атаки (см. renderBattleHtml
+            // и renderAbilityGrid ниже). Урон/крит/блок/кровотечение/оглушение считает
+            // серверная функция pvp_attack по тому же набору формул, что и в PvE-бою —
+            // клиент лишь сообщает, КАКУЮ именно атаку выбрал игрок.
+            attackNow(attackType) {
+                if (!this.code || this.state !== 'battling' || this.attackPending) return;
+                const meHp = this.role === 'host' ? this.hostHp : this.guestHp;
+                const oppHp = this.role === 'host' ? this.guestHp : this.hostHp;
+                if (meHp <= 0 || oppHp <= 0) return;
+                const cds = this.myCooldowns();
+                const nowSec = Date.now() / 1000;
+                if (cds[attackType] && cds[attackType] > nowSec) return;
+                if (attackType === this.myLastAtk() && this.myAtkStreak() >= 2) return;
+                this.attackPending = true;
+                this.renderAbilityGrid();
+                Cloud.client.rpc('pvp_attack', { p_code: this.code, p_attack_type: attackType }).then(({ data, error }) => {
+                    this.attackPending = false;
+                    if (error) { this.renderAbilityGrid(); return; } // на кулдауне / бой уже завершён — просто игнорируем
+                    if (data) this.onRoomUpdate(data);
+                }).catch(() => { this.attackPending = false; this.renderAbilityGrid(); });
+            },
+            applyResult() {
+                const oppName = this.role === 'host' ? this.room.guest_nickname : this.room.host_nickname;
+                if (this.iWon) {
+                    Core.p.trophies = (Core.p.trophies || 0) + 3;
+                    Core.log(`🏆 Победа в PvP-дуэли против ${oppName || 'соперника'}! +3 трофея (всего ${Math.min(Core.p.trophies, 5000)} / 5000).`, 'loot');
+                    if (typeof Core.showTrophyToast === 'function') Core.showTrophyToast(3, false);
+                } else {
+                    Core.log(`☠️ Поражение в PvP-дуэли против ${oppName || 'соперника'}.`, 'combat-lose');
+                }
+                Core.save(); Core.updateUI();
+                if (typeof Core.renderProfile === 'function') Core.renderProfile();
+                if (typeof Cloud !== 'undefined' && Cloud.push) Cloud.push();
+            },
+
+            pushLog(text, cls) {
+                this.logEntries.push({ text, cls });
+                const box = document.getElementById('pvp-log-box');
+                if (box) {
+                    const e = document.createElement('div');
+                    e.className = 'pvp-log-entry' + (cls ? ' ' + cls : '');
+                    e.textContent = text;
+                    box.appendChild(e);
+                    box.scrollTop = box.scrollHeight;
+                }
+            },
+            renderBattleHp() {
+                const meIsHost = this.role === 'host';
+                const meHp = meIsHost ? this.hostHp : this.guestHp, meMax = meIsHost ? this.hostMax : this.guestMax;
+                const oppHp = meIsHost ? this.guestHp : this.hostHp, oppMax = meIsHost ? this.guestMax : this.hostMax;
+                const meFill = document.getElementById('pvp-hp-me'); if (meFill) meFill.style.width = Math.max(0, meHp / meMax * 100) + '%';
+                const oppFill = document.getElementById('pvp-hp-opp'); if (oppFill) oppFill.style.width = Math.max(0, oppHp / oppMax * 100) + '%';
+                const meLabel = document.getElementById('pvp-hp-me-label'); if (meLabel) meLabel.textContent = `${Math.max(0, meHp)} / ${meMax}`;
+                const oppLabel = document.getElementById('pvp-hp-opp-label'); if (oppLabel) oppLabel.textContent = `${Math.max(0, oppHp)} / ${oppMax}`;
+            },
+            // Перерисовывает сетку всех видов атаки текущего оружия (кулдаун по каждой
+            // способности отдельно, блокировка повтора одной и той же атаки 3 раза подряд,
+            // конец боя) — никогда не наносит урон и не жмёт кнопку за игрока.
+            renderAbilityGrid() {
+                const container = document.getElementById('pvp-ability-grid');
+                if (!container) return;
+                const abilities = this.myAbilities();
+                const meHp = this.role === 'host' ? this.hostHp : this.guestHp;
+                const oppHp = this.role === 'host' ? this.guestHp : this.hostHp;
+                const battleOver = meHp <= 0 || oppHp <= 0;
+                const cds = this.myCooldowns();
+                const nowSec = Date.now() / 1000;
+                const lastAtk = this.myLastAtk(); const streak = this.myAtkStreak();
+                let html = '';
+                for (let i = 0; i < abilities.length; i += 2) {
+                    const rowItems = abilities.slice(i, i + 2);
+                    html += `<div class="buttons-grid">`;
+                    rowItems.forEach(a => {
+                        const remain = Math.ceil((cds[a.key] || 0) - nowSec);
+                        const repeatLocked = !battleOver && a.key === lastAtk && streak >= 2;
+                        const disabled = battleOver || this.attackPending || remain > 0 || repeatLocked;
+                        let label = a.label;
+                        if (!battleOver) {
+                            if (this.attackPending) label = '...';
+                            else if (remain > 0) label = `${a.label} (${remain}с)`;
+                            else if (repeatLocked) label = `${a.label} 🔒`;
+                        }
+                        let styleParts = [];
+                        if (a.sty) styleParts.push(a.sty);
+                        if (rowItems.length === 1) styleParts.push('grid-column: 1 / -1;');
+                        const styleAttr = styleParts.length ? `style="${styleParts.join(' ')}"` : '';
+                        html += `<button class="${a.cls || 'primary'}" ${styleAttr} ${disabled ? 'disabled' : ''} onclick="PvP.attackNow('${a.key}')">${label}</button>`;
+                    });
+                    html += `</div>`;
+                }
+                container.innerHTML = html;
+            },
+            renderCountdown() {
+                const el = document.getElementById('pvp-countdown-val');
+                if (el) el.textContent = this.countdownVal > 0 ? this.countdownVal : 'БОЙ!';
+                else this.render();
+            },
+
+            avatarHtml(avatarId) {
+                const av = DB.avatars.find(a => a.id === avatarId) || DB.avatars[0];
+                return `<div class="pvp-fighter-avatar" style="border-color:${av.accent}">${av.svg}</div>`;
+            },
+            fighterCardHtml(nick, avatarId, lvl, isMe, ready) {
+                return `<div class="pvp-fighter-card ${isMe ? 'me' : 'opp'}">
+                    ${this.avatarHtml(avatarId)}
+                    <div class="pvp-fighter-name">${nick || '???'}</div>
+                    <div class="pvp-fighter-lvl">⭐ Ур. ${lvl || 1}</div>
+                    <div class="pvp-fighter-ready ${ready ? 'is-ready' : ''}">${ready ? 'Готов' : 'Не готов'}</div>
+                </div>`;
+            },
+
+            render() {
+                const box = document.getElementById('pvp-body');
+                if (!box) return;
+                let html = '';
+                if (this.state === 'offline') {
+                    html = `<div class="pvp-status-msg">☁️ Нет соединения с сетью. PvP-дуэли требуют подключения к серверу.</div><div class="pvp-spinner"></div>`;
+                } else if (this.state === 'menu') {
+                    html = `
+                        ${this.errorMsg ? `<div class="pvp-status-msg" style="color:var(--neon-red);">${this.errorMsg}</div>` : ''}
+                        <div class="pvp-status-msg">Сразись 1 на 1 с другим выжившим на своём билде и оружии. Первый павший — проигравший. Победитель получает 🏆 3 трофея.</div>
+                        <div class="pvp-choice-row">
+                            <div class="pvp-choice-btn" onclick="PvP.createRoom()"><span class="pvp-choice-icon">➕</span>Создать комнату</div>
+                            <div class="pvp-choice-btn" onclick="PvP.showJoinForm()"><span class="pvp-choice-icon">🔑</span>Войти по коду</div>
+                        </div>`;
+                } else if (this.state === 'join_form') {
+                    html = `
+                        ${this.errorMsg ? `<div class="pvp-status-msg" style="color:var(--neon-red);">${this.errorMsg}</div>` : ''}
+                        <div class="pvp-status-msg">Введите код комнаты соперника:</div>
+                        <div class="pvp-join-row"><input id="pvp-join-code-input" class="pvp-code-input" maxlength="6" placeholder="XXXXX" autocapitalize="characters"></div>
+                        <div class="pvp-btn-row">
+                            <button onclick="PvP.backToMenu()">Назад</button>
+                            <button class="primary" onclick="PvP.joinRoom()">Войти</button>
+                        </div>`;
+                } else if (this.state === 'creating') {
+                    html = `<div class="pvp-spinner"></div><div class="pvp-status-msg">Подключение...</div>`;
+                } else if (this.state === 'lobby') {
+                    html = this.renderLobbyHtml();
+                } else if (this.state === 'countdown') {
+                    html = this.renderCountdownHtml();
+                } else if (this.state === 'battling') {
+                    html = this.renderBattleHtml();
+                } else if (this.state === 'result') {
+                    html = this.renderResultHtml();
+                }
+                box.innerHTML = html;
+                if (this.state === 'battling') { this.rerenderLog(); this.renderBattleHp(); this.renderAbilityGrid(); }
+            },
+            rerenderLog() {
+                const box = document.getElementById('pvp-log-box');
+                if (!box) return;
+                box.innerHTML = '';
+                this.logEntries.forEach(l => {
+                    const e = document.createElement('div');
+                    e.className = 'pvp-log-entry' + (l.cls ? ' ' + l.cls : '');
+                    e.textContent = l.text;
+                    box.appendChild(e);
+                });
+                box.scrollTop = box.scrollHeight;
+            },
+            renderLobbyHtml() {
+                const room = this.room; if (!room) return '';
+                const hasGuest = !!room.guest_id;
+                const meIsHost = this.role === 'host';
+                const meNick = meIsHost ? room.host_nickname : room.guest_nickname;
+                const meAvatar = meIsHost ? room.host_avatar : room.guest_avatar;
+                const meLvl = meIsHost ? (room.host_build && room.host_build.lvl) : (room.guest_build && room.guest_build.lvl);
+                const meReady = meIsHost ? room.host_ready : room.guest_ready;
+                const oppNick = meIsHost ? room.guest_nickname : room.host_nickname;
+                const oppAvatar = meIsHost ? room.guest_avatar : room.host_avatar;
+                const oppLvl = meIsHost ? (room.guest_build && room.guest_build.lvl) : (room.host_build && room.host_build.lvl);
+                const oppReady = meIsHost ? room.guest_ready : room.host_ready;
+
+                let html = '';
+                if (meIsHost) {
+                    html += `<div class="pvp-code-display"><div class="pvp-code-val">${room.code}</div><div class="pvp-code-hint">Код комнаты — передай его сопернику</div></div>`;
+                } else {
+                    html += `<div class="pvp-status-msg">Комната: <b style="color:var(--neon-gold);">${room.code}</b></div>`;
+                }
+                html += `<div class="pvp-vs-row">
+                    ${this.fighterCardHtml(meNick, meAvatar, meLvl, true, meReady)}
+                    <div class="pvp-vs-badge">VS</div>
+                    ${hasGuest ? this.fighterCardHtml(oppNick, oppAvatar, oppLvl, false, oppReady) : `<div class="pvp-fighter-card opp"><div class="pvp-spinner"></div><div class="pvp-fighter-name">Ожидание...</div></div>`}
+                </div>`;
+                html += `<div class="pvp-status-msg">${!hasGuest ? '⏳ Ждём, пока соперник введёт код комнаты...' : (meReady ? '✅ Ждём готовности соперника...' : 'Нажми «Готов», когда экипирован нужный билд и оружие.')}</div>`;
+                html += `<div class="pvp-btn-row">
+                    <button onclick="PvP.leaveRoom()">Покинуть</button>
+                    <button class="${meReady ? 'gold' : 'primary'}" ${hasGuest ? '' : 'disabled'} onclick="PvP.toggleReady()">${meReady ? '✅ Готов' : '⚔️ Готов'}</button>
+                </div>`;
+                return html;
+            },
+            renderCountdownHtml() {
+                const room = this.room; if (!room) return '';
+                const meIsHost = this.role === 'host';
+                const meBuild = meIsHost ? room.host_build : room.guest_build;
+                const oppBuild = meIsHost ? room.guest_build : room.host_build;
+                return `<div class="pvp-vs-row">
+                    ${this.fighterCardHtml(meIsHost ? room.host_nickname : room.guest_nickname, meIsHost ? room.host_avatar : room.guest_avatar, meBuild && meBuild.lvl, true, true)}
+                    <div class="pvp-vs-badge">VS</div>
+                    ${this.fighterCardHtml(meIsHost ? room.guest_nickname : room.host_nickname, meIsHost ? room.guest_avatar : room.host_avatar, oppBuild && oppBuild.lvl, false, true)}
+                </div>
+                <div class="pvp-countdown" id="pvp-countdown-val">${this.countdownVal > 0 ? this.countdownVal : 'БОЙ!'}</div>`;
+            },
+            renderBattleHtml() {
+                const room = this.room; if (!room) return '';
+                const meIsHost = this.role === 'host';
+                const meNick = meIsHost ? room.host_nickname : room.guest_nickname;
+                const oppNick = meIsHost ? room.guest_nickname : room.host_nickname;
+                const meAvatar = meIsHost ? room.host_avatar : room.guest_avatar;
+                const oppAvatar = meIsHost ? room.guest_avatar : room.host_avatar;
+                return `<div class="pvp-vs-row">
+                    <div class="pvp-fighter-card me">
+                        ${this.avatarHtml(meAvatar)}
+                        <div class="pvp-fighter-name">${meNick || '???'}</div>
+                        <div class="pvp-hpbar-outer"><div class="pvp-hpbar-fill" id="pvp-hp-me" style="width:100%"></div></div>
+                        <div class="pvp-hp-label" id="pvp-hp-me-label"></div>
+                    </div>
+                    <div class="pvp-vs-badge">⚔️</div>
+                    <div class="pvp-fighter-card opp">
+                        ${this.avatarHtml(oppAvatar)}
+                        <div class="pvp-fighter-name">${oppNick || '???'}</div>
+                        <div class="pvp-hpbar-outer"><div class="pvp-hpbar-fill" id="pvp-hp-opp" style="width:100%"></div></div>
+                        <div class="pvp-hp-label" id="pvp-hp-opp-label"></div>
+                    </div>
+                </div>
+                <div class="pvp-log" id="pvp-log-box"></div>
+                <div class="pvp-status-msg">Бей сам — выбирай атаку, когда её кнопка разблокируется!</div>
+                <div id="pvp-ability-grid"></div>`;
+            },
+            renderResultHtml() {
+                const room = this.room; if (!room) return '';
+                const oppName = this.role === 'host' ? room.guest_nickname : room.host_nickname;
+                if (this.iWon) {
+                    return `<div class="pvp-result-banner win"><div class="pvp-result-title">🏆 ПОБЕДА!</div><div class="pvp-result-sub">Соперник ${oppName || ''} повержен. +3 трофея!</div></div>
+                        <div class="pvp-btn-row"><button onclick="PvP.close()">Закрыть</button><button class="primary" onclick="PvP.playAgain()">Новая дуэль</button></div>`;
+                }
+                return `<div class="pvp-result-banner lose"><div class="pvp-result-title">☠️ ПОРАЖЕНИЕ</div><div class="pvp-result-sub">${oppName || 'Соперник'} оказался сильнее в этот раз.</div></div>
+                    <div class="pvp-btn-row"><button onclick="PvP.close()">Закрыть</button><button class="primary" onclick="PvP.playAgain()">Реванш</button></div>`;
+            }
+        };
+
         const Core = {
-            p: { hp: 50, maxHp: 50, energy: 100, maxEnergy: 100, rad: 0, hazards: {}, satiety: 100, lvl: 1, exp: 0, nextExp: 85, caps: 30, vouchers: 0, armor: 2, dodgeChance: 8, inv: { "Запчасти": 6, "Тяжелый Хлам": 0, "Ядерная Батарея": 0, "Сырое мясо": 1, "Жетон Схрона": 0 }, weaponsOwned: ["fists"], wpnUpgrades: { "fists": 0, "pipe": 0, "machete": 0, "pistol": 0, "revolver": 0, "shotgun": 0, "assault": 0, "plasma": 0, "minigun": 0, "gauss": 0 }, activeWeapon: "fists", rodsOwned: ["rusty"], activeRod: "rusty", food: { "Жареное мясо крысы": 1 }, currentBiome: 0, bossesDefeated: [], bpLvl: 1, bpPoints: 0, bpPremium: false, bpClaimedFree: [], bpClaimedPrem: [], dailyStreak: 0, lastDailyClaim: null, relicWasteland: 0, redeemedPromoCodes: [], freeBoxes: {}, nickname: "Странник", nicknameSet: false, avatar: "ranger", titleId: "newbie", unlockedTitles: ["newbie"], maxBiomeReached: 0, bmLastSuccessDay: null, bmFailDay: null, bmFailCount: 0, marketEarnDay: null, marketEarnedToday: 0, marketDailyCapValue: null, skinsOwned: ["default"], activeSkin: "default", dailyQuests: [], dailyQuestsDay: null, petsOwned: [], activePet: null, installedAt: Date.now(), updateGiftClaimed: false, wheelDay: null, wheelSpinsToday: 0, wheelFreeClaimed: false, energyPackDay: null, energyPackBoughtToday: 0,
+            p: { hp: 50, maxHp: 50, energy: 100, maxEnergy: 100, rad: 0, hazards: {}, satiety: 100, lvl: 1, exp: 0, nextExp: 85, caps: 30, vouchers: 0, armor: 2, dodgeChance: 8, inv: { "Запчасти": 6, "Тяжелый Хлам": 0, "Ядерная Батарея": 0, "Сырое мясо": 1, "Жетон Схрона": 0 }, weaponsOwned: ["fists"], wpnUpgrades: { "fists": 0, "pipe": 0, "machete": 0, "pistol": 0, "revolver": 0, "shotgun": 0, "assault": 0, "plasma": 0, "minigun": 0, "gauss": 0 }, activeWeapon: "fists", rodsOwned: ["rusty"], activeRod: "rusty", food: { "Жареное мясо крысы": 1 }, currentBiome: 0, bossesDefeated: [], bpLvl: 1, bpPoints: 0, bpPremium: false, bpClaimedFree: [], bpClaimedPrem: [], dailyStreak: 0, lastDailyClaim: null, relicWasteland: 0, redeemedPromoCodes: [], freeBoxes: {}, nickname: "Странник", nicknameSet: false, avatarsOwned: ["ranger", "raider", "cyborg"], avatar: "ranger", titleId: "newbie", unlockedTitles: ["newbie"], maxBiomeReached: 0, bmLastSuccessDay: null, bmFailDay: null, bmFailCount: 0, marketEarnDay: null, marketEarnedToday: 0, marketDailyCapValue: null, exchangeDay: null, exchangeUsed: {}, marketBuyDay: null, marketBuySpentToday: 0, marketBuyDailyCapValue: null, skinsOwned: ["default"], activeSkin: "default", dailyQuests: [], dailyQuestsDay: null, petsOwned: [], activePet: null, installedAt: Date.now(), updateGiftClaimed: false, restockGiftEligible: false, restockGiftClaimed: false, restockGiftAt: null, wheelDay: null, wheelSpinsToday: 0, wheelFreeClaimed: false, energyPackDay: null, energyPackBoughtToday: 0,
                 perksUnlocked: [], perkPoints: 0, armorOwned: ["rags"], activeArmor: "rags", modsOwned: [], modsEquipped: { optic: null, mag: null, grip: null }, gadgetsOwned: [], megasilaOwned: [], trophies: 0, trophyClaimed: [] },
             combatState: null, restUses: 5, nextRestTick: null, bpSubTab: 'rewards',
             hpRegenAccum: 0, satietyDecayAccum: 0, abilityCooldowns: {},
@@ -6424,13 +7129,14 @@ onclick="Core.declineEncounter()">
 
             loadSettings() {
                 let raw = localStorage.getItem('w_settings_v1');
-                this.settings = raw ? JSON.parse(raw) : { soundVolume: 70, musicVolume: 45, perfMode: false };
+                this.settings = raw ? JSON.parse(raw) : { soundVolume: 70, musicVolume: 45, perfMode: false, fishingEnabled: true };
                 // Миграция со старого формата "sound: true/false" на громкость в процентах
                 if (this.settings.soundVolume === undefined) {
                     this.settings.soundVolume = (this.settings.sound === false) ? 0 : 70;
                 }
                 if (this.settings.musicVolume === undefined) this.settings.musicVolume = 45;
                 if (this.settings.perfMode === undefined) this.settings.perfMode = false;
+                if (this.settings.fishingEnabled === undefined) this.settings.fishingEnabled = true;
                 // Эффект "жидкого стекла" полностью удалён из игры — класс no-glass
                 // навсегда включён (без переключателя и без опции вернуть эффект обратно).
                 document.body.classList.add('no-glass');
@@ -6441,6 +7147,7 @@ onclick="Core.declineEncounter()">
                 Music.volume = this.settings.musicVolume;
                 Music.mode = 'ambient';
                 document.getElementById('setting-perf-mode').checked = this.settings.perfMode;
+                document.getElementById('setting-fishing-enabled').checked = this.settings.fishingEnabled;
                 document.getElementById('setting-sound-volume').value = this.settings.soundVolume;
                 document.getElementById('sound-volume-val').innerText = this.settings.soundVolume + '%';
                 document.getElementById('setting-music-volume').value = this.settings.musicVolume;
@@ -6454,6 +7161,10 @@ onclick="Core.declineEncounter()">
                 const box = document.getElementById('stage-particles');
                 if (box && val) box.innerHTML = '';
                 else if (box && !val) Scene.spawnParticles(DB.biomes[this.p.currentBiome] || DB.biomes[0]);
+                this.saveSettings();
+            },
+            toggleFishing(val) {
+                this.settings.fishingEnabled = val;
                 this.saveSettings();
             },
 
@@ -6557,6 +7268,11 @@ onclick="Core.declineEncounter()">
                     if(!this.p.weaponsOwned.includes(promo.wpnId)) this.p.weaponsOwned.push(promo.wpnId);
                     const wpnDef = DB.weapons.find(w => w.id === promo.wpnId);
                     this.log(`🎟️ Промокод «${promo.code}» активирован: получено оружие «${wpnDef ? wpnDef.name : promo.wpnId}»!`, "loot");
+                } else if(promo.type === 'avatar') {
+                    if(!this.p.avatarsOwned) this.p.avatarsOwned = ["ranger", "raider", "cyborg"];
+                    if(!this.p.avatarsOwned.includes(promo.avatarId)) this.p.avatarsOwned.push(promo.avatarId);
+                    const avDef = DB.avatars.find(a => a.id === promo.avatarId);
+                    this.log(`🎟️ Промокод «${promo.code}» активирован: получена аватарка «${avDef ? avDef.name : promo.avatarId}»!`, "loot");
                 } else if(promo.type === 'bp_premium') {
                     this.p.bpPremium = true;
                     this.log(`🎟️ Промокод «${promo.code}» активирован: 🎫 Премиум-пропуск Пустоши активирован!`, "loot");
@@ -6633,6 +7349,9 @@ onclick="Core.declineEncounter()">
                     this.satietyDecayAccum = parsed.sda || 0;
                     this.hpRegenAccum = parsed.hra || 0;
                     this.lastTick = parsed.lt || Date.now();
+                    // Игроки 50+ уровня, сохранённые ещё до снижения лимита привалов до 3,
+                    // могли иметь 4-5 запасённых привалов — подрезаем под новый максимум.
+                    if (this.restUses > this.getMaxRest()) this.restUses = this.getMaxRest();
                     if(parsed.q) {
                         let defaultQuests = this.quests;
                         let savedById = {};
@@ -6657,6 +7376,7 @@ onclick="Core.declineEncounter()">
                     if(!this.p.redeemedPromoCodes) this.p.redeemedPromoCodes = [];
                     if(!this.p.nickname) this.p.nickname = "Странник";
                     if(this.p.nicknameSet === undefined) this.p.nicknameSet = this.p.nickname !== "Странник";
+                    if(!this.p.avatarsOwned) this.p.avatarsOwned = ["ranger", "raider", "cyborg"];
                     if(!this.p.avatar || !DB.avatars.some(a => a.id === this.p.avatar)) this.p.avatar = "ranger";
                     if(!this.p.unlockedTitles) this.p.unlockedTitles = ["newbie"];
                     if(!this.p.titleId) this.p.titleId = "newbie";
@@ -6667,6 +7387,11 @@ onclick="Core.declineEncounter()">
                     if(this.p.marketEarnDay === undefined) this.p.marketEarnDay = null;
                     if(this.p.marketEarnedToday === undefined) this.p.marketEarnedToday = 0;
                     if(this.p.marketDailyCapValue === undefined) this.p.marketDailyCapValue = null;
+                    if(this.p.exchangeDay === undefined) this.p.exchangeDay = null;
+                    if(!this.p.exchangeUsed) this.p.exchangeUsed = {};
+                    if(this.p.marketBuyDay === undefined) this.p.marketBuyDay = null;
+                    if(this.p.marketBuySpentToday === undefined) this.p.marketBuySpentToday = 0;
+                    if(this.p.marketBuyDailyCapValue === undefined) this.p.marketBuyDailyCapValue = null;
                     if(this.p.energyPackDay === undefined) this.p.energyPackDay = null;
                     if(this.p.energyPackBoughtToday === undefined) this.p.energyPackBoughtToday = 0;
                     if(!this.p.skinsOwned || !this.p.skinsOwned.includes("default")) this.p.skinsOwned = [...new Set([...(this.p.skinsOwned||[]), "default"])];
@@ -6686,18 +7411,30 @@ onclick="Core.declineEncounter()">
                     if(!this.p.megasilaOwned) this.p.megasilaOwned = [];
                     if(this.p.trophies === undefined) this.p.trophies = 0;
                     if(!this.p.trophyClaimed) this.p.trophyClaimed = [];
-                    // "Подарок к обновлению" — если это старое сохранение без метки, отсчёт 24ч
-                    // начинается именно сейчас, с момента когда игрок впервые увидел обновление.
                     if(this.p.installedAt === undefined) this.p.installedAt = Date.now();
                     if(this.p.updateGiftClaimed === undefined) this.p.updateGiftClaimed = false;
+                    // "Подарок к обновлению" (5 Жетонов Схрона + 25 Крышек) доступен только тем,
+                    // кто уже играл ДО этого патча — определяем это по отсутствию самого поля
+                    // restockGiftEligible в сохранении (у новых персонажей, созданных уже после
+                    // этого обновления, оно проставляется сразу при создании, см. defaultPlayer).
+                    // Отсчёт 24ч на получение начинается именно сейчас — с момента, когда игрок
+                    // впервые увидел обновление.
+                    if(this.p.restockGiftEligible === undefined) {
+                        this.p.restockGiftEligible = true;
+                        this.p.restockGiftClaimed = false;
+                        this.p.restockGiftAt = Date.now();
+                    }
+                    if(this.p.restockGiftClaimed === undefined) this.p.restockGiftClaimed = false;
+                    if(this.p.restockGiftAt === undefined) this.p.restockGiftAt = null;
                     this.applyOfflineProgress();
                 } else {
                     this.lastTick = Date.now();
                 }
             },
 
-            // Досчитывает здоровье/сытость/привалы за время, пока игра была закрыта или свёрнута.
+            // Досчитывает здоровье/привалы за время, пока игра была закрыта или свёрнута.
             // Все процессы идут в оффлайне, но вдвое медленнее, чем при активной игре.
+            // Сытость в оффлайне не расходуется вообще.
             applyOfflineProgress() {
                 if (!this.lastTick) { this.lastTick = Date.now(); return; }
                 let now = Date.now();
@@ -6705,20 +7442,10 @@ onclick="Core.declineEncounter()">
                 if (elapsedSec < 1) return;
                 if (this.p.hp <= 0) { this.lastTick = now; return; } // погибший игрок не восстанавливается в оффлайне
 
-                let gainedHp = 0, lostSatiety = 0, gainedRest = 0;
+                let gainedHp = 0, gainedRest = 0;
                 let hazardMods = this.getHazardMods();
 
-                // --- Сытость: убывает, но вдвое медленнее, чем онлайн (36с вместо 18с за -1%), плюс модификатор биома ---
-                if (this.p.satiety > 0) {
-                    const offlineDecayInterval = (18 * 2) / hazardMods.satietyMult;
-                    this.satietyDecayAccum = (this.satietyDecayAccum || 0) + elapsedSec;
-                    let ticks = Math.floor(this.satietyDecayAccum / offlineDecayInterval);
-                    if (ticks > 0) {
-                        lostSatiety = Math.min(this.p.satiety, ticks);
-                        this.p.satiety -= lostSatiety;
-                        this.satietyDecayAccum -= ticks * offlineDecayInterval;
-                    }
-                }
+                // Сытость в оффлайне больше не расходуется — игрок не голодает, пока не в игре.
 
                 // --- Восстановление ОЗ: зависит от текущей сытости, вдвое медленнее, чем онлайн; учитывает дебаффы биома ---
                 let allowedMax = Math.max(5, this.p.maxHp - this.getHazard());
@@ -6735,27 +7462,26 @@ onclick="Core.declineEncounter()">
                 }
 
                 // --- Привалы: восстанавливаются вдвое медленнее, чем онлайн ---
-                if (this.restUses < 5) {
+                if (this.restUses < this.getMaxRest()) {
                     let onlinePeriod = this.getRestTime() * 1000;
                     let offlinePeriod = onlinePeriod * 2;
                     if (!this.nextRestTick) this.nextRestTick = this.lastTick + onlinePeriod;
                     // время, остававшееся по онлайн-таймеру на момент ухода в оффлайн, тоже замедляем вдвое
                     let remainingOnline = Math.max(0, this.nextRestTick - this.lastTick);
                     let slowedTarget = this.lastTick + remainingOnline * 2;
-                    while (this.restUses < 5 && slowedTarget <= now) {
+                    while (this.restUses < this.getMaxRest() && slowedTarget <= now) {
                         this.restUses++; gainedRest++;
                         slowedTarget += offlinePeriod;
                     }
-                    this.nextRestTick = this.restUses < 5 ? slowedTarget : null;
+                    this.nextRestTick = this.restUses < this.getMaxRest() ? slowedTarget : null;
                 }
 
                 this.lastTick = now;
 
-                if (gainedHp || lostSatiety || gainedRest) {
+                if (gainedHp || gainedRest) {
                     let parts = [];
                     if (gainedHp) parts.push(`❤️ +${gainedHp} ОЗ`);
                     if (gainedRest) parts.push(`⛺ +${gainedRest} привал(ов)`);
-                    if (lostSatiety) parts.push(`🍗 -${lostSatiety}% сытости`);
                     this.log(`💤 Пока вас не было: ${parts.join(', ')}.`, "system");
                 }
             },
@@ -6868,6 +7594,7 @@ onclick="Core.declineEncounter()">
                 animateValue(document.getElementById('caps-val'), document.getElementById('caps-val').innerText, this.p.caps, 450);
                 document.getElementById('vouchers-val').innerText = this.p.vouchers;
                 document.getElementById('rest-count').innerText = this.restUses;
+                document.getElementById('rest-max').innerText = this.getMaxRest();
                 document.getElementById('current-location-badge').innerText = `📍 ${DB.biomes[this.p.currentBiome].name}`;
                 
                 // Кнопка покупки уровней БП блокируется на капе
@@ -6937,7 +7664,7 @@ onclick="Core.declineEncounter()">
             openAvatarPicker() {
                 Sound.play('click');
                 const grid = document.getElementById('avatar-picker-grid');
-                grid.innerHTML = DB.avatars.map(a => {
+                grid.innerHTML = DB.avatars.filter(a => (this.p.avatarsOwned || []).includes(a.id)).map(a => {
                     const active = a.id === this.p.avatar;
                     return `<button type="button" class="avatar-pick-btn ${active ? 'active' : ''}" style="--avatar-color:${a.accent}" onclick="Core.selectAvatar('${a.id}')">
                         <div class="avatar-pick-icon">${a.svg}</div>
@@ -7075,7 +7802,10 @@ onclick="Core.declineEncounter()">
                 }).join('');
             },
             log(msg, type = '') { const box = document.getElementById('log'); const e = document.createElement('div'); e.className = `log-entry ${type}`; e.innerHTML = msg; box.appendChild(e); box.scrollTop = box.scrollHeight; Scene.setCaption(msg, type); },
-            getRestTime() { return this.p.lvl >= 50 ? 30 : 60; },
+            // До и после 50 уровня привалы восстанавливаются с одинаковой скоростью — 1 раз в минуту.
+            getRestTime() { return 60; },
+            // После 50 уровня максимум одновременно доступных привалов снижается с 5 до 3.
+            getMaxRest() { return this.p.lvl >= 50 ? 3 : 5; },
 
             // Скорость регенерации ОЗ зависит от сытости: 100% = 1 ОЗ/3с, 50% = 1 ОЗ/18с, ниже ~20% — совсем медленно. При 0% сытости регенерация вообще не идёт.
             // (Ускорено по сравнению с прежним — было 5с/25с — но умеренно, не мгновенно.)
@@ -7172,14 +7902,28 @@ onclick="Core.declineEncounter()">
                     this.hpRegenAccum = 0;
                 }
 
-                if (this.restUses < 5) {
+                // Голод: если сытость ниже 20%, здоровье начинает постепенно таять (до 1 ОЗ, не убивает напрямую)
+                if (this.p.satiety < 20 && this.p.hp > 1) {
+                    this.starveAccum = (this.starveAccum || 0) + 1;
+                    // Чем меньше сытости, тем чаще тикает голод (от ~12с при 19% до ~4с при 0%)
+                    let starveInterval = 4 + (this.p.satiety / 20) * 8;
+                    if (this.starveAccum >= starveInterval) {
+                        this.starveAccum -= starveInterval;
+                        this.p.hp = Math.max(1, this.p.hp - 1);
+                        this.save(); this.updateUI();
+                    }
+                } else {
+                    this.starveAccum = 0;
+                }
+
+                if (this.restUses < this.getMaxRest()) {
                     let period = this.getRestTime() * 1000;
                     if (!this.nextRestTick) this.nextRestTick = Date.now() + period;
                     let remaining = Math.ceil((this.nextRestTick - Date.now()) / 1000);
                     if (remaining <= 0) {
                         this.restUses++;
                         this.log(`⛺ Привал готов. Откат: ${this.getRestTime()}с.`, "system");
-                        this.nextRestTick = this.restUses < 5 ? Date.now() + (this.getRestTime() * 1000) : null;
+                        this.nextRestTick = this.restUses < this.getMaxRest() ? Date.now() + (this.getRestTime() * 1000) : null;
                         this.save(); this.updateUI();
                     } else {
                         let timerBadge = document.getElementById('rest-timer');
@@ -7315,7 +8059,7 @@ onclick="Core.declineEncounter()">
                         else { this.p.inv["Тяжелый Хлам"] = (this.p.inv["Тяжелый Хлам"]||0)+1; this.log(`⚙️ Найдено: Тяжелый Хлам x1, Крышки (+${c} 🪙).${bonusScrap}${tokenMsg} +15 XP.`, "loot"); Scene.findEffect('heavy'); }
                         this.p.exp += 10; this.checkLvl();
                     } else if (roll < 0.58) {
-                        if (this.p.lvl < 5) { this.log("Локация чиста. Ничего интересного."); Scene.findEffect('empty'); }
+                        if (this.p.lvl < 5 || (this.settings && this.settings.fishingEnabled === false)) { this.log("Локация чиста. Ничего интересного."); Scene.findEffect('empty'); }
                         else { this.log("🌊 Вы наткнулись на заброшенное озеро посреди Пустоши..."); Scene.findEffect('lake'); this.offerFishing(); }
                     }
                     else if (roll < 0.78) { Scene.findEffect('enemy'); this.startCombat(false); } else { this.log("Локация чиста. Ничего интересного."); Scene.findEffect('empty'); }
@@ -7324,6 +8068,7 @@ onclick="Core.declineEncounter()">
             },
 
             offerFishing() {
+                if (this.settings && this.settings.fishingEnabled === false) return;
                 document.getElementById('lake-choice-overlay').style.display = 'flex';
             },
 
@@ -7749,7 +8494,7 @@ startCombat(isBossFight = false) {
             processVictory() {
                 let earned = this.combatState.isBoss ? 15 : 1;
                 this.p.trophies = (this.p.trophies || 0) + earned;
-                this.log(`🏆 Трофейная дорога: +${earned} ${earned === 1 ? 'трофей' : 'трофеев'} (всего ${Math.min(this.p.trophies, 1000)} / 1000)`, "loot");
+                this.log(`🏆 Трофейная дорога: +${earned} ${earned === 1 ? 'трофей' : 'трофеев'} (всего ${Math.min(this.p.trophies, 5000)} / 5000)`, "loot");
                 this.showTrophyToast(earned, this.combatState.isBoss);
                 if(this.combatState.isBoss) {
                     this.p.bossesDefeated.push(this.p.currentBiome);
@@ -7829,6 +8574,9 @@ startCombat(isBossFight = false) {
                     this.log(`🌟 Уровень повышен: ${this.p.lvl}! Макс ОЗ +5, Броня +1, Очко перка +1.`, "system");
                     Scene.levelUpFlash(this.p.lvl);
                 }
+                // На 50 уровне максимум привалов снижается до 3 — если к этому моменту
+                // накоплено больше, лишнее не сгорает мгновенно, а подрезается до нового лимита.
+                if (this.restUses > this.getMaxRest()) this.restUses = this.getMaxRest();
             },
 
             teleport(biomeId) {
@@ -7846,7 +8594,14 @@ startCombat(isBossFight = false) {
                 let foodItem = DB.cooking.find(c => c.name === foodKey); let satietyVal = foodItem ? foodItem.heal : 10;
                 this.p.food[foodKey]--;
                 this.p.satiety = Math.min(100, this.p.satiety + satietyVal);
-                this.log(`🍏 Употреблено ${foodKey}: Сытость +${satietyVal}% (сейчас ${this.p.satiety}%).`);
+                // Еда помимо сытости немного восстанавливает здоровье напрямую (не переусердствуем — около 1/5 от сытости)
+                let allowedMax = Math.max(5, this.p.maxHp - this.getHazard());
+                let hpHeal = Math.max(1, Math.round(satietyVal * 0.2));
+                let actualHeal = Math.min(hpHeal, Math.max(0, allowedMax - this.p.hp));
+                if (actualHeal > 0) this.p.hp += actualHeal;
+                this.log(actualHeal > 0
+                    ? `🍏 Употреблено ${foodKey}: Сытость +${satietyVal}% (сейчас ${this.p.satiety}%), ❤️ +${actualHeal} ОЗ.`
+                    : `🍏 Употреблено ${foodKey}: Сытость +${satietyVal}% (сейчас ${this.p.satiety}%).`);
                 this.save(); this.updateUI();
             },
 
@@ -8785,7 +9540,7 @@ startCombat(isBossFight = false) {
             renderTrophyRoad() {
                 const el = document.getElementById('trophy-body'); el.innerHTML = '';
                 let trophies = this.p.trophies || 0;
-                let pct = Math.min(100, Math.round((trophies / 1000) * 100));
+                let pct = Math.min(100, Math.round((trophies / 5000) * 100));
                 let nextNode = DB.trophyRoad.find((n, idx) => !(this.p.trophyClaimed || []).includes(idx));
                 let nextInfo = nextNode
                     ? (trophies >= nextNode.trophies
@@ -8793,7 +9548,7 @@ startCombat(isBossFight = false) {
                         : `<span style="color:var(--text-muted);">До следующей награды: <b style="color:var(--neon-gold);">${nextNode.trophies - trophies} 🏆</b></span>`)
                     : `<span style="color:var(--neon-green);">Все награды получены!</span>`;
                 el.innerHTML += `<div class="trophy-progress-bar">
-                    <div class="trophy-progress-top"><span>🏆 ${trophies} / 1000</span><span style="color: var(--neon-gold);">${pct}%</span></div>
+                    <div class="trophy-progress-top"><span>🏆 ${trophies} / 5000</span><span style="color: var(--neon-gold);">${pct}%</span></div>
                     <div class="trophy-progress-outer"><div class="trophy-progress-fill" style="width:${pct}%;"></div></div>
                     <div class="trophy-progress-next">${nextInfo}</div>
                     <div class="trophy-progress-legend"><span>⚔️ Враг: <b>+1</b></span><span>💀 Босс локации: <b>+15</b></span></div>
@@ -9009,15 +9764,15 @@ startCombat(isBossFight = false) {
                 this.renderUpdateGiftCard();
             },
 
-            // ================= СХРОН ЖЕТОНОВ: фиксированные наборы «Жетон Схрона», курс 1💠 = 150 🪙 =================
-            TOKEN_RATE: 150,
+            // ================= СХРОН ЖЕТОНОВ: фиксированные наборы «Жетон Схрона» =================
             TOKEN_BUNDLES: [1, 5, 10, 20],
+            TOKEN_PRICES: { 1: 150, 5: 600, 10: 1150, 20: 1700 },
             renderTokenVault() {
                 const el = document.getElementById('token-vault-list');
                 if (!el) return;
                 const owned = (this.p.inv && this.p.inv["Жетон Схрона"]) || 0;
                 const cardsHtml = this.TOKEN_BUNDLES.map(qty => {
-                    const price = qty * this.TOKEN_RATE;
+                    const price = this.TOKEN_PRICES[qty];
                     const isBest = qty === 20;
                     const canAfford = this.p.caps >= price;
                     return `
@@ -9038,14 +9793,13 @@ startCombat(isBossFight = false) {
                                     <div class="token-vault-sub">В запасе: ${owned} 💠</div>
                                 </div>
                             </div>
-                            <div class="token-vault-rate">1💠 = ${this.TOKEN_RATE} 🪙</div>
                         </div>
                         <div class="token-bundle-grid">${cardsHtml}</div>
                     </div>`;
             },
             buyTokenBundle(qty) {
                 if (!this.TOKEN_BUNDLES.includes(qty)) return;
-                const price = qty * this.TOKEN_RATE;
+                const price = this.TOKEN_PRICES[qty];
                 if (this.p.caps < price) return alert("Мало крышек!");
                 this.p.caps -= price;
                 this.triggerQuest("spend_caps", price);
@@ -9055,16 +9809,16 @@ startCombat(isBossFight = false) {
                 Sound.play('loot'); this.save(); this.updateUI(); this.renderTokenVault();
             },
 
-            // ================= ПОДАРОК К ОБНОВЛЕНИЮ (разово, доступен 24 часа) =================
+            // ================= ПОДАРОК К ОБНОВЛЕНИЮ (разово, доступен 24 часа, только для тех, кто уже играл) =================
             UPDATE_GIFT_WINDOW_MS: 24 * 60 * 60 * 1000,
             getUpdateGiftRemainingMs() {
-                if (!this.p.installedAt) return 0;
-                return this.p.installedAt + this.UPDATE_GIFT_WINDOW_MS - Date.now();
+                if (!this.p.restockGiftEligible || !this.p.restockGiftAt) return 0;
+                return this.p.restockGiftAt + this.UPDATE_GIFT_WINDOW_MS - Date.now();
             },
             renderUpdateGiftCard() {
                 const el = document.getElementById('update-gift-container');
                 if (!el) return;
-                if (this.p.updateGiftClaimed) { el.innerHTML = ''; return; }
+                if (!this.p.restockGiftEligible || this.p.restockGiftClaimed) { el.innerHTML = ''; return; }
                 const remaining = this.getUpdateGiftRemainingMs();
                 if (remaining <= 0) { el.innerHTML = ''; return; }
                 el.innerHTML = `
@@ -9074,15 +9828,12 @@ startCombat(isBossFight = false) {
                         <div class="update-gift-icon">🎁</div>
                         <div>
                             <div class="update-gift-title">Подарок к обновлению</div>
-                            <div class="update-gift-sub">Разовый бонус для всех выживших. Заберите, пока не поздно — потом пропадёт навсегда.</div>
+                            <div class="update-gift-sub">Бонус для выживших, которые уже были в Пустоши до этого обновления. Заберите, пока не поздно — потом пропадёт навсегда.</div>
                         </div>
                     </div>
                     <div class="update-gift-list">
-                        <span class="update-gift-tag">❤️ Полное ОЗ</span>
-                        <span class="update-gift-tag">⚡ Полная энергия</span>
-                        <span class="update-gift-tag">🍗 Полная сытость</span>
-                        <span class="update-gift-tag">⛺ Все привалы</span>
-                        <span class="update-gift-tag">☢️ Радиация в ноль</span>
+                        <span class="update-gift-tag">💠 5x Жетон Схрона</span>
+                        <span class="update-gift-tag">🪙 25 Крышек</span>
                     </div>
                     <div class="update-gift-timer" id="update-gift-timer">⏳ --:--:--</div>
                     <button class="update-gift-btn" onclick="Core.claimUpdateGift()">🎁 Забрать подарок</button>
@@ -9092,7 +9843,7 @@ startCombat(isBossFight = false) {
             updateGiftTimer() {
                 const el = document.getElementById('update-gift-timer');
                 if (!el) return;
-                if (this.p.updateGiftClaimed) return;
+                if (this.p.restockGiftClaimed) return;
                 const remaining = this.getUpdateGiftRemainingMs();
                 if (remaining <= 0) { this.renderUpdateGiftCard(); return; }
                 let h = Math.floor(remaining / 3600000);
@@ -9101,18 +9852,16 @@ startCombat(isBossFight = false) {
                 el.textContent = `⏳ Осталось: ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
             },
             claimUpdateGift() {
-                if (this.p.updateGiftClaimed) return;
+                if (!this.p.restockGiftEligible || this.p.restockGiftClaimed) return;
                 if (this.getUpdateGiftRemainingMs() <= 0) { this.renderUpdateGiftCard(); return; }
                 Sound.play('loot');
-                this.p.hp = this.p.maxHp;
-                this.p.energy = this.p.maxEnergy;
-                this.p.satiety = 100;
-                this.p.rad = 0;
-                this.p.hazards = {};
-                this.restUses = 5;
-                this.nextRestTick = null;
-                this.p.updateGiftClaimed = true;
-                this.log("🎁 Подарок к обновлению получен: ОЗ, энергия, сытость и привалы восстановлены, радиация сброшена.", "loot");
+                if (!this.p.inv) this.p.inv = {};
+                this.p.inv["Жетон Схрона"] = (this.p.inv["Жетон Схрона"] || 0) + 5;
+                this.p.caps += 25;
+                // Подарок разовый и невозобновляемый: как только забран — исчезает навсегда,
+                // повторно на этом аккаунте больше не появится.
+                this.p.restockGiftClaimed = true;
+                this.log("🎁 Подарок к обновлению получен: +5 💠 Жетонов Схрона, +25 🪙 Крышек.", "loot");
                 this.save(); this.updateUI(); this.renderUpdateGiftCard();
                 document.getElementById('gift-result-overlay').style.display = 'flex';
             },
@@ -9327,7 +10076,7 @@ startCombat(isBossFight = false) {
                 if (this.p.lvl < 5) { Sound.play('hit'); Tips.lock(`Рынок откроется на 5 уровне. Твой текущий уровень: ${this.p.lvl}. Качай уровень разведкой и боями — я дам знать, когда сюда стоит вернуться.`); return; }
                 Sound.play('click'); this.marketQty = {}; this.renderMarket(); document.getElementById('market-overlay').style.display = 'flex';
                 this.switchMarketTab('sell');
-                setTimeout(() => Tips.show('market', "Добро пожаловать на Рынок! Здесь можно и купить нужное, и продать лишние ресурсы за крышки, и заглянуть во вкладку «🔄 Обмен», где Тяжёлый Хлам меняется на Запчасти по фиксированному курсу."), 350);
+                setTimeout(() => Tips.show('market', "Добро пожаловать на Рынок! На вкладке «💰 Продать» — сбывайте лишние ресурсы, еду и рыбу за крышки (есть дневной лимит выручки). На «🛒 Купить» — закупайте базовые ресурсы за крышки, если чего-то не хватает (тоже есть дневной лимит закупки). А на «🔄 Обмен» — меняйте ресурсы друг на друга напрямую: Тяжёлый Хлам на Запчасти и обратно, а также разряженные Ядерные Батареи на Тяжёлый Хлам — и здесь у каждого направления свой дневной лимит."), 350);
             },
             closeMarket() { document.getElementById('market-overlay').style.display = 'none'; },
             renderMarket() {
@@ -9431,63 +10180,194 @@ startCombat(isBossFight = false) {
                 this.save(); this.updateUI(); this.renderInventory(); this.renderMarket();
             },
 
-            // ================= ОБМЕН (Тяжёлый Хлам -> Запчасти по фиксированному курсу) =================
+            // ================= ОБМЕН (несколько направлений конвертации ресурсов, каждое со своим дневным лимитом) =================
             switchMarketTab(tab) {
                 Sound.play('click');
                 document.getElementById('market-tab-sell').classList.toggle('active', tab === 'sell');
+                document.getElementById('market-tab-buy').classList.toggle('active', tab === 'buy');
                 document.getElementById('market-tab-exchange').classList.toggle('active', tab === 'exchange');
                 document.getElementById('market-list').style.display = tab === 'sell' ? '' : 'none';
+                document.getElementById('market-buy-list').style.display = tab === 'buy' ? '' : 'none';
                 document.getElementById('market-exchange-list').style.display = tab === 'exchange' ? '' : 'none';
+                if (tab === 'buy') this.renderMarketBuy();
                 if (tab === 'exchange') this.renderMarketExchange();
+            },
+            ensureMarketBuyDay() {
+                const today = new Date().toDateString();
+                if (this.p.marketBuyDay !== today) {
+                    this.p.marketBuyDay = today;
+                    this.p.marketBuySpentToday = 0;
+                    this.p.marketBuyDailyCapValue = (40 + this.p.currentBiome * 25) + Math.floor(Math.random() * 7) - 3;
+                }
+            },
+            renderMarketBuy() {
+                const el = document.getElementById('market-buy-list');
+                this.ensureMarketBuyDay();
+                if (!this.marketBuyQty) this.marketBuyQty = {};
+                const cap = this.p.marketBuyDailyCapValue || 40;
+                const remaining = Math.max(0, cap - this.p.marketBuySpentToday);
+                const capReached = remaining <= 0;
+                let html = '';
+                for (let name in DB.marketBuyPrices) {
+                    const price = DB.marketBuyPrices[name];
+                    if (!this.marketBuyQty[name]) this.marketBuyQty[name] = 1;
+                    const maxByCap = Math.max(1, Math.floor(remaining / price));
+                    this.marketBuyQty[name] = Math.max(1, Math.min(this.marketBuyQty[name], maxByCap));
+                    const qty = this.marketBuyQty[name];
+                    const cost = qty * price;
+                    const canAfford = this.p.caps >= cost;
+                    const disabled = capReached || !canAfford;
+                    html += `
+                    <div class="mk-card"${disabled ? ' style="opacity:0.6;"' : ''}>
+                        <div class="mk-card-icon">${this.getMarketIcon(name)}</div>
+                        <div>
+                            <div class="mk-card-title">${name}</div>
+                            <div class="mk-card-sub">${price} 🪙 / шт · осталось лимита закупки сегодня: ${remaining} 🪙</div>
+                        </div>
+                        <div class="mk-card-controls">
+                            <div class="mk-stepper">
+                                <button ${capReached ? 'disabled' : ''} onclick="Core.marketBuyChangeQty('${name}', -1)">−</button>
+                                <span id="mk-buy-qty-${name}">${qty}</span>
+                                <button ${capReached ? 'disabled' : ''} onclick="Core.marketBuyChangeQty('${name}', 1)">+</button>
+                            </div>
+                            <button class="mk-sell-btn" ${disabled ? 'disabled style="cursor:not-allowed; filter:grayscale(0.6);"' : ''} onclick="Core.marketBuy('${name}')">${capReached ? '🔒 Лимит на сегодня' : `Купить за <span id="mk-buy-total-${name}">${cost}</span> 🪙`}</button>
+                        </div>
+                    </div>`;
+                }
+                html += `<div style="font-size:11px; color:var(--text-muted); padding:10px 4px 4px; line-height:1.5;">Дядя Скрап продаёт базовые ресурсы по цене выше, чем сам их скупает — на закупку у него тоже есть дневной предел.</div>`;
+                el.innerHTML = html;
+            },
+            marketBuyChangeQty(name, delta) {
+                const price = DB.marketBuyPrices[name];
+                if (price === undefined) return;
+                this.ensureMarketBuyDay();
+                const cap = this.p.marketBuyDailyCapValue || 40;
+                const remaining = Math.max(0, cap - this.p.marketBuySpentToday);
+                const maxByCap = Math.max(1, Math.floor(remaining / price));
+                const maxByCaps = Math.max(1, Math.floor(this.p.caps / price));
+                if (!this.marketBuyQty) this.marketBuyQty = {};
+                if (!this.marketBuyQty[name]) this.marketBuyQty[name] = 1;
+                this.marketBuyQty[name] = Math.max(1, Math.min(maxByCap, maxByCaps, this.marketBuyQty[name] + delta));
+                const qtyEl = document.getElementById('mk-buy-qty-' + name), totalEl = document.getElementById('mk-buy-total-' + name);
+                if (qtyEl) qtyEl.textContent = this.marketBuyQty[name];
+                if (totalEl) totalEl.textContent = this.marketBuyQty[name] * price;
+            },
+            marketBuy(name) {
+                const price = DB.marketBuyPrices[name];
+                if (price === undefined) return;
+                this.ensureMarketBuyDay();
+                const cap = this.p.marketBuyDailyCapValue || 40;
+                const remaining = Math.max(0, cap - this.p.marketBuySpentToday);
+                if (remaining <= 0) {
+                    Sound.play('hit');
+                    this.log(`🏛️ Рынок: Дядя Скрап разводит руками — на сегодня продавать больше нечего. Загляни завтра.`, "system");
+                    this.renderMarketBuy();
+                    return;
+                }
+                let qty = Math.min((this.marketBuyQty && this.marketBuyQty[name]) || 1, Math.floor(remaining / price), Math.floor(this.p.caps / price));
+                if (qty <= 0) {
+                    Sound.play('hit');
+                    this.log(`🏛️ Рынок: не хватает крышек или дневной лимит закупки исчерпан.`, "system");
+                    this.renderMarketBuy();
+                    return;
+                }
+                const cost = qty * price;
+                this.p.caps -= cost;
+                this.p.inv[name] = (this.p.inv[name] || 0) + qty;
+                this.p.marketBuySpentToday += cost;
+                Sound.play('loot');
+                this.log(`🏛️ Рынок: куплено ${name} x${qty} за ${cost} 🪙.`, "loot");
+                if (this.marketBuyQty) this.marketBuyQty[name] = 1;
+                this.save(); this.updateUI(); this.renderInventory(); this.renderMarketBuy();
+            },
+            ensureExchangeDay() {
+                const today = new Date().toDateString();
+                if (this.p.exchangeDay !== today) {
+                    this.p.exchangeDay = today;
+                    this.p.exchangeUsed = {};
+                }
             },
             renderMarketExchange() {
                 const el = document.getElementById('market-exchange-list');
-                const rate = DB.exchangeRate.heavyToParts;
-                const owned = this.p.inv["Тяжелый Хлам"] || 0;
-                if (owned <= 0) {
-                    el.innerHTML = `<div style="font-size:12px; color:var(--text-muted); padding:14px; text-align:center;">Нет Тяжёлого Хлама для обмена. Найдите его во время разведки Пустоши.</div>`;
+                this.ensureExchangeDay();
+                if (!this.exchangeQty) this.exchangeQty = {};
+                let html = '';
+                DB.exchangeRecipes.forEach(r => {
+                    const owned = this.p.inv[r.fromKey] || 0;
+                    const usedBatches = this.p.exchangeUsed[r.id] || 0;
+                    const remainingBatches = Math.max(0, r.dailyLimitBatches - usedBatches);
+                    const maxByOwned = Math.floor(owned / r.fromQty);
+                    const maxQty = Math.min(maxByOwned, remainingBatches);
+                    if (!this.exchangeQty[r.id]) this.exchangeQty[r.id] = 1;
+                    this.exchangeQty[r.id] = Math.max(1, Math.min(this.exchangeQty[r.id], Math.max(1, maxQty)));
+                    const qty = this.exchangeQty[r.id];
+                    const limitReached = remainingBatches <= 0;
+                    const notEnough = owned < r.fromQty;
+                    const disabled = limitReached || notEnough;
+                    let btnLabel;
+                    if (limitReached) btnLabel = '🔒 Дневной лимит исчерпан';
+                    else if (notEnough) btnLabel = `Нужно ${r.fromQty}x ${r.fromIcon}`;
+                    else btnLabel = `Обменять на <span id="mk-exchange-total-${r.id}">${qty * r.toQty}</span> ${r.toIcon}`;
+                    html += `
+                    <div class="mk-card"${disabled ? ' style="opacity:0.6;"' : ''}>
+                        <div class="mk-card-icon">${r.fromIcon}</div>
+                        <div>
+                            <div class="mk-card-title">${r.name}</div>
+                            <div class="mk-card-sub">В наличии: ${owned} шт · курс ${r.fromQty} ${r.fromIcon} = ${r.toQty} ${r.toIcon} · осталось сегодня: ${remainingBatches} обменов</div>
+                        </div>
+                        <div class="mk-card-controls">
+                            <div class="mk-stepper">
+                                <button ${disabled ? 'disabled' : ''} onclick="Core.exchangeChangeQty('${r.id}', -1)">−</button>
+                                <span id="mk-exchange-qty-${r.id}">${qty}</span>
+                                <button ${disabled ? 'disabled' : ''} onclick="Core.exchangeChangeQty('${r.id}', 1)">+</button>
+                            </div>
+                            <button class="mk-sell-btn" ${disabled ? 'disabled style="cursor:not-allowed; filter:grayscale(0.6);"' : ''} onclick="Core.exchangeConfirm('${r.id}')">${btnLabel}</button>
+                        </div>
+                    </div>
+                    <div style="font-size:11px; color:var(--text-muted); padding:6px 4px 14px; line-height:1.5;">${r.desc}</div>`;
+                });
+                el.innerHTML = html;
+            },
+            exchangeChangeQty(recipeId, delta) {
+                const r = DB.exchangeRecipes.find(x => x.id === recipeId);
+                if (!r) return;
+                this.ensureExchangeDay();
+                const owned = this.p.inv[r.fromKey] || 0;
+                const usedBatches = this.p.exchangeUsed[r.id] || 0;
+                const remainingBatches = Math.max(0, r.dailyLimitBatches - usedBatches);
+                const maxByOwned = Math.floor(owned / r.fromQty);
+                const maxQty = Math.max(1, Math.min(maxByOwned, remainingBatches));
+                if (!this.exchangeQty) this.exchangeQty = {};
+                if (!this.exchangeQty[recipeId]) this.exchangeQty[recipeId] = 1;
+                this.exchangeQty[recipeId] = Math.max(1, Math.min(maxQty, this.exchangeQty[recipeId] + delta));
+                const qtyEl = document.getElementById('mk-exchange-qty-' + recipeId);
+                const totalEl = document.getElementById('mk-exchange-total-' + recipeId);
+                if (qtyEl) qtyEl.textContent = this.exchangeQty[recipeId];
+                if (totalEl) totalEl.textContent = this.exchangeQty[recipeId] * r.toQty;
+            },
+            exchangeConfirm(recipeId) {
+                const r = DB.exchangeRecipes.find(x => x.id === recipeId);
+                if (!r) return;
+                this.ensureExchangeDay();
+                const owned = this.p.inv[r.fromKey] || 0;
+                const usedBatches = this.p.exchangeUsed[r.id] || 0;
+                const remainingBatches = Math.max(0, r.dailyLimitBatches - usedBatches);
+                const maxByOwned = Math.floor(owned / r.fromQty);
+                let qty = Math.min((this.exchangeQty && this.exchangeQty[recipeId]) || 1, maxByOwned, remainingBatches);
+                if (qty <= 0) {
+                    Sound.play('hit');
+                    this.log(`🔄 Обмен «${r.name}»: недостаточно ресурсов или дневной лимит уже исчерпан.`, "system");
+                    this.renderMarketExchange();
                     return;
                 }
-                if (!this.exchangeQty) this.exchangeQty = 1;
-                this.exchangeQty = Math.max(1, Math.min(this.exchangeQty, owned));
-                let qty = this.exchangeQty;
-                el.innerHTML = `
-                <div class="mk-card">
-                    <div class="mk-card-icon">🔩</div>
-                    <div>
-                        <div class="mk-card-title">Тяжёлый Хлам → Запчасти</div>
-                        <div class="mk-card-sub">В наличии: ${owned} шт · курс 1 🔩 = ${rate} ⚙️</div>
-                    </div>
-                    <div class="mk-card-controls">
-                        <div class="mk-stepper">
-                            <button onclick="Core.exchangeChangeQty(-1)">−</button>
-                            <span id="mk-exchange-qty">${qty}</span>
-                            <button onclick="Core.exchangeChangeQty(1)">+</button>
-                        </div>
-                        <button class="mk-sell-btn" onclick="Core.exchangeHeavyForParts()">Обменять на <span id="mk-exchange-total">${qty * rate}</span> ⚙️</button>
-                    </div>
-                </div>
-                <div style="font-size:11px; color:var(--text-muted); padding:10px 4px; line-height:1.5;">Дядя Скрап переплавит тяжёлый лом в рабочие запчасти прямо у тебя на глазах. Курс фиксированный и не меняется.</div>`;
-            },
-            exchangeChangeQty(delta) {
-                const owned = this.p.inv["Тяжелый Хлам"] || 0;
-                if (!this.exchangeQty) this.exchangeQty = 1;
-                this.exchangeQty = Math.max(1, Math.min(owned, this.exchangeQty + delta));
-                const qtyEl = document.getElementById('mk-exchange-qty'), totalEl = document.getElementById('mk-exchange-total');
-                if (qtyEl) qtyEl.textContent = this.exchangeQty;
-                if (totalEl) totalEl.textContent = this.exchangeQty * DB.exchangeRate.heavyToParts;
-            },
-            exchangeHeavyForParts() {
-                const owned = this.p.inv["Тяжелый Хлам"] || 0;
-                let qty = Math.min(this.exchangeQty || 1, owned);
-                if (qty <= 0) return;
-                const rate = DB.exchangeRate.heavyToParts;
-                const gained = qty * rate;
-                this.p.inv["Тяжелый Хлам"] -= qty;
-                this.p.inv["Запчасти"] = (this.p.inv["Запчасти"] || 0) + gained;
+                const spent = qty * r.fromQty;
+                const gained = qty * r.toQty;
+                this.p.inv[r.fromKey] -= spent;
+                this.p.inv[r.toKey] = (this.p.inv[r.toKey] || 0) + gained;
+                this.p.exchangeUsed[r.id] = usedBatches + qty;
                 Sound.play('loot');
-                this.log(`🔄 Обмен на рынке: Тяжелый Хлам x${qty} → Запчасти x${gained}.`, "loot");
-                this.exchangeQty = 1;
+                this.log(`🔄 Обмен на рынке: ${r.fromKey} x${spent} → ${r.toKey} x${gained}.`, "loot");
+                if (this.exchangeQty) this.exchangeQty[recipeId] = 1;
                 this.save(); this.updateUI(); this.renderInventory(); this.renderMarketExchange();
             },
 
@@ -9734,7 +10614,8 @@ startCombat(isBossFight = false) {
                 this.p.weaponsOwned = DB.weapons.map(w => w.id);
                 this.p.rodsOwned = DB.rods.map(r => r.id);
                 this.p.unlockedTitles = DB.titles.map(t => t.id);
-                this.log('⚙ Панель разработчика: выдано всё оружие, удочки и титулы.', "loot");
+                this.p.avatarsOwned = DB.avatars.map(a => a.id);
+                this.log('⚙ Панель разработчика: выдано всё оружие, удочки, титулы и аватарки.', "loot");
                 this.save(); this.updateUI(); this.renderInventory(); this.renderProfile();
             },
             adminResetPlayer() {
@@ -9744,11 +10625,12 @@ startCombat(isBossFight = false) {
                 // уровень, крышки, ваучеры, трофеи, оружие, титулы, питомцы, квесты и т.д.
                 this.p = JSON.parse(JSON.stringify(this.defaultPlayer));
                 this.quests = JSON.parse(JSON.stringify(this.defaultQuests));
-                this.restUses = 5;
+                this.restUses = this.getMaxRest();
                 this.nextRestTick = null;
                 this.lastTick = Date.now();
                 this.satietyDecayAccum = 0;
                 this.hpRegenAccum = 0;
+                this.starveAccum = 0;
                 this.dailyStreak = 0;
 
                 // Сбрасываем и обучение с подсказками — при перезапуске оно пройдёт заново.
@@ -9907,7 +10789,7 @@ startCombat(isBossFight = false) {
                 else if (chosen.includes("🧬")) { this.p.maxHp += 10; this.p.hp = Math.min(this.p.maxHp, this.p.hp + 10); chosenIcon = "🧬"; } 
                 else if (chosen.includes("🔋")) { this.p.energy = Math.min(this.p.maxEnergy, this.p.energy + 20); chosenIcon = "🔋"; } 
                 else if (chosen.includes("Жареное")) { this.p.food["Жареное мясо крысы"] = (this.p.food["Жареное мясо крысы"]||0) + 1; chosenIcon = "🍗"; }
-                else if (chosen.includes("Привал")) { this.restUses = Math.min(5, this.restUses + 1); chosenIcon = "⛺"; }
+                else if (chosen.includes("Привал")) { this.restUses = Math.min(this.getMaxRest(), this.restUses + 1); chosenIcon = "⛺"; }
                 else if (chosen.includes("Мегасила")) {
                     let g = this.grantRandomMegasila();
                     if (g) { chosen = `⚡ ${g.name}`; chosenIcon = g.icon; }
@@ -10205,9 +11087,9 @@ startCombat(isBossFight = false) {
                 let collapsedLevelEl = document.getElementById('bp-collapsed-level');
                 if (collapsedLevelEl) collapsedLevelEl.innerText = this.p.bpLvl >= 100 ? "МАКС" : `ЭТАП ${this.p.bpLvl}`;
                 let trophyCollapsedEl = document.getElementById('trophy-collapsed-level');
-                if (trophyCollapsedEl) trophyCollapsedEl.innerText = `${Math.min(this.p.trophies || 0, 1000)} / 1000`;
+                if (trophyCollapsedEl) trophyCollapsedEl.innerText = `${Math.min(this.p.trophies || 0, 5000)} / 5000`;
                 let trophyFillEl = document.getElementById('trophy-collapsed-fill');
-                if (trophyFillEl) trophyFillEl.style.width = Math.min(100, Math.round(((this.p.trophies || 0) / 1000) * 100)) + '%';
+                if (trophyFillEl) trophyFillEl.style.width = Math.min(100, Math.round(((this.p.trophies || 0) / 5000) * 100)) + '%';
                 let trophyHasClaimable = DB.trophyRoad.some((n, idx) => (this.p.trophies || 0) >= n.trophies && !(this.p.trophyClaimed || []).includes(idx));
                 let profileTabEl = document.getElementById('tab-profile');
                 if (profileTabEl) profileTabEl.classList.toggle('tab-alert', trophyHasClaimable);
