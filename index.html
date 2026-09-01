@@ -2162,12 +2162,19 @@ transform:scale(1);
         .schem-tabs { display: flex; gap: 6px; margin-bottom: 10px; }
         .schem-tab { flex: 1; padding: 8px; font-size: 11px; background: rgba(0,240,255,0.05); border: 1px solid rgba(0,240,255,0.25); color: var(--text-muted); border-radius: 8px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; }
         .schem-tab.active { background: var(--neon-blue); color: #00161a; font-weight: 900; border-color: var(--neon-blue); }
-        .schem-body { overflow-y: auto; flex: 1; padding-right: 2px; }
+        .schem-body { overflow-y: auto; overflow-x: hidden; flex: 1; padding-right: 2px; }
         .schem-entry { border: 1px solid rgba(0,240,255,0.25); border-radius: 10px; padding: 10px; margin-bottom: 10px; background: rgba(0,240,255,0.04); }
         .schem-entry-header { display: flex; justify-content: space-between; font-weight: 800; font-size: 13px; color: #fff; margin-bottom: 5px; }
         .schem-res { font-size: 11px; margin-bottom: 2px; color: var(--text-muted); font-weight: 600; }
-        .schem-res.ok { color: var(--neon-green); }
-        .schem-res.bad { color: var(--neon-red); }
+        .schem-res.ok, .schem-res.bad { display: inline-block; font-size: 10px; font-weight: 800; margin: 0 5px 5px 0; padding: 3px 8px; border-radius: 6px; }
+        .schem-res.ok { color: var(--neon-green); border: 1px solid rgba(57,255,20,0.4); background: rgba(57,255,20,0.07); }
+        .schem-res.bad { color: var(--neon-red); border: 1px solid rgba(255,42,95,0.4); background: rgba(255,42,95,0.07); }
+        .schem-res-toggle { margin: 2px 0 6px; }
+        .schem-res-toggle summary { list-style: none; cursor: pointer; font-size: 10.5px; font-weight: 800; color: var(--text-muted); display: flex; align-items: center; gap: 4px; padding: 4px 0; user-select: none; }
+        .schem-res-toggle summary::-webkit-details-marker { display: none; }
+        .schem-res-toggle summary::before { content: '▸'; font-size: 9px; transition: transform 0.15s ease; }
+        .schem-res-toggle[open] summary::before { transform: rotate(90deg); }
+        .schem-res-toggle .schem-res-body { padding-top: 4px; }
         .schem-craft-btn { width: 100%; margin-top: 8px; padding: 9px; border-radius: 8px; border: 1px solid var(--neon-blue); background: rgba(0,240,255,0.15); color: #fff; font-weight: 800; font-size: 11px; cursor: pointer; }
         .schem-craft-btn:disabled { opacity: 0.35; cursor: not-allowed; }
         .book-container, .book-container * , .schem-container, .schem-container * { text-shadow: none !important; }
@@ -2195,25 +2202,165 @@ transform:scale(1);
         #gadgets-overlay.mega-theme .schem-tab.active { background: var(--neon-purple); color: #14041f; border-color: var(--neon-purple); }
         .build-points-bar { display:flex; justify-content:space-between; align-items:center; background: rgba(191,90,242,0.1); border: 1px solid rgba(191,90,242,0.35); border-radius: 10px; padding: 8px 12px; margin-bottom: 10px; font-size: 12px; font-weight: 800; color: #fff; }
         .build-branch-label { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.6px; color: var(--neon-purple); margin: 10px 0 6px; }
-        .perk-node { display: flex; align-items: center; gap: 10px; border: 1px solid rgba(191,90,242,0.25); border-radius: 10px; padding: 9px 10px; margin-bottom: 8px; background: rgba(191,90,242,0.04); opacity: 0.55; }
-        .perk-node.available { opacity: 1; border-color: rgba(191,90,242,0.55); }
-        .perk-node.unlocked { opacity: 1; border-color: var(--neon-purple); background: rgba(191,90,242,0.16); }
-        .perk-node-icon { font-size: 20px; flex-shrink: 0; width: 30px; text-align: center; }
+
+        /* ===== Ветки перков: у каждой ветки свой цвет (совпадает с цветами этих же
+           веток на вкладке "Обзор"), заданный через CSS-переменные — общие для карточки
+           ветки (.perk-branch-block) и для переключателя вкладок (.perk-branch-tab) ===== */
+        .perk-branch-block, .perk-branch-tab { --branch-accent: var(--neon-purple); --branch-light: rgba(191,90,242,0.48); --branch-border: rgba(191,90,242,0.95); --branch-border-dim: rgba(191,90,242,0.28); --branch-bg: rgba(191,90,242,0.34); --branch-bg-dim: rgba(191,90,242,0.12); }
+        .perk-branch-block.br-assault, .perk-branch-tab.br-assault { --branch-accent: #ff2a5f; --branch-light: rgba(255,42,95,0.48); --branch-border: rgba(255,42,95,0.95); --branch-border-dim: rgba(255,42,95,0.28); --branch-bg: rgba(255,42,95,0.34); --branch-bg-dim: rgba(255,42,95,0.12); }
+        .perk-branch-block.br-gunner, .perk-branch-tab.br-gunner { --branch-accent: #00c8ff; --branch-light: rgba(0,200,255,0.48); --branch-border: rgba(0,200,255,0.95); --branch-border-dim: rgba(0,200,255,0.28); --branch-bg: rgba(0,200,255,0.34); --branch-bg-dim: rgba(0,200,255,0.12); }
+        .perk-branch-block.br-survival, .perk-branch-tab.br-survival { --branch-accent: #39ff14; --branch-light: rgba(57,255,20,0.48); --branch-border: rgba(57,255,20,0.95); --branch-border-dim: rgba(57,255,20,0.28); --branch-bg: rgba(57,255,20,0.34); --branch-bg-dim: rgba(57,255,20,0.12); }
+        .perk-branch-block.br-predator, .perk-branch-tab.br-predator { --branch-accent: #ffb703; --branch-light: rgba(255,183,3,0.48); --branch-border: rgba(255,183,3,0.95); --branch-border-dim: rgba(255,183,3,0.28); --branch-bg: rgba(255,183,3,0.34); --branch-bg-dim: rgba(255,183,3,0.12); }
+
+        /* ---- Переключатель веток: 4 компактные вкладки вместо длинного списка из
+           4 разделов подряд — сразу видно прогресс каждой ветки, открыта только одна ---- */
+        .perk-branch-tabs { display: flex; gap: 6px; margin: 2px 0 14px; }
+        .perk-branch-tab { position: relative; flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 9px 4px 7px; border-radius: 13px; border: 1.5px solid var(--branch-border-dim); background: var(--branch-bg-dim); cursor: pointer; transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease; }
+        .perk-branch-tab:active { transform: scale(0.96); }
+        .perk-branch-tab.active { border-color: var(--branch-border); background: var(--branch-bg); box-shadow: 0 3px 12px var(--branch-bg-dim), inset 0 1px 0 rgba(255,255,255,0.12); }
+        .perk-branch-tab-icon { font-size: 19px; line-height: 1; filter: drop-shadow(0 0 4px var(--branch-light)); }
+        .perk-branch-tab-name { font-size: 8.8px; font-weight: 900; color: #fff; text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap; }
+        .perk-branch-tab-frac { font-size: 8.5px; font-weight: 800; color: var(--branch-accent); }
+        .perk-branch-tab-dot { display: none; position: absolute; top: 6px; right: 8px; width: 6px; height: 6px; border-radius: 50%; background: var(--neon-green); box-shadow: 0 0 6px var(--neon-green); }
+        .perk-branch-tab.has-available .perk-branch-tab-dot { display: block; }
+
+        .perk-branch-block { margin-bottom: 6px; border-radius: 14px; background: var(--branch-bg-dim); border: 1px solid var(--branch-border-dim); padding: 12px 12px 10px; }
+        .perk-branch-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0 0 7px; }
+        .perk-branch-title { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; color: #fff; }
+        .perk-branch-icon { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 15px; background: var(--branch-bg); border: 1px solid var(--branch-border-dim); flex-shrink: 0; }
+        .perk-branch-count { font-size: 11px; font-weight: 800; color: var(--branch-accent); flex-shrink: 0; }
+        .perk-branch-block .progress-bar-outer { height: 5px; margin-bottom: 7px; }
+        .perk-branch-complete { font-size: 10px; font-weight: 800; color: var(--branch-accent); margin: -3px 0 7px; display: flex; align-items: center; gap: 4px; }
+        .perk-node { position: relative; display: flex; align-items: center; gap: 10px; border: 1.5px solid var(--branch-border-dim); border-left: 4px solid var(--branch-border-dim); border-radius: 11px; padding: 9px 10px 9px 12px; margin-bottom: 7px; background: rgba(6,8,12,0.34); box-shadow: 0 2px 8px rgba(0,0,0,0.22); opacity: 0.62; transition: opacity 0.15s ease, background 0.15s ease, border-color 0.15s ease; }
+        .perk-node.available { opacity: 1; border-color: var(--branch-border-dim); border-left-color: var(--branch-accent); background: var(--branch-bg-dim); }
+        .perk-node.unlocked { opacity: 1; border-color: var(--branch-border); border-left-color: var(--branch-accent); background: var(--branch-light); box-shadow: 0 0 14px var(--branch-bg-dim); }
+        .perk-node:not(.available):not(.unlocked) .perk-node-icon { filter: grayscale(0.75) brightness(0.75); }
+        .perk-node-icon { position: relative; font-size: 17px; flex-shrink: 0; width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: var(--branch-bg-dim); border: 1px solid var(--branch-border-dim); }
+        .perk-node.unlocked .perk-node-icon { background: var(--branch-bg); border-color: var(--branch-accent); }
+        .perk-node.unlocked .perk-node-icon::after { content: '✓'; position: absolute; bottom: -3px; right: -3px; width: 13px; height: 13px; border-radius: 50%; background: var(--branch-accent); color: #06080c; font-size: 8.5px; font-weight: 900; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 2px rgba(6,8,12,0.7); }
         .perk-node-info { flex: 1; min-width: 0; }
+        .perk-node-name-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
         .perk-node-name { font-size: 12.5px; font-weight: 800; color: #fff; }
-        .perk-node-desc { font-size: 10.5px; color: var(--text-muted); margin-top: 1px; }
-        .perk-node-lock { font-size: 9.5px; color: var(--neon-red); margin-top: 2px; font-weight: 700; }
-        .perk-node-btn { flex-shrink: 0; padding: 7px 11px; border-radius: 8px; border: 1px solid var(--neon-purple); background: rgba(191,90,242,0.18); color: #fff; font-weight: 800; font-size: 10.5px; cursor: pointer; }
-        .perk-node-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-        .equip-card { border: 1px solid rgba(191,90,242,0.25); border-radius: 10px; padding: 10px; margin-bottom: 10px; background: rgba(191,90,242,0.04); }
-        .equip-card.active { border-color: var(--neon-purple); background: rgba(191,90,242,0.14); }
-        .equip-card-header { display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 13px; color: #fff; margin-bottom: 4px; }
-        .equip-card-desc { font-size: 10.5px; color: var(--text-muted); margin-bottom: 6px; }
+        .perk-node-tier { font-size: 8.5px; font-weight: 900; color: var(--branch-accent); background: var(--branch-bg-dim); border: 1px solid var(--branch-border-dim); border-radius: 5px; padding: 1px 4px; flex-shrink: 0; }
+        .perk-node-desc { font-size: 10.5px; color: var(--text-muted); margin-top: 2px; line-height: 1.35; }
+        .perk-node-lock { font-size: 9.5px; color: var(--neon-red); margin-top: 3px; font-weight: 700; }
+        .perk-node-btn { flex-shrink: 0; padding: 7px 11px; border-radius: 9px; border: 1px solid var(--branch-accent); background: var(--branch-bg); color: #fff; font-weight: 800; font-size: 10.5px; cursor: pointer; white-space: nowrap; }
+        .perk-node.unlocked .perk-node-btn { border-color: var(--branch-accent); background: var(--branch-light); }
+        .perk-node-btn:disabled { opacity: 0.32; cursor: not-allowed; }
+
+        /* ===== Броня / моды: единая карточка equip-card, акцент задаётся инлайн-переменными
+           --card-accent/--card-border/--card-border-dim/--card-bg/--card-bg-dim в JS
+           (по редкости для брони, по слоту для модов) — фиолетовый остаётся фолбэком ===== */
+        .equip-card { border: 1px solid var(--card-border-dim, rgba(191,90,242,0.25)); border-radius: 12px; padding: 11px 12px; margin-bottom: 10px; background: var(--card-bg-dim, rgba(191,90,242,0.04)); }
+        .equip-card.active { border-color: var(--card-accent, var(--neon-purple)); background: var(--card-bg, rgba(191,90,242,0.14)); }
+        .equip-card-header { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-weight: 800; font-size: 13px; color: #fff; margin-bottom: 5px; }
+        .equip-card-tier { font-size: 9px; font-weight: 900; padding: 2px 8px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.4px; background: var(--card-bg, rgba(191,90,242,0.18)); color: var(--card-accent, var(--neon-purple)); border: 1.5px solid var(--card-accent, rgba(191,90,242,0.4)); white-space: nowrap; flex-shrink: 0; }
+        .equip-card-desc { font-size: 10.5px; color: var(--text-muted); margin-bottom: 8px; line-height: 1.4; }
+        .equip-stat-row { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
+        .equip-stat-chip { font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 6px; background: rgba(255,255,255,0.045); border: 1px solid rgba(255,255,255,0.08); color: var(--text-muted); white-space: nowrap; }
+        .equip-stat-chip.stat-pos { color: var(--neon-green); border-color: rgba(57,255,20,0.25); background: rgba(57,255,20,0.06); }
+        .equip-stat-chip.stat-neg { color: var(--neon-red); border-color: rgba(255,42,95,0.25); background: rgba(255,42,95,0.06); }
         .equip-card-stats { font-size: 10.5px; color: var(--neon-green); font-weight: 700; margin-bottom: 6px; }
         .equip-card-btn-row { display: flex; gap: 6px; }
-        .equip-card-btn-row button { flex: 1; padding: 8px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; border: 1px solid var(--neon-purple); background: rgba(191,90,242,0.18); color: #fff; }
+        .equip-card-btn-row button { flex: 1; padding: 8px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; border: 1.5px solid var(--card-accent, var(--neon-purple)); background: var(--card-bg, rgba(191,90,242,0.18)); color: #fff; }
         .equip-card-btn-row button:disabled { opacity: 0.35; cursor: not-allowed; }
-        .equip-card-btn-row button.active-flag { background: var(--neon-purple); color: #14041f; }
+        .equip-card-btn-row button.active-flag { background: var(--card-accent, var(--neon-purple)); color: #14041f; }
+        /* ===== Билд-Мастерская: единая сборка (обзор/архетип/синергии/пресеты) ===== */
+        .bm-hero { border: 2px solid var(--neon-purple); border-radius: 14px; padding: 14px; background: linear-gradient(160deg, rgba(191,90,242,0.16), rgba(20,6,30,0.5)); text-align: center; margin-bottom: 12px; box-shadow: 0 0 18px rgba(191,90,242,0.18); }
+        .bm-hero-icon { width: 56px; height: 56px; margin: 0 auto; display: flex; align-items: center; justify-content: center; border-radius: 16px; background: rgba(255,255,255,0.07); border: 1.5px solid var(--wpn-color, rgba(191,90,242,0.5)); filter: drop-shadow(0 2px 6px rgba(191,90,242,0.5)); overflow: hidden; }
+        .bm-hero-icon svg { width: 100%; height: 100%; display: block; }
+        .bm-hero-name { font-size: 14.5px; font-weight: 900; color: #fff; margin-top: 4px; }
+        .bm-hero-archetype { margin-top: 6px; font-size: 12.5px; font-weight: 900; color: var(--neon-gold); letter-spacing: 0.3px; }
+        .bm-archetype-bars { margin-top: 10px; display: flex; flex-direction: column; gap: 5px; }
+        .bm-arch-row { display: flex; align-items: center; gap: 7px; font-size: 10px; }
+        .bm-arch-label { width: 92px; flex-shrink: 0; text-align: left; color: var(--text-muted); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .bm-arch-row .progress-bar-outer { flex: 1; height: 6px; }
+        .bm-arch-pct { width: 30px; text-align: right; font-weight: 900; color: #fff; flex-shrink: 0; }
+        .bm-slot-grid { display: grid; grid-template-columns: 1fr; gap: 8px; margin-bottom: 10px; min-width: 0; }
+        .bm-slot-card { display: flex; align-items: center; gap: 8px; border: 1px solid rgba(255,255,255,0.14); border-radius: 10px; padding: 8px 9px; background: rgba(255,255,255,0.03); cursor: pointer; min-width: 0; max-width: 100%; box-sizing: border-box; }
+        .bm-slot-card:active { transform: scale(0.97); }
+        .bm-slot-card.bm-filled { border-color: rgba(191,90,242,0.5); background: rgba(191,90,242,0.08); }
+        .bm-slot-icon { font-size: 19px; flex-shrink: 0; width: 24px; height: 24px; text-align: center; display: flex; align-items: center; justify-content: center; }
+        .bm-slot-icon svg { width: 100%; height: 100%; display: block; }
+        .bm-slot-text { min-width: 0; flex: 1; }
+        .bm-slot-label { font-size: 8.5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; font-weight: 700; }
+        .bm-slot-value { font-size: 11px; font-weight: 800; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .bm-mastery-banner { border: 1px solid rgba(255,215,0,0.55); background: rgba(255,215,0,0.1); border-radius: 10px; padding: 9px 10px; font-size: 11px; font-weight: 800; color: #ffd700; text-align: center; margin-bottom: 10px; }
+        .bm-gear-banner { display: flex; align-items: center; gap: 8px; border: 1px solid rgba(57,255,20,0.3); background: rgba(57,255,20,0.05); border-radius: 10px; padding: 9px 10px; margin-bottom: 8px; }
+        .bm-gear-banner.bm-mega { border-color: rgba(191,90,242,0.35); background: rgba(191,90,242,0.06); }
+        .bm-gear-banner .bm-slot-icon { font-size: 22px; }
+        .bm-gear-status { font-size: 9.5px; font-weight: 800; text-transform: uppercase; padding: 3px 7px; border-radius: 6px; flex-shrink: 0; }
+        .bm-gear-status.on { background: rgba(57,255,20,0.18); color: var(--neon-green); }
+        .bm-gear-status.off { background: rgba(255,255,255,0.08); color: var(--text-muted); }
+        .bm-stat-grid { display: grid; grid-template-columns: 1fr; gap: 8px; margin-bottom: 4px; min-width: 0; }
+        .bm-stat-chip { border: 1px solid rgba(0,240,255,0.25); border-radius: 10px; padding: 8px 10px; background: rgba(0,240,255,0.05); min-width: 0; max-width: 100%; box-sizing: border-box; }
+        .bm-stat-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.3px; overflow-wrap: anywhere; }
+        .bm-stat-value { font-size: 15px; font-weight: 900; color: #fff; margin-top: 2px; overflow-wrap: anywhere; }
+        .bm-synergy-card { border: 1px solid var(--neon-gold); background: rgba(255,183,3,0.08); border-radius: 10px; padding: 10px 11px; margin-bottom: 8px; }
+        .bm-synergy-title { font-size: 12px; font-weight: 900; color: var(--neon-gold); }
+        .bm-synergy-desc { font-size: 10.5px; color: var(--text-muted); margin-top: 3px; line-height: 1.35; }
+        .bm-assess-row { display: flex; align-items: center; gap: 8px; font-size: 11px; margin-bottom: 7px; }
+        .bm-assess-label { width: 100px; flex-shrink: 0; color: var(--text-muted); font-weight: 700; }
+        .bm-assess-row .progress-bar-outer { flex: 1; height: 8px; }
+        .bm-assess-val { min-width: 34px; text-align: right; font-weight: 900; color: #fff; flex-shrink: 0; white-space: nowrap; }
+        .bm-sw-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+        .bm-sw-item { display: flex; align-items: center; gap: 9px; border-radius: 10px; padding: 8px 10px; font-size: 11px; font-weight: 700; line-height: 1.35; }
+        .bm-sw-item.is-strength { background: rgba(57,255,20,0.08); border: 1px solid rgba(57,255,20,0.3); color: #d3ffc4; }
+        .bm-sw-item.is-weakness { background: rgba(255,42,95,0.08); border: 1px solid rgba(255,42,95,0.3); color: #ffd0da; }
+        .bm-sw-badge { flex-shrink: 0; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 900; }
+        .bm-sw-item.is-strength .bm-sw-badge { background: var(--neon-green); color: #052b00; box-shadow: 0 0 8px rgba(57,255,20,0.5); }
+        .bm-sw-item.is-weakness .bm-sw-badge { background: var(--neon-red); color: #2b0010; box-shadow: 0 0 8px rgba(255,42,95,0.5); }
+        .bm-biome-card { border: 1px solid rgba(0,240,255,0.28); border-radius: 14px; padding: 14px; background: linear-gradient(160deg, rgba(0,240,255,0.10), rgba(10,14,22,0.35)); box-shadow: 0 0 16px rgba(0,240,255,0.10); }
+        .bm-biome-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.12); }
+        .bm-biome-head-icon { font-size: 26px; flex-shrink: 0; filter: drop-shadow(0 2px 4px rgba(0,240,255,0.4)); }
+        .bm-biome-head-name { font-size: 14px; font-weight: 900; color: #fff; }
+        .bm-biome-head-sub { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; font-weight: 700; margin-top: 1px; }
+        .bm-biome-metric { margin-bottom: 10px; }
+        .bm-biome-metric-top { display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 5px; }
+        .bm-biome-metric-top b { color: #fff; font-weight: 900; }
+        .bm-biome-eff-row { display: flex; justify-content: space-between; align-items: center; font-size: 11.5px; font-weight: 700; color: var(--text-muted); margin-bottom: 10px; }
+        .bm-biome-eff-badge { font-size: 10.5px; font-weight: 900; padding: 3px 11px; border-radius: 20px; }
+        .bm-biome-eff-badge.eff-high { background: rgba(57,255,20,0.15); color: var(--neon-green); border: 1px solid rgba(57,255,20,0.4); }
+        .bm-biome-eff-badge.eff-mid { background: rgba(255,183,3,0.15); color: var(--neon-gold); border: 1px solid rgba(255,183,3,0.4); }
+        .bm-biome-eff-badge.eff-low { background: rgba(255,42,95,0.15); color: var(--neon-red); border: 1px solid rgba(255,42,95,0.4); }
+        .bm-biome-recs { display: flex; flex-direction: column; gap: 6px; }
+        .bm-recommend { display: flex; align-items: flex-start; gap: 9px; font-size: 11px; font-weight: 600; color: #fff; padding: 9px 11px; border-radius: 10px; line-height: 1.4; }
+        .bm-rec-icon { flex-shrink: 0; font-size: 13px; margin-top: 1px; }
+        .bm-rec-warn { background: rgba(255,183,3,0.10); border: 1px solid rgba(255,183,3,0.35); }
+        .bm-rec-good { background: rgba(57,255,20,0.08); border: 1px solid rgba(57,255,20,0.3); }
+        .bm-rec-info { background: rgba(0,240,255,0.09); border: 1px solid rgba(0,240,255,0.32); }
+        .bm-quicklinks { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+        .bm-quicklinks button { flex: 1; min-width: 90px; padding: 9px 6px; border-radius: 9px; font-size: 10.5px; font-weight: 800; border: 1px solid var(--neon-purple); background: rgba(191,90,242,0.14); color: #fff; cursor: pointer; }
+        .bm-quicklinks button:active { transform: scale(0.96); }
+        /* Дерево перков */
+        .bm-perk-branch { margin-bottom: 4px; }
+        .bm-perk-branch .perk-node { margin-left: 0; }
+        /* Пресеты */
+        .bm-preset-card { position: relative; border: 1px solid rgba(0,240,255,0.25); border-radius: 14px; padding: 12px 13px; margin-bottom: 10px; background: linear-gradient(160deg, rgba(0,240,255,0.07), rgba(10,14,22,0.3)); min-width: 0; max-width: 100%; box-sizing: border-box; overflow: hidden; transition: border-color 0.2s, background 0.2s; }
+        .bm-preset-card.active { border-color: var(--neon-green); background: linear-gradient(160deg, rgba(57,255,20,0.12), rgba(10,14,22,0.3)); box-shadow: 0 0 14px rgba(57,255,20,0.12); }
+        .bm-preset-head { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+        .bm-preset-icon { flex-shrink: 0; width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; background: rgba(0,240,255,0.12); border: 1px solid rgba(0,240,255,0.35); overflow: hidden; }
+        .bm-preset-icon svg { width: 100%; height: 100%; display: block; }
+        .bm-preset-card.active .bm-preset-icon { background: rgba(57,255,20,0.15); border-color: rgba(57,255,20,0.45); }
+        .bm-preset-chip-wpn-icon { display: inline-flex; align-items: center; justify-content: center; width: 13px; height: 13px; flex-shrink: 0; }
+        .bm-preset-chip-wpn-icon svg { width: 100%; height: 100%; display: block; }
+        .bm-preset-head-text { min-width: 0; flex: 1; padding-top: 1px; }
+        .bm-preset-title { font-weight: 900; font-size: 13px; color: #fff; line-height: 1.3; overflow-wrap: anywhere; }
+        .bm-preset-active-tag { display: inline-flex; align-items: center; gap: 3px; font-size: 8.5px; font-weight: 800; color: var(--neon-green); background: rgba(57,255,20,0.16); border: 1px solid rgba(57,255,20,0.4); border-radius: 5px; padding: 2px 6px; margin-top: 5px; }
+        .bm-preset-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 11px; }
+        .bm-preset-chip { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 700; color: var(--text-muted); background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 3.5px 9px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .bm-preset-actions { display: flex; gap: 6px; align-items: stretch; }
+        .bm-preset-equip-btn { flex: 1; min-width: 0; padding: 9px 8px; border-radius: 9px; font-size: 11px; font-weight: 800; border: 1px solid var(--neon-blue); background: rgba(0,240,255,0.12); color: #fff; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .bm-preset-equip-btn.is-active { border-color: var(--neon-green); background: rgba(57,255,20,0.16); color: var(--neon-green); }
+        .bm-preset-equip-btn:disabled { cursor: not-allowed; opacity: 0.9; }
+        .bm-preset-icon-btn { flex-shrink: 0; width: 36px; padding: 0; border-radius: 9px; font-size: 14px; border: 1px solid rgba(255,255,255,0.16); background: rgba(255,255,255,0.05); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .bm-preset-icon-btn:active { transform: scale(0.94); }
+        .bm-preset-icon-btn.danger { border-color: var(--neon-red); background: rgba(255,42,95,0.12); }
+        .bm-save-preset-btn { width: 100%; padding: 13px; border-radius: 10px; border: none; background: var(--grad-blue); color: #06222b; font-weight: 900; font-size: 12.5px; cursor: pointer; margin-bottom: 14px; box-shadow: 0 3px 12px rgba(0,240,255,0.18); }
+        .bm-save-preset-btn:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+        .bm-preset-empty { border: 1.5px dashed rgba(255,255,255,0.16); border-radius: 14px; padding: 28px 16px; text-align: center; }
+        .bm-preset-empty-icon { font-size: 30px; margin-bottom: 8px; opacity: 0.55; }
+        .bm-empty-note { font-size: 11px; color: var(--text-muted); text-align: center; padding: 20px 10px; line-height: 1.5; }
         .gadget-btn { background: linear-gradient(135deg, rgba(255,183,3,0.55), rgba(191,90,242,0.55)); border: 1px solid rgba(255,215,0,0.5); box-shadow: 0 0 14px rgba(255,183,3,0.3); color: #fff; }
         .gadget-btn:disabled { opacity: 0.35; filter: grayscale(0.6); cursor: not-allowed; }
         .gadget-list-card { display: flex; flex-direction: column; border: 1px solid rgba(57,255,20,0.25); border-radius: 12px; padding: 14px; margin-bottom: 10px; background: rgba(57,255,20,0.045); }
@@ -2905,7 +3052,7 @@ onclick="Core.declineEncounter()">
             </div>
             <div class="schem-tabs">
                 <button class="schem-tab active" id="schem-tab-weapon" onclick="Core.switchSchemTab('weapon')">⚔️ Оружие</button>
-                <button class="schem-tab" id="schem-tab-rod" onclick="Core.switchSchemTab('rod')">🎣 Удочки</button>
+                <button class="schem-tab" id="schem-tab-rod" onclick="Core.switchSchemTab('rod')">🎣 Удочка</button>
             </div>
             <div class="schem-body" id="schem-body"></div>
         </div>
@@ -2918,9 +3065,11 @@ onclick="Core.declineEncounter()">
                 <button class="schem-close-btn" id="build-close-btn" onclick="Core.closeBuild()"><svg class="mini-ico" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5.2 5.2l9.6 9.6M14.8 5.2L5.2 14.8" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg> Закрыть</button>
             </div>
             <div class="schem-tabs">
-                <button class="schem-tab active" id="build-tab-perks" onclick="Core.switchBuildTab('perks')">🧬 Перки</button>
+                <button class="schem-tab active" id="build-tab-overview" onclick="Core.switchBuildTab('overview')">📋 Обзор</button>
+                <button class="schem-tab" id="build-tab-perks" onclick="Core.switchBuildTab('perks')">🧬 Перки</button>
                 <button class="schem-tab" id="build-tab-armor" onclick="Core.switchBuildTab('armor')">🛡️ Броня</button>
                 <button class="schem-tab" id="build-tab-mods" onclick="Core.switchBuildTab('mods')">🔧 Моды</button>
+                <button class="schem-tab" id="build-tab-presets" onclick="Core.switchBuildTab('presets')">💾 Пресеты</button>
             </div>
             <div class="schem-body" id="build-body"></div>
         </div>
@@ -3083,8 +3232,8 @@ onclick="Core.declineEncounter()">
     <div id="gift-result-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: radial-gradient(ellipse at center top, rgba(0,240,255,0.18) 0%, rgba(4, 6, 10, 0.95) 70%); z-index: 6650; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(8px);">
         <div class="reward-card" id="gift-result-card" style="display: block; --reward-color-r: 0; --reward-color-g: 240; --reward-color-b: 255;">
             <div class="reward-icon">🎁</div>
-            <div class="reward-title" style="color:var(--neon-blue);">Подарок к обновлению</div>
-            <div class="reward-name" style="color:var(--neon-blue); text-shadow: 0 0 12px var(--neon-blue);">💠 5 Жетонов Схрона + 🪙 25 Крышек!</div>
+            <div class="reward-title" id="gift-result-title" style="color:var(--neon-blue);">Подарок к обновлению</div>
+            <div class="reward-name" id="gift-result-name" style="color:var(--neon-blue); text-shadow: 0 0 12px var(--neon-blue);">💠 5 Жетонов Схрона + 🪙 25 Крышек!</div>
             <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px; line-height:1.5;">Награда уже зачислена на счёт.</div>
             <button class="primary reward-button" onclick="Core.closeGiftResult()">Отлично!</button>
         </div>
@@ -3141,7 +3290,7 @@ onclick="Core.declineEncounter()">
                 <div class="admin-section">
                     <div class="admin-section-title">Разблокировки</div>
                     <div class="admin-row">
-                        <button class="admin-btn" onclick="Core.adminUnlockAll()">🔓 Выдать всё оружие, удочки и титулы</button>
+                        <button class="admin-btn" onclick="Core.adminUnlockAll()">🔓 Выдать всё оружие, макс. удочку и титулы</button>
                     </div>
                 </div>
                 <div class="admin-section">
@@ -3399,6 +3548,7 @@ onclick="Core.declineEncounter()">
 
     <div id="screen-shop" class="screen-overlay">
         <div id="update-gift-container"></div>
+        <div id="rod-compensation-container"></div>
         <div class="bp-collapsed-bar" onclick="Core.openBpOverlay()">
             <div>
                 <span class="bp-collapsed-title">ПРОПУСК ПУСТОШИ</span>
@@ -3423,7 +3573,7 @@ onclick="Core.declineEncounter()">
                 <div class="market-entry-icon-badge">☠️</div>
                 <div class="market-entry-text">
                     <div class="market-entry-title">Чёрный рынок</div>
-                    <div class="market-entry-sub">Оружие, удочки, батареи</div>
+                    <div class="market-entry-sub">Оружие, батареи</div>
                 </div>
                 <div class="market-entry-arrow">›</div>
                 <div class="market-entry-lock">🔒 Ур. 25</div>
@@ -5604,17 +5754,28 @@ onclick="Core.declineEncounter()">
                 { id: "p_as2", branch: "assault", tier: 2, icon: "⚡", name: "Стремительность", desc: "+8% урона любым оружием", reqLvl: 15, cost: 1, requires: "p_as1", effect: { dmgMult: 0.08 } },
                 { id: "p_as3", branch: "assault", tier: 3, icon: "🩸", name: "Рассекающие удары", desc: "Кровотечение и поджиг наносят +30% урона", reqLvl: 25, cost: 1, requires: "p_as2", effect: { bleedMult: 0.3 } },
                 { id: "p_as4", branch: "assault", tier: 4, icon: "💢", name: "Берсерк", desc: "+20% урона от критических ударов", reqLvl: 40, cost: 2, requires: "p_as3", effect: { critDmgMult: 0.2 } },
-                { id: "p_as5", branch: "assault", tier: 5, icon: "🌪️", name: "Кровавый шторм", desc: "+15% урона любым оружием. Вся ветка открыта: ещё +10%.", reqLvl: 55, cost: 2, requires: "p_as4", effect: { dmgMult: 0.15 }, fullBranchBonus: { dmgMult: 0.10 } },
+                { id: "p_as5", branch: "assault", tier: 5, icon: "🌪️", name: "Кровавый шторм", desc: "+15% урона любым оружием", reqLvl: 55, cost: 2, requires: "p_as4", effect: { dmgMult: 0.15 } },
+                { id: "p_as6", branch: "assault", tier: 6, icon: "🔥", name: "Неутолимая ярость", desc: "+15% урона от критических ударов", reqLvl: 70, cost: 2, requires: "p_as5", effect: { critDmgMult: 0.15 } },
+                { id: "p_as7", branch: "assault", tier: 7, icon: "💀", name: "Апекс войны", desc: "+12% урона, +6% шанс крита. Вся ветка открыта: ещё +12% урона и +6% крита.", reqLvl: 85, cost: 3, requires: "p_as6", effect: { dmgMult: 0.12, crit: 6 }, fullBranchBonus: { dmgMult: 0.12, crit: 6 } },
                 { id: "p_gn1", branch: "gunner", tier: 1, icon: "🎯", name: "Твёрдая рука", desc: "+5% шанс критического удара", reqLvl: 5, cost: 1, requires: null, effect: { crit: 5 } },
                 { id: "p_gn2", branch: "gunner", tier: 2, icon: "🔭", name: "Точный расчёт", desc: "+15% крит-урона для дальнобойного оружия", reqLvl: 15, cost: 1, requires: "p_gn1", effect: { rangedCritDmgMult: 0.15 } },
                 { id: "p_gn3", branch: "gunner", tier: 3, icon: "🧰", name: "Подствольный модуль", desc: "+8% урона любым оружием", reqLvl: 25, cost: 1, requires: "p_gn2", effect: { dmgMult: 0.08 } },
                 { id: "p_gn4", branch: "gunner", tier: 4, icon: "❄️", name: "Хладнокровие", desc: "+10% шанс критического удара", reqLvl: 40, cost: 2, requires: "p_gn3", effect: { crit: 10 } },
-                { id: "p_gn5", branch: "gunner", tier: 5, icon: "☠️", name: "Смертельная точность", desc: "+25% крит-урона для дальнобойного оружия. Вся ветка открыта: ещё +15%.", reqLvl: 55, cost: 2, requires: "p_gn4", effect: { rangedCritDmgMult: 0.25 }, fullBranchBonus: { rangedCritDmgMult: 0.15 } },
+                { id: "p_gn5", branch: "gunner", tier: 5, icon: "☠️", name: "Смертельная точность", desc: "+25% крит-урона для дальнобойного оружия", reqLvl: 55, cost: 2, requires: "p_gn4", effect: { rangedCritDmgMult: 0.25 } },
+                { id: "p_gn6", branch: "gunner", tier: 6, icon: "🌐", name: "Баллистический анализ", desc: "+8% шанс критического удара", reqLvl: 70, cost: 2, requires: "p_gn5", effect: { crit: 8 } },
+                { id: "p_gn7", branch: "gunner", tier: 7, icon: "🎖️", name: "Легенда пустоши", desc: "+20% крит-урона для дальнобойного оружия. Вся ветка открыта: ещё +20% крит-урона и +8% крита.", reqLvl: 85, cost: 3, requires: "p_gn6", effect: { rangedCritDmgMult: 0.20 }, fullBranchBonus: { rangedCritDmgMult: 0.20, crit: 8 } },
                 { id: "p_sv1", branch: "survival", tier: 1, icon: "🧭", name: "Звериное чутьё", desc: "+6% шанс уклонения", reqLvl: 5, cost: 1, requires: null, effect: { dodgeChance: 6 } },
                 { id: "p_sv2", branch: "survival", tier: 2, icon: "🦴", name: "Толстая шкура", desc: "+3 к броне", reqLvl: 15, cost: 1, requires: "p_sv1", effect: { armor: 3 } },
                 { id: "p_sv3", branch: "survival", tier: 3, icon: "🧪", name: "Закалённый", desc: "-25% эффект хазардов биома", reqLvl: 25, cost: 1, requires: "p_sv2", effect: { hazardResist: 0.25 } },
                 { id: "p_sv4", branch: "survival", tier: 4, icon: "🛡️", name: "Стойкость", desc: "+6 к броне", reqLvl: 40, cost: 2, requires: "p_sv3", effect: { armor: 6 } },
-                { id: "p_sv5", branch: "survival", tier: 5, icon: "🗿", name: "Несгибаемый", desc: "-25% эффект хазардов, +6% уклонение. Вся ветка открыта: ещё -15% и +4%.", reqLvl: 55, cost: 2, requires: "p_sv4", effect: { hazardResist: 0.25, dodgeChance: 6 }, fullBranchBonus: { hazardResist: 0.15, dodgeChance: 4 } }
+                { id: "p_sv5", branch: "survival", tier: 5, icon: "🗿", name: "Несгибаемый", desc: "-25% эффект хазардов, +6% уклонение", reqLvl: 55, cost: 2, requires: "p_sv4", effect: { hazardResist: 0.25, dodgeChance: 6 } },
+                { id: "p_sv6", branch: "survival", tier: 6, icon: "⛑️", name: "Регенерация тканей", desc: "+5 к броне", reqLvl: 70, cost: 2, requires: "p_sv5", effect: { armor: 5 } },
+                { id: "p_sv7", branch: "survival", tier: 7, icon: "🪨", name: "Несокрушимый дух", desc: "-15% эффект хазардов. Вся ветка открыта: ещё -20% хазардов и +8 брони.", reqLvl: 85, cost: 3, requires: "p_sv6", effect: { hazardResist: 0.15 }, fullBranchBonus: { hazardResist: 0.20, armor: 8 } },
+                { id: "p_pr1", branch: "predator", tier: 1, icon: "🐾", name: "Хватка хищника", desc: "+4% шанс критического удара, +3% уклонение", reqLvl: 5, cost: 1, requires: null, effect: { crit: 4, dodgeChance: 3 } },
+                { id: "p_pr2", branch: "predator", tier: 2, icon: "🦷", name: "Смертельная хватка", desc: "Кровотечение и поджиг наносят +25% урона", reqLvl: 15, cost: 1, requires: "p_pr1", effect: { bleedMult: 0.25 } },
+                { id: "p_pr3", branch: "predator", tier: 3, icon: "👁️", name: "Ночное чутьё", desc: "+8% шанс уклонения", reqLvl: 25, cost: 1, requires: "p_pr2", effect: { dodgeChance: 8 } },
+                { id: "p_pr4", branch: "predator", tier: 4, icon: "🩸", name: "Инстинкт добивания", desc: "+15% урона от критических ударов", reqLvl: 40, cost: 2, requires: "p_pr3", effect: { critDmgMult: 0.15 } },
+                { id: "p_pr5", branch: "predator", tier: 5, icon: "🐺", name: "Альфа хищник", desc: "+8% шанс крита, +6% урона любым оружием. Вся ветка открыта: ещё +5% крита и +10% крит-урона.", reqLvl: 55, cost: 2, requires: "p_pr4", effect: { crit: 8, dmgMult: 0.06 }, fullBranchBonus: { crit: 5, critDmgMult: 0.10 } }
             ],
             // ===== Броня: второй слот экипировки, компромисс между защитой, уклонением и стойкостью к хазардам =====
             armor: [
@@ -5707,27 +5868,35 @@ onclick="Core.declineEncounter()">
                 { id: "cook_soup", name: "Питательный Рад-Суп", cost: { "Сырое мясо": 2, "Запчасти": 1 }, heal: 22, icon: "🍲" }
             ],
             fish: [
-                { id: "perch", name: "Речной Окунь", rawName: "Сырой Окунь", cookedName: "Жареный Окунь", icon: "🐟", rarity: "Обычная", weight: 45, minRodTier: 1, heal: 14 },
-                { id: "catfish", name: "Сом-Мутант", rawName: "Сырой Сом-Мутант", cookedName: "Копчёный Сом-Мутант", icon: "🐠", rarity: "Необычная", weight: 28, minRodTier: 1, heal: 20 },
-                { id: "carp", name: "Радужный Карп", rawName: "Сырой Радужный Карп", cookedName: "Запечённый Карп", icon: "🐡", rarity: "Редкая", weight: 16, minRodTier: 2, heal: 30 },
-                { id: "shark", name: "Акула Пустоши", rawName: "Сырая Акула Пустоши", cookedName: "Стейк из Акулы Пустоши", icon: "🦈", rarity: "Эпическая", weight: 8, minRodTier: 3, heal: 45 },
-                { id: "abyss", name: "Глубоководный Кошмар", rawName: "Мясо Глубоководного Кошмара", cookedName: "Деликатес Кошмара", icon: "🐙", rarity: "Легендарная", weight: 3, minRodTier: 4, heal: 70 }
+                { id: "perch", name: "Речной Окунь", rawName: "Сырой Окунь", cookedName: "Жареный Окунь", icon: "🐟", rarity: "Обычная", weight: 30, minRodTier: 1, heal: 14 },
+                { id: "catfish", name: "Сом-Мутант", rawName: "Сырой Сом-Мутант", cookedName: "Копчёный Сом-Мутант", icon: "🐠", rarity: "Необычная", weight: 20, minRodTier: 1, heal: 20 },
+                { id: "carp", name: "Радужный Карп", rawName: "Сырой Радужный Карп", cookedName: "Запечённый Карп", icon: "🐡", rarity: "Редкая", weight: 25, minRodTier: 2, heal: 30 },
+                { id: "shark", name: "Акула Пустоши", rawName: "Сырая Акула Пустоши", cookedName: "Стейк из Акулы Пустоши", icon: "🦈", rarity: "Эпическая", weight: 15, minRodTier: 3, heal: 45 },
+                { id: "abyss", name: "Глубоководный Кошмар", rawName: "Мясо Глубоководного Кошмара", cookedName: "Деликатес Кошмара", icon: "🐙", rarity: "Легендарная", weight: 10, minRodTier: 4, heal: 70 }
             ],
-            rods: [
-                { id: "rusty", name: "Ржавая Удочка", icon: "🎣", tier: 1, clickMin: 9, clickMax: 15, decayMin: 2, decayMax: 3.5, duration: 6, desc: "Стартовое снаряжение рыбака. Ловит только мелкую рыбу." },
-                { id: "sturdy", name: "Крепкая Удочка", icon: "🎣", tier: 2, clickMin: 11, clickMax: 17, decayMin: 1.6, decayMax: 3, duration: 7, desc: "Усиленное удилище — позволяет тягаться с редкой рыбой." },
-                { id: "carbon", name: "Карбоновый Спиннинг", icon: "🎣", tier: 3, clickMin: 13, clickMax: 19, decayMin: 1.3, decayMax: 2.6, duration: 8, desc: "Лёгкий и прочный спиннинг для серьёзной рыбалки." },
-                { id: "plasma", name: "Плазменная Удочка", icon: "🎣", tier: 4, clickMin: 16, clickMax: 23, decayMin: 1, decayMax: 2, duration: 9, desc: "Экспериментальная разработка, приманивает даже глубоководных монстров." },
-                { id: "titanium", name: "Титановый Спиннинг", icon: "🎣", tier: 5, clickMin: 18, clickMax: 26, decayMin: 0.8, decayMax: 1.7, duration: 10, desc: "Почти неубиваемый каркас позволяет тянуть даже самую тяжёлую добычу без риска сорваться." },
-                { id: "quantum", name: "Квантовая Удочка", icon: "🎣", tier: 6, clickMin: 21, clickMax: 30, decayMin: 0.6, decayMax: 1.4, duration: 11, desc: "Стабилизирует леску на молекулярном уровне — вершина рыболовной инженерии Пустошей." }
-            ],
-            rodBlueprints: [
-                { id: "bp_sturdy", targetId: "sturdy", reqLvl: 8, cost: { "Запчасти": 6, "Тяжелый Хлам": 2 } },
-                { id: "bp_carbon", targetId: "carbon", reqLvl: 22, cost: { "Запчасти": 14, "Тяжелый Хлам": 6, "Ядерная Батарея": 1 } },
-                { id: "bp_plasma", targetId: "plasma", reqLvl: 45, cost: { "Запчасти": 30, "Тяжелый Хлам": 14, "Ядерная Батарея": 3 } },
-                { id: "bp_titanium", targetId: "titanium", reqLvl: 60, cost: { "Запчасти": 45, "Тяжелый Хлам": 20, "Ядерная Батарея": 5 } },
-                { id: "bp_quantum", targetId: "quantum", reqLvl: 75, cost: { "Запчасти": 80, "Тяжелый Хлам": 35, "Ядерная Батарея": 12 } }
-            ],
+            // ===== Удочка: одна снасть на всю игру, апгрейд по уровням. Хорошая (Редкая/Эпическая) и отличная
+            // (Легендарная) рыба ловится на удочке ЛЮБОГО уровня — minRodTier здесь лишь ориентир "родного" тира
+            // рыбы для расчёта бонуса: чем выше уровень удочки относительно этого тира, тем больше шанс её поймать
+            // (см. Core.pickCatch). Обычная/Необычная рыба в этом бонусе не участвует — её шанс всегда стабилен. =====
+            // Уровень 0 = удочка ещё не собрана. Игрок сам собирает её в Тех-Схемах (DB.rod.craft),
+            // а дальнейшие апгрейды (Ур.1 → Ур.6) делает на экране инвентаря, по аналогии с оружием.
+            rod: {
+                name: "Удочка",
+                icon: "🎣",
+                craft: { reqLvl: 5, cost: { "Запчасти": 4, "Тяжелый Хлам": 1 } },
+                levels: [
+                    { lvl: 1, clickMin: 9, clickMax: 15, decayMin: 2, decayMax: 3.5, duration: 6, desc: "Стартовая снасть. Редкая и особенная рыба тоже клюёт, но шанс на неё пока скромный." },
+                    { lvl: 2, clickMin: 11, clickMax: 17, decayMin: 1.6, decayMax: 3, duration: 7, desc: "Усиленное удилище — заметно поднимает шанс на редкую и хорошую рыбу.", reqLvl: 8, cost: { "Запчасти": 6, "Тяжелый Хлам": 2 } },
+                    { lvl: 3, clickMin: 13, clickMax: 19, decayMin: 1.3, decayMax: 2.6, duration: 8, desc: "Лёгкая и прочная модернизация для серьёзной рыбалки.", reqLvl: 22, cost: { "Запчасти": 14, "Тяжелый Хлам": 6, "Ядерная Батарея": 1 } },
+                    { lvl: 4, clickMin: 16, clickMax: 23, decayMin: 1, decayMax: 2, duration: 9, desc: "Экспериментальная доработка, приманивает даже глубоководных монстров.", reqLvl: 45, cost: { "Запчасти": 30, "Тяжелый Хлам": 14, "Ядерная Батарея": 3 } },
+                    { lvl: 5, clickMin: 18, clickMax: 26, decayMin: 0.8, decayMax: 1.7, duration: 10, desc: "Почти неубиваемый каркас позволяет тянуть даже самую тяжёлую добычу без риска сорваться.", reqLvl: 60, cost: { "Запчасти": 45, "Тяжелый Хлам": 20, "Ядерная Батарея": 5 } },
+                    { lvl: 6, clickMin: 21, clickMax: 30, decayMin: 0.6, decayMax: 1.4, duration: 11, desc: "Стабилизирует леску на молекулярном уровне — вершина рыболовной инженерии Пустошей.", reqLvl: 75, cost: { "Запчасти": 80, "Тяжелый Хлам": 35, "Ядерная Батарея": 12 } }
+                ]
+            },
+            // ===== Легаси-таблица старых удочек (только для расчёта компенсации при миграции старых сохранений) =====
+            legacyRods: {
+                rusty: { tier: 1 }, sturdy: { tier: 2 }, carbon: { tier: 3 }, plasma: { tier: 4 }, titanium: { tier: 5 }, quantum: { tier: 6 }
+            },
             // ===== Рынок (обычная торговля за крышки, цену назначает игра) =====
             marketPrices: {
                 resources: { "Запчасти": 2, "Тяжелый Хлам": 5, "Сырое мясо": 3, "Ядерная Батарея": 16 },
@@ -5742,11 +5911,10 @@ onclick="Core.declineEncounter()">
                 { id: "partsToHeavy", name: "Запчасти → Тяжёлый Хлам", fromKey: "Запчасти", fromQty: 5, toKey: "Тяжелый Хлам", toQty: 1, fromIcon: "⚙️", toIcon: "🔩", dailyLimitBatches: 20, desc: "Если запчастей скопилось слишком много, Дядя Скрап спрессует их обратно в тяжёлый лом — курс менее выгодный, чем в обратную сторону." },
                 { id: "batteryToHeavy", name: "Ядерная Батарея → Тяжёлый Хлам", fromKey: "Ядерная Батарея", fromQty: 1, toKey: "Тяжелый Хлам", toQty: 6, fromIcon: "☢️", toIcon: "🔩", dailyLimitBatches: 5, desc: "Разрядившиеся батареи Дядя Скрап разберёт на тяжёлый лом. Курс щедрый, но батарей мало, поэтому лимит небольшой." }
             ],
-            // ===== Чёрный рынок (оружие, удочки, ядерные батареи; цену назначает игрок) =====
+            // ===== Чёрный рынок (оружие, ядерные батареи; цену назначает игрок) =====
             blackMarket: {
                 voucherRate: 20, // условная оценка: 1 ваучер ≈ 20 крышек
                 weapons: { pipe: 50, machete: 80, pistol: 110, revolver: 150, shotgun: 260, assault: 240, plasma: 220, minigun: 480, gauss: 450 },
-                rods: { sturdy: 70, carbon: 120, plasma: 200, titanium: 320, quantum: 500 },
                 batteryUnit: 25
             },
             avatars: [
@@ -5826,8 +5994,8 @@ onclick="Core.declineEncounter()">
                 { id: "nightmareSlayer", icon: "💀", name: "Истребитель Кошмаров", desc: "Победите 5 Боссов локаций.", check: p => (p.bossesDefeated || []).length >= 5 },
                 { id: "citadelConqueror", icon: "🏰", name: "Покоритель Цитадели", desc: "Победите всех Боссов Пустоши.", check: p => (p.bossesDefeated || []).length >= 11 },
                 { id: "explorer", icon: "🧭", name: "Странник Пустошей", desc: "Доберитесь до 5-го биома.", check: p => (p.maxBiomeReached || 0) >= 5 },
-                { id: "anglerNovice", icon: "🎣", name: "Рыбак-любитель", desc: "Раздобудьте вторую удочку.", check: p => (p.rodsOwned || []).length >= 2 },
-                { id: "anglerMaster", icon: "🐋", name: "Повелитель Глубин", desc: "Раздобудьте Квантовую Удочку.", check: p => (p.rodsOwned || []).includes("quantum") },
+                { id: "anglerNovice", icon: "🎣", name: "Рыбак-любитель", desc: "Прокачайте удочку до 2 уровня.", check: p => (p.rodLvl || 1) >= 2 },
+                { id: "anglerMaster", icon: "🐋", name: "Повелитель Глубин", desc: "Прокачайте удочку до максимального уровня.", check: p => (p.rodLvl || 1) >= DB.rod.levels.length },
                 { id: "gunBaron", icon: "🔫", name: "Оружейный Барон", desc: "Соберите 8 видов оружия.", check: p => (p.weaponsOwned || []).length >= 8 },
                 { id: "streak7", icon: "📦", name: "Постоянный Клиент", desc: "Получайте ежедневный паёк 7 дней подряд.", check: p => (p.dailyStreak || 0) >= 7 },
                 { id: "streak30", icon: "🏅", name: "Легенда Снабжения", desc: "Получайте ежедневный паёк 30 дней подряд.", check: p => (p.dailyStreak || 0) >= 30 },
@@ -5990,7 +6158,7 @@ onclick="Core.declineEncounter()">
             // Чем ценнее приз — тем ниже вес; Премиум-пропуск нарочно закреплён на 0.3%.
             wheelPrizes: [
                 { name: "Запчасти x12", icon: "⚙️", color: "#8fa3b8", weight: 32, reward: { type: "item", item: "Запчасти", qty: 12 } },
-                { name: "Немного еды", icon: "🍗", color: "#ff9a3d", weight: 22, reward: { type: "food", food: "Жареное мясо крысы", qty: 2 } },
+                { name: "Акула ×1", icon: "🦈", color: "#ff9a3d", weight: 22, reward: { type: "food", food: "Стейк из Акулы Пустоши", qty: 1 } },
                 { name: "Крышки x25", icon: "🪙", color: "#ffd700", weight: 18, reward: { type: "caps", qty: 25 } },
                 { name: "Ядерная Батарея x2", icon: "☢️", color: "#39ff14", weight: 12, reward: { type: "item", item: "Ядерная Батарея", qty: 2 } },
                 { name: "Полное восстановление ОЗ", icon: "💉", color: "#ff2a5f", weight: 8, reward: { type: "full_heal" } },
@@ -6049,7 +6217,8 @@ onclick="Core.declineEncounter()">
                 { code: "няшка", type: "title", titleId: "titleNyashka500", maxUses: 1, desc: "эксклюзивный титул «1 час 500 рублей»" },
                 { code: "аватаркакинга", type: "avatar", avatarId: "kingAvatar", maxUses: 2, desc: "эксклюзивная аватарка «Аватарка Кинга»" },
                 { code: "авабоба", type: "avatar", avatarId: "zeusAvatar", maxUses: 1, desc: "эксклюзивная аватарка «Зевс Олимпиец»" },
-                { code: "топ3", type: "wheelSpins", qty: 5, maxUses: 3, desc: "5 бесплатных круток 🎡 Колеса Фортуны" }
+                { code: "топ3", type: "wheelSpins", qty: 5, maxUses: 3, desc: "5 бесплатных круток 🎡 Колеса Фортуны" },
+                { code: "фортуна", type: "voucher", qty: 15, maxUses: 3, desc: "15 🏷️ Ваучеров" }
             ]
         };
 
@@ -6162,7 +6331,7 @@ onclick="Core.declineEncounter()">
                         avatar: p.avatar, title_id: p.titleId, unlocked_titles: p.unlockedTitles,
                         bosses_defeated: (p.bossesDefeated || []).length,
                         weapons_owned: (p.weaponsOwned || []).length,
-                        rods_owned: (p.rodsOwned || []).length,
+                        rods_owned: p.rodLvl || 1,
                         daily_streak: p.dailyStreak || 0
                     }).then(() => {});
                 });
@@ -7011,7 +7180,7 @@ onclick="Core.declineEncounter()">
         };
 
         const Core = {
-            p: { hp: 50, maxHp: 50, energy: 100, maxEnergy: 100, rad: 0, hazards: {}, satiety: 100, lvl: 1, exp: 0, nextExp: 85, caps: 30, vouchers: 0, armor: 2, dodgeChance: 8, inv: { "Запчасти": 6, "Тяжелый Хлам": 0, "Ядерная Батарея": 0, "Сырое мясо": 1, "Жетон Схрона": 0 }, weaponsOwned: ["fists"], wpnUpgrades: { "fists": 0, "pipe": 0, "machete": 0, "pistol": 0, "revolver": 0, "shotgun": 0, "assault": 0, "plasma": 0, "minigun": 0, "gauss": 0 }, activeWeapon: "fists", rodsOwned: ["rusty"], activeRod: "rusty", food: { "Жареное мясо крысы": 1 }, currentBiome: 0, bossesDefeated: [], bpLvl: 1, bpPoints: 0, bpPremium: false, bpClaimedFree: [], bpClaimedPrem: [], dailyStreak: 0, lastDailyClaim: null, relicWasteland: 0, redeemedPromoCodes: [], freeBoxes: {}, nickname: "Странник", nicknameSet: false, avatarsOwned: ["ranger", "raider", "cyborg"], avatar: "ranger", titleId: "newbie", unlockedTitles: ["newbie"], maxBiomeReached: 0, bmLastSuccessDay: null, bmFailDay: null, bmFailCount: 0, marketEarnDay: null, marketEarnedToday: 0, marketDailyCapValue: null, exchangeDay: null, exchangeUsed: {}, marketBuyDay: null, marketBuySpentToday: 0, marketBuyDailyCapValue: null, skinsOwned: ["default"], activeSkin: "default", dailyQuests: [], dailyQuestsDay: null, petsOwned: [], activePet: null, installedAt: Date.now(), updateGiftClaimed: false, restockGiftEligible: false, restockGiftClaimed: false, restockGiftAt: null, pvpDuelLog: {}, wheelDay: null, wheelSpinsToday: 0, wheelFreeClaimed: false, wheelBonusSpins: 0, energyPackDay: null, energyPackBoughtToday: 0,
+            p: { hp: 50, maxHp: 50, energy: 100, maxEnergy: 100, rad: 0, hazards: {}, satiety: 100, lvl: 1, exp: 0, nextExp: 85, caps: 30, vouchers: 0, armor: 2, dodgeChance: 8, inv: { "Запчасти": 6, "Тяжелый Хлам": 0, "Ядерная Батарея": 0, "Сырое мясо": 1, "Жетон Схрона": 0 }, weaponsOwned: ["fists"], wpnUpgrades: { "fists": 0, "pipe": 0, "machete": 0, "pistol": 0, "revolver": 0, "shotgun": 0, "assault": 0, "plasma": 0, "minigun": 0, "gauss": 0 }, activeWeapon: "fists", rodLvl: 0, rodResetV2Done: true, rodCompensationPending: null, food: { "Жареное мясо крысы": 1 }, currentBiome: 0, bossesDefeated: [], bpLvl: 1, bpPoints: 0, bpPremium: false, bpClaimedFree: [], bpClaimedPrem: [], dailyStreak: 0, lastDailyClaim: null, relicWasteland: 0, redeemedPromoCodes: [], freeBoxes: {}, nickname: "Странник", nicknameSet: false, avatarsOwned: ["ranger", "raider", "cyborg"], avatar: "ranger", titleId: "newbie", unlockedTitles: ["newbie"], maxBiomeReached: 0, bmLastSuccessDay: null, bmFailDay: null, bmFailCount: 0, marketEarnDay: null, marketEarnedToday: 0, marketDailyCapValue: null, exchangeDay: null, exchangeUsed: {}, marketBuyDay: null, marketBuySpentToday: 0, marketBuyDailyCapValue: null, skinsOwned: ["default"], activeSkin: "default", dailyQuests: [], dailyQuestsDay: null, petsOwned: [], activePet: null, installedAt: Date.now(), updateGiftClaimed: false, restockGiftEligible: false, restockGiftClaimed: false, restockGiftAt: null, pvpDuelLog: {}, wheelDay: null, wheelSpinsToday: 0, wheelFreeClaimed: false, wheelBonusSpins: 0, energyPackDay: null, energyPackBoughtToday: 0, buildPresets: [],
                 perksUnlocked: [], perkPoints: 0, armorOwned: ["rags"], activeArmor: "rags", modsOwned: [], modsEquipped: { optic: null, mag: null, grip: null }, gadgetsOwned: [], megasilaOwned: [], trophies: 0, trophyClaimed: [] },
             combatState: null, restUses: 5, nextRestTick: null, bpSubTab: 'rewards',
             hpRegenAccum: 0, satietyDecayAccum: 0, abilityCooldowns: {},
@@ -7409,8 +7578,37 @@ onclick="Core.declineEncounter()">
                     if(this.p.armor === undefined) this.p.armor = 2;
                     if(this.p.dodgeChance === undefined) this.p.dodgeChance = 8;
                     if(this.p.satiety === undefined) this.p.satiety = 100;
-                    if(!this.p.rodsOwned) this.p.rodsOwned = ["rusty"];
-                    if(!this.p.activeRod) this.p.activeRod = "rusty";
+                    // Миграция старой системы "много удочек" → одна прокачиваемая удочка.
+                    // Уровень новой удочки = максимальный тир среди ранее собранных удочек (прогресс не теряется).
+                    // За каждую ИЗБЫТОЧНУЮ удочку (тир 2+, кроме той, что стала новым уровнем) — компенсация,
+                    // которую нужно забрать вручную в Рынке (раздел "Компенсация").
+                    if (this.p.rodsOwned && Array.isArray(this.p.rodsOwned)) {
+                        let tiers = this.p.rodsOwned.map(id => (DB.legacyRods[id] || {}).tier || 1);
+                        let maxTier = tiers.length ? Math.max(...tiers) : 1;
+                        let maxUsed = false;
+                        let compTokens = 0, compCaps = 0;
+                        tiers.forEach(t => {
+                            if (t === maxTier && !maxUsed) { maxUsed = true; return; } // одна копия максимального тира сохраняется как новый уровень
+                            if (t > 1) { compTokens += t; compCaps += t * 10 + 15; }
+                        });
+                        if (compTokens > 0 || compCaps > 0) {
+                            let pending = this.p.rodCompensationPending || { tokens: 0, caps: 0 };
+                            this.p.rodCompensationPending = { tokens: pending.tokens + compTokens, caps: pending.caps + compCaps };
+                        }
+                        this.p.rodLvl = Math.max(this.p.rodLvl || 1, maxTier);
+                        delete this.p.rodsOwned;
+                        delete this.p.activeRod;
+                    }
+                    // Удочка больше не выдаётся автоматически — теперь её нужно самостоятельно собрать
+                    // в Тех-Схемах, а прокачивать — на экране инвентаря (как оружие). Разово обнуляем
+                    // прогресс всем игрокам, включая тех, кто уже пользовался старой системой единой
+                    // прокачиваемой удочки. Компенсацию за избыточные удочки (миграция выше) не трогаем.
+                    if (!this.p.rodResetV2Done) {
+                        this.p.rodLvl = 0;
+                        this.p.rodResetV2Done = true;
+                    }
+                    if (this.p.rodLvl === undefined || this.p.rodLvl === null) this.p.rodLvl = 0;
+                    if (this.p.rodCompensationPending === undefined) this.p.rodCompensationPending = null;
                     if(!this.p.dailyQuests) this.p.dailyQuests = [];
                     if(!this.p.petsOwned) this.p.petsOwned = [];
                     if(this.p.activePet === undefined) this.p.activePet = null;
@@ -7454,6 +7652,7 @@ onclick="Core.declineEncounter()">
                     if(!this.p.modsEquipped) this.p.modsEquipped = { optic: null, mag: null, grip: null };
                     if(!this.p.gadgetsOwned) this.p.gadgetsOwned = [];
                     if(!this.p.megasilaOwned) this.p.megasilaOwned = [];
+                    if(!this.p.buildPresets) this.p.buildPresets = [];
                     if(this.p.trophies === undefined) this.p.trophies = 0;
                     if(!this.p.trophyClaimed) this.p.trophyClaimed = [];
                     if(this.p.installedAt === undefined) this.p.installedAt = Date.now();
@@ -7546,7 +7745,14 @@ onclick="Core.declineEncounter()">
                 let biome = DB.biomes[this.p.currentBiome];
                 if (!biome || !biome.hazard) return mods;
                 let level = this.getHazard();
-                biome.hazard.tiers.forEach(t => { if (level >= t.min) Object.assign(mods, t); });
+                // Хазард влияет только на урон/защиту (dmgDealtMult, dmgTakenMult, dodgeDelta, armorDelta).
+                // Поля regenMult/regenBlocked/satietyMult из тиров биома намеренно игнорируются,
+                // чтобы хазард не замедлял/не блокировал регенерацию ХП и не ускорял трату сытости.
+                biome.hazard.tiers.forEach(t => {
+                    if (level < t.min) return;
+                    let { regenMult, regenBlocked, satietyMult, ...safeMods } = t;
+                    Object.assign(mods, safeMods);
+                });
                 return mods;
             },
             // Суммирует бонусы всей текущей "сборки" (перки + экипированная броня + моды оружия)
@@ -7557,13 +7763,14 @@ onclick="Core.declineEncounter()">
                     let e = perk.effect;
                     for (let k in e) { b[k] = (b[k] || 0) + e[k]; }
                 });
-                // Синергия: полностью открытая ветка перков усиливает её топовый (5й) перк
-                ["assault", "gunner", "survival"].forEach(branch => {
+                // Синергия: полностью открытая ветка перков усиливает её финальный (топовый по tier) перк
+                ["assault", "gunner", "survival", "predator"].forEach(branch => {
                     let branchPerks = DB.perks.filter(p => p.branch === branch);
+                    if (!branchPerks.length) return;
                     let allUnlocked = branchPerks.every(p => (this.p.perksUnlocked || []).includes(p.id));
                     if (!allUnlocked) return;
-                    let tier5 = branchPerks.find(p => p.tier === 5);
-                    if (tier5 && tier5.fullBranchBonus) { for (let k in tier5.fullBranchBonus) { b[k] = (b[k] || 0) + tier5.fullBranchBonus[k]; } }
+                    let topTier = branchPerks.reduce((top, p) => p.tier > top.tier ? p : top, branchPerks[0]);
+                    if (topTier && topTier.fullBranchBonus) { for (let k in topTier.fullBranchBonus) { b[k] = (b[k] || 0) + topTier.fullBranchBonus[k]; } }
                 });
                 let armorItem = DB.armor.find(a => a.id === this.p.activeArmor);
                 if (armorItem) { b.armor += armorItem.armor; b.dodgeChance += armorItem.dodgeMod; b.hazardResist += (armorItem.hazardResist || 0); }
@@ -7811,7 +8018,8 @@ onclick="Core.declineEncounter()">
                 }
 
                 const weapon = DB.weapons.find(w => w.id === this.p.activeWeapon) || DB.weapons[0];
-                const rod = DB.rods.find(r => r.id === this.p.activeRod) || DB.rods[0];
+                const rodLvl = this.p.rodLvl || 0;
+                const rod = DB.rod.levels[rodLvl - 1] || DB.rod.levels[0];
                 const biome = DB.biomes[this.p.currentBiome] || DB.biomes[0];
                 const bossesTotal = DB.biomes.length;
 
@@ -7820,11 +8028,10 @@ onclick="Core.declineEncounter()">
                     { icon: '🗺️', color: '#00f0ff', label: 'Биом', value: biome.name },
                     // В руках отображается настоящая модель экипированного оружия — та же, что используется везде (в бою, в крафте, в магазине)
                     { icon: Sprites.weapon(weapon.id), color: weapon.color, label: 'В руках', value: weapon.name },
-                    { icon: '🎣', color: '#39ff14', label: 'Удочка', value: `${rod.icon} ${rod.name}` },
+                    { icon: '🎣', color: '#39ff14', label: 'Удочка', value: rodLvl > 0 ? `${DB.rod.icon} Ур. ${rodLvl}/${DB.rod.levels.length}` : `${DB.rod.icon} Не собрана` },
                     { icon: '🔥', color: '#ff6600', label: 'Серия', value: `${this.p.dailyStreak || 0} дней` },
                     { icon: '👑', color: '#bf5af2', label: 'Боссы', value: `${(this.p.bossesDefeated || []).length}/${bossesTotal}` },
-                    { icon: '⚔️', color: '#ff2a5f', label: 'Оружие', value: `${(this.p.weaponsOwned || []).length}/${DB.weapons.length}` },
-                    { icon: '🧰', color: '#00c8ff', label: 'Удочки', value: `${(this.p.rodsOwned || []).length}/${DB.rods.length}` }
+                    { icon: '⚔️', color: '#ff2a5f', label: 'Оружие', value: `${(this.p.weaponsOwned || []).length}/${DB.weapons.length}` }
                 ];
                 grid.innerHTML = stats.map(s => `<div class="profile-data-row" style="--dc-color:${s.color};"><div class="data-row-icon" style="border-color:${s.color}; box-shadow: 0 0 14px ${this.hexToRgba(s.color, 0.4)}, inset 0 1px 0 rgba(255,255,255,0.15);">${s.icon}</div><span class="data-row-label">${s.label}</span><span class="data-row-value">${s.value}</span></div>`).join('');
 
@@ -8081,6 +8288,8 @@ onclick="Core.declineEncounter()">
                 this.exposeRadiation("Разведка загрязнённой местности");
                 Scene.exploreStart();
                 let roll = Math.random();
+                // Шансы разведки: находка 45%, озеро/рыбалка ~4.33% (уменьшено в 3 раза от исходных
+                // 13%, освободившиеся ~8.67% ушли в "пусто"), враг 20%, пусто ~30.67%.
                 setTimeout(() => {
                     if (roll < 0.45) {
                         let petFx = this.getActivePetEffect();
@@ -8104,17 +8313,21 @@ onclick="Core.declineEncounter()">
                         else if(lootRoll < 0.8) { this.p.inv["Сырое мясо"] = (this.p.inv["Сырое мясо"]||0)+1; this.log(`🥩 Найдено: Сырое мясо x1, Крышки (+${c} 🪙).${bonusScrap}${tokenMsg} +10 XP.`, "loot"); Scene.findEffect('meat'); }
                         else { this.p.inv["Тяжелый Хлам"] = (this.p.inv["Тяжелый Хлам"]||0)+1; this.log(`⚙️ Найдено: Тяжелый Хлам x1, Крышки (+${c} 🪙).${bonusScrap}${tokenMsg} +15 XP.`, "loot"); Scene.findEffect('heavy'); }
                         this.p.exp += 10; this.checkLvl();
-                    } else if (roll < 0.58) {
+                    } else if (roll < 0.493333) {
                         if (this.p.lvl < 5 || (this.settings && this.settings.fishingEnabled === false)) { this.log("Локация чиста. Ничего интересного."); Scene.findEffect('empty'); }
                         else { this.log("🌊 Вы наткнулись на заброшенное озеро посреди Пустоши..."); Scene.findEffect('lake'); this.offerFishing(); }
                     }
-                    else if (roll < 0.78) { Scene.findEffect('enemy'); this.startCombat(false); } else { this.log("Локация чиста. Ничего интересного."); Scene.findEffect('empty'); }
+                    else if (roll < 0.693333) { Scene.findEffect('enemy'); this.startCombat(false); } else { this.log("Локация чиста. Ничего интересного."); Scene.findEffect('empty'); }
                     this.save(); this.updateUI();
                 }, 550);
             },
 
             offerFishing() {
                 if (this.settings && this.settings.fishingEnabled === false) return;
+                if (!this.p.rodLvl) {
+                    this.log("🎣 На озере клюёт рыба, но удочки с собой нет. Соберите её в Тех-Схемах!");
+                    return;
+                }
                 document.getElementById('lake-choice-overlay').style.display = 'flex';
             },
 
@@ -8129,9 +8342,11 @@ onclick="Core.declineEncounter()">
 
             startFishing() {
                 Sound.play('click');
-                let rod = DB.rods.find(r => r.id === this.p.activeRod) || DB.rods[0];
+                let rodLvl = this.p.rodLvl || 0;
+                if (!rodLvl) { this.log("🎣 Сначала соберите удочку в Тех-Схемах."); return; }
+                let rod = DB.rod.levels[rodLvl - 1] || DB.rod.levels[0];
                 this.fishing = { progress: 0, timeLeft: rod.duration, decayTimer: null, countdownTimer: null, active: true, rod };
-                document.getElementById('fish-rod-label').innerText = `${rod.icon} Экипировано: ${rod.name}`;
+                document.getElementById('fish-rod-label').innerText = `${DB.rod.icon} Экипировано: ${DB.rod.name} · Ур. ${rodLvl}`;
                 document.getElementById('fish-status-text').innerText = "Клюёт! Быстро жми на кнопку, чтобы заполнить шкалу до того как рыба сорвётся!";
                 document.getElementById('fish-bar').style.width = '0%';
                 document.getElementById('fish-progress-val').innerText = '0';
@@ -8168,14 +8383,21 @@ onclick="Core.declineEncounter()">
                 document.getElementById('fish-progress-val').innerText = Math.floor(this.fishing.progress);
             },
 
-            // Выбираем случайный вид рыбы, доступный для текущей удочки (взвешенный шанс по редкости)
+            // Выбираем случайный вид рыбы (взвешенный шанс по редкости). Редкая/Эпическая/Легендарная
+            // ("хорошая" и "отличная" рыба) ловятся на удочке любого уровня — но чем сильнее удочка
+            // прокачана относительно "родного" тира этой рыбы (f.minRodTier), тем выше её вес в розыгрыше.
+            // Обычная и Необычная рыба в этот бонус не входят — их шанс всегда фиксирован.
             pickCatch() {
-                let rodTier = this.fishing.rod.tier;
-                let pool = DB.fish.filter(f => f.minRodTier <= rodTier);
-                let totalWeight = pool.reduce((s, f) => s + f.weight, 0);
+                let rodTier = this.fishing.rod.lvl;
+                let pool = DB.fish;
+                let weighted = pool.map(f => {
+                    let boost = f.minRodTier > 1 ? 1 + Math.max(0, rodTier - f.minRodTier) * 0.2 : 1;
+                    return { f, w: f.weight * boost };
+                });
+                let totalWeight = weighted.reduce((s, x) => s + x.w, 0);
                 let rand = Math.random() * totalWeight, accum = 0;
-                for (let f of pool) { accum += f.weight; if (rand <= accum) return f; }
-                return pool[0];
+                for (let x of weighted) { accum += x.w; if (rand <= accum) return x.f; }
+                return weighted[0].f;
             },
 
             endFishing(success) {
@@ -8202,18 +8424,31 @@ onclick="Core.declineEncounter()">
                 setTimeout(() => { document.getElementById('fishing-overlay').style.display = 'none'; }, 1400);
             },
 
-            equipRod(rodId) { Sound.play('click'); this.p.activeRod = rodId; this.log(`🎣 Экипирована удочка: ${DB.rods.find(r => r.id === rodId).name}`); this.save(); this.updateUI(); },
-
-            craftRod(id) {
-                let bp = DB.rodBlueprints.find(b => b.id === id);
-                if (this.p.lvl < bp.reqLvl) return alert(`Требуется уровень ${bp.reqLvl}!`);
-                if (this.p.rodsOwned.includes(bp.targetId)) return alert("Эта удочка уже собрана!");
-                for (let [res, count] of Object.entries(bp.cost)) { if ((this.p.inv[res] || 0) < count) return alert("Недостаточно материалов для этой удочки!"); }
-                for (let [res, count] of Object.entries(bp.cost)) { this.p.inv[res] -= count; }
-                this.p.rodsOwned.push(bp.targetId);
-                let rod = DB.rods.find(r => r.id === bp.targetId);
+            // Сборка удочки "с нуля" (Ур.0 → Ур.1) — только в Тех-Схемах, по аналогии с craftWeapon().
+            craftRod() {
+                if ((this.p.rodLvl || 0) > 0) return alert("Удочка уже собрана!");
+                let c = DB.rod.craft;
+                if (this.p.lvl < c.reqLvl) return alert(`Требуется уровень ${c.reqLvl}!`);
+                for (let [res, count] of Object.entries(c.cost)) { if ((this.p.inv[res] || 0) < count) return alert("Недостаточно материалов для сборки удочки!"); }
+                for (let [res, count] of Object.entries(c.cost)) { this.p.inv[res] -= count; }
+                this.p.rodLvl = 1;
                 this.save(); this.updateUI(); this.renderSchematics();
-                this.showCraftResult(rod.icon, "🛠️ Крафт успешен!", rod.name, "Новая рыболовная снасть готова к использованию!");
+                this.showCraftResult(DB.rod.icon, `${Icon.check('var(--neon-green)')} Крафт успешен!`, `${DB.rod.name} · Ур. 1`, "Удочка собрана — теперь можно рыбачить! Дальнейшие апгрейды — на экране инвентаря.");
+            },
+
+            // Апгрейд уже собранной удочки (Ур.1 → Ур.6) — только на экране инвентаря, по аналогии с upgradeWeapon().
+            upgradeRod() {
+                let lvl = this.p.rodLvl || 0;
+                if (lvl <= 0) return alert("Сначала соберите удочку в Тех-Схемах!");
+                let maxLvl = DB.rod.levels.length;
+                if (lvl >= maxLvl) return;
+                let next = DB.rod.levels[lvl]; // индекс = следующий уровень (0-based)
+                if (this.p.lvl < next.reqLvl) return alert(`Требуется уровень ${next.reqLvl}!`);
+                for (let [res, count] of Object.entries(next.cost)) { if ((this.p.inv[res] || 0) < count) return alert("Недостаточно материалов для улучшения удочки!"); }
+                for (let [res, count] of Object.entries(next.cost)) { this.p.inv[res] -= count; }
+                this.p.rodLvl = lvl + 1;
+                this.save(); this.updateUI();
+                this.showCraftResult(DB.rod.icon, "🛠️ Улучшение успешно!", `${DB.rod.name} · Ур. ${this.p.rodLvl}`, "Удочка усовершенствована — теперь можно поймать более крупную рыбу!");
             },
 
             rest() {
@@ -8730,35 +8965,62 @@ startCombat(isBossFight = false) {
                 });
                 wEl.innerHTML = wHtml;
 
-                const rdEl = document.getElementById('rod-list'); let rdHtml = '';
+                const rdEl = document.getElementById('rod-list');
                 const rodTierColors = ['#9aa4b2', '#39ff14', '#00f0ff', '#ff2a5f', '#ffb703', '#bf5af2'];
-                this.p.rodsOwned.forEach(rId => {
-                    let rod = DB.rods.find(r => r.id === rId);
-                    let isActive = this.p.activeRod === rId;
-                    let rodColor = rodTierColors[(rod.tier - 1) % rodTierColors.length] || '#00f0ff';
-                    rdHtml += `
-                        <div class="rod-card ${isActive?'active':''}" style="--rod-color:${rodColor}; --rod-glow:${this.hexToRgba(rodColor, 0.45)}">
-                            <div class="rod-card-header">
-                                <div class="rod-icon-badge">${rod.icon}</div>
-                                <div class="rod-info">
-                                    <div class="rod-name-row">
-                                        <span class="rod-name">${rod.name}</span>
-                                        <span class="rod-tier-badge">Ур. ${rod.tier}</span>
+                {
+                    let rLvl = this.p.rodLvl || 0;
+                    let maxLvl = DB.rod.levels.length;
+                    if (rLvl <= 0) {
+                        // Удочка ещё не собрана — собирается только в Тех-Схемах
+                        rdEl.innerHTML = `
+                            <div class="rod-card" style="--rod-color:#9aa4b2; --rod-glow:${this.hexToRgba('#9aa4b2', 0.35)}">
+                                <div class="rod-card-header">
+                                    <div class="rod-icon-badge">${DB.rod.icon}</div>
+                                    <div class="rod-info">
+                                        <div class="rod-name-row">
+                                            <span class="rod-name">${DB.rod.name}</span>
+                                            <span class="rod-tier-badge">Не собрана</span>
+                                        </div>
+                                        <div class="rod-desc">Соберите удочку в Тех-Схемах, чтобы можно было рыбачить.</div>
                                     </div>
-                                    <div class="rod-desc">${rod.desc}</div>
                                 </div>
-                                ${isActive ? '<div class="rod-active-flag">⚡ АКТИВНА</div>' : ''}
-                            </div>
-                            <div class="rod-stats-row">
-                                <div class="rod-stat">⏱ Время <span class="stat-value">${rod.duration}с</span></div>
-                                <div class="rod-stat">⚡ Улов <span class="stat-value">${rod.clickMin}-${rod.clickMax}</span></div>
-                            </div>
-                            <button class="rod-btn-pill ${isActive?'active':''}" ${isActive?'disabled':''} onclick="Core.equipRod('${rId}')">
-                                ${isActive?'⚡ Активна':'Экипировать'}
-                            </button>
-                        </div>`;
-                });
-                rdEl.innerHTML = rdHtml;
+                                <button class="rod-btn-pill" onclick="Core.schemTab='rod'; Core.openSchematics();">🛠️ Собрать в Тех-Схемах</button>
+                            </div>`;
+                    } else {
+                        let rod = DB.rod.levels[rLvl - 1];
+                        let rodColor = rodTierColors[(rLvl - 1) % rodTierColors.length] || '#00f0ff';
+                        let isMaxed = rLvl >= maxLvl;
+                        let next = !isMaxed ? DB.rod.levels[rLvl] : null;
+                        let canUpgrade = false, reqHtml = '';
+                        if (next) {
+                            let meetsLvl = this.p.lvl >= next.reqLvl;
+                            reqHtml = meetsLvl
+                                ? Object.entries(next.cost).map(([res, count]) => { let have = this.p.inv[res] || 0; let ok = have >= count; return `<div class="schem-res ${ok?'ok':'bad'}" style="font-size:10.5px;">${res}: ${have}/${count}</div>`; }).join('')
+                                : `<div class="schem-res bad" style="font-size:10.5px;">🔒 Требуется уровень ${next.reqLvl}</div>`;
+                            canUpgrade = meetsLvl && Object.entries(next.cost).every(([res, count]) => (this.p.inv[res] || 0) >= count);
+                        }
+                        rdEl.innerHTML = `
+                            <div class="rod-card active" style="--rod-color:${rodColor}; --rod-glow:${this.hexToRgba(rodColor, 0.45)}">
+                                <div class="rod-card-header">
+                                    <div class="rod-icon-badge">${DB.rod.icon}</div>
+                                    <div class="rod-info">
+                                        <div class="rod-name-row">
+                                            <span class="rod-name">${DB.rod.name}</span>
+                                            <span class="rod-tier-badge">Ур. ${rLvl}/${maxLvl}</span>
+                                        </div>
+                                        <div class="rod-desc">${rod.desc}</div>
+                                    </div>
+                                    <div class="rod-active-flag">⚡ ЭКИПИРОВАНА</div>
+                                </div>
+                                <div class="rod-stats-row">
+                                    <div class="rod-stat">⏱ Время <span class="stat-value">${rod.duration}с</span></div>
+                                    <div class="rod-stat">⚡ Улов <span class="stat-value">${rod.clickMin}-${rod.clickMax}</span></div>
+                                </div>
+                                ${isMaxed ? '' : `<div class="rod-upgrade-reqs" style="display:flex; flex-direction:column; gap:2px; margin-top:2px;">${reqHtml}</div>`}
+                                <button class="rod-btn-pill" ${(isMaxed||!canUpgrade)?'disabled':''} onclick="Core.upgradeRod()">${isMaxed?'🔝 Максимальный уровень':'🔺 Апгрейд'}</button>
+                            </div>`;
+                    }
+                }
 
                 const fEl = document.getElementById('food-list'); let fHtml = ''; let hasFood = false;
                 for(let key in this.p.food) {
@@ -8827,7 +9089,7 @@ startCombat(isBossFight = false) {
             openSchematics() {
                 Sound.play('click'); this.schemTab = this.schemTab || 'weapon'; this.renderSchematics(); document.getElementById('schematics-overlay').style.display = 'flex';
                 Tut.actionTriggered('craft-schematics-entry');
-                setTimeout(() => Tips.show('schematics', "Тех-Схемы — чертежи снаряжения. Переключай вкладки «⚔️ Оружие» и «🎣 Удочки» сверху. Оружие теперь открывается в первую очередь за 💠 Жетоны Схрона — их можно найти только в разведке, и чем мощнее ствол, тем больше жетонов нужно. Обычные ресурсы тоже нужны, но по чуть-чуть. Чего не хватает — будет красным, кнопка крафта заблокирована, пока не наберёшь требуемое."), 350);
+                setTimeout(() => Tips.show('schematics', "Тех-Схемы — чертежи снаряжения. Переключай вкладки «⚔️ Оружие» и «🎣 Удочка» сверху. Оружие теперь открывается в первую очередь за 💠 Жетоны Схрона — их можно найти только в разведке, и чем мощнее ствол, тем больше жетонов нужно. Обычные ресурсы тоже нужны, но по чуть-чуть. Чего не хватает — будет красным, кнопка крафта заблокирована, пока не наберёшь требуемое."), 350);
             },
             closeSchematics() { document.getElementById('schematics-overlay').style.display = 'none'; Tut.actionTriggered('schem-close-btn'); },
             switchSchemTab(tab) { this.schemTab = tab; this.renderSchematics(); },
@@ -8838,18 +9100,22 @@ startCombat(isBossFight = false) {
                 const el = document.getElementById('schem-body'); el.innerHTML = '';
 
                 if (this.schemTab === 'rod') {
-                    DB.rodBlueprints.forEach(bp => {
-                        let rod = DB.rods.find(r => r.id === bp.targetId);
-                        let owned = this.p.rodsOwned.includes(bp.targetId);
-                        let meetsLvl = this.p.lvl >= bp.reqLvl;
-                        let resHtml = Object.entries(bp.cost).map(([res, count]) => { let have = this.p.inv[res] || 0; let ok = have >= count; return `<div class="schem-res ${ok?'ok':'bad'}">${res}: ${have}/${count}</div>`; }).join('');
-                        el.innerHTML += `<div class="schem-entry" style="opacity: ${meetsLvl?1:0.55}">
-                            <div class="schem-entry-header"><span>${rod.icon} ${rod.name}</span></div>
-                            <div class="schem-res">${rod.desc}</div>
-                            ${owned ? '' : (meetsLvl ? resHtml : `<div class="schem-res bad">🔒 Требуется уровень ${bp.reqLvl}</div>`)}
-                            <button class="schem-craft-btn" ${(owned||!meetsLvl)?'disabled':''} onclick="Core.craftRod('${bp.id}')">${owned?(Icon.check('var(--neon-green)')+' Собрано'):'Собрать'}</button>
-                        </div>`;
-                    });
+                    // Здесь только сборка удочки "с нуля" (Ур.0 → Ур.1), по аналогии с оружием ниже.
+                    // Дальнейшие апгрейды (Ур.1 → Ур.6) — на экране инвентаря (Core.upgradeRod()).
+                    let rodLvl = this.p.rodLvl || 0;
+                    let crafted = rodLvl > 0;
+                    let c = DB.rod.craft;
+                    let meetsLvl = this.p.lvl >= c.reqLvl;
+                    let resHtml = crafted ? '' : (meetsLvl
+                        ? Object.entries(c.cost).map(([res, count]) => { let have = this.p.inv[res] || 0; let ok = have >= count; return `<div class="schem-res ${ok?'ok':'bad'}">${res}: ${have}/${count}</div>`; }).join('')
+                        : `<div class="schem-res bad">🔒 Требуется уровень ${c.reqLvl}</div>`);
+                    let canCraft = !crafted && meetsLvl && Object.entries(c.cost).every(([res, count]) => (this.p.inv[res] || 0) >= count);
+                    el.innerHTML += `<div class="schem-entry">
+                        <div class="schem-entry-header"><span>${DB.rod.icon} ${DB.rod.name}</span></div>
+                        <div class="schem-res">${crafted ? `Удочка уже собрана (Ур. ${rodLvl}/${DB.rod.levels.length}). Дальнейшие апгрейды — на экране инвентаря.` : DB.rod.levels[0].desc}</div>
+                        ${resHtml}
+                        <button class="schem-craft-btn" ${(crafted||!canCraft)?'disabled':''} onclick="Core.craftRod()">${crafted?(Icon.check('var(--neon-green)')+' Собрано'):'Собрать'}</button>
+                    </div>`;
                 } else {
                     DB.blueprints.forEach(bp => {
                         let wpnData = DB.weapons.find(w => w.id === bp.targetId);
@@ -8907,54 +9173,534 @@ startCombat(isBossFight = false) {
                 if (this.p.lvl < 10) {
                     return alert(`🔒 Билд-Мастерская раскрывается на 10 уровне (сейчас у вас ${this.p.lvl} ур.). Продолжайте выживать!`);
                 }
-                this.buildTab = this.buildTab || 'perks'; this.renderBuild(); document.getElementById('build-overlay').style.display = 'flex';
+                this.buildTab = this.buildTab || 'overview'; this.renderBuild(); document.getElementById('build-overlay').style.display = 'flex';
                 Tut.actionTriggered('craft-build-entry');
-                setTimeout(() => Tips.show('build', "Билд-Мастерская: «Перки» тратят очки, получаемые за уровни, и открывают пассивные бонусы в трёх ветках. «Броня» и «Моды» — отдельный крафт за ресурсы, экипируются точно так же, как оружие."), 350);
+                setTimeout(() => Tips.show('build', "Билд-Мастерская: «Обзор» показывает вашу сборку целиком — оружие, броню, моды, гаджет/мегасилу, питомца и итоговые характеристики, плюс архетип и синергии. «Перки» тратят очки за уровни, «Броня»/«Моды» — отдельный крафт за ресурсы, «Пресеты» позволяют сохранить и быстро переключать целые сборки."), 350);
             },
             closeBuild() { document.getElementById('build-overlay').style.display = 'none'; Tut.actionTriggered('build-close-btn'); },
-            switchBuildTab(tab) { this.buildTab = tab; this.renderBuild(); },
+            switchBuildTab(tab) { Sound.play('click'); this.buildTab = tab; this.renderBuild(); },
 
             renderBuild() {
-                document.getElementById('build-tab-perks').classList.toggle('active', this.buildTab === 'perks');
-                document.getElementById('build-tab-armor').classList.toggle('active', this.buildTab === 'armor');
-                document.getElementById('build-tab-mods').classList.toggle('active', this.buildTab === 'mods');
+                ['overview', 'perks', 'armor', 'mods', 'presets'].forEach(t => {
+                    let tabEl = document.getElementById(`build-tab-${t}`);
+                    if (tabEl) tabEl.classList.toggle('active', this.buildTab === t);
+                });
                 if (this.buildTab === 'armor') this.renderArmorTab();
                 else if (this.buildTab === 'mods') this.renderModsTab();
-                else this.renderPerksTab();
+                else if (this.buildTab === 'presets') this.renderPresetsTab();
+                else if (this.buildTab === 'perks') this.renderPerksTab();
+                else this.renderBuildOverview();
+            },
+
+            // Короткое имя установленного мода в слоте (для карточек обзора сборки)
+            modSlotName(slotId) {
+                let mid = (this.p.modsEquipped || {})[slotId];
+                if (!mid) return '—';
+                let mod = DB.weaponMods.find(m => m.id === mid);
+                return mod ? `${mod.icon} ${mod.name}` : '—';
+            },
+
+            // Сводные итоговые характеристики текущей сборки — единая точка расчёта для
+            // экрана обзора, оценки билда и анализа биома. Опирается только на существующую
+            // getBuildBonus() и реальную формулу боя (никаких новых игровых величин).
+            getTotalStats() {
+                let wpn = DB.weapons.find(w => w.id === this.p.activeWeapon) || DB.weapons[0];
+                let upLvl = this.p.wpnUpgrades[this.p.activeWeapon] || 0;
+                let build = this.getBuildBonus();
+                let isRanged = ["Пистолеты", "Штурмовые винтовки", "Энергетическое", "Тяжёлое оружие"].includes(wpn.class);
+                let totalArmor = (this.p.armor || 0) + (build.armor || 0);
+                let totalDodge = Math.max(0, (this.p.dodgeChance || 0) + (build.dodgeChance || 0));
+                let totalCrit = Math.min(100, Math.round(wpn.crit + upLvl + (build.crit || 0)));
+                let critMult = 1.75 + (build.critDmgMult || 0) + (isRanged ? (build.rangedCritDmgMult || 0) : 0);
+                let dmgMultPct = Math.round((build.dmgMult || 0) * 100);
+                let hazardResistPct = Math.round(Math.min(0.8, (build.hazardResist || 0)) * 100);
+                let bleedPct = Math.round((build.bleedMult || 0) * 100);
+                let baseDmg = Math.round(wpn.dmg * (1 + upLvl * 0.25) * (1 + (build.dmgMult || 0)));
+                let gadgetOwned = this.p.gadgetsOwned.includes(this.p.activeWeapon);
+                let megaOwned = this.p.megasilaOwned.includes(this.p.activeWeapon);
+                return { wpn, upLvl, build, isRanged, totalArmor, totalDodge, totalCrit, critMult, dmgMultPct, hazardResistPct, bleedPct, baseDmg, gadgetOwned, megaOwned, masteryActive: gadgetOwned && megaOwned };
+            },
+
+            // Анализ реально выбранных элементов сборки → архетип (не жёсткий класс, а описание стиля игры)
+            computeArchetype() {
+                let s = this.getTotalStats();
+                let scores = { assault: 0, hunter: 0, tank: 0, stalker: 0, tech: 0 };
+                let hasPerk = id => (this.p.perksUnlocked || []).includes(id);
+                let branchCount = b => DB.perks.filter(p => p.branch === b && hasPerk(p.id)).length;
+                scores.assault += branchCount('assault') * 3;
+                scores.hunter += branchCount('gunner') * 3;
+                scores.tank += branchCount('survival') * 2;
+                scores.stalker += branchCount('survival') * 1.5;
+                scores.hunter += branchCount('predator') * 2;
+                scores.stalker += branchCount('predator') * 1.5;
+
+                if (["Ближний бой", "Дробовики"].includes(s.wpn.class)) scores.assault += 4;
+                if (s.wpn.class === "Штурмовые винтовки") scores.assault += 2;
+                if (["Пистолеты", "Энергетическое"].includes(s.wpn.class)) scores.hunter += 3;
+                if (s.wpn.class === "Тяжёлое оружие") scores.assault += 2;
+
+                let armorItem = DB.armor.find(a => a.id === this.p.activeArmor);
+                if (armorItem) {
+                    if (armorItem.armor >= 10) scores.tank += 4;
+                    if (armorItem.dodgeMod > 0) scores.hunter += 1.5;
+                    if ((armorItem.hazardResist || 0) > 0) scores.stalker += 4;
+                }
+
+                Object.values(this.p.modsEquipped || {}).forEach(mid => {
+                    if (!mid) return;
+                    let mod = DB.weaponMods.find(m => m.id === mid); if (!mod) return;
+                    let e = mod.effect || {};
+                    if (e.crit) scores.hunter += 2;
+                    if (e.critDmgMult) scores.hunter += 2;
+                    if (e.dmgMult) scores.assault += 1.5;
+                    if (e.armor) scores.tank += 1.5;
+                    if (e.dodgeChance) scores.tank += 1;
+                });
+
+                if (s.gadgetOwned) scores.tech += 3;
+                if (s.megaOwned) scores.tech += 3;
+                if (s.masteryActive) scores.tech += 2;
+
+                if (this.p.activePet) {
+                    let pet = DB.pets.find(p => p.id === this.p.activePet);
+                    if (pet && pet.effect) {
+                        if (pet.effect.armor || pet.effect.hazardResist) { scores.tank += 2; scores.stalker += 2; }
+                        if (pet.effect.crit || pet.effect.dodgeChance) scores.hunter += 2;
+                        if (pet.effect.dmgMult) scores.assault += 2;
+                    }
+                }
+
+                if ((s.build.bleedMult || 0) > 0) scores.stalker += 3;
+                if ((s.build.hazardResist || 0) >= 0.3) scores.stalker += 3;
+
+                let labels = {
+                    assault: { icon: '⚔️', name: 'Штурмовик' }, hunter: { icon: '🎯', name: 'Охотник' },
+                    tank: { icon: '🛡️', name: 'Танк' }, stalker: { icon: '☢️', name: 'Сталкер' }, tech: { icon: '⚡', name: 'Технарь' }
+                };
+                let total = Object.values(scores).reduce((a, b) => a + b, 0);
+                let entries = Object.entries(scores)
+                    .map(([k, v]) => ({ key: k, icon: labels[k].icon, name: labels[k].name, pct: total > 0 ? Math.round(v / total * 100) : 0 }))
+                    .sort((a, b) => b.pct - a.pct);
+
+                if (total === 0) return { title: "Сборка ещё не определена", icon: "❔", entries };
+                let top = entries[0], second = entries[1];
+                let title = (second && second.pct >= 25 && second.pct >= top.pct * 0.55)
+                    ? `${second.name.toUpperCase()}-${top.name.toUpperCase()}`
+                    : top.name.toUpperCase();
+                return { title, icon: top.icon, entries };
+            },
+
+            // Обнаружение именных синергий — только описательные, без скрытых доп. бонусов к балансу
+            computeSynergies() {
+                let list = [];
+                let wId = this.p.activeWeapon, armorId = this.p.activeArmor;
+                let mods = this.p.modsEquipped || {};
+                let hasPerk = id => (this.p.perksUnlocked || []).includes(id);
+                let assaultCount = DB.perks.filter(p => p.branch === 'assault' && hasPerk(p.id)).length;
+                let gunnerCount = DB.perks.filter(p => p.branch === 'gunner' && hasPerk(p.id)).length;
+                let survivalCount = DB.perks.filter(p => p.branch === 'survival' && hasPerk(p.id)).length;
+
+                if (wId === 'assault' && armorId === 'riot' && mods.mag === 'extMag' && assaultCount >= 1) {
+                    list.push({ icon: '🎯', name: 'ШТУРМОВАЯ ПЛАТФОРМА', desc: 'АК-74Рад, штурмовой доспех и расширенный магазин — сборка заточена на непрерывный шквальный урон.' });
+                }
+                if (wId === 'gauss' && gunnerCount >= 2 && (mods.optic === 'scope' || mods.mag === 'apRounds')) {
+                    list.push({ icon: '🧲', name: 'ОХОТНИК', desc: 'Винтовка Гаусса вместе с веткой Стрелка превращает каждый выстрел в разбор цели на молекулы.' });
+                }
+                if (armorId === 'hazmat' && survivalCount >= 2 && ['machete', 'plasma'].includes(wId)) {
+                    list.push({ icon: '☣️', name: 'РАДИОАКТИВНЫЙ СТАЛКЕР', desc: 'Костюм РХБЗ и оружие ближнего боя с эффектами позволяют выживать там, где гибнут остальные.' });
+                }
+                if (this.p.gadgetsOwned.includes(wId) && this.p.megasilaOwned.includes(wId)) {
+                    let wpn = DB.weapons.find(w => w.id === wId);
+                    list.push({ icon: '🏆', name: 'МАСТЕР ОРУЖИЯ', desc: `Гаджет и мегасила «${wpn ? wpn.name : ''}» открыты одновременно — активна синергия Мастерства (+${Math.round((DB.masteryBonusByTier[wpn && wpn.tier] || 0) * 100)}% урона).` });
+                }
+                if (armorId === 'titan' && (this.p.armor + this.getBuildBonus().armor) >= 30) {
+                    list.push({ icon: '🦾', name: 'ХОДЯЧАЯ КРЕПОСТЬ', desc: 'Титановый экзоскелет и высокая суммарная броня делают вас почти неуязвимым для физического урона.' });
+                }
+                if (this.p.activePet === 'mutcat' && gunnerCount >= 2) {
+                    list.push({ icon: '🐈', name: 'ТИХАЯ ОХОТА', desc: 'Мутировавшая рысь и точность Стрелка — критические удары из засады становятся почти гарантированными.' });
+                }
+                return list;
+            },
+
+            // Визуальная оценка сборки по 5 показателям (0-10) — на реальных цифрах, не случайных
+            computeAssessment() {
+                let s = this.getTotalStats();
+                let dmgScore = Math.min(10, Math.round(s.dmgMultPct / 6));
+                let armorScore = Math.min(10, Math.round(s.totalArmor / 3));
+                let critScore = Math.min(10, Math.round(s.totalCrit / 10));
+                let hazardScore = Math.min(10, Math.round(s.hazardResistPct / 8));
+                let abilityCount = (s.gadgetOwned ? 1 : 0) + (s.megaOwned ? 1 : 0) + Object.values(this.p.modsEquipped || {}).filter(Boolean).length + (this.p.activePet ? 1 : 0);
+                let abilityScore = Math.min(10, abilityCount * 2);
+                let descMap = {
+                    dmg: { s: 'высокий урон оружием', w: 'низкий урон — усильте моды или перки урона' },
+                    armor: { s: 'хорошая физическая защита', w: 'низкая броня — берегитесь тяжёлых ударов' },
+                    crit: { s: 'высокий шанс критического удара', w: 'слабый критический потенциал' },
+                    hazard: { s: 'хорошее сопротивление хазардам биома', w: 'слабая защита от хазардов биома' },
+                    ability: { s: 'богатый набор активных модификаций', w: 'мало активных модификаций — попробуйте гаджет, мегасилу или моды' }
+                };
+                let rows = [
+                    { key: 'dmg', icon: '⚔️', label: 'Урон', score: dmgScore },
+                    { key: 'armor', icon: '🛡️', label: 'Защита', score: armorScore },
+                    { key: 'crit', icon: '🎯', label: 'Крит', score: critScore },
+                    { key: 'hazard', icon: '☢️', label: 'Хазард', score: hazardScore },
+                    { key: 'ability', icon: '⚡', label: 'Способности', score: abilityScore }
+                ].map(r => ({ ...r, descMap: descMap[r.key] }));
+                let strengths = rows.filter(r => r.score >= 7);
+                let weaknesses = rows.filter(r => r.score <= 3);
+                return { rows, strengths, weaknesses };
+            },
+
+            // Анализ сборки под текущий биом: хазарды + реальная скорость убийства обычных врагов биома
+            // (используется та же формула урона, что и в бою: matchup-множитель класса, средний крит, броня врага)
+            computeBiomeAnalysis() {
+                let biome = DB.biomes[this.p.currentBiome];
+                let hazardLevel = this.getHazard();
+                let s = this.getTotalStats();
+                let mobs = (biome.enemies || []).filter(e => e.class !== 'Босс');
+                let matchups = mobs.map(e => ({ cls: e.class, mult: this.getClassMatchupMult(e.class, s.wpn.class) }));
+                let avgMult = matchups.length ? matchups.reduce((a, m) => a + m.mult, 0) / matchups.length : 1;
+
+                // Средний ожидаемый урон за удар (с учётом среднего вклада критов), затем — сколько ударов
+                // нужно, чтобы убить каждого обычного врага биома, минус его броня (как в реальном бою)
+                let critFactor = 1 + (s.totalCrit / 100) * (s.critMult - 1);
+                let hitsList = mobs.map(e => {
+                    let matchupMult = this.getClassMatchupMult(e.class, s.wpn.class);
+                    let perHit = Math.max(1, Math.round(s.baseDmg * matchupMult * critFactor) - e.armor);
+                    return Math.max(1, Math.ceil(e.hp / perHit));
+                });
+                let avgHits = hitsList.length ? hitsList.reduce((a, b) => a + b, 0) / hitsList.length : 3;
+                let effLabel = avgHits <= 2 ? 'Отлично' : avgHits <= 4 ? 'Средне' : 'Плохо';
+
+                let recs = [];
+                if (biome.hazard) {
+                    if (s.hazardResistPct < 25 && hazardLevel >= 40) recs.push({ type: 'warn', icon: '⚠️', text: `Для этого биома рекомендуется увеличить сопротивление хазардам («${biome.hazard.label}») — сейчас всего ${s.hazardResistPct}%.` });
+                    else if (s.hazardResistPct >= 40) recs.push({ type: 'good', icon: '🛡️', text: `Ваш билд хорошо защищён от хазарда «${biome.hazard.label}» (${s.hazardResistPct}%).` });
+                }
+                if (avgMult < 0.95) recs.push({ type: 'warn', icon: '⚠️', text: `${s.wpn.name} — не лучший выбор против местных врагов: у них сопротивление к классу «${s.wpn.class}». Попробуйте оружие другого класса.` });
+                else if (avgMult > 1.05) recs.push({ type: 'good', icon: '🎯', text: `${s.wpn.name} эффективен против врагов этого биома — их слабое место совпадает с классом вашего оружия.` });
+                if (s.totalArmor < 10 && (biome.enemies || []).some(e => e.dmg >= 40)) recs.push({ type: 'warn', icon: '⚠️', text: 'Враги этого биома бьют сильно, а ваша броня невысока — стоит поднять защиту.' });
+                if (recs.length === 0) recs.push({ type: 'info', icon: Icon.check('var(--neon-blue)'), text: 'Ваш билд сбалансирован для этого биома — явных слабых мест не обнаружено.' });
+
+                return { biome, hazardLevel, hazardResistPct: s.hazardResistPct, matchups, avgHits, effLabel, recs };
+            },
+
+            // === Билд-Мастерская: Обзор — единая сборка целиком (оружие + броня + моды + гаджет/мегасила + питомец + перки),
+            // итоговые характеристики, архетип, синергии, оценка сильных/слабых сторон и анализ под текущий биом ===
+            renderBuildOverview() {
+                const el = document.getElementById('build-body'); el.innerHTML = '';
+                let s = this.getTotalStats();
+                let arch = this.computeArchetype();
+                let synergies = this.computeSynergies();
+                let assess = this.computeAssessment();
+                let biomeInfo = this.computeBiomeAnalysis();
+                let armorItem = DB.armor.find(a => a.id === this.p.activeArmor);
+                let gadget = DB.gadgets.find(g => g.weaponId === this.p.activeWeapon);
+                let mega = DB.megasila.find(m => m.weaponId === this.p.activeWeapon);
+                let pet = DB.pets.find(pt => pt.id === this.p.activePet);
+
+                let html = '';
+
+                // ---- Герой сборки + архетип ----
+                html += `<div class="bm-hero">
+                    <div class="bm-hero-icon" style="--wpn-color:${s.wpn.color};">${Sprites.weapon(s.wpn.id)}</div>
+                    <div class="bm-hero-name">${s.wpn.name} · Ур. ${s.upLvl}/10</div>
+                    <div class="bm-hero-archetype">${arch.icon} ${arch.title}</div>
+                    ${arch.entries.some(e => e.pct > 0) ? `<div class="bm-archetype-bars">${arch.entries.filter(e => e.pct > 0).map(e => `
+                        <div class="bm-arch-row">
+                            <span class="bm-arch-label">${e.icon} ${e.name}</span>
+                            <div class="progress-bar-outer"><div class="progress-bar-inner" style="width:${e.pct}%; background:var(--grad-purple);"></div></div>
+                            <span class="bm-arch-pct">${e.pct}%</span>
+                        </div>`).join('')}</div>` : `<div style="font-size:10.5px; color:var(--text-muted); margin-top:6px;">Экипируйте оружие, броню, перки — и здесь появится анализ вашего стиля игры.</div>`}
+                </div>`;
+
+                // ---- Слоты активной сборки ----
+                html += `<div class="build-branch-label">🎒 Активная сборка</div>`;
+                html += `<div class="bm-slot-grid">
+                    <div class="bm-slot-card bm-filled" onclick="Core.closeBuild(); Core.switchTab('inv', document.getElementById('tab-inv'));"><div class="bm-slot-icon" style="--wpn-color:${s.wpn.color};">${Sprites.weapon(s.wpn.id)}</div><div class="bm-slot-text"><div class="bm-slot-label">🔫 Оружие</div><div class="bm-slot-value">${s.wpn.name}</div></div></div>
+                    <div class="bm-slot-card ${armorItem && armorItem.id !== 'rags' ? 'bm-filled' : ''}" onclick="Core.switchBuildTab('armor')"><div class="bm-slot-icon">${armorItem ? armorItem.icon : '🧥'}</div><div class="bm-slot-text"><div class="bm-slot-label">🛡️ Броня</div><div class="bm-slot-value">${armorItem ? armorItem.name : '—'}</div></div></div>
+                    <div class="bm-slot-card ${this.p.modsEquipped.optic ? 'bm-filled' : ''}" onclick="Core.switchBuildTab('mods')"><div class="bm-slot-icon">🔭</div><div class="bm-slot-text"><div class="bm-slot-label">Оптика</div><div class="bm-slot-value">${this.modSlotName('optic')}</div></div></div>
+                    <div class="bm-slot-card ${this.p.modsEquipped.mag ? 'bm-filled' : ''}" onclick="Core.switchBuildTab('mods')"><div class="bm-slot-icon">🧰</div><div class="bm-slot-text"><div class="bm-slot-label">Магазин</div><div class="bm-slot-value">${this.modSlotName('mag')}</div></div></div>
+                    <div class="bm-slot-card ${this.p.modsEquipped.grip ? 'bm-filled' : ''}" onclick="Core.switchBuildTab('mods')"><div class="bm-slot-icon">✋</div><div class="bm-slot-text"><div class="bm-slot-label">Рукоять</div><div class="bm-slot-value">${this.modSlotName('grip')}</div></div></div>
+                    <div class="bm-slot-card ${pet ? 'bm-filled' : ''}" onclick="Core.closeBuild(); Core.openPets();"><div class="bm-slot-icon">${pet ? '🐾' : '➕'}</div><div class="bm-slot-text"><div class="bm-slot-label">🐾 Питомец</div><div class="bm-slot-value">${pet ? pet.name : '—'}</div></div></div>
+                </div>`;
+
+                // ---- Гаджет / Мегасила / Мастерство ----
+                html += `<div class="build-branch-label">🧰 Гаджет и Мегасила активного оружия</div>`;
+                if (gadget) {
+                    html += `<div class="bm-gear-banner"><div class="bm-slot-icon">${gadget.icon}</div><div class="bm-slot-text"><div class="bm-slot-label">Гаджет</div><div class="bm-slot-value">${gadget.name}</div></div><span class="bm-gear-status ${s.gadgetOwned ? 'on' : 'off'}">${s.gadgetOwned ? 'Открыт' : `Ур.${s.upLvl}/5`}</span></div>`;
+                } else {
+                    html += `<div class="bm-gear-banner"><div class="bm-slot-text" style="font-size:10.5px; color:var(--text-muted);">У этого оружия нет гаджета</div></div>`;
+                }
+                if (mega) {
+                    html += `<div class="bm-gear-banner bm-mega"><div class="bm-slot-icon">${mega.icon}</div><div class="bm-slot-text"><div class="bm-slot-label">Мегасила</div><div class="bm-slot-value">${mega.name}</div></div><span class="bm-gear-status ${s.megaOwned ? 'on' : 'off'}">${s.megaOwned ? 'Активна' : `Ур.${s.upLvl}/10`}</span></div>`;
+                } else {
+                    html += `<div class="bm-gear-banner bm-mega"><div class="bm-slot-text" style="font-size:10.5px; color:var(--text-muted);">У этого оружия нет мегасилы</div></div>`;
+                }
+                if (s.masteryActive) {
+                    html += `<div class="bm-mastery-banner">🏆 МАСТЕРСТВО АКТИВНО — +${Math.round((DB.masteryBonusByTier[s.wpn.tier] || 0) * 100)}% урона этим оружием</div>`;
+                }
+                html += `<div class="bm-quicklinks"><button onclick="Core.closeBuild(); Core.openGadgets();">🧰 Все гаджеты и мегасилы</button></div>`;
+
+                // ---- Перки: краткая сводка по ветвям ----
+                html += `<div class="build-branch-label">🧬 Перки (${this.p.perkPoints || 0} 🧬 доступно)</div>`;
+                let branches = [["assault", "⚔️ Штурмовик", "#ff2a5f"], ["gunner", "🎯 Стрелок", "#00c8ff"], ["survival", "🧭 Выживший", "#39ff14"], ["predator", "🐺 Хищник", "#ffb703"]];
+                branches.forEach(([bId, label, color]) => {
+                    let bPerks = DB.perks.filter(p => p.branch === bId);
+                    let unlockedCount = bPerks.filter(p => (this.p.perksUnlocked || []).includes(p.id)).length;
+                    let pct = Math.round(unlockedCount / bPerks.length * 100);
+                    html += `<div class="bm-arch-row" style="margin-bottom:6px;">
+                        <span class="bm-arch-label">${label}</span>
+                        <div class="progress-bar-outer"><div class="progress-bar-inner" style="width:${pct}%; background:${color};"></div></div>
+                        <span class="bm-arch-pct">${unlockedCount}/${bPerks.length}</span>
+                    </div>`;
+                });
+                html += `<div class="bm-quicklinks"><button onclick="Core.switchBuildTab('perks')">🧬 Открыть дерево перков</button></div>`;
+
+                // ---- Синергии ----
+                if (synergies.length) {
+                    html += `<div class="build-branch-label">✨ Активные синергии</div>`;
+                    synergies.forEach(sy => {
+                        html += `<div class="bm-synergy-card"><div class="bm-synergy-title">${sy.icon} ${sy.name}</div><div class="bm-synergy-desc">${sy.desc}</div></div>`;
+                    });
+                }
+
+                // ---- Итоговые характеристики ----
+                html += `<div class="build-branch-label">📊 Итоговые характеристики</div>`;
+                html += `<div class="bm-stat-grid">
+                    <div class="bm-stat-chip"><div class="bm-stat-label">⚔️ Урон оружием</div><div class="bm-stat-value">${s.baseDmg} (${s.dmgMultPct >= 0 ? '+' : ''}${s.dmgMultPct}%)</div></div>
+                    <div class="bm-stat-chip"><div class="bm-stat-label">🎯 Крит. шанс</div><div class="bm-stat-value">${s.totalCrit}%</div></div>
+                    <div class="bm-stat-chip"><div class="bm-stat-label">💥 Крит. урон</div><div class="bm-stat-value">x${s.critMult.toFixed(2)}</div></div>
+                    <div class="bm-stat-chip"><div class="bm-stat-label">🛡️ Броня</div><div class="bm-stat-value">${s.totalArmor}</div></div>
+                    <div class="bm-stat-chip"><div class="bm-stat-label">🌀 Уклонение</div><div class="bm-stat-value">${s.totalDodge}%</div></div>
+                    <div class="bm-stat-chip"><div class="bm-stat-label">☢️ Хазард. рез-с</div><div class="bm-stat-value">${s.hazardResistPct}%</div></div>
+                    ${s.bleedPct > 0 ? `<div class="bm-stat-chip"><div class="bm-stat-label">🩸 Эффекты/кровь</div><div class="bm-stat-value">+${s.bleedPct}%</div></div>` : ''}
+                </div>`;
+
+                // ---- Оценка сборки ----
+                html += `<div class="build-branch-label">📈 Оценка сборки</div>`;
+                assess.rows.forEach(r => {
+                    let color = r.score >= 7 ? 'var(--grad-blue)' : r.score <= 3 ? 'var(--grad-accent)' : 'var(--grad-gold)';
+                    html += `<div class="bm-assess-row">
+                        <span class="bm-assess-label">${r.icon} ${r.label}</span>
+                        <div class="progress-bar-outer"><div class="progress-bar-inner" style="width:${r.score * 10}%; background:${color};"></div></div>
+                        <span class="bm-assess-val">${r.score}/10</span>
+                    </div>`;
+                });
+                let swItems = '';
+                assess.strengths.forEach(r => { swItems += `<div class="bm-sw-item is-strength"><span class="bm-sw-badge">${Icon.check('#052b00')}</span><span>${r.descMap.s}</span></div>`; });
+                assess.weaknesses.forEach(r => { swItems += `<div class="bm-sw-item is-weakness"><span class="bm-sw-badge">${Icon.cross('#2b0010')}</span><span>${r.descMap.w}</span></div>`; });
+                if (swItems) html += `<div class="bm-sw-list">${swItems}</div>`;
+
+                // ---- Анализ под текущий биом ----
+                html += `<div class="build-branch-label">🗺️ Анализ сборки под биом</div>`;
+                let effClass = biomeInfo.effLabel === 'Отлично' ? 'eff-high' : biomeInfo.effLabel === 'Плохо' ? 'eff-low' : 'eff-mid';
+                html += `<div class="bm-biome-card">
+                    <div class="bm-biome-head">
+                        <div class="bm-biome-head-icon">${biomeInfo.biome.hazard ? biomeInfo.biome.hazard.icon : '🌍'}</div>
+                        <div><div class="bm-biome-head-name">${biomeInfo.biome.name}</div><div class="bm-biome-head-sub">Анализ сборки под биом</div></div>
+                    </div>
+                    ${biomeInfo.biome.hazard ? `<div class="bm-biome-metric">
+                        <div class="bm-biome-metric-top"><span>${biomeInfo.biome.hazard.icon} ${biomeInfo.biome.hazard.label}</span><b>${biomeInfo.hazardLevel}%</b></div>
+                        <div class="progress-bar-outer"><div class="progress-bar-inner" style="width:${biomeInfo.hazardLevel}%; background:var(--grad-accent);"></div></div>
+                    </div>` : ''}
+                    <div class="bm-biome-eff-row"><span>🔫 Эффективность оружия</span><span class="bm-biome-eff-badge ${effClass}">${biomeInfo.effLabel}</span></div>
+                    <div class="bm-biome-recs">${biomeInfo.recs.map(r => `<div class="bm-recommend bm-rec-${r.type}"><span class="bm-rec-icon">${r.icon}</span><span>${r.text}</span></div>`).join('')}</div>
+                </div>`;
+
+                el.innerHTML = html;
+            },
+
+            // === Пресеты билдов: сохраняют только идентификаторы оружия/брони/модов/питомца,
+            // работают через существующую систему save()/localStorage — никаких отдельных хранилищ ===
+            renderPresetsTab() {
+                const el = document.getElementById('build-body'); el.innerHTML = '';
+                if (!this.p.buildPresets) this.p.buildPresets = [];
+                const MAX_PRESETS = 5;
+                let canSave = this.p.buildPresets.length < MAX_PRESETS;
+                let html = `<div class="build-points-bar"><span>💾 Сохранённые сборки</span><span>${this.p.buildPresets.length} / ${MAX_PRESETS}</span></div>`;
+                html += `<button class="bm-save-preset-btn" ${canSave ? '' : 'disabled'} onclick="Core.saveBuildPreset()">${canSave ? '💾 Сохранить текущую сборку' : 'Достигнут лимит слотов'}</button>`;
+
+                if (this.p.buildPresets.length === 0) {
+                    html += `<div class="bm-preset-empty">
+                        <div class="bm-preset-empty-icon">🗂️</div>
+                        <div class="bm-empty-note">Пока нет сохранённых сборок.<br>Настройте оружие, броню, моды и питомца во вкладках выше, затем сохраните сборку сюда, чтобы быстро переключаться между стилями игры.</div>
+                    </div>`;
+                } else {
+                    this.p.buildPresets.forEach(preset => {
+                        let isActive = this.isPresetActive(preset);
+                        let wpn = DB.weapons.find(w => w.id === preset.weaponId);
+                        let armorItem = DB.armor.find(a => a.id === preset.armorId);
+                        let modsCount = ['optic', 'mag', 'grip'].filter(slot => (preset.modsEquipped || {})[slot]).length;
+                        let pet = DB.pets.find(pt => pt.id === preset.activePet);
+                        let chips = [
+                            `<span class="bm-preset-chip">${wpn ? `<span class="bm-preset-chip-wpn-icon" style="--wpn-color:${wpn.color};">${Sprites.weapon(wpn.id)}</span> ${wpn.name}` : '⛔ без оружия'}</span>`,
+                            `<span class="bm-preset-chip">${armorItem ? armorItem.icon + ' ' + armorItem.name : '⛔ без брони'}</span>`
+                        ];
+                        if (modsCount > 0) chips.push(`<span class="bm-preset-chip">🔧 Модов: ${modsCount}/3</span>`);
+                        if (pet) chips.push(`<span class="bm-preset-chip">🐾 ${pet.name}</span>`);
+                        html += `<div class="bm-preset-card ${isActive ? 'active' : ''}">
+                            <div class="bm-preset-head">
+                                <div class="bm-preset-icon" style="${wpn ? `--wpn-color:${wpn.color};` : ''}">${wpn ? Sprites.weapon(wpn.id) : '💾'}</div>
+                                <div class="bm-preset-head-text">
+                                    <div class="bm-preset-title">${preset.name}</div>
+                                    ${isActive ? '<span class="bm-preset-active-tag">✓ Активна</span>' : ''}
+                                </div>
+                            </div>
+                            <div class="bm-preset-chips">${chips.join('')}</div>
+                            <div class="bm-preset-actions">
+                                <button class="bm-preset-equip-btn ${isActive ? 'is-active' : ''}" ${isActive ? 'disabled' : ''} onclick="Core.equipBuildPreset('${preset.id}')">${isActive ? '⚡ Экипировано' : 'Экипировать'}</button>
+                                <button class="bm-preset-icon-btn" title="Переименовать" onclick="Core.renameBuildPreset('${preset.id}')">✏️</button>
+                                <button class="bm-preset-icon-btn danger" title="Удалить" onclick="Core.deleteBuildPreset('${preset.id}')">🗑️</button>
+                            </div>
+                        </div>`;
+                    });
+                }
+                el.innerHTML = html;
+            },
+
+            isPresetActive(preset) {
+                if (preset.weaponId !== this.p.activeWeapon) return false;
+                if (preset.armorId !== this.p.activeArmor) return false;
+                if (preset.activePet !== (this.p.activePet || null)) return false;
+                let mods = this.p.modsEquipped || {};
+                let pm = preset.modsEquipped || {};
+                return ['optic', 'mag', 'grip'].every(slot => (mods[slot] || null) === (pm[slot] || null));
+            },
+
+            saveBuildPreset() {
+                if (!this.p.buildPresets) this.p.buildPresets = [];
+                if (this.p.buildPresets.length >= 5) return alert("Достигнут лимит в 5 сохранённых сборок. Удалите одну из существующих, чтобы сохранить новую.");
+                let defaultName = `Сборка ${this.p.buildPresets.length + 1}`;
+                let name = prompt("Название сборки:", defaultName);
+                if (name === null) return;
+                name = name.trim().slice(0, 24) || defaultName;
+                Sound.play('click');
+                this.p.buildPresets.push({
+                    id: 'preset_' + Date.now(),
+                    name,
+                    weaponId: this.p.activeWeapon,
+                    armorId: this.p.activeArmor,
+                    modsEquipped: { optic: this.p.modsEquipped.optic || null, mag: this.p.modsEquipped.mag || null, grip: this.p.modsEquipped.grip || null },
+                    activePet: this.p.activePet || null
+                });
+                this.save();
+                this.renderPresetsTab();
+                this.log(`💾 Сохранена сборка: ${name}`, "system");
+            },
+
+            equipBuildPreset(id) {
+                let preset = (this.p.buildPresets || []).find(p => p.id === id); if (!preset) return;
+                Sound.play('click');
+                // Экипируем только то, чем игрок реально владеет — ничего не выдаём бесплатно
+                if (this.p.weaponsOwned.includes(preset.weaponId)) this.p.activeWeapon = preset.weaponId;
+                if (this.p.armorOwned.includes(preset.armorId)) this.p.activeArmor = preset.armorId;
+                ['optic', 'mag', 'grip'].forEach(slot => {
+                    let mid = (preset.modsEquipped || {})[slot];
+                    this.p.modsEquipped[slot] = (mid && this.p.modsOwned.includes(mid)) ? mid : null;
+                });
+                if (preset.activePet && (this.p.petsOwned || []).includes(preset.activePet)) this.p.activePet = preset.activePet;
+                if (this.combatState) { this.abilityCooldowns = {}; this.lastAttackType = null; this.sameAttackStreak = 0; this.renderCombatAbilities(); }
+                this.save(); this.updateUI(); this.renderPresetsTab();
+                this.log(`💾 Экипирована сборка: ${preset.name}`, "system");
+            },
+
+            renameBuildPreset(id) {
+                let preset = (this.p.buildPresets || []).find(p => p.id === id); if (!preset) return;
+                let name = prompt("Новое название сборки:", preset.name);
+                if (name === null) return;
+                name = name.trim().slice(0, 24);
+                if (!name) return;
+                preset.name = name;
+                this.save(); this.renderPresetsTab();
+            },
+
+            deleteBuildPreset(id) {
+                if (!confirm("Удалить эту сохранённую сборку?")) return;
+                this.p.buildPresets = (this.p.buildPresets || []).filter(p => p.id !== id);
+                Sound.play('click');
+                this.save(); this.renderPresetsTab();
             },
 
             renderPerksTab() {
                 const el = document.getElementById('build-body'); el.innerHTML = '';
                 el.innerHTML += `<div class="build-points-bar"><span>🧬 Доступно очков перков</span><span>${this.p.perkPoints || 0}</span></div>`;
-                let branches = [ ["assault", "⚔️ Штурмовик"], ["gunner", "🎯 Стрелок"], ["survival", "🧭 Выживший"] ];
-                branches.forEach(([branchId, label]) => {
+                let branches = [
+                    ["assault", "br-assault", "⚔️", "Штурмовик"],
+                    ["gunner", "br-gunner", "🎯", "Стрелок"],
+                    ["survival", "br-survival", "🧭", "Выживший"],
+                    ["predator", "br-predator", "🐺", "Хищник"]
+                ];
+                if (!this.perksBranch || !branches.some(b => b[0] === this.perksBranch)) this.perksBranch = branches[0][0];
+
+                // ---- Компактный переключатель веток: сразу видно прогресс всех 4 веток,
+                // раскрыта только выбранная — вместо длинной ленты из всех перков подряд ----
+                let tabsHtml = '<div class="perk-branch-tabs">';
+                branches.forEach(([branchId, branchCls, icon, bName]) => {
                     let branchPerks = DB.perks.filter(p => p.branch === branchId);
-                    let branchComplete = branchPerks.every(p => (this.p.perksUnlocked || []).includes(p.id));
-                    el.innerHTML += `<div class="build-branch-label">${label}${branchComplete ? ' <span style="color:var(--neon-green); font-weight:900;">✓ Ветка завершена — синергия активна</span>' : ''}</div>`;
-                    branchPerks.forEach(perk => {
-                        let unlocked = (this.p.perksUnlocked || []).includes(perk.id);
-                        let requiresOk = !perk.requires || (this.p.perksUnlocked || []).includes(perk.requires);
-                        let meetsLvl = this.p.lvl >= perk.reqLvl;
-                        let hasPoints = (this.p.perkPoints || 0) >= perk.cost;
-                        let available = !unlocked && requiresOk && meetsLvl && hasPoints;
-                        let cls = unlocked ? 'unlocked' : (requiresOk && meetsLvl ? 'available' : '');
-                        let lockMsg = '';
-                        if (!unlocked) {
-                            if (!requiresOk) lockMsg = `🔒 Требуется перк «${DB.perks.find(p => p.id === perk.requires)?.name || ''}»`;
-                            else if (!meetsLvl) lockMsg = `🔒 Требуется уровень ${perk.reqLvl}`;
-                        }
-                        el.innerHTML += `<div class="perk-node ${cls}">
-                            <div class="perk-node-icon">${perk.icon}</div>
-                            <div class="perk-node-info">
-                                <div class="perk-node-name">${perk.name}</div>
-                                <div class="perk-node-desc">${perk.desc}</div>
-                                ${lockMsg ? `<div class="perk-node-lock">${lockMsg}</div>` : ''}
-                            </div>
-                            <button class="perk-node-btn" ${(unlocked || !available) ? 'disabled' : ''} onclick="Core.unlockPerk('${perk.id}')">${unlocked ? (Icon.check('var(--neon-green)') + ' Открыт') : `За ${perk.cost} 🧬`}</button>
-                        </div>`;
+                    let unlockedCount = branchPerks.filter(p => (this.p.perksUnlocked || []).includes(p.id)).length;
+                    let hasAvailable = branchPerks.some(p => {
+                        let unlocked = (this.p.perksUnlocked || []).includes(p.id);
+                        let requiresOk = !p.requires || (this.p.perksUnlocked || []).includes(p.requires);
+                        let meetsLvl = this.p.lvl >= p.reqLvl;
+                        let hasPoints = (this.p.perkPoints || 0) >= p.cost;
+                        return !unlocked && requiresOk && meetsLvl && hasPoints;
                     });
+                    tabsHtml += `<button class="perk-branch-tab ${branchCls} ${this.perksBranch === branchId ? 'active' : ''} ${hasAvailable ? 'has-available' : ''}" onclick="Core.switchPerksBranch('${branchId}')">
+                        <span class="perk-branch-tab-dot"></span>
+                        <span class="perk-branch-tab-icon">${icon}</span>
+                        <span class="perk-branch-tab-name">${bName}</span>
+                        <span class="perk-branch-tab-frac">${unlockedCount}/${branchPerks.length}</span>
+                    </button>`;
                 });
+                tabsHtml += '</div>';
+                el.innerHTML += tabsHtml;
+
+                // ---- Раскрытая ветка ----
+                let [branchId, branchCls, icon, name] = branches.find(b => b[0] === this.perksBranch);
+                let branchPerks = DB.perks.filter(p => p.branch === branchId);
+                let unlockedCount = branchPerks.filter(p => (this.p.perksUnlocked || []).includes(p.id)).length;
+                let branchComplete = unlockedCount === branchPerks.length;
+                let pct = Math.round(unlockedCount / branchPerks.length * 100);
+                let branchHtml = `<div class="perk-branch-block ${branchCls}">
+                    <div class="perk-branch-head">
+                        <div class="perk-branch-title"><span class="perk-branch-icon">${icon}</span>${name}</div>
+                        <span class="perk-branch-count">${unlockedCount}/${branchPerks.length}</span>
+                    </div>
+                    <div class="progress-bar-outer"><div class="progress-bar-inner" style="width:${pct}%; background:var(--branch-accent);"></div></div>
+                    ${branchComplete ? `<div class="perk-branch-complete">✓ Ветка завершена — синергия активна</div>` : ''}
+                    <div class="bm-perk-branch">`;
+                branchPerks.forEach(perk => {
+                    let unlocked = (this.p.perksUnlocked || []).includes(perk.id);
+                    let requiresOk = !perk.requires || (this.p.perksUnlocked || []).includes(perk.requires);
+                    let meetsLvl = this.p.lvl >= perk.reqLvl;
+                    let hasPoints = (this.p.perkPoints || 0) >= perk.cost;
+                    let available = !unlocked && requiresOk && meetsLvl && hasPoints;
+                    let cls = unlocked ? 'unlocked' : (requiresOk && meetsLvl ? 'available' : '');
+                    let lockMsg = '';
+                    if (!unlocked) {
+                        if (!requiresOk) lockMsg = `🔒 Требуется перк «${DB.perks.find(p => p.id === perk.requires)?.name || ''}»`;
+                        else if (!meetsLvl) lockMsg = `🔒 Требуется уровень ${perk.reqLvl}`;
+                    }
+                    branchHtml += `<div class="perk-node ${cls}">
+                        <div class="perk-node-icon">${perk.icon}</div>
+                        <div class="perk-node-info">
+                            <div class="perk-node-name-row"><span class="perk-node-name">${perk.name}</span><span class="perk-node-tier">Ур.${perk.reqLvl}</span></div>
+                            <div class="perk-node-desc">${perk.desc}</div>
+                            ${lockMsg ? `<div class="perk-node-lock">${lockMsg}</div>` : ''}
+                        </div>
+                        <button class="perk-node-btn" ${(unlocked || !available) ? 'disabled' : ''} onclick="Core.unlockPerk('${perk.id}')">${unlocked ? (Icon.check('var(--neon-green)') + ' Открыт') : `За ${perk.cost} 🧬`}</button>
+                    </div>`;
+                });
+                branchHtml += `</div></div>`;
+                el.innerHTML += branchHtml;
             },
+
+            switchPerksBranch(branchId) {
+                Sound.play('click');
+                this.perksBranch = branchId;
+                this.renderPerksTab();
+            },
+
 
             unlockPerk(id) {
                 let perk = DB.perks.find(p => p.id === id); if (!perk) return;
@@ -8968,6 +9714,18 @@ startCombat(isBossFight = false) {
                 this.log(`🧬 Открыт перк: ${perk.icon} ${perk.name}!`, "system");
             },
 
+            // Палитра редкости для карточек брони (совпадает по духу с рарностью ящиков/скинов)
+            rarityStyle(tier) {
+                const map = {
+                    "Стартовое": { accent: "#a3b0c2", border: "rgba(163,176,194,0.5)", borderDim: "rgba(163,176,194,0.35)", bg: "rgba(163,176,194,0.14)", bgDim: "rgba(163,176,194,0.045)" },
+                    "Обычное": { accent: "#39ff14", border: "rgba(57,255,20,0.5)", borderDim: "rgba(57,255,20,0.35)", bg: "rgba(57,255,20,0.14)", bgDim: "rgba(57,255,20,0.045)" },
+                    "Редкое": { accent: "#00c8ff", border: "rgba(0,200,255,0.5)", borderDim: "rgba(0,200,255,0.35)", bg: "rgba(0,200,255,0.14)", bgDim: "rgba(0,200,255,0.045)" },
+                    "Эпическое": { accent: "#bf5af2", border: "rgba(191,90,242,0.5)", borderDim: "rgba(191,90,242,0.35)", bg: "rgba(191,90,242,0.14)", bgDim: "rgba(191,90,242,0.045)" },
+                    "Легендарное": { accent: "#ffb703", border: "rgba(255,183,3,0.5)", borderDim: "rgba(255,183,3,0.35)", bg: "rgba(255,183,3,0.14)", bgDim: "rgba(255,183,3,0.045)" }
+                };
+                return map[tier] || map["Обычное"];
+            },
+
             renderArmorTab() {
                 const el = document.getElementById('build-body'); el.innerHTML = '';
                 DB.armor.forEach(a => {
@@ -8976,11 +9734,19 @@ startCombat(isBossFight = false) {
                     let bp = DB.armorBlueprints.find(b => b.targetId === a.id);
                     let meetsLvl = !bp || this.p.lvl >= bp.reqLvl;
                     let resHtml = (owned || !bp) ? '' : Object.entries(bp.cost).map(([res, count]) => { let have = this.p.inv[res] || 0; let ok = have >= count; return `<div class="schem-res ${ok?'ok':'bad'}">${res}: ${have}/${count}</div>`; }).join('');
-                    el.innerHTML += `<div class="equip-card ${isActive?'active':''}" style="opacity:${(owned||meetsLvl)?1:0.55}">
-                        <div class="equip-card-header"><span>${a.icon} ${a.name}</span><span style="font-size:10px; color:var(--text-muted); text-transform:uppercase;">${a.tier}</span></div>
+                    let resToggle = resHtml ? `<details class="schem-res-toggle"><summary>Необходимые ресурсы</summary><div class="schem-res-body">${resHtml}</div></details>` : '';
+                    // Броня больше не окрашивается и не подписывается по редкости — единый нейтральный стиль для всех
+                    let cardVars = `--card-accent:var(--neon-blue); --card-border:rgba(0,240,255,0.5); --card-border-dim:rgba(0,240,255,0.32); --card-bg:rgba(0,240,255,0.14); --card-bg-dim:rgba(0,240,255,0.045);`;
+                    let statChips = `<div class="equip-stat-row">
+                        <span class="equip-stat-chip stat-pos">🛡️ Броня +${a.armor}</span>
+                        <span class="equip-stat-chip ${a.dodgeMod > 0 ? 'stat-pos' : (a.dodgeMod < 0 ? 'stat-neg' : '')}">🌀 Уклонение ${a.dodgeMod>=0?'+':''}${a.dodgeMod}%</span>
+                        ${a.hazardResist ? `<span class="equip-stat-chip stat-pos">☣️ Хазарды -${Math.round(a.hazardResist*100)}%</span>` : ''}
+                    </div>`;
+                    el.innerHTML += `<div class="equip-card ${isActive?'active':''}" style="${cardVars} opacity:${(owned||meetsLvl)?1:0.55}">
+                        <div class="equip-card-header"><span>${a.icon} ${a.name}</span></div>
                         <div class="equip-card-desc">${a.desc}</div>
-                        <div class="equip-card-stats">🛡️ Броня +${a.armor} · 🌀 Уклонение ${a.dodgeMod>=0?'+':''}${a.dodgeMod}% ${a.hazardResist?` · ☣️ Хазарды -${Math.round(a.hazardResist*100)}%`:''}</div>
-                        ${(!owned && bp) ? (meetsLvl ? resHtml : `<div class="schem-res bad">🔒 Требуется уровень ${bp.reqLvl}</div>`) : ''}
+                        ${statChips}
+                        ${(!owned && bp) ? (meetsLvl ? resToggle : `<div class="schem-res bad">🔒 Требуется уровень ${bp.reqLvl}</div>`) : ''}
                         <div class="equip-card-btn-row">
                             ${owned
                                 ? `<button class="${isActive?'active-flag':''}" ${isActive?'disabled':''} onclick="Core.equipArmor('${a.id}')">${isActive?'⚡ Экипировано':'Экипировать'}</button>`
@@ -9008,20 +9774,33 @@ startCombat(isBossFight = false) {
                 this.log(`🛡️ Экипирована броня: ${a.name}`); this.save(); this.updateUI(); this.renderArmorTab();
             },
 
+            // Палитра по слоту мода — держит визуальную связь со слот-иконками на вкладке "Обзор"
+            modSlotStyle(slotId) {
+                const map = {
+                    optic: { accent: "#00c8ff", border: "rgba(0,200,255,0.5)", borderDim: "rgba(0,200,255,0.35)", bg: "rgba(0,200,255,0.14)", bgDim: "rgba(0,200,255,0.045)" },
+                    mag: { accent: "#ffb703", border: "rgba(255,183,3,0.5)", borderDim: "rgba(255,183,3,0.35)", bg: "rgba(255,183,3,0.14)", bgDim: "rgba(255,183,3,0.045)" },
+                    grip: { accent: "#bf5af2", border: "rgba(191,90,242,0.5)", borderDim: "rgba(191,90,242,0.35)", bg: "rgba(191,90,242,0.14)", bgDim: "rgba(191,90,242,0.045)" }
+                };
+                return map[slotId] || map.grip;
+            },
+
             renderModsTab() {
                 const el = document.getElementById('build-body'); el.innerHTML = '';
                 let slots = [ ["optic", "🔭 Оптика"], ["mag", "🧰 Магазин"], ["grip", "✋ Рукоять"] ];
                 slots.forEach(([slotId, label]) => {
-                    el.innerHTML += `<div class="build-branch-label">${label}</div>`;
+                    let ms = this.modSlotStyle(slotId);
+                    let cardVars = `--card-accent:${ms.accent}; --card-border:${ms.border}; --card-border-dim:${ms.borderDim}; --card-bg:${ms.bg}; --card-bg-dim:${ms.bgDim};`;
+                    el.innerHTML += `<div class="build-branch-label" style="color:${ms.accent};">${label}</div>`;
                     DB.weaponMods.filter(m => m.slot === slotId).forEach(mod => {
                         let owned = this.p.modsOwned.includes(mod.id);
                         let isActive = this.p.modsEquipped[slotId] === mod.id;
                         let meetsLvl = this.p.lvl >= mod.reqLvl;
                         let resHtml = owned ? '' : Object.entries(mod.cost).map(([res, count]) => { let have = this.p.inv[res] || 0; let ok = have >= count; return `<div class="schem-res ${ok?'ok':'bad'}">${res}: ${have}/${count}</div>`; }).join('');
-                        el.innerHTML += `<div class="equip-card ${isActive?'active':''}" style="opacity:${meetsLvl?1:0.55}">
+                        let resToggle = resHtml ? `<details class="schem-res-toggle"><summary>Необходимые ресурсы</summary><div class="schem-res-body">${resHtml}</div></details>` : '';
+                        el.innerHTML += `<div class="equip-card ${isActive?'active':''}" style="${cardVars} opacity:${meetsLvl?1:0.55}">
                             <div class="equip-card-header"><span>${mod.icon} ${mod.name}</span></div>
-                            <div class="equip-card-desc">${mod.desc}</div>
-                            ${!owned ? (meetsLvl ? resHtml : `<div class="schem-res bad">🔒 Требуется уровень ${mod.reqLvl}</div>`) : ''}
+                            <div class="equip-stat-row"><span class="equip-stat-chip stat-pos">${mod.desc}</span></div>
+                            ${!owned ? (meetsLvl ? resToggle : `<div class="schem-res bad">🔒 Требуется уровень ${mod.reqLvl}</div>`) : ''}
                             <div class="equip-card-btn-row">
                                 ${owned
                                     ? `<button class="${isActive?'active-flag':''}" onclick="Core.${isActive ? `unequipMod('${slotId}')` : `equipMod('${mod.id}')`}">${isActive?'⚡ Установлен':'Установить'}</button>`
@@ -9560,7 +10339,7 @@ startCombat(isBossFight = false) {
                     { icon: '🏆', color: '#ffb703', label: 'Трофеи', value: `${row.trophies || 0}` },
                     { icon: '👑', color: '#bf5af2', label: 'Боссы повержены', value: `${row.bosses_defeated ?? 0}` },
                     { icon: '⚔️', color: '#ff2a5f', label: 'Оружие открыто', value: `${row.weapons_owned ?? 0}/${DB.weapons.length}` },
-                    { icon: '🎣', color: '#39ff14', label: 'Удочки открыто', value: `${row.rods_owned ?? 0}/${DB.rods.length}` },
+                    { icon: '🎣', color: '#39ff14', label: 'Удочка', value: `Ур. ${row.rods_owned ?? 1}/${DB.rod.levels.length}` },
                     { icon: '🔥', color: '#ff6600', label: 'Серия', value: `${row.daily_streak ?? 0} дней` }
                 ];
                 document.getElementById('pp-stats').innerHTML = stats.map(s => `<div class="profile-data-row" style="--dc-color:${s.color};"><div class="data-row-icon" style="border-color:${s.color}; box-shadow: 0 0 14px ${this.hexToRgba(s.color, 0.4)}, inset 0 1px 0 rgba(255,255,255,0.15);">${s.icon}</div><span class="data-row-label">${s.label}</span><span class="data-row-value">${s.value}</span></div>`).join('');
@@ -9817,6 +10596,7 @@ startCombat(isBossFight = false) {
                 this.renderMarketEntryLocks();
                 this.renderSkinShop();
                 this.renderUpdateGiftCard();
+                this.renderRodCompensationCard();
             },
 
             // ================= СХРОН ЖЕТОНОВ: фиксированные наборы «Жетон Схрона» =================
@@ -9918,9 +10698,50 @@ startCombat(isBossFight = false) {
                 this.p.restockGiftClaimed = true;
                 this.log("🎁 Подарок к обновлению получен: +5 💠 Жетонов Схрона, +25 🪙 Крышек.", "loot");
                 this.save(); this.updateUI(); this.renderUpdateGiftCard();
+                document.getElementById('gift-result-title').textContent = 'Подарок к обновлению';
+                document.getElementById('gift-result-name').textContent = '💠 5 Жетонов Схрона + 🪙 25 Крышек!';
                 document.getElementById('gift-result-overlay').style.display = 'flex';
             },
             closeGiftResult() { Sound.play('click'); document.getElementById('gift-result-overlay').style.display = 'none'; },
+
+            // ================= КОМПЕНСАЦИЯ ЗА УДОЧКИ (разово, для тех, у кого было несколько удочек до объединения в одну прокачиваемую) =================
+            renderRodCompensationCard() {
+                const el = document.getElementById('rod-compensation-container');
+                if (!el) return;
+                const comp = this.p.rodCompensationPending;
+                if (!comp || (comp.tokens <= 0 && comp.caps <= 0)) { el.innerHTML = ''; return; }
+                el.innerHTML = `
+                <div class="update-gift-card" style="border-color: var(--neon-green); box-shadow: 0 0 26px rgba(57,255,20,0.35), inset 0 1px 0 rgba(255,255,255,0.12);">
+                    <div class="update-gift-ribbon">Компенсация</div>
+                    <div class="update-gift-top">
+                        <div class="update-gift-icon">🎣</div>
+                        <div>
+                            <div class="update-gift-title">Компенсация за удочки</div>
+                            <div class="update-gift-sub">Система удочек объединена в одну прокачиваемую снасть. Ваш прогресс сохранён (текущий уровень взят из лучшей удочки), а за остальные собранные удочки — вот компенсация.</div>
+                        </div>
+                    </div>
+                    <div class="update-gift-list">
+                        ${comp.tokens > 0 ? `<span class="update-gift-tag">💠 ${comp.tokens}x Жетон Схрона</span>` : ''}
+                        ${comp.caps > 0 ? `<span class="update-gift-tag">🪙 ${comp.caps} Крышек</span>` : ''}
+                    </div>
+                    <button class="update-gift-btn" onclick="Core.claimRodCompensation()">🎁 Забрать компенсацию</button>
+                </div>`;
+            },
+            claimRodCompensation() {
+                const comp = this.p.rodCompensationPending;
+                if (!comp || (comp.tokens <= 0 && comp.caps <= 0)) return;
+                Sound.play('loot');
+                if (!this.p.inv) this.p.inv = {};
+                if (comp.tokens > 0) this.p.inv["Жетон Схрона"] = (this.p.inv["Жетон Схрона"] || 0) + comp.tokens;
+                if (comp.caps > 0) this.p.caps += comp.caps;
+                this.log(`🎣 Компенсация за удочки получена: +${comp.tokens} 💠 Жетонов Схрона, +${comp.caps} 🪙 Крышек.`, "loot");
+                this.p.rodCompensationPending = null;
+                this.save(); this.updateUI(); this.renderRodCompensationCard();
+                document.getElementById('gift-result-title').textContent = 'Компенсация за удочки';
+                document.getElementById('gift-result-name').textContent = `${comp.tokens > 0 ? `💠 ${comp.tokens} Жетонов Схрона` : ''}${comp.tokens > 0 && comp.caps > 0 ? ' + ' : ''}${comp.caps > 0 ? `🪙 ${comp.caps} Крышек` : ''}!`;
+                document.getElementById('gift-result-overlay').style.display = 'flex';
+            },
+
             renderMarketEntryLocks() {
                 const mBtn = document.getElementById('market-entry-btn');
                 const bBtn = document.getElementById('blackmarket-entry-btn');
@@ -10435,12 +11256,6 @@ startCombat(isBossFight = false) {
                     let wpn = DB.weapons.find(w => w.id === id);
                     list.push({ key: 'weapon_' + id, kind: 'weapon', id, name: wpn.name, icon: wpn.icon, color: wpn.color, basePrice: price, maxQty: 1 });
                 });
-                this.p.rodsOwned.forEach(id => {
-                    if (id === 'rusty' || id === this.p.activeRod) return;
-                    let price = DB.blackMarket.rods[id]; if (!price) return;
-                    let rod = DB.rods.find(r => r.id === id);
-                    list.push({ key: 'rod_' + id, kind: 'rod', id, name: rod.name, icon: rod.icon, color: '#ff2a5f', basePrice: price, maxQty: 1 });
-                });
                 let batteryQty = this.p.inv["Ядерная Батарея"] || 0;
                 if (batteryQty > 0) list.push({ key: 'battery', kind: 'battery', id: 'battery', name: 'Ядерная Батарея', icon: '☢️', color: '#39ff14', basePrice: DB.blackMarket.batteryUnit, maxQty: batteryQty });
                 return list;
@@ -10461,7 +11276,7 @@ startCombat(isBossFight = false) {
             openBlackMarket() {
                 if (this.p.lvl < 25) { Sound.play('hit'); Tips.lock(`Чёрный рынок откроется на 25 уровне. Твой текущий уровень: ${this.p.lvl}. Не самое безопасное место в любом случае — подрасти сперва.`); return; }
                 Sound.play('click'); this.bmState = {}; this.renderBlackMarket(); document.getElementById('blackmarket-overlay').style.display = 'flex';
-                setTimeout(() => Tips.show('blackmarket', "Чёрный рынок — редкое оружие, удочки и батареи энергии за крышки или ваучеры, а ещё сюда можно сдать хабар подороже, если рискнёшь подождать сделку. Условия суровее, чем на обычном Рынке, зато и товар серьёзнее."), 350);
+                setTimeout(() => Tips.show('blackmarket', "Чёрный рынок — редкое оружие и батареи энергии за крышки или ваучеры, а ещё сюда можно сдать хабар подороже, если рискнёшь подождать сделку. Условия суровее, чем на обычном Рынке, зато и товар серьёзнее."), 350);
             },
             closeBlackMarket() { document.getElementById('blackmarket-overlay').style.display = 'none'; },
             renderBlackMarket() {
@@ -10469,7 +11284,7 @@ startCombat(isBossFight = false) {
                 if (!this.bmState) this.bmState = {};
                 const entries = this.getBmEntries();
                 if (entries.length === 0) {
-                    el.innerHTML = `<div style="font-size:12px; color:var(--text-muted); padding:14px; text-align:center;">На чёрном рынке пока нечего продать. Раздобудьте лишнее оружие, удочки или ядерные батареи.</div>`;
+                    el.innerHTML = `<div style="font-size:12px; color:var(--text-muted); padding:14px; text-align:center;">На чёрном рынке пока нечего продать. Раздобудьте лишнее оружие или ядерные батареи.</div>`;
                     return;
                 }
                 const today = new Date().toDateString();
@@ -10603,7 +11418,6 @@ startCombat(isBossFight = false) {
                 let dealPrice = st.price;
 
                 if (e.kind === 'weapon') { this.p.weaponsOwned = this.p.weaponsOwned.filter(w => w !== e.id); delete this.p.wpnUpgrades[e.id]; }
-                else if (e.kind === 'rod') { this.p.rodsOwned = this.p.rodsOwned.filter(r => r !== e.id); }
                 else if (e.kind === 'battery') { this.p.inv["Ядерная Батарея"] = Math.max(0, (this.p.inv["Ядерная Батарея"] || 0) - st.qty); }
 
                 let compensation = 0;
@@ -10667,10 +11481,10 @@ startCombat(isBossFight = false) {
             },
             adminUnlockAll() {
                 this.p.weaponsOwned = DB.weapons.map(w => w.id);
-                this.p.rodsOwned = DB.rods.map(r => r.id);
+                this.p.rodLvl = DB.rod.levels.length;
                 this.p.unlockedTitles = DB.titles.map(t => t.id);
                 this.p.avatarsOwned = DB.avatars.map(a => a.id);
-                this.log('⚙ Панель разработчика: выдано всё оружие, удочки, титулы и аватарки.', "loot");
+                this.log('⚙ Панель разработчика: выдано всё оружие, макс. уровень удочки, титулы и аватарки.', "loot");
                 this.save(); this.updateUI(); this.renderInventory(); this.renderProfile();
             },
             adminResetPlayer() {
