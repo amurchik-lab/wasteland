@@ -6662,7 +6662,8 @@ onclick="Core.declineEncounter()">
                 { code: "авабоба", type: "avatar", avatarId: "zeusAvatar", maxUses: 1, desc: "эксклюзивная аватарка «Зевс Олимпиец»" },
                 { code: "топ3", type: "wheelSpins", qty: 5, maxUses: 3, desc: "5 бесплатных круток 🎡 Колеса Фортуны" },
                 { code: "фортуна", type: "voucher", qty: 15, maxUses: 3, desc: "15 🏷️ Ваучеров" },
-                { code: "аваклоуна", type: "avatar", avatarId: "krustyAvatar", maxUses: 1, desc: "эксклюзивная аватарка «Аваклоун»" }
+                { code: "аваклоуна", type: "avatar", avatarId: "krustyAvatar", maxUses: 1, desc: "эксклюзивная аватарка «Аваклоун»" },
+                { code: "ваучеры80", type: "voucher", qty: 80, maxUses: 3, desc: "80 🏷️ Ваучеров" }
             ]
         };
 
@@ -8164,7 +8165,10 @@ onclick="Core.declineEncounter()">
                         this.p.bpSeasonId = null;
                         this.p.bpSeasonUID = null;
                         this.p.bpSeasonV2Reset = true;
-                        this.log("🎫 Пропуск Пустоши обновлён до новой 100-уровневой сезонной системы: прогресс пропуска сброшен (Premium/уровни/собранные награды), всё остальное — оружие, титулы, ресурсы — сохранено.", "system");
+                        // Задания сезона тоже относятся к старой системе — сбрасываем прогресс/
+                        // "выполнено" вместе с остальным прогрессом пропуска (см. комментарий выше).
+                        if (this.defaultQuests) this.quests = JSON.parse(JSON.stringify(this.defaultQuests));
+                        this.log("🎫 Пропуск Пустоши обновлён до новой 100-уровневой сезонной системы: прогресс пропуска сброшен (Premium/уровни/собранные награды/задания сезона), всё остальное — оружие, титулы, ресурсы — сохранено.", "system");
                     }
                     this.checkBpSeasonRollover();
                     this.applyOfflineProgress();
@@ -12579,6 +12583,10 @@ startCombat(isBossFight = false) {
                 this.p.bpClaimedFree = [];
                 this.p.bpClaimedPrem = [];
                 this.p.bpClaimedElite = [];
+                // Задания сезона (this.quests) хранятся по статичным id и иначе подтянулись бы
+                // из сохранения как есть — со старым прогрессом/"done":true из прошлого сезона.
+                // При смене сезона они должны начинаться с чистого листа, как и сам пропуск.
+                if (this.defaultQuests) this.quests = JSON.parse(JSON.stringify(this.defaultQuests));
                 this.log(`🎫 Начался новый сезон Пропуска Пустоши: ${slot.seasonDef.icon} «${slot.seasonDef.title}»!`, "system");
                 this.save();
             },
