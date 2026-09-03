@@ -325,6 +325,9 @@ transform:scale(1);
         .stat-container { display: flex; flex-direction: column; gap: 2px; }
         .stat-header { display: flex; justify-content: space-between; font-size: 11px; font-weight: 800; }
         .progress-bar-outer { width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden; }
+        /* ☢️ ПЛАЗМА: лёгкое свечение при перегреве 60+, предупреждающая пульсация при критическом 90+ */
+        /* ☢️ ПЛАЗМА: пульсация при критическом перегреве (используется .combatant-heatbar-outer.heat-critical) */
+        @keyframes plasmaCritPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.75; } }
         .progress-bar-inner { height: 100%; width: 100%; transition: width 0.3s ease; }
         .meta-info { grid-column: span 2; display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-between; align-items: center; background: var(--glass-bg); backdrop-filter: blur(var(--glass-blur)); padding: 8px; border-radius: 12px; border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow-soft); font-size: 11px; gap: 4px; }
 
@@ -457,6 +460,11 @@ transform:scale(1);
         .combatant-hpbar-outer { width: 62px; height: 7px; border-radius: 5px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.16); overflow: hidden; }
         .combatant-hpbar-fill { height: 100%; width: 100%; background: var(--grad-blue); transition: width 0.35s ease, background 0.3s ease; }
         .combatant-hpbar-fill.enemyfill { background: linear-gradient(135deg, #ff2a5f, #ff6a00); }
+        /* ☢️ ПЛАЗМА: компактная шкала перегрева прямо над синей полосой ХП персонажа в сцене боя */
+        .combatant-heatbar-outer { width: 62px; height: 5px; border-radius: 4px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,183,3,0.3); overflow: hidden; }
+        .combatant-heatbar-fill { height: 100%; width: 0%; background: var(--grad-gold); transition: width 0.35s ease, background 0.3s ease; }
+        .combatant-heatbar-outer.heat-glow { border-color: rgba(255,87,34,0.55); box-shadow: 0 0 6px rgba(255,87,34,0.4); }
+        .combatant-heatbar-outer.heat-critical { border-color: rgba(255,42,95,0.75); box-shadow: 0 0 8px rgba(255,42,95,0.55); animation: plasmaCritPulse 1.1s ease-in-out infinite; }
         .enemy-name-tag { font-size: 9.5px; font-weight: 800; color: #fff; background: rgba(0,0,0,0.55); padding: 2px 8px; border-radius: 8px; white-space: nowrap; max-width: 130px; overflow: hidden; text-overflow: ellipsis; }
         .enemy-badges { display: flex; gap: 3px; min-height: 14px; }
         .enemy-badge { font-size: 12px; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.7)); animation: badgePop 0.3s ease; }
@@ -754,6 +762,27 @@ transform:scale(1);
             background: radial-gradient(circle at top right, rgba(191,90,242,0.15), transparent 60%);
             pointer-events: none;
             border-radius: 26px;
+        }
+
+        /* Липкая "шапка" Пропуска Пустоши: остаётся на экране при скролле списка этапов,
+           перекрывая собой второстепенные кнопки/вкладки, которые уходят из виду обычным скроллом.
+           Приём: отрицательный margin-top компенсирует верхний padding контейнера, а top у sticky —
+           тот же отступ со знаком минус, благодаря чему элемент "прилипает" ровно к верхнему краю
+           области прокрутки, а не к границе padding. Изначально (до скролла) шапка выглядит как
+           обычный блок в потоке — поэтому никакого "бага с невидимыми кнопками" при открытии нет. */
+        .bp-sticky-head {
+            position: sticky;
+            top: -24px;
+            z-index: 15;
+            margin: -24px -24px 0 -24px;
+            padding: 22px 24px 12px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: linear-gradient(135deg, rgba(72,26,102,0.97) 0%, rgba(22,10,32,0.97) 100%);
+            box-shadow: 0 12px 20px -12px rgba(0,0,0,0.7);
+            border-bottom: 1px solid rgba(191,90,242,0.35);
+            border-radius: 26px 26px 0 0;
         }
         
         .bp-collapsed-bar {
@@ -1103,6 +1132,10 @@ transform:scale(1);
         #bp-overlay.active { display: flex; }
         #bp-overlay .bp-container { max-width: 380px; width: 100%; max-height: 88dvh; overflow-y: auto; margin-bottom: 0; }
         .bp-overlay-close { position: absolute; top: 14px; right: 14px; width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 15px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 2; }
+        /* Внутри .bp-sticky-head крестик позиционируется относительно самой шапки
+           (она тоже "positioned" за счёт sticky), поэтому остаётся на месте и виден
+           поверх остального контента и во время скролла. */
+        .bp-sticky-head .bp-overlay-close { top: 0; right: 0; z-index: 16; }
 
         .bp-header-tabs { display: flex; gap: 10px; }
         .bp-tab-sub { 
@@ -1249,7 +1282,90 @@ transform:scale(1);
             box-shadow: none;
         }
         .track-card.premium.empty .track-label { opacity: 0.4; }
-        
+
+        /* ===== ELITE: занимает бывшие пустые Premium-ячейки — выглядит дороже и эксклюзивнее ===== */
+        .track-card.elite {
+            background: linear-gradient(135deg, rgba(255, 42, 95, 0.32) 0%, rgba(120, 0, 20, 0.20) 100%);
+            border-color: rgba(255, 42, 95, 0.70);
+            box-shadow: inset 0 1px 0 rgba(255,42,95,0.35), 0 3px 14px rgba(255,42,95,0.28), 0 0 16px rgba(190,0,40,0.24);
+        }
+        .track-card.elite:hover {
+            background: linear-gradient(135deg, rgba(255, 42, 95, 0.42) 0%, rgba(120, 0, 20, 0.26) 100%);
+            border-color: rgba(255, 42, 95, 0.9);
+            box-shadow: inset 0 1px 0 rgba(255,42,95,0.45), 0 8px 20px rgba(255,42,95,0.38), 0 0 24px rgba(190,0,40,0.32);
+        }
+        .track-card.elite .track-label { background: linear-gradient(90deg, #ffd700, #ffe9a8, #bf5af2); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; opacity: 1; }
+        .elite-reward-text { color: #ffd700 !important; text-shadow: 0 0 8px rgba(255,215,0,0.5); }
+        .bp-claim-btn.elite-claim-btn { background: linear-gradient(135deg, #2196f3 0%, #3fa9ff 100%); color: #041322; box-shadow: 0 5px 15px rgba(33,150,243,0.45); }
+
+        /* ===== Объёмные 3D-кнопки покупки Premium / Elite пропуска (в духе кнопок заданий) =====
+           Приём: плотный градиент сверху-вниз + сплошная "ступенька" снизу (второй box-shadow слой)
+           создаёт эффект физической выпуклой кнопки; при нажатии кнопка "проседает" на высоту ступеньки. */
+        button.bp-buy-3d {
+            position: relative;
+            border-radius: 10px;
+            border: 1px solid rgba(0,0,0,0.28);
+            font-weight: 900;
+            letter-spacing: 0.3px;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.15s ease;
+        }
+        button.bp-buy-3d.gold {
+            background: linear-gradient(180deg, #ffe38a 0%, #ffb703 48%, #ff8c00 100%);
+            color: #3a1d00;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.35);
+            box-shadow: 0 4px 0 #a35a00, 0 4px 0 #a35a00, 0 9px 18px rgba(255,140,0,0.35), inset 0 1px 0 rgba(255,255,255,0.55);
+        }
+        button.bp-buy-3d.purple {
+            background: linear-gradient(180deg, #eab4ff 0%, #bf5af2 48%, #9114ff 100%);
+            color: #2a0345;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.25);
+            box-shadow: 0 4px 0 #650fa8, 0 4px 0 #650fa8, 0 9px 18px rgba(145,20,255,0.35), inset 0 1px 0 rgba(255,255,255,0.5);
+        }
+        button.bp-buy-3d:hover { filter: brightness(1.08); }
+        button.bp-buy-3d:active {
+            transform: translateY(4px);
+        }
+        button.bp-buy-3d.gold:active { box-shadow: 0 0 0 #a35a00, 0 2px 6px rgba(255,140,0,0.3), inset 0 1px 0 rgba(255,255,255,0.5); }
+        button.bp-buy-3d.purple:active { box-shadow: 0 0 0 #650fa8, 0 2px 6px rgba(145,20,255,0.3), inset 0 1px 0 rgba(255,255,255,0.45); }
+
+        /* ===== Крупные вехи: 50 уровень (оружие) и 100 уровень (финальный Elite-скин) ===== */
+        .pass-tier-box.bp-milestone {
+            padding: 14px 14px;
+            border-width: 2px;
+        }
+        .pass-tier-box.bp-milestone-50 {
+            border-color: rgba(255, 183, 3, 0.65);
+            background: linear-gradient(145deg, rgba(255,183,3,0.22) 0%, rgba(191,90,242,0.08) 100%), rgba(20, 15, 35, 0.85);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.14), 0 10px 28px rgba(255,183,3,0.28);
+        }
+        .pass-tier-box.bp-milestone-100 {
+            border-color: rgba(255, 215, 0, 0.75);
+            background: linear-gradient(145deg, rgba(255,215,0,0.26) 0%, rgba(191,90,242,0.14) 100%), rgba(20, 15, 35, 0.9);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.16), 0 12px 32px rgba(255,215,0,0.32);
+        }
+        .bp-milestone-tag {
+            font-size: 10px; font-weight: 900; letter-spacing: 0.4px; text-transform: uppercase;
+            padding: 3px 8px; border-radius: 6px; display: inline-block; margin-bottom: 2px;
+        }
+        .bp-milestone-tag.gold { background: rgba(255,183,3,0.22); color: #ffb703; border: 1px solid rgba(255,183,3,0.5); }
+        .bp-milestone-tag.elite { background: rgba(255,215,0,0.18); color: #ffd700; border: 1px solid rgba(255,215,0,0.55); }
+
+        /* ===== Сезонное оформление Пропуска Пустоши: два принципиально разных фона/атмосферы ===== */
+        .bp-container[data-season="season_1"], .bp-collapsed-bar[data-season="season_1"] {
+            background: linear-gradient(135deg, rgba(90,110,220,0.32) 0%, rgba(15,15,45,0.16) 100%), var(--glass-bg-strong);
+            border-color: rgba(140,160,255,0.55);
+            box-shadow: 0 0 50px rgba(110,130,255,0.35), 0 12px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.12);
+        }
+        .bp-container[data-season="season_1"]::before { background: radial-gradient(circle at top right, rgba(140,160,255,0.20), transparent 60%); }
+        .bp-container[data-season="season_2"], .bp-collapsed-bar[data-season="season_2"] {
+            background: linear-gradient(135deg, rgba(255,90,60,0.28) 0%, rgba(40,10,10,0.16) 100%), var(--glass-bg-strong);
+            border-color: rgba(255,130,90,0.55);
+            box-shadow: 0 0 50px rgba(255,90,60,0.35), 0 12px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.12);
+        }
+        .bp-container[data-season="season_2"]::before { background: radial-gradient(circle at top right, rgba(255,140,90,0.20), transparent 60%); }
+
         .bp-claim-btn { 
             padding: 10px 16px; 
             font-size: 12px; 
@@ -1735,6 +1851,11 @@ transform:scale(1);
         }
         .action-panel { padding: 15px 14px 10px 14px; position: relative; }
         .buttons-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        /* Компактные, но не крошечные кнопки боевого экрана — баланс между читаемостью лога боя
+           и удобством нажатия. Затрагивает только #combat-actions, остальные экраны не меняются. */
+        #combat-actions .buttons-grid { gap: 7px; }
+        #combat-actions button { padding: 11px 8px; font-size: 12px; line-height: 1.3; border-radius: 13px; min-height: 0; }
+        #combat-actions button.gadget-btn { padding: 10px 8px; font-size: 11px; }
         
         button { background: var(--glass-bg); backdrop-filter: blur(var(--glass-blur)) saturate(160%); -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(160%); border: 1px solid rgba(255,255,255,0.14); box-shadow: var(--glass-shadow-soft); color: var(--text-main); padding: 14px; border-radius: 16px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
         button:active { transform: scale(0.97); }
@@ -1929,6 +2050,8 @@ transform:scale(1);
         .avatar-pick-icon svg { width:100%; height:100%; display:block; }
         .avatar-pick-label { font-size:9px; font-weight:800; color: var(--text-muted); text-align:center; line-height:1.2; }
         .avatar-pick-btn.active { border-color: var(--avatar-color, var(--neon-blue)); background: rgba(255,255,255,0.1); box-shadow: 0 0 14px var(--avatar-color, var(--neon-blue)); }
+        .avatar-pick-btn.locked { cursor: default; opacity: 0.62; }
+        .avatar-pick-btn.locked .avatar-pick-tag { color: var(--text-muted); font-size: 7px; line-height: 1.25; white-space: normal; }
         .avatar-pick-btn.active .avatar-pick-icon { border-color: var(--avatar-color, var(--neon-blue)); box-shadow: 0 0 10px var(--avatar-color, var(--neon-blue)); }
         .avatar-pick-btn.active .avatar-pick-label { color: var(--avatar-color, var(--neon-blue)); }
         .avatar-pick-tag { font-size:7.5px; font-weight:900; letter-spacing:0.3px; color: var(--avatar-color, var(--neon-blue)); }
@@ -2887,20 +3010,34 @@ onclick="Core.declineEncounter()">
     </div>
 
     <div id="bp-overlay">
-        <div class="bp-container">
-            <button class="bp-overlay-close" onclick="Core.closeBpOverlay()">✕</button>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <span style="color: var(--neon-purple); font-weight: 900; font-size: 14px;">ПРОПУСК ПУСТОШИ</span>
-                    <div style="font-size: 9px; color: var(--neon-gold); font-weight: bold; text-transform: uppercase;">Самая выгодная акция в игре!</div>
+        <div class="bp-container" id="bp-container">
+
+            <!-- Липкая шапка: держится на экране во время скролла этапов ниже.
+                 Здесь остаются только 4 обязательных элемента — название сезона,
+                 очки/уровень текущего этапа, длительность сезона и кнопка сбора наград.
+                 Кнопка закрытия (✕) перенесена сюда же (position:absolute относительно
+                 этой шапки), иначе при скролле общего контейнера она бы уезжала вместе
+                 с остальным контентом и пропадала с экрана. -->
+            <div class="bp-sticky-head" id="bp-sticky-head">
+                <button class="bp-overlay-close" onclick="Core.closeBpOverlay()">✕</button>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <span id="bp-season-title" style="color: var(--neon-purple); font-weight: 900; font-size: 14px;">🎫 ПРОПУСК ПУСТОШИ</span>
+                        <div id="bp-season-sub" style="font-size: 9px; color: var(--neon-gold); font-weight: bold; text-transform: uppercase;">Самая выгодная акция в игре!</div>
+                    </div>
+                    <div id="bp-level-badge" style="position: relative; display:flex; align-items:center; gap:8px; background: var(--neon-purple); padding: 5px 10px 5px 6px; border-radius: 8px; font-size: 11px; font-weight: bold;">
+                        <div id="bp-level-circle" onclick="Core.toggleBpTooltip()" style="width:28px; height:28px; border-radius:50%; background: conic-gradient(rgba(255,255,255,0.2) 0% 100%); flex-shrink:0; cursor: pointer; box-shadow: inset 0 2px 4px rgba(0,0,0,0.45), inset 0 -2px 3px rgba(255,255,255,0.35), 0 2px 4px rgba(0,0,0,0.5);"></div>
+                        <span id="bp-level-text">ЭТАП 1</span>
+                        <div id="bp-level-tooltip" style="display:none; position:absolute; top: 100%; right: 0; margin-top: 8px; background: rgba(0,0,0,0.9); color:#fff; font-size:10px; font-weight: 600; padding:5px 9px; border-radius:6px; white-space:nowrap; z-index:20; box-shadow: 0 4px 12px rgba(0,0,0,0.5);"></div>
+                    </div>
                 </div>
-                <div id="bp-level-badge" style="position: relative; display:flex; align-items:center; gap:8px; background: var(--neon-purple); padding: 5px 10px 5px 6px; border-radius: 8px; font-size: 11px; font-weight: bold;">
-                    <div id="bp-level-circle" onclick="Core.toggleBpTooltip()" style="width:28px; height:28px; border-radius:50%; background: conic-gradient(rgba(255,255,255,0.2) 0% 100%); flex-shrink:0; cursor: pointer; box-shadow: inset 0 2px 4px rgba(0,0,0,0.45), inset 0 -2px 3px rgba(255,255,255,0.35), 0 2px 4px rgba(0,0,0,0.5);"></div>
-                    <span id="bp-level-text">ЭТАП 1</span>
-                    <div id="bp-level-tooltip" style="display:none; position:absolute; top: 100%; right: 0; margin-top: 8px; background: rgba(0,0,0,0.9); color:#fff; font-size:10px; font-weight: 600; padding:5px 9px; border-radius:6px; white-space:nowrap; z-index:20; box-shadow: 0 4px 12px rgba(0,0,0,0.5);"></div>
-                </div>
+                <div id="bp-season-timer" style="font-size: 10px; text-align:center; color: var(--text-muted); font-weight: 700;"></div>
+                <button class="gold" style="padding: 7px 12px; font-size: 11.5px; height: auto; font-weight: 900;" onclick="Core.claimAllBpRewards()">🎁 Собрать все доступные награды</button>
             </div>
-            
+
+            <!-- Второстепенные кнопки и вкладки: часть обычного потока прокрутки,
+                 поэтому при скролле списка этапов уходят вверх и оказываются
+                 перекрыты списком наград и липкой шапкой. -->
             <div style="display: flex; gap: 8px; align-items: center; background: rgba(0,0,0,0.2); padding: 6px; border-radius: 6px; border: 1px dashed rgba(255,255,255,0.1);">
                 <div style="font-size: 11px; flex: 1; color: var(--text-main);">Пропустить этап:</div>
                 <button id="bp-buy-level-btn" class="gold" style="padding: 6px 12px; font-size: 11px; height: auto;" onclick="Core.buyBpLevelWithCaps()">+1 Ур. за 50 🪙</button>
@@ -2911,8 +3048,7 @@ onclick="Core.declineEncounter()">
                 <button class="bp-tab-sub" id="bp-sub-quests" onclick="Core.setBpSubTab('quests')">📜 Задания</button>
             </div>
             <div id="bp-premium-status" style="font-size: 11px; text-align: center;"></div>
-            <button class="gold" style="padding: 7px 12px; font-size: 11.5px; height: auto; font-weight: 900;" onclick="Core.claimAllBpRewards()">🎁 Собрать все доступные награды</button>
-            <div id="bp-content-render" style="max-height: 240px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;"></div>
+            <div id="bp-content-render" style="display: flex; flex-direction: column; gap: 8px;"></div>
         </div>
     </div>
 
@@ -3270,6 +3406,10 @@ onclick="Core.declineEncounter()">
                         <button class="admin-btn" onclick="Core.adminAddCurrency('caps', 1000)">+1000 🪙</button>
                         <button class="admin-btn" onclick="Core.adminAddCurrency('vouchers', 10)">+10 🏷️</button>
                         <button class="admin-btn" onclick="Core.adminAddCurrency('vouchers', 100)">+100 🏷️</button>
+                        <button class="admin-btn" onclick="Core.adminAddCurrency('relic', 5)">+5 🗝️</button>
+                        <button class="admin-btn" onclick="Core.adminAddCurrency('relic', 20)">+20 🗝️</button>
+                        <button class="admin-btn" onclick="Core.adminAddCurrency('trophies', 100)">+100 🏆</button>
+                        <button class="admin-btn" onclick="Core.adminAddCurrency('trophies', 1000)">+1000 🏆</button>
                     </div>
                 </div>
                 <div class="admin-section">
@@ -3279,6 +3419,7 @@ onclick="Core.declineEncounter()">
                         <button class="admin-btn" onclick="Core.adminAddResource('Тяжелый Хлам', 50)">+50 🔩</button>
                         <button class="admin-btn" onclick="Core.adminAddResource('Ядерная Батарея', 20)">+20 ☢️</button>
                         <button class="admin-btn" onclick="Core.adminAddResource('Сырое мясо', 20)">+20 🥩</button>
+                        <button class="admin-btn" onclick="Core.adminAddResource('Жетон Схрона', 20)">+20 💠</button>
                     </div>
                 </div>
                 <div class="admin-section">
@@ -3291,6 +3432,12 @@ onclick="Core.declineEncounter()">
                     <div class="admin-section-title">Разблокировки</div>
                     <div class="admin-row">
                         <button class="admin-btn" onclick="Core.adminUnlockAll()">🔓 Выдать всё оружие, макс. удочку и титулы</button>
+                        <button class="admin-btn" onclick="Core.adminUnlockAllSkins()">🎨 Выдать все скины</button>
+                        <button class="admin-btn" onclick="Core.adminUnlockAllArmor()">🛡️ Выдать всю броню и моды</button>
+                        <button class="admin-btn" onclick="Core.adminUnlockAllGadgetsMegasila()">🧰 Выдать все гаджеты и мегасилы</button>
+                        <button class="admin-btn" onclick="Core.adminUnlockAllPets()">🐾 Выдать всех питомцев</button>
+                        <button class="admin-btn" onclick="Core.adminMaxWeaponUpgrades()">⬆️ Прокачать всё оружие до Ур.10</button>
+                        <button class="admin-btn" onclick="Core.adminGrantBpElite()">🎫 Выдать Premium + Elite пропуск</button>
                     </div>
                 </div>
                 <div class="admin-section">
@@ -3401,6 +3548,7 @@ onclick="Core.declineEncounter()">
                     </div>
 
                     <div class="combatant player-combatant" id="scene-player">
+                        <div class="combatant-heatbar-outer" id="scene-player-heatbar-outer" style="display:none;"><div class="combatant-heatbar-fill" id="scene-player-heat-fill"></div></div>
                         <div class="combatant-hpbar-outer"><div class="combatant-hpbar-fill" id="scene-player-hp-fill"></div></div>
                         <div class="combatant-sprite-wrap">
                             <span class="combatant-sprite" id="scene-player-sprite"></span>
@@ -3549,9 +3697,9 @@ onclick="Core.declineEncounter()">
     <div id="screen-shop" class="screen-overlay">
         <div id="update-gift-container"></div>
         <div id="rod-compensation-container"></div>
-        <div class="bp-collapsed-bar" onclick="Core.openBpOverlay()">
+        <div class="bp-collapsed-bar" id="bp-collapsed-bar" onclick="Core.openBpOverlay()">
             <div>
-                <span class="bp-collapsed-title">ПРОПУСК ПУСТОШИ</span>
+                <span class="bp-collapsed-title" id="bp-collapsed-title">🎫 ПРОПУСК ПУСТОШИ</span>
                 <div class="bp-collapsed-sub">Самая выгодная акция в игре!</div>
             </div>
             <div class="bp-collapsed-right">
@@ -3701,9 +3849,9 @@ onclick="Core.declineEncounter()">
                     <span id="rest-timer" class="timer-badge" style="display:none;">Откат</span>
                 </button>
             </div>
-            <div id="combat-actions" style="display: none; flex-direction: column; gap: 8px;">
-                <div id="combat-ability-grid" style="display: flex; flex-direction: column; gap: 8px;"></div>
-                <button id="btn-flee" style="width:100%;" onclick="Core.executeFlee()">🏃 Сбежать (50%)</button>
+            <div id="combat-actions" style="display: none; flex-direction: column; gap: 6px;">
+                <div id="combat-ability-grid" style="display: flex; flex-direction: column; gap: 6px;"></div>
+                <button id="btn-flee" class="combat-compact-btn" style="width:100%;" onclick="Core.executeFlee()">🏃 Сбежать (50%)</button>
             </div>
         </div>
 
@@ -4094,6 +4242,15 @@ onclick="Core.declineEncounter()">
                     lens: ['#c9d68a', '#7a8a4a', '#3a4a1a'], skin: ['#c2a888', '#8a7458'],
                     scarf: '#6a7a3a', belt: '#201e12', buckle: '#8a9a4e', emblem: '#8a9a4e',
                     glove: '#2a2818', hood: '#33321e'
+                },
+                // ☢️ «Странник Сова» — сова-тематический скин: тёплые перьевые бурые тона + янтарные
+                // совиные глаза (лунная амбра) + «ушки»-пучки на капюшоне вместо простого воротника.
+                owl: {
+                    jacket: ['#a8814e', '#6e5230', '#382812'], jacketStroke: 'rgba(255,200,110,0.6)',
+                    leg: ['#7a5d36', '#3a2c16'], boot: ['#3a2c16', '#1c140a'], sole: '#e8b23a',
+                    lens: ['#fff6d8', '#ffcf4d', '#a8650a'], skin: ['#e8c39a', '#b98f66'],
+                    scarf: '#a8501c', belt: '#2a1e10', buckle: '#ffcf4d', emblem: '#e8b23a',
+                    glove: '#3a2c16', hood: '#4a3820'
                 }
             },
             player(skinId) {
@@ -4105,15 +4262,119 @@ onclick="Core.declineEncounter()">
                 this._playerSpriteSeq = (this._playerSpriteSeq || 0) + 1;
                 const id = skinId + '-' + this._playerSpriteSeq;
 
-                let extra = '';
+                // ===== У каждого скина — собственный силуэт головного убора, форма линз/визора,
+                // фирменный аксессуар и деталь лица, а не просто перекраска одной и той же модели. =====
+                let scarfBlock, headgearBlock, lensBlock, mouthBlock, emblemBlock, accessoryBlock = '', extra = '';
+                // воротник у шеи — по умолчанию одинаковый для всех, но некоторые скины (например,
+                // гермошлем) заменяют его своей формой, чтобы не спорить с головным убором.
+                let neckBlock = `<path d="M25 25 Q32 30 39 25 L37 29.5 Q32 33 27 29.5 Z" fill="${p.hood}"/>`;
+
                 if (skinId === 'sand') {
+                    // Песочный Странник: намотанная куфия с ниспадающим хвостом, круглые авиаторы,
+                    // лицевой платок закрывает нижнюю часть лица от пыли.
+                    scarfBlock = `
+                        <path class="scarf" d="M18 27 Q8 34 12 47 Q17 41 22 39 Q19 32 20 27 Z" fill="${p.scarf}" opacity="0.92"/>
+                        <path class="scarf" d="M18 27 Q11 44 18 58 Q21 46 25 40 Q21 33 20 27 Z" fill="${p.scarf}" opacity="0.5"/>`;
+                    headgearBlock = `
+                        <path d="M18 8.5 Q32 -5 46 8.5 Q46 13.5 40 12 Q32 2.5 24 12 Q18 13.5 18 8.5 Z" fill="${p.hood}"/>
+                        <path class="scarf" d="M41 10 Q51 16.5 46 27 Q42.5 19 37.5 15 Z" fill="${p.hood}" opacity="0.88"/>`;
+                    lensBlock = `
+                        <circle cx="27" cy="13.5" r="3.3" fill="url(#pLens-${id})" opacity="0.95"/>
+                        <circle cx="37" cy="13.5" r="3.3" fill="url(#pLens-${id})" opacity="0.95"/>
+                        <rect x="29.9" y="12.7" width="4.2" height="1.6" rx="0.8" fill="${p.hood}"/>`;
+                    mouthBlock = `<path d="M22 19 Q32 25.5 42 19 L42 23 Q32 29 22 23 Z" fill="${p.scarf}" opacity="0.85"/>`;
+                    emblemBlock = `<path d="M20.5 33 L23 30.3 L25.5 33 L23 38.3 Z" fill="none" stroke="${p.emblem}" stroke-width="1.1" opacity="0.85"/>`;
                     extra = `<g opacity="0.55" fill="#fff2c8"><circle cx="20" cy="34" r="0.7"/><circle cx="41" cy="31" r="0.6"/><circle cx="26" cy="45" r="0.6"/><circle cx="38" cy="48" r="0.7"/><circle cx="22" cy="58" r="0.6"/><circle cx="30" cy="18" r="0.5"/></g>`;
                 } else if (skinId === 'cosmo') {
-                    extra = `<g fill="#fff"><circle cx="21" cy="30" r="0.8" opacity="0.9"/><circle cx="40" cy="33" r="0.6" opacity="0.7"/><circle cx="27" cy="42" r="0.7" opacity="0.8"/><circle cx="37" cy="46" r="0.5" opacity="0.6"/></g>
-                             <circle cx="32" cy="40" r="3.2" fill="none" stroke="#8fd9ff" stroke-width="1" opacity="0.85" class="eye-glow"/>
-                             <circle cx="32" cy="40" r="1.5" fill="#8fd9ff" opacity="0.95" class="eye-glow"/>`;
+                    // Космо-Странник: гермошлем-«пузырь», полностью закрывающий голову и плавно
+                    // переходящий в воротник скафандра, наплечники прямо на стыке рукава и куртки,
+                    // подсвеченный реактор на груди.
+                    scarfBlock = `
+                        <path class="scarf" d="M23 25 Q17 28 17.5 37 Q20.5 33.5 24.5 32.5 Q22.5 29 23 25 Z" fill="${p.scarf}" opacity="0.7"/>
+                        <path class="scarf" d="M23 25 Q28.5 29.5 26.5 39 Q23 35.5 20.5 33.5 Q21.5 29 23 25 Z" fill="${p.scarf}" opacity="0.4"/>`;
+                    neckBlock = `<rect x="27" y="22.5" width="10" height="3.6" rx="1.6" fill="${p.hood}" opacity="0.95"/>`;
+                    headgearBlock = `
+                        <circle cx="32" cy="13.5" r="12.2" fill="url(#pLens-${id})" opacity="0.22"/>
+                        <path d="M23 6.5 Q27 3.2 32 3" stroke="${p.hood}" stroke-width="2.6" opacity="0.35" fill="none" stroke-linecap="round"/>
+                        <circle cx="32" cy="13.5" r="12.2" fill="none" stroke="${p.jacketStroke}" stroke-width="1.5"/>
+                        <path d="M20.5 10 Q24 3.5 30 2" stroke="#fff" stroke-width="1.6" opacity="0.45" fill="none" stroke-linecap="round"/>
+                        <rect x="30.6" y="-1.6" width="1.8" height="3.2" fill="${p.hood}"/>
+                        <circle cx="31.5" cy="-2" r="1.8" class="eye-glow" fill="${p.sole}"/>`;
+                    lensBlock = `
+                        <circle cx="27.5" cy="14.3" r="1.9" class="eye-glow" fill="#0a1a24"/>
+                        <circle cx="36.5" cy="14.3" r="1.9" class="eye-glow" fill="#0a1a24"/>`;
+                    mouthBlock = `<path d="M28 19.5 Q32 21.3 36 19.5" stroke="#6a5638" stroke-width="1" opacity="0.4" fill="none" stroke-linecap="round"/>`;
+                    emblemBlock = `
+                        <circle cx="32" cy="39.5" r="3.6" fill="none" stroke="${p.emblem}" stroke-width="1.3" opacity="0.92"/>
+                        <circle cx="32" cy="39.5" r="1.4" fill="${p.sole}" opacity="0.95" class="eye-glow"/>`;
+                    accessoryBlock = `
+                        <rect x="10" y="29.5" width="9.5" height="8.5" rx="2.6" fill="${p.hood}" stroke="${p.jacketStroke}" stroke-width="1"/>
+                        <rect x="44.5" y="29.5" width="9.5" height="8.5" rx="2.6" fill="${p.hood}" stroke="${p.jacketStroke}" stroke-width="1"/>
+                        <circle cx="14.7" cy="33.7" r="1.6" fill="${p.sole}" opacity="0.9" class="eye-glow"/>
+                        <circle cx="49.3" cy="33.7" r="1.6" fill="${p.sole}" opacity="0.9" class="eye-glow"/>`;
+                    extra = `<g fill="#fff"><circle cx="21" cy="30" r="0.8" opacity="0.9"/><circle cx="40" cy="33" r="0.6" opacity="0.7"/><circle cx="27" cy="42" r="0.7" opacity="0.8"/><circle cx="37" cy="46" r="0.5" opacity="0.6"/></g>`;
                 } else if (skinId === 'grime') {
+                    // Грязный Странник: рваный, зазубренный край капюшона, лицевой респиратор-фильтр,
+                    // грубо нашитые заплаты и стежки крест-накрест вместо аккуратной эмблемы.
+                    scarfBlock = `
+                        <path class="scarf" d="M23 25 Q17 28 17.5 37 Q20.5 33.5 24.5 32.5 Q22.5 29 23 25 Z" fill="${p.scarf}" opacity="0.85"/>
+                        <path class="scarf" d="M23 25 Q28.5 29.5 26.5 39 Q23 35.5 20.5 33.5 Q21.5 29 23 25 Z" fill="${p.scarf}" opacity="0.5"/>`;
+                    headgearBlock = `<path d="M20 10 Q32 -3 44 10 L44 14 L41 12.5 L38.5 15 L35.5 12.5 L32.5 15 L29.5 12.5 L26.5 15 L23.5 12.5 L20 15 Z" fill="${p.hood}"/>`;
+                    lensBlock = `
+                        <rect x="24" y="11" width="16" height="5" rx="1.2" fill="url(#pLens-${id})" opacity="0.9"/>
+                        <circle cx="27.5" cy="13.5" r="1.9" class="eye-glow" fill="#031014"/>
+                        <circle cx="36.5" cy="13.5" r="1.9" class="eye-glow" fill="#031014"/>
+                        <path d="M25 10.5 L26.5 12.5 M39 10.5 L37.5 12.5" stroke="${p.hood}" stroke-width="1" opacity="0.6"/>`;
+                    mouthBlock = `
+                        <ellipse cx="32" cy="21.5" rx="5.5" ry="3.4" fill="${p.glove}" opacity="0.92"/>
+                        <circle cx="29.3" cy="21.5" r="0.9" fill="${p.emblem}" opacity="0.8"/>
+                        <circle cx="34.7" cy="21.5" r="0.9" fill="${p.emblem}" opacity="0.8"/>`;
+                    emblemBlock = `<path d="M20.5 30.7 L25.5 35.7 M25.5 30.7 L20.5 35.7" stroke="${p.emblem}" stroke-width="1.3" opacity="0.85"/>`;
+                    accessoryBlock = `
+                        <rect x="20" y="34" width="6" height="5" rx="1" fill="${p.leg[1]}" opacity="0.85" transform="rotate(-8 23 36.5)"/>
+                        <rect x="36" y="42" width="6.5" height="5" rx="1" fill="${p.leg[1]}" opacity="0.85" transform="rotate(11 39.5 44.5)"/>`;
                     extra = `<g opacity="0.55" fill="#2a2a16"><ellipse cx="22" cy="32" rx="3" ry="2"/><ellipse cx="40" cy="44" rx="2.6" ry="1.8"/><ellipse cx="26" cy="50" rx="2.2" ry="1.6"/><ellipse cx="35" cy="12" rx="2" ry="1.3"/></g>`;
+                } else if (skinId === 'owl') {
+                    // Странник Сова: крупные круглые совиные глаза с янтарным свечением, перьевые «ушки»,
+                    // клюв-нашивка и раскинутые перьевые крылья-плащ за спиной.
+                    scarfBlock = `
+                        <path class="scarf" d="M23 25 Q17 28 17.5 37 Q20.5 33.5 24.5 32.5 Q22.5 29 23 25 Z" fill="${p.scarf}" opacity="0.85"/>
+                        <path class="scarf" d="M23 25 Q28.5 29.5 26.5 39 Q23 35.5 20.5 33.5 Q21.5 29 23 25 Z" fill="${p.scarf}" opacity="0.5"/>`;
+                    headgearBlock = `
+                        <path d="M20 10 Q32 -3 44 10 L44 15 Q32 6 20 15 Z" fill="${p.hood}"/>
+                        <path class="ear-twitch" d="M25 8 Q22.5 1 21 -1 Q26 0.5 28.5 6 Z" fill="${p.hood}"/>
+                        <path class="ear-twitch" d="M39 8 Q41.5 1 43 -1 Q38 0.5 35.5 6 Z" fill="${p.hood}"/>`;
+                    lensBlock = `
+                        <circle cx="27" cy="13.5" r="4.2" fill="url(#pLens-${id})" opacity="0.95"/>
+                        <circle cx="37" cy="13.5" r="4.2" fill="url(#pLens-${id})" opacity="0.95"/>
+                        <circle cx="27" cy="13.5" r="1.7" class="eye-glow" fill="#2a1c06"/>
+                        <circle cx="37" cy="13.5" r="1.7" class="eye-glow" fill="#2a1c06"/>
+                        <path d="M30.5 16.5 L32 19 L33.5 16.5 Z" fill="${p.buckle}" opacity="0.85"/>`;
+                    mouthBlock = '';
+                    emblemBlock = `<path d="M23 30.5 Q23 35.5 20.5 38 Q25 37.5 25.5 33 Q26 37.5 30.5 38 Q28 35.5 28 30.5 Q25.5 32.5 23 30.5 Z" fill="${p.emblem}" opacity="0.55"/>`;
+                    accessoryBlock = `
+                        <path class="scarf" d="M14 22 Q4 32 9 48 Q13 40 18 34 Q15 28 15 22 Z" fill="${p.hood}" opacity="0.85"/>
+                        <path class="scarf" d="M50 22 Q60 32 55 48 Q51 40 46 34 Q49 28 49 22 Z" fill="${p.hood}" opacity="0.85"/>
+                        <path class="scarf" d="M14 22 Q6 34 12 52 Q15 42 20 36 Z" fill="${p.jacket[1]}" opacity="0.5"/>
+                        <path class="scarf" d="M50 22 Q58 34 52 52 Q49 42 44 36 Z" fill="${p.jacket[1]}" opacity="0.5"/>`;
+                    extra = `<g opacity="0.5" fill="${p.leg[1]}">
+                                <path d="M19 33 l3 -2.4 l3 2.4 l-3 2.2 Z"/>
+                                <path d="M39 38 l3 -2.4 l3 2.4 l-3 2.2 Z"/>
+                                <path d="M23 44 l3 -2.4 l3 2.4 l-3 2.2 Z"/>
+                                <path d="M35 47.5 l3 -2.4 l3 2.4 l-3 2.2 Z"/>
+                             </g>`;
+                } else {
+                    // Стандартный комплект — базовая экипировка Странника Пустошей.
+                    scarfBlock = `
+                        <path class="scarf" d="M23 25 Q17 28 17.5 37 Q20.5 33.5 24.5 32.5 Q22.5 29 23 25 Z" fill="${p.scarf}" opacity="0.85"/>
+                        <path class="scarf" d="M23 25 Q28.5 29.5 26.5 39 Q23 35.5 20.5 33.5 Q21.5 29 23 25 Z" fill="${p.scarf}" opacity="0.5"/>`;
+                    headgearBlock = `<path d="M20 10 Q32 -3 44 10 L44 15 Q32 6 20 15 Z" fill="${p.hood}"/>`;
+                    lensBlock = `
+                        <rect x="24" y="11" width="16" height="5" rx="2.5" fill="url(#pLens-${id})" opacity="0.95"/>
+                        <circle cx="27.5" cy="13.5" r="1.9" class="eye-glow" fill="#031014"/>
+                        <circle cx="36.5" cy="13.5" r="1.9" class="eye-glow" fill="#031014"/>`;
+                    mouthBlock = `<path d="M23 20 Q32 24 41 20" stroke="#0a0c10" stroke-width="1.8" fill="none" opacity="0.4"/>`;
+                    emblemBlock = `<circle cx="23" cy="33" r="2.4" fill="none" stroke="${p.emblem}" stroke-width="1.2" opacity="0.85"/>`;
                 }
 
                 return `<svg viewBox="0 0 64 84" xmlns="http://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
@@ -4138,9 +4399,8 @@ onclick="Core.declineEncounter()">
                         </radialGradient>
                     </defs>
 
-                    <!-- шарф — аккуратно облегает шею, не выходит за контур куртки -->
-                    <path class="scarf" d="M23 25 Q17 28 17.5 37 Q20.5 33.5 24.5 32.5 Q22.5 29 23 25 Z" fill="${p.scarf}" opacity="0.85"/>
-                    <path class="scarf" d="M23 25 Q28.5 29.5 26.5 39 Q23 35.5 20.5 33.5 Q21.5 29 23 25 Z" fill="${p.scarf}" opacity="0.5"/>
+                    <!-- шарф / фирменная накидка на шею — форма зависит от скина -->
+                    ${scarfBlock}
 
                     <!-- руки: рукава заходят под куртку у плеча, кисти в перчатках видны поверх -->
                     <path d="M19 28 Q10 33 12 43 L19 43 Q17 35 22 29 Z" fill="url(#pJacket-${id})"/>
@@ -4158,15 +4418,15 @@ onclick="Core.declineEncounter()">
                     <!-- куртка: единый анатомичный силуэт вместо прямоугольника -->
                     <path d="M17 26 Q32 20 47 26 L48 50 Q32 56 16 50 Z" fill="url(#pJacket-${id})" stroke="${p.jacketStroke}" stroke-width="1.4"/>
                     <path d="M17 26 Q32 20 47 26 L48 50 Q32 56 16 50 Z" fill="url(#pJacketShade-${id})"/>
-                    <!-- воротник -->
-                    <path d="M25 25 Q32 30 39 25 L37 29.5 Q32 33 27 29.5 Z" fill="${p.hood}"/>
+                    <!-- воротник — форма зависит от скина -->
+                    ${neckBlock}
                     <!-- молния, короткая и вертикальная — без диагональных полос через весь корпус -->
                     <path d="M32 30 L32 48.5" stroke="#0d0f14" stroke-width="1.5" opacity="0.55"/>
                     <!-- ремень -->
                     <rect x="17" y="46" width="30" height="4.2" rx="1" fill="${p.belt}"/>
                     <circle cx="32" cy="48.1" r="1.9" fill="${p.buckle}" opacity="0.9"/>
-                    <!-- нашивка на груди, вписана в силуэт куртки -->
-                    <circle cx="23" cy="33" r="2.4" fill="none" stroke="${p.emblem}" stroke-width="1.2" opacity="0.85"/>
+                    <!-- нашивка/фирменный знак на груди — форма зависит от скина -->
+                    ${emblemBlock}
 
                     <!-- предплечья и кисти в перчатках — поверх куртки, чтобы руки были видны целиком -->
                     <path d="M11 41 Q9 47 12 52 L18 52 L18 43 Z" fill="url(#pLeg-${id})"/>
@@ -4176,13 +4436,17 @@ onclick="Core.declineEncounter()">
                     <circle cx="13" cy="51" r="3.6" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
                     <circle cx="51" cy="51" r="3.6" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
 
+                    <!-- фирменный аксессуар (наплечники / крылья / заплаты) — за головой, поверх куртки -->
+                    ${accessoryBlock}
+
                     <!-- голова -->
                     <circle cx="32" cy="14" r="10" fill="url(#pSkin-${id})"/>
-                    <path d="M20 10 Q32 -3 44 10 L44 15 Q32 6 20 15 Z" fill="${p.hood}"/>
-                    <rect x="24" y="11" width="16" height="5" rx="2.5" fill="url(#pLens-${id})" opacity="0.95"/>
-                    <circle cx="27.5" cy="13.5" r="1.9" class="eye-glow" fill="#031014"/>
-                    <circle cx="36.5" cy="13.5" r="1.9" class="eye-glow" fill="#031014"/>
-                    <path d="M23 20 Q32 24 41 20" stroke="#0a0c10" stroke-width="1.8" fill="none" opacity="0.4"/>
+                    <!-- головной убор — уникальный силуэт для каждого скина -->
+                    ${headgearBlock}
+                    <!-- глаза / визор — форма зависит от скина -->
+                    ${lensBlock}
+                    <!-- рот / маска — форма зависит от скина -->
+                    ${mouthBlock}
                     ${extra}
                 </svg>`;
             },
@@ -5528,19 +5792,68 @@ onclick="Core.declineEncounter()">
         };
 
         // Генерация наград до 50 уровня с сохранением исходного количества ваучеров
-        const generateBpRewards = () => {
+        // ================= СЕЗОННАЯ СИСТЕМА ПРОПУСКА ПУСТОШИ =================
+        // Каждый сезон — ровно 100 уровней и ровно 7 дней. Как только текущий 7-дневный слот
+        // заканчивается, следующий сезон стартует автоматически, без кнопок и обновления игры —
+        // см. Core.getSeasonSlot(). Якорь ниже совпадает со стартом Сезона 1 (01.09 → 08.09 и т.д.).
+        // ☢️ Точка отсчёта сезона сдвинута на сегодня (3 сентября 2026, 00:00 UTC) — таймер снова
+        // стартует с полных 8 дней, как и должно быть при запуске 1 сезона с ПЛАЗМОЙ на 50 уровне.
+        const BP_SEASON_ANCHOR = Date.UTC(2026, 8, 3, 0, 0, 0);
+        // ☢️ Сезон 1 ("Совы не дремлют") продлён до 8 дней специально под эксклюзивную выдачу ПЛАЗМЫ
+        // на 50 уровне Premium-дороги (см. SEASONS ниже, weaponId: "plasma"). Пока идёт именно ЭТОТ
+        // (первый) слот сезона — оружие получить больше никак нельзя (см. isPlasmaSeasonExclusive()).
+        // После окончания слота 0 плазма автоматически появляется в обычном крафте (см. DB.blueprints).
+        const BP_SEASON_DURATION_MS = 8 * 24 * 60 * 60 * 1000;
+
+        // Чтобы добавить новый сезон в будущем — просто дописать объект в конец этого массива,
+        // ничего в остальном коде Пропуска Пустоши переписывать не нужно.
+        const SEASONS = [
+            {
+                id: "season_1",
+                title: "Совы не дремлют",
+                icon: "🦉",
+                subtitle: "Ночная разведка Пустоши",
+                weaponId: "plasma", // ☢️ ПЛАЗМА — эксклюзив Premium-дороги 1 сезона (50 уровень), 8 дней
+                skinId: "owl",  // 🦉 «Странник Сова» — эксклюзив Elite-дороги 1 сезона (100 уровень)
+                theme: { key: "season_1" }
+            },
+            {
+                id: "season_2",
+                title: "Кошки в опасности",
+                icon: "🐈",
+                subtitle: "Мутировавшие звери на тропах",
+                weaponId: null, // TODO
+                skinId: null,   // TODO
+                theme: { key: "season_2" }
+            }
+        ];
+
+        // Заполняет бывшие пустые ячейки Premium-дороги наградами Elite — используем только то,
+        // что уже есть в экономике WASTELAND (крышки, ваучеры, ресурсы, жетоны, мед-паки и т.д.)
+        const eliteRewardForLevel = (lvl) => {
+            const cycle = lvl % 10;
+            if (cycle === 0 || cycle === 5) return { name: `🪙 Крышки x${20 + lvl}`, type: "caps", qty: 20 + lvl };
+            if (cycle === 2 || cycle === 7) { let q = Math.max(1, Math.round((4 + Math.floor(lvl / 10)) / 2)); return { name: `🏷️ Ваучеры x${q}`, type: "voucher", qty: q }; }
+            if (cycle === 4) return { name: "💠 Жетон Схрона x1", type: "item", item: "Жетон Схрона", qty: 1 };
+            if (cycle === 6) return { name: "💉 Мед-Пакет x2", type: "hp_pack", qty: 2 };
+            if (cycle === 9) return { name: "🧬 Сыворотка ОЗ x1", type: "maxhp", qty: 1 };
+            return { name: `⚙️ Запчасти x${8 + (lvl % 10)}`, type: "item", item: "Запчасти", qty: 8 + (lvl % 10) };
+        };
+
+        const generateBpRewards = (season) => {
+            season = season || {};
             const list = [];
             const oldRewards = [
                 { lvl: 1, free: { name: "Запчасти x2", type: "item", item: "Запчасти", qty: 2 }, prem: { name: "🔫 Самопал", type: "wpn", wpnId: "pistol" } },
                 { lvl: 2, free: { name: "Крышки x3", type: "caps", qty: 3 }, prem: { name: "Запчасти x10", type: "item", item: "Запчасти", qty: 10 } },
-                { lvl: 3, free: { name: "Сырое мясо x1", type: "item", item: "Сырое мясо", qty: 1 }, prem: { name: "🏷️ Ваучеры x3", type: "voucher", qty: 3 } },
+                { lvl: 3, free: { name: "Сырое мясо x1", type: "item", item: "Сырое мясо", qty: 1 }, prem: { name: "🏷️ Ваучеры x2", type: "voucher", qty: 2 } },
                 { lvl: 4, free: { name: "Крышки x6", type: "caps", qty: 6 }, prem: { name: "🔋 Блок x2", type: "energy_pack", qty: 2 } },
                 { lvl: 5, free: { name: "🏷️ Ваучер x1", type: "voucher", qty: 1 }, prem: { name: "💉 Мед-Пакет x3", type: "hp_pack", qty: 3 } },
-                { lvl: 6, free: { name: "Запчасти x3", type: "item", item: "Запчасти", qty: 3 }, prem: { name: "🏷️ Ваучеры x5", type: "voucher", qty: 5 } },
+                { lvl: 6, free: { name: "Запчасти x3", type: "item", item: "Запчасти", qty: 3 }, prem: { name: "🏷️ Ваучеры x3", type: "voucher", qty: 3 } },
                 { lvl: 7, free: { name: "Жареная крыса x1", type: "food", food: "Жареное мясо крысы", qty: 1 }, prem: { name: "Тяжелый Хлам x5", type: "item", item: "Тяжелый Хлам", qty: 5 } },
-                { lvl: 8, free: { name: "🏷️ Ваучеры x3", type: "voucher", qty: 3 }, prem: { name: "🏷️ Ваучеры x5", type: "voucher", qty: 5 } },
+                { lvl: 8, free: { name: "🏷️ Ваучеры x2", type: "voucher", qty: 2 }, prem: { name: "🏷️ Ваучеры x3", type: "voucher", qty: 3 } },
                 { lvl: 9, free: { name: "Крышки x9", type: "caps", qty: 9 }, prem: { name: "🧬 Сыворотка ОЗ x2", type: "maxhp", qty: 2 } },
-                { lvl: 10, free: { name: "🏷️ Ваучеры x6", type: "voucher", qty: 6 }, prem: { name: "🔥 Винтовка Гаусса", type: "wpn", wpnId: "gauss" } }
+                { lvl: 10, free: { name: "🏷️ Ваучеры x3", type: "voucher", qty: 3 }, prem: { name: "🔥 Винтовка Гаусса", type: "wpn", wpnId: "gauss" } }
             ];
 
             for (let i = 1; i <= 100; i++) {
@@ -5574,11 +5887,11 @@ onclick="Core.declineEncounter()">
             // Фиксируем ровно то же количество ваучеров из исходного кода, очищая дубли на других этапах
             let originalVoucherLevels = [3, 5, 6, 8, 10];
             let originalVoucherRewards = [
-                { lvl: 3, free: null, prem: { name: "🏷️ Ваучеры x3", type: "voucher", qty: 3 } },
+                { lvl: 3, free: null, prem: { name: "🏷️ Ваучеры x2", type: "voucher", qty: 2 } },
                 { lvl: 5, free: { name: "🏷️ Ваучер x1", type: "voucher", qty: 1 }, prem: null },
-                { lvl: 6, free: null, prem: { name: "🏷️ Ваучеры x5", type: "voucher", qty: 5 } },
-                { lvl: 8, free: { name: "🏷️ Ваучеры x3", type: "voucher", qty: 3 }, prem: { name: "🏷️ Ваучеры x5", type: "voucher", qty: 5 } },
-                { lvl: 10, free: { name: "🏷️ Ваучеры x6", type: "voucher", qty: 6 }, prem: null }
+                { lvl: 6, free: null, prem: { name: "🏷️ Ваучеры x3", type: "voucher", qty: 3 } },
+                { lvl: 8, free: { name: "🏷️ Ваучеры x2", type: "voucher", qty: 2 }, prem: { name: "🏷️ Ваучеры x3", type: "voucher", qty: 3 } },
+                { lvl: 10, free: { name: "🏷️ Ваучеры x3", type: "voucher", qty: 3 }, prem: null }
             ];
             
             // Принудительно очищаем автогенерацию ваучеров и ставим их строго на их новые позиции (например, х5 от старых)
@@ -5605,25 +5918,35 @@ onclick="Core.declineEncounter()">
             // render трактуют null как «нет награды»). Финал на 100 этапе — эксклюзивный космический скин.
             for (let i = 1; i <= 100; i++) list[i - 1].prem = null;
             list[4].prem  = { name: "🔫 Самопал", type: "wpn", wpnId: "pistol" };
-            list[9].prem  = { name: "🏷️ Ваучеры x5", type: "voucher", qty: 5 };
+            list[9].prem  = { name: "🏷️ Ваучеры x3", type: "voucher", qty: 3 };
             list[14].prem = { name: "🔋 Восстановление Энергии", type: "energy_pack" };
             list[19].prem = { name: "🧰 Гаджет (случайное оружие)", type: "gadget" };
-            list[24].prem = { name: "🏷️ Ваучеры x10", type: "voucher", qty: 10 };
+            list[24].prem = { name: "🏷️ Ваучеры x5", type: "voucher", qty: 5 };
             list[29].prem = { name: "💉 Мед-Пакет x3", type: "hp_pack", qty: 3 };
             list[34].prem = { name: "🧬 Сыворотка ОЗ x2", type: "maxhp", qty: 2 };
-            list[39].prem = { name: "🏷️ Ваучеры x15", type: "voucher", qty: 15 };
+            list[39].prem = { name: "🏷️ Ваучеры x8", type: "voucher", qty: 8 };
             list[44].prem = { name: "⚡ Мегасила (случайное оружие)", type: "megasila" };
-            list[49].prem = { name: "🔥 Винтовка Гаусса", type: "wpn", wpnId: "gauss" };
-            list[54].prem = { name: "🏷️ Ваучеры x15", type: "voucher", qty: 15 };
+            // 50 уровень: единственное оружие сезона. Оно в Premium-дороге — Elite получает его
+            // автоматически через доступ к Premium, отдельного Elite-оружия НЕТ (см. документацию).
+            // Название берётся из DB.weapons по season.weaponId, чтобы карточка показывала реальное
+            // имя оружия (для 1 сезона — «☢️ ПЛАЗМА»), а не общую подпись-заглушку.
+            list[49].prem = season.weaponId
+                ? { name: (DB.weapons.find(w => w.id === season.weaponId) || {}).name || "🔫 Оружие сезона", type: "season_wpn", wpnId: season.weaponId }
+                : { name: "🔫 Оружие сезона (скоро)", type: "season_wpn", wpnId: null };
+            list[54].prem = { name: "🏷️ Ваучеры x8", type: "voucher", qty: 8 };
             list[59].prem = { name: "💥 Дробовик «Костолом»", type: "wpn", wpnId: "shotgun" };
             list[64].prem = { name: "🔋 Восстановление Энергии", type: "energy_pack" };
             list[69].prem = { name: "🧰 Гаджет (случайное оружие)", type: "gadget" };
-            list[74].prem = { name: "🏷️ Ваучеры x20", type: "voucher", qty: 20 };
+            list[74].prem = { name: "🏷️ Ваучеры x10", type: "voucher", qty: 10 };
             list[79].prem = { name: "🎯 Штурмовая АК-74Рад", type: "wpn", wpnId: "assault" };
             list[84].prem = { name: "💉 Мед-Пакет x5", type: "hp_pack", qty: 5 };
             list[89].prem = { name: "⚡ Мегасила (случайное оружие)", type: "megasila" };
-            list[94].prem = { name: "🏷️ Ваучеры x25", type: "voucher", qty: 25 };
-            list[99].prem = { name: "🌌 Скин «Космо-Странник»", type: "skin", skinId: "cosmo" };
+            list[94].prem = { name: "🏷️ Ваучеры x13", type: "voucher", qty: 13 };
+            // Обычная Premium-награда финального этапа — эксклюзивный скин сезона теперь
+            // выдаётся отдельно как Elite-награда этого же уровня (см. блок ниже).
+            list[99].prem = { name: "🏷️ Ваучеры x15", type: "voucher", qty: 15 };
+            // Бесплатная дорога 100 уровня: не золото и не что-то "особое" — просто синий титул «Сова».
+            list[99].free = { name: "🦉 Титул «Сова»", type: "title", titleId: "titleBpOwl" };
 
             // ===== Жетоны Схрона в премиум-дороге: 10 штук по 1 шт., раскиданы равномерно
             // по всей длине пропуска (не задевают уже занятые "круглые" этапы с уникальным контентом) =====
@@ -5631,6 +5954,19 @@ onclick="Core.declineEncounter()">
             tokenLevels.forEach(lvl => {
                 list[lvl - 1].prem = { name: "💠 Жетон Схрона x1", type: "item", item: "Жетон Схрона", qty: 1 };
             });
+
+            // ===== ELITE: занимает ИМЕННО те ячейки Premium-дороги, что остались пустыми выше =====
+            // (ключевое правило реворка — третьей колонки не создаём, Elite просто "включает свет"
+            // в уже существующих пустых Premium-слотах). Там, где Premium уже занят — Elite нет.
+            list.forEach(r => { r.elite = r.prem ? null : eliteRewardForLevel(r.lvl); });
+
+            // 100 уровень — единственное намеренное исключение: здесь Elite-слот существует
+            // ДОПОЛНИТЕЛЬНО к занятому Premium-слоту. Это главная награда всего сезона —
+            // эксклюзивный скин, которого нет ни у Free, ни у чистого Premium.
+            let seasonSkinDef = season.skinId ? DB.skins.find(s => s.id === season.skinId) : null;
+            list[99].elite = seasonSkinDef
+                ? { name: `${seasonSkinDef.icon} ${seasonSkinDef.name}`, type: "season_skin", skinId: season.skinId }
+                : { name: "👑 Скин сезона (скоро)", type: "season_skin", skinId: null };
 
             return list;
         };
@@ -5666,7 +6002,7 @@ onclick="Core.declineEncounter()">
                 { id: "revolver", name: "Тяжёлый Револьвер", dmg: 22, crit: 16, icon: "🔫", color: "#00f0ff", tier: "Редкое", class: "Пистолеты" },
                 { id: "shotgun", name: "Дробовик «Костолом»", dmg: 42, crit: 8, icon: "💥", color: "#ff2a5f", tier: "Эпическое", class: "Дробовики" },
                 { id: "assault", name: "Штурмовая АК-74Рад", dmg: 38, crit: 18, icon: "🎯", color: "#ff2a5f", tier: "Эпическое", class: "Штурмовые винтовки" },
-                { id: "plasma", name: "Плазменный Резак", dmg: 35, crit: 15, icon: "🔥", color: "#ff2a5f", tier: "Эпическое", class: "Энергетическое" },
+                { id: "plasma", name: "ПЛАЗМА", dmg: 35, crit: 15, icon: "☢️", color: "#ff2a5f", tier: "Эпическое", class: "Энергетическое" },
                 { id: "minigun", name: "Миниган «Молотилка»", dmg: 95, crit: 12, icon: "🌀", color: "#ffb703", tier: "Легендарное", class: "Тяжёлое оружие" },
                 { id: "gauss", name: "Винтовка Гаусса", dmg: 62, crit: 18, icon: "⚡", color: "#ffb703", tier: "Легендарное", class: "Энергетическое" }
             ],
@@ -5718,10 +6054,17 @@ onclick="Core.declineEncounter()">
                     { key: "assault_heavy", label: "💥 Шквальный огонь", cd: 5, dmgMult: 1.3, critBonus: 15, stunChance: 0.3, cls: "primary", sty: "background: var(--grad-gold); color:#000;" },
                     { key: "assault_guard", label: "🛡️ Прикрытие", cd: 3, dmgMult: 0, block: true, cls: "success" }
                 ],
+                // ===== ПЛАЗМА: уникальная механика ПЕРЕГРЕВА (см. Core.plasmaHeat / Core.getPlasmaHeatInfo()).
+                // Каждая атака копит heatGain перегрева (0-100). При 60+ атаки бьют сильнее, но враг
+                // получает бонус к уклонению игрока (штраф). При 90+ мощные атаки (plasmaPowerful) блокируются,
+                // пока перегрев не спадёт САМ со временем (см. Core.decayPlasmaHeatTick — нет кнопки охлаждения).
+                // heatSynergyBonus/heatSynergyThreshold — доп. урон, если перегрев уже высокий В МОМЕНТ
+                // применения способности. armorPenPct — частичное игнорирование брони. =====
                 plasma: [
-                    { key: "plasma_fast", label: "⚡ Быстрый разряд", cd: 2, dmgMult: 0.85, critZero: true, cls: "primary" },
-                    { key: "plasma_burn", label: "🔥 Поджиг", cd: 4, dmgMult: 0.9, bleedTicks: 3, bleedLog: "🔥 Плазменный ожог! Враг горит.", cls: "primary", sty: "background: var(--grad-accent);" },
-                    { key: "plasma_heavy", label: "💥 Перегрузка", cd: 5, dmgMult: 1.3, critBonus: 15, stunChance: 0.35, cls: "primary", sty: "background: var(--grad-gold); color:#000;" }
+                    { key: "plasma_impulse", label: "⚡ Плазменный импульс", cd: 2, dmgMult: 1.0, heatGain: 15, cls: "primary" },
+                    { key: "plasma_overload", label: "🔥 Перегрузка", cd: 5, dmgMult: 1.85, critBonus: 10, heatGain: 30, heatSynergyBonus: 0.15, heatSynergyThreshold: 60, plasmaPowerful: true, cls: "primary", sty: "background: var(--grad-gold); color:#000;" },
+                    { key: "plasma_discharge", label: "☢️ Плазменный разряд", cd: 4, dmgMult: 1.4, heatGain: 25, armorPenPct: 0.35, bleedTicks: 3, bleedLog: "☢️ Энергетический разряд прожигает врага! Он получает урон каждый ход.", plasmaPowerful: true, cls: "primary", sty: "background: var(--grad-accent);" },
+                    { key: "plasma_meltdown", label: "💥 Расплавление", cd: 6, dmgMult: 2.3, heatGain: 40, armorPenPct: 0.5, heatSynergyBonus: 0.25, heatSynergyThreshold: 60, plasmaPowerful: true, cls: "primary", sty: "background: linear-gradient(135deg, #ff2a5f, #ff5722); color:#fff;" }
                 ],
                 minigun: [
                     { key: "minigun_spinup", label: "⚡ Разгон стволов", cd: 2, dmgMult: 0.85, critZero: true, cls: "primary" },
@@ -5745,6 +6088,10 @@ onclick="Core.declineEncounter()">
                 { id: "craft_revolver", name: "Тяжёлый Револьвер", reqLvl: 9, cost: { "Жетон Схрона": 56, "Запчасти": 5, "Тяжелый Хлам": 1 }, type: "weapon", targetId: "revolver" },
                 { id: "craft_shotgun", name: "Дробовик «Костолом»", reqLvl: 26, cost: { "Жетон Схрона": 100, "Запчасти": 15, "Тяжелый Хлам": 4, "Ядерная Батарея": 1 }, type: "weapon", targetId: "shotgun" },
                 { id: "craft_assault", name: "Штурмовая АК-74Рад", reqLvl: 30, cost: { "Жетон Схрона": 128, "Запчасти": 20, "Тяжелый Хлам": 6, "Ядерная Батарея": 1 }, type: "weapon", targetId: "assault" },
+                // ☢️ ПЛАЗМА: во время 1 сезона Пропуска Пустоши доступна ТОЛЬКО через Premium-дорогу (50 ур.).
+                // После окончания сезона появляется в обычном крафте — стоимость жетонов такая же, как у
+                // остальных Эпических видов оружия (Дробовик/Штурмовая винтовка), см. Core.isPlasmaSeasonExclusive().
+                { id: "craft_plasma", name: "ПЛАЗМА", reqLvl: 32, cost: { "Жетон Схрона": 114, "Запчасти": 19, "Тяжелый Хлам": 5, "Ядерная Батарея": 1 }, type: "weapon", targetId: "plasma" },
                 { id: "craft_minigun", name: "Миниган «Молотилка»", reqLvl: 50, cost: { "Жетон Схрона": 220, "Запчасти": 47, "Тяжелый Хлам": 12, "Ядерная Батарея": 3 }, type: "weapon", targetId: "minigun" },
                 { id: "craft_gauss", name: "Винтовка Гаусса", reqLvl: 65, cost: { "Жетон Схрона": 260, "Запчасти": 50, "Тяжелый Хлам": 13, "Ядерная Батарея": 3 }, type: "weapon", targetId: "gauss" }
             ],
@@ -5812,7 +6159,7 @@ onclick="Core.declineEncounter()">
                 { weaponId: "revolver", name: "Добивающий выстрел", icon: "🔫", desc: "Последний патрон бьёт без промаха.", stats: "x2.2 урона · Гарантированный крит", type: "strike", dmgMult: 2.2, guaranteedCrit: true, cost: 3 },
                 { weaponId: "shotgun", name: "Залп в упор", icon: "💥", desc: "Дробь бьёт в упор и разносит всё на куски.", stats: "x2.6 урона · Гарантированное оглушение", type: "strike", dmgMult: 2.6, guaranteedStun: true, cost: 4 },
                 { weaponId: "assault", name: "Шквальный огонь", icon: "🔥", desc: "Магазин уходит в цель одной длинной очередью.", stats: "x2.8 урона", type: "strike", dmgMult: 2.8, cost: 4 },
-                { weaponId: "plasma", name: "Перегрузка ядра", icon: "☢️", desc: "Ядро идёт вразнос, жар плавит броню изнутри.", stats: "x3.0 урона · Гарантированный крит", type: "strike", dmgMult: 3.0, guaranteedCrit: true, cost: 4 },
+                { weaponId: "plasma", name: "Перегрузка ядра", icon: "☢️", desc: "Ядро идёт вразнос, жар плавит броню изнутри — но сам разряд оставляет ствол раскалённым добела.", stats: "x3.0 урона · Гарантированный крит · +35 перегрева", type: "strike", dmgMult: 3.0, guaranteedCrit: true, heatGain: 35, cost: 4 },
                 { weaponId: "minigun", name: "Шквал свинца", icon: "🌀", desc: "Ствол раскручен до предела, свинец льётся сплошной стеной.", stats: "x3.6 урона · Гарантированное оглушение", type: "strike", dmgMult: 3.6, guaranteedStun: true, cost: 5 },
                 { weaponId: "gauss", name: "Пробивной заряд", icon: "⚡", desc: "Заряд прошивает броню насквозь, будто её и не было.", stats: "x3.2 урона в обход брони · Гарантированный крит", type: "strike", dmgMult: 3.2, guaranteedCrit: true, ignoreArmor: true, cost: 5 }
             ],
@@ -5826,7 +6173,7 @@ onclick="Core.declineEncounter()">
                 { weaponId: "revolver", name: "Взведённый барабан", icon: "🔄", desc: "Барабан крутится сам, находя уязвимое место раньше вас.", stats: "+12% шанс критического удара", effect: { crit: 12 }, cost: 4 },
                 { weaponId: "shotgun", name: "Расширенный ствол", icon: "📯", desc: "Ствол рассверлен под самодельные патроны — разброс бьёт шире и злее.", stats: "+15% урона оружием", effect: { dmgMult: 0.15 }, cost: 5 },
                 { weaponId: "assault", name: "Стабилизированная очередь", icon: "🎯", desc: "Гасители отдачи держат ствол на линии огня даже в длинной очереди.", stats: "+12% урона · +6% шанс крита", effect: { dmgMult: 0.12, crit: 6 }, cost: 5 },
-                { weaponId: "plasma", name: "Резонансный контур", icon: "🌌", desc: "Контур настроен в резонанс с ядром — разряд бьёт точно в уязвимость.", stats: "+25% крит-урона", effect: { critDmgMult: 0.25 }, cost: 5 },
+                { weaponId: "plasma", name: "Резонансный контур", icon: "🌌", desc: "Контур стабилизирует плазменное ядро, позволяя безопаснее использовать высокие уровни перегрева — разряд бьёт точно в уязвимость.", stats: "+25% крит-урона", effect: { critDmgMult: 0.25 }, cost: 5 },
                 { weaponId: "minigun", name: "Раскрученный ротор", icon: "🌀", desc: "Ротор больше не сбавляет обороты — шквал не ослабевает ни на миг.", stats: "+20% урона оружием", effect: { dmgMult: 0.20 }, cost: 6 },
                 { weaponId: "gauss", name: "Магнитный ускоритель", icon: "🧲", desc: "Катушки разогнаны до предела — снаряд проходит цель, не заметив.", stats: "+20% крит-урона (дальний бой) · +6% шанс крита", effect: { rangedCritDmgMult: 0.20, crit: 6 }, cost: 6 }
             ],
@@ -5919,7 +6266,7 @@ onclick="Core.declineEncounter()">
             },
             avatars: [
                 {
-                    id: "ranger", name: "Странник Пустошей", accent: "#00e6ff",
+                    id: "ranger", name: "Странник Пустошей", accent: "#00e6ff", requiresSkin: "default",
                     svg: `<svg viewBox="0 0 100 100" width="100" height="100" xmlns="http://www.w3.org/2000/svg">
                         <rect width="100" height="100" fill="#141c24"/>
                         <ellipse cx="50" cy="60" rx="21" ry="23" fill="#b98f6e"/>
@@ -5981,6 +6328,88 @@ onclick="Core.declineEncounter()">
                         <rect width="100" height="100" fill="#0d3b3f"/>
                         <image href="data:image/jpeg;base64,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" x="0" y="0" width="100" height="100" preserveAspectRatio="xMidYMid slice"/>
                     </svg>`
+                },
+                {
+                    id: "krustyAvatar", name: "Аваклоун", accent: "#ff9500",
+                    svg: `<svg viewBox="0 0 100 100" width="100" height="100" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="100" height="100" fill="#2a0a12"/>
+                        <image href="data:image/jpeg;base64,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" x="0" y="0" width="100" height="100" preserveAspectRatio="xMidYMid slice"/>
+                    </svg>`
+                },
+                {
+                    id: "sand", name: "Песочный Странник", accent: "#e8b06a", requiresSkin: "sand",
+                    svg: `<svg viewBox="0 0 100 100" width="100" height="100" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="100" height="100" fill="#241a0e"/>
+                        <ellipse cx="50" cy="60" rx="21" ry="23" fill="#eccaa0"/>
+                        <path d="M18 44 C18 14 82 14 82 44 C82 30 66 22 50 22 C34 22 18 30 18 44 Z" fill="#c99f66"/>
+                        <path d="M18 44 C18 30 34 22 50 22 C66 22 82 30 82 44 L76 41 C76 30 64 26 50 26 C36 26 24 30 24 41 Z" fill="#e0b57c"/>
+                        <path d="M68 26 C90 34 86 60 70 68 C76 52 70 36 58 30 Z" fill="#c99f66"/>
+                        <path d="M68 26 C84 36 82 56 70 64" fill="none" stroke="#8a6a3c" stroke-width="2" opacity="0.5"/>
+                        <circle cx="39" cy="48" r="10" fill="#3a2a16" stroke="#ffcf6a" stroke-width="2"/>
+                        <circle cx="61" cy="48" r="10" fill="#3a2a16" stroke="#ffcf6a" stroke-width="2"/>
+                        <circle cx="39" cy="48" r="5" fill="#e8b03a"/>
+                        <circle cx="61" cy="48" r="5" fill="#e8b03a"/>
+                        <path d="M20 60 C30 90 70 90 80 60 C74 76 62 82 50 82 C38 82 26 76 20 60 Z" fill="#e0803a"/>
+                        <path d="M26 64 C34 82 66 82 74 64" fill="none" stroke="#a8501c" stroke-width="2" opacity="0.6"/>
+                    </svg>`
+                },
+                {
+                    id: "cosmo", name: "Космо-Странник", accent: "#8fd9ff", requiresSkin: "cosmo",
+                    svg: `<svg viewBox="0 0 100 100" width="100" height="100" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="100" height="100" fill="#12163a"/>
+                        <ellipse cx="50" cy="58" rx="20" ry="22" fill="#e8dcc0"/>
+                        <circle cx="50" cy="46" r="34" fill="#8fd9ff" opacity="0.18"/>
+                        <circle cx="50" cy="46" r="34" fill="none" stroke="#8fd9ff" stroke-width="3"/>
+                        <path d="M28 24 Q40 12 52 11" stroke="#fff" stroke-width="3" opacity="0.45" fill="none" stroke-linecap="round"/>
+                        <rect x="47" y="4" width="6" height="10" rx="2" fill="#3a3f7a"/>
+                        <circle cx="50" cy="2" r="4" fill="#8fd9ff"/>
+                        <circle cx="42" cy="58" r="3" fill="#12142c"/>
+                        <circle cx="58" cy="58" r="3" fill="#12142c"/>
+                        <path d="M40 68 Q50 74 60 68" stroke="#8a7050" stroke-width="2" opacity="0.5" fill="none"/>
+                        <path d="M18 70 C20 78 28 84 34 86 L34 76 C28 74 22 70 18 64 Z" fill="#2c2f6b"/>
+                        <path d="M82 70 C80 78 72 84 66 86 L66 76 C72 74 78 70 82 64 Z" fill="#2c2f6b"/>
+                        <rect x="10" y="72" width="13" height="13" rx="3" fill="#12122e" stroke="#8fd9ff" stroke-width="1.5"/>
+                        <rect x="77" y="72" width="13" height="13" rx="3" fill="#12122e" stroke="#8fd9ff" stroke-width="1.5"/>
+                        <circle cx="16.5" cy="78.5" r="2" fill="#8fd9ff"/><circle cx="83.5" cy="78.5" r="2" fill="#8fd9ff"/>
+                    </svg>`
+                },
+                {
+                    id: "grime", name: "Грязный Странник", accent: "#8a9a4e", requiresSkin: "grime",
+                    svg: `<svg viewBox="0 0 100 100" width="100" height="100" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="100" height="100" fill="#171a10"/>
+                        <ellipse cx="50" cy="60" rx="21" ry="23" fill="#b8a888"/>
+                        <path d="M18 44 C18 14 82 14 82 44 L76 39 L69 44 L62 39 L55 44 L48 39 L41 44 L34 39 L27 44 L22 39 Z" fill="#4a4a34"/>
+                        <path d="M18 44 C18 30 34 22 50 22 C66 22 82 30 82 44 L77 40 C74 30 63 26 50 26 C37 26 26 30 23 40 Z" fill="#5c5c40"/>
+                        <circle cx="39" cy="48" r="9" fill="#0b0f13" stroke="#8a9a4e" stroke-width="2"/>
+                        <circle cx="61" cy="48" r="9" fill="#0b0f13" stroke="#8a9a4e" stroke-width="2"/>
+                        <circle cx="39" cy="48" r="4" fill="#c9d68a"/>
+                        <circle cx="61" cy="48" r="4" fill="#c9d68a"/>
+                        <path d="M33 64 Q50 59 67 64 L65 78 Q50 84 35 78 Z" fill="#2a2a1c"/>
+                        <path d="M33 64 L18 60 M67 64 L82 60" stroke="#3a3a28" stroke-width="2.6" opacity="0.85" stroke-linecap="round"/>
+                        <circle cx="50" cy="75" r="5.5" fill="#1a1a10" stroke="#8a9a4e" stroke-width="1.6"/>
+                        <circle cx="50" cy="75" r="2" fill="#8a9a4e"/>
+                        <rect x="28" y="76" width="11" height="7" rx="1.5" fill="#5a5a3e" opacity="0.85" transform="rotate(-9 33.5 79.5)"/>
+                        <rect x="61" y="78" width="12" height="7" rx="1.5" fill="#5a5a3e" opacity="0.85" transform="rotate(10 67 81.5)"/>
+                        <path d="M18 60 C20 70 30 78 38 80 L38 68 C30 66 22 60 18 54 Z" fill="#2c2f1c"/>
+                        <path d="M82 60 C80 70 70 78 62 80 L62 68 C70 66 78 60 82 54 Z" fill="#2c2f1c"/>
+                    </svg>`
+                },
+                {
+                    id: "owl", name: "Странник Сова", accent: "#ffcf4d", requiresSkin: "owl",
+                    svg: `<svg viewBox="0 0 100 100" width="100" height="100" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="100" height="100" fill="#1c140a"/>
+                        <ellipse cx="50" cy="62" rx="20" ry="22" fill="#dcb98a"/>
+                        <path d="M28 30 Q22 8 16 2 Q30 4 36 22 Z" fill="#6e5230"/>
+                        <path d="M72 30 Q78 8 84 2 Q70 4 64 22 Z" fill="#6e5230"/>
+                        <path d="M16 46 C16 16 84 16 84 46 C84 32 67 22 50 22 C33 22 16 32 16 46 Z" fill="#6e5230"/>
+                        <circle cx="37" cy="50" r="13" fill="#fff6d8" stroke="#a8650a" stroke-width="2"/>
+                        <circle cx="63" cy="50" r="13" fill="#fff6d8" stroke="#a8650a" stroke-width="2"/>
+                        <circle cx="37" cy="50" r="6" fill="#2a1c06"/>
+                        <circle cx="63" cy="50" r="6" fill="#2a1c06"/>
+                        <path d="M46 58 L50 67 L54 58 Z" fill="#e8b23a"/>
+                        <path d="M18 66 C20 76 32 86 42 88 L38 74 C30 72 24 68 18 60 Z" fill="#a8814e"/>
+                        <path d="M82 66 C80 76 68 86 58 88 L62 74 C70 72 76 68 82 60 Z" fill="#a8814e"/>
+                    </svg>`
                 }
             ],
             // Система титулов: разблокируются автоматически по достижениям и навсегда остаются в профиле игрока
@@ -6001,6 +6430,7 @@ onclick="Core.declineEncounter()">
                 { id: "streak30", icon: "🏅", name: "Легенда Снабжения", desc: "Получайте ежедневный паёк 30 дней подряд.", check: p => (p.dailyStreak || 0) >= 30 },
                 { id: "capsMagnate", icon: "🪙", name: "Крышечный Магнат", desc: "Накопите 1000 крышек одновременно.", check: p => (p.caps || 0) >= 1000 },
                 { id: "bpMaster", icon: "🎫", name: "Хозяин Пропуска Пустоши", desc: "Достигните 100 уровня Пропуска Пустоши.", check: p => (p.bpLvl || 0) >= 100 },
+                { id: "titleBpOwl", icon: "🦉", name: "Сова", desc: "Награда 100 уровня бесплатной дороги Пропуска Пустоши.", check: p => false, titleColor: "#4aa8ff" },
                 { id: "trophyChampion", icon: "🏆", name: "Чемпион Трофейной Дороги", desc: "Наберите 1000 трофеев.", check: p => (p.trophies || 0) >= 1000 },
                 { id: "trophyLegend", icon: "👑", name: "Легенда Трофейной Дороги", desc: "Пройдите Трофейную Дорогу полностью — наберите 5000 трофеев.", check: p => (p.trophies || 0) >= 5000 },
                 // Проверяется не локально (check всегда false), а отдельно через Core.checkTopRankTitle(),
@@ -6025,7 +6455,10 @@ onclick="Core.declineEncounter()">
                 { id: "default", name: "Стандартный комплект", icon: "🧥", price: 0, accent: "var(--neon-blue)", desc: "Стандартная экипировка Странника Пустошей. Всегда доступна." },
                 { id: "sand", name: "Песочный Странник", icon: "🏜️", price: 60, accent: "#e8b06a", desc: "Пропылённая до костей экипировка кочевника — сливается с барханами и держит зной." },
                 { id: "cosmo", name: "Космо-Странник", icon: "🌌", price: 85, accent: "#8fd9ff", desc: "Скафандр из орбитальных обломков со звёздной пылью и мерцающим реактором на груди." },
-                { id: "grime", name: "Грязный Странник", icon: "🦠", price: 20, accent: "#8a9a4e", desc: "Заляпанная болотной тиной куртка. Выглядит так себе, зато почти задаром." }
+                { id: "grime", name: "Грязный Странник", icon: "🦠", price: 20, accent: "#8a9a4e", desc: "Заляпанная болотной тиной куртка. Выглядит так себе, зато почти задаром." },
+                // ☢️ Эксклюзив 1 сезона Пропуска Пустоши (100 уровень Elite). Не входит в SKIN_ROTATION_COMBOS —
+                // в обычном магазине скинов не продаётся и не появляется на витрине.
+                { id: "owl", name: "Странник Сова", icon: "🦉", price: 0, accent: "#ffcf4d", desc: "Перьевая броня цвета ночной охоты — бурые перья, янтарные линзы-глаза и ушки-пучки на капюшоне. Награда 100 уровня Elite-дороги 1 сезона." }
             ],
             lootboxes: [
                 { name: "Скрап-Ящик", price: 15, color: "#00f0ff", tier: 1, maxVouchers: 1, table: [{ item: "Запчасти x4", chance: 0.679 }, { item: "🧬 Сыворотка ОЗ (+10 к Макс ОЗ)", chance: 0.291 }, { item: "⛺ Привал x1", chance: 0.03 }] },
@@ -6167,7 +6600,17 @@ onclick="Core.declineEncounter()">
                 { name: "💠 Жетон Схрона x2", icon: "💠", color: "#00c4ff", weight: 1, reward: { type: "item", item: "Жетон Схрона", qty: 2 } },
                 { name: "🎫 Премиум-пропуск", icon: "🎫", color: "#ffffff", weight: 0.3, reward: { type: "premium_pass" } }
             ],
-            bpRewards: generateBpRewards(),
+            seasons: SEASONS,
+            // Цены Пропуска Пустоши — вынесены в конфиг, чтобы менять без правки логики.
+            // Elite дороже Premium и включает его автоматически (см. Core.buyBpElite).
+            bpPrices: { premiumVouchers: 99, eliteVouchers: 179 },
+            // Награды по сезонам считаются лениво и кэшируются по seasonId — оружие/скин сезона
+            // задаются в SEASONS, поэтому пересчитывать таблицу целиком при каждом рендере не нужно.
+            _bpRewardsCache: {},
+            getBpRewards(season) {
+                if (!this._bpRewardsCache[season.id]) this._bpRewardsCache[season.id] = generateBpRewards(season);
+                return this._bpRewardsCache[season.id];
+            },
             // Пул шаблонов ежедневных заданий Пропуска Пустоши: каждый день выбирается
             // 3 случайных незанятых шаблона, они действуют 24 часа и сменяются на новые.
             dailyQuestPool: [
@@ -6218,7 +6661,8 @@ onclick="Core.declineEncounter()">
                 { code: "аватаркакинга", type: "avatar", avatarId: "kingAvatar", maxUses: 2, desc: "эксклюзивная аватарка «Аватарка Кинга»" },
                 { code: "авабоба", type: "avatar", avatarId: "zeusAvatar", maxUses: 1, desc: "эксклюзивная аватарка «Зевс Олимпиец»" },
                 { code: "топ3", type: "wheelSpins", qty: 5, maxUses: 3, desc: "5 бесплатных круток 🎡 Колеса Фортуны" },
-                { code: "фортуна", type: "voucher", qty: 15, maxUses: 3, desc: "15 🏷️ Ваучеров" }
+                { code: "фортуна", type: "voucher", qty: 15, maxUses: 3, desc: "15 🏷️ Ваучеров" },
+                { code: "аваклоуна", type: "avatar", avatarId: "krustyAvatar", maxUses: 1, desc: "эксклюзивная аватарка «Аваклоун»" }
             ]
         };
 
@@ -7180,10 +7624,10 @@ onclick="Core.declineEncounter()">
         };
 
         const Core = {
-            p: { hp: 50, maxHp: 50, energy: 100, maxEnergy: 100, rad: 0, hazards: {}, satiety: 100, lvl: 1, exp: 0, nextExp: 85, caps: 30, vouchers: 0, armor: 2, dodgeChance: 8, inv: { "Запчасти": 6, "Тяжелый Хлам": 0, "Ядерная Батарея": 0, "Сырое мясо": 1, "Жетон Схрона": 0 }, weaponsOwned: ["fists"], wpnUpgrades: { "fists": 0, "pipe": 0, "machete": 0, "pistol": 0, "revolver": 0, "shotgun": 0, "assault": 0, "plasma": 0, "minigun": 0, "gauss": 0 }, activeWeapon: "fists", rodLvl: 0, rodResetV2Done: true, rodCompensationPending: null, food: { "Жареное мясо крысы": 1 }, currentBiome: 0, bossesDefeated: [], bpLvl: 1, bpPoints: 0, bpPremium: false, bpClaimedFree: [], bpClaimedPrem: [], dailyStreak: 0, lastDailyClaim: null, relicWasteland: 0, redeemedPromoCodes: [], freeBoxes: {}, nickname: "Странник", nicknameSet: false, avatarsOwned: ["ranger", "raider", "cyborg"], avatar: "ranger", titleId: "newbie", unlockedTitles: ["newbie"], maxBiomeReached: 0, bmLastSuccessDay: null, bmFailDay: null, bmFailCount: 0, marketEarnDay: null, marketEarnedToday: 0, marketDailyCapValue: null, exchangeDay: null, exchangeUsed: {}, marketBuyDay: null, marketBuySpentToday: 0, marketBuyDailyCapValue: null, skinsOwned: ["default"], activeSkin: "default", dailyQuests: [], dailyQuestsDay: null, petsOwned: [], activePet: null, installedAt: Date.now(), updateGiftClaimed: false, restockGiftEligible: false, restockGiftClaimed: false, restockGiftAt: null, pvpDuelLog: {}, wheelDay: null, wheelSpinsToday: 0, wheelFreeClaimed: false, wheelBonusSpins: 0, energyPackDay: null, energyPackBoughtToday: 0, buildPresets: [],
+            p: { hp: 50, maxHp: 50, energy: 100, maxEnergy: 100, rad: 0, hazards: {}, satiety: 100, lvl: 1, exp: 0, nextExp: 85, caps: 30, vouchers: 0, armor: 2, dodgeChance: 8, inv: { "Запчасти": 6, "Тяжелый Хлам": 0, "Ядерная Батарея": 0, "Сырое мясо": 1, "Жетон Схрона": 0 }, weaponsOwned: ["fists"], wpnUpgrades: { "fists": 0, "pipe": 0, "machete": 0, "pistol": 0, "revolver": 0, "shotgun": 0, "assault": 0, "plasma": 0, "minigun": 0, "gauss": 0 }, activeWeapon: "fists", rodLvl: 0, rodResetV2Done: true, rodCompensationPending: null, food: { "Жареное мясо крысы": 1 }, currentBiome: 0, bossesDefeated: [], bpLvl: 1, bpPoints: 0, bpPremium: false, bpElite: false, bpClaimedFree: [], bpClaimedPrem: [], bpClaimedElite: [], bpSeasonId: null, bpSeasonUID: null, bpSeasonHistory: [], dailyStreak: 0, lastDailyClaim: null, relicWasteland: 0, redeemedPromoCodes: [], freeBoxes: {}, nickname: "Странник", nicknameSet: false, avatarsOwned: ["ranger", "raider", "cyborg"], avatar: "ranger", titleId: "newbie", unlockedTitles: ["newbie"], maxBiomeReached: 0, bmLastSuccessDay: null, bmFailDay: null, bmFailCount: 0, marketEarnDay: null, marketEarnedToday: 0, marketDailyCapValue: null, exchangeDay: null, exchangeUsed: {}, marketBuyDay: null, marketBuySpentToday: 0, marketBuyDailyCapValue: null, skinsOwned: ["default"], activeSkin: "default", dailyQuests: [], dailyQuestsDay: null, petsOwned: [], activePet: null, installedAt: Date.now(), updateGiftClaimed: false, restockGiftEligible: false, restockGiftClaimed: false, restockGiftAt: null, pvpDuelLog: {}, wheelDay: null, wheelSpinsToday: 0, wheelFreeClaimed: false, wheelBonusSpins: 0, energyPackDay: null, energyPackBoughtToday: 0, buildPresets: [],
                 perksUnlocked: [], perkPoints: 0, armorOwned: ["rags"], activeArmor: "rags", modsOwned: [], modsEquipped: { optic: null, mag: null, grip: null }, gadgetsOwned: [], megasilaOwned: [], trophies: 0, trophyClaimed: [] },
             combatState: null, restUses: 5, nextRestTick: null, bpSubTab: 'rewards',
-            hpRegenAccum: 0, satietyDecayAccum: 0, abilityCooldowns: {},
+            hpRegenAccum: 0, satietyDecayAccum: 0, abilityCooldowns: {}, plasmaHeat: 0, plasmaHeatLastTick: 0,
             lastAttackType: null, sameAttackStreak: 0, combatCooldownInterval: null,
             
             quests: [
@@ -7671,9 +8115,18 @@ onclick="Core.declineEncounter()">
                     }
                     if(this.p.restockGiftClaimed === undefined) this.p.restockGiftClaimed = false;
                     if(this.p.restockGiftAt === undefined) this.p.restockGiftAt = null;
+                    // Совместимость со старыми сохранениями: сезонный Elite-пропуск не выдаётся
+                    // автоматически, поля просто создаются в неактивном состоянии.
+                    if(this.p.bpElite === undefined) this.p.bpElite = false;
+                    if(!this.p.bpClaimedElite) this.p.bpClaimedElite = [];
+                    if(this.p.bpSeasonId === undefined) this.p.bpSeasonId = null;
+                    if(this.p.bpSeasonUID === undefined) this.p.bpSeasonUID = null;
+                    if(!this.p.bpSeasonHistory) this.p.bpSeasonHistory = [];
+                    this.checkBpSeasonRollover();
                     this.applyOfflineProgress();
                 } else {
                     this.lastTick = Date.now();
+                    this.checkBpSeasonRollover();
                 }
             },
 
@@ -7754,6 +8207,79 @@ onclick="Core.declineEncounter()">
                     Object.assign(mods, safeMods);
                 });
                 return mods;
+            },
+            // ================= ПЛАЗМА: механика ПЕРЕГРЕВА =================
+            // this.plasmaHeat — рантайм-состояние (0-100), НЕ сохраняется между сессиями и всегда
+            // обнуляется в начале боя (см. beginCombat/equipWeapon) — как abilityCooldowns/sameAttackStreak
+            // у остальных видов оружия. Поэтому старые сохранения ничего не ломают: поля просто нет,
+            // пока игрок не откроет бой с плазмой в руках, и оно создаётся здесь на лету.
+            getPlasmaHeatInfo() {
+                let heat = this.plasmaHeat || 0;
+                let upLvl = (this.p.wpnUpgrades && this.p.wpnUpgrades['plasma']) || 0;
+                let tierKey, tierLabel;
+                if (heat >= 90) { tierKey = 'critical'; tierLabel = '☢️ КРИТИЧЕСКИЙ ПЕРЕГРЕВ'; }
+                else if (heat >= 60) { tierKey = 'overheat'; tierLabel = '🔥🔥 Перегрев'; }
+                else if (heat >= 30) { tierKey = 'heating'; tierLabel = '🔥 Нагрев'; }
+                else { tierKey = 'normal'; tierLabel = 'Стабильная работа'; }
+                let dmgBonus = 0;
+                if (tierKey === 'heating') dmgBonus = 0.08;
+                else if (tierKey === 'overheat' || tierKey === 'critical') dmgBonus = upLvl >= 10 ? 0.25 : 0.18;
+                // На высоких уровнях модернизации (6+) штраф к уклонению при перегреве смягчается
+                let dodgePenalty = (tierKey === 'overheat' || tierKey === 'critical') ? (upLvl >= 6 ? 4 : 8) : 0;
+                return { heat, tierKey, tierLabel, dmgBonus, dodgePenalty, upLvl };
+            },
+            // На поздних уровнях модернизации (8+) плазма греется на 10% медленнее
+            getPlasmaHeatGain(baseGain) {
+                let upLvl = (this.p.wpnUpgrades && this.p.wpnUpgrades['plasma']) || 0;
+                return Math.round(baseGain * (upLvl >= 8 ? 0.9 : 1));
+            },
+            addPlasmaHeat(amount) {
+                this.plasmaHeat = Math.max(0, Math.min(100, (this.plasmaHeat || 0) + amount));
+            },
+            // ☢️ Перегрев спадает САМ со временем (нет отдельной кнопки охлаждения) — просто не стреляйте
+            // какое-то время, и шкала сама опустится. Скорость остывания растёт с прокачкой оружия.
+            getPlasmaDecayRate() {
+                let upLvl = (this.p.wpnUpgrades && this.p.wpnUpgrades['plasma']) || 0;
+                let rate = 4; // очков перегрева в секунду
+                if (upLvl >= 3) rate += 1;
+                if (upLvl >= 6) rate += 1;
+                return rate;
+            },
+            // Вызывается из renderAbilityCooldowns() каждые 200мс, пока идёт бой с плазмой в руках —
+            // считает реальное прошедшее время и плавно снижает перегрев.
+            decayPlasmaHeatTick() {
+                if (this.p.activeWeapon !== 'plasma' || !this.combatState) return;
+                let now = Date.now();
+                let last = this.plasmaHeatLastTick || now;
+                let elapsedMs = now - last;
+                this.plasmaHeatLastTick = now;
+                if (elapsedMs <= 0 || (this.plasmaHeat || 0) <= 0) return;
+                let amount = (elapsedMs / 1000) * this.getPlasmaDecayRate();
+                let beforeFloor = Math.floor(this.plasmaHeat || 0);
+                this.plasmaHeat = Math.max(0, (this.plasmaHeat || 0) - amount);
+                if (Math.floor(this.plasmaHeat) !== beforeFloor) this.updatePlasmaHeatUI();
+            },
+            // Обновляет шкалу перегрева в бою (прямо над синей полосой ХП персонажа в сцене боя).
+            // Прячется, если активное оружие — не плазма, или бой не идёт.
+            updatePlasmaHeatUI() {
+                let outer = document.getElementById('scene-player-heatbar-outer');
+                if (!outer) return;
+                if (this.p.activeWeapon !== 'plasma' || !this.combatState) { outer.style.display = 'none'; return; }
+                outer.style.display = 'block';
+                let hi = this.getPlasmaHeatInfo();
+                let heatRounded = Math.round(hi.heat);
+                let fill = document.getElementById('scene-player-heat-fill');
+                if (fill) {
+                    fill.style.width = heatRounded + '%';
+                    fill.style.background = hi.tierKey === 'critical' ? 'var(--neon-red)'
+                        : hi.tierKey === 'overheat' ? 'linear-gradient(135deg, #ff5722, #ff2a5f)'
+                        : hi.tierKey === 'heating' ? 'var(--grad-gold)' : 'var(--grad-blue)';
+                }
+                outer.className = 'combatant-heatbar-outer' + (hi.tierKey === 'critical' ? ' heat-critical' : (hi.tierKey === 'overheat' ? ' heat-glow' : ''));
+                outer.title = hi.tierKey === 'critical' ? `☢️ КРИТИЧЕСКИЙ ПЕРЕГРЕВ ${heatRounded}/100 — мощные атаки заблокированы, пока перегрев не спадёт сам`
+                    : hi.tierKey === 'overheat' ? `🔥🔥 Перегрев ${heatRounded}/100 — +${Math.round(hi.dmgBonus*100)}% урона, -${hi.dodgePenalty} уклонения`
+                    : hi.tierKey === 'heating' ? `🔥 Нагрев ${heatRounded}/100 — +${Math.round(hi.dmgBonus*100)}% урона`
+                    : `☢️ Перегрев плазмы: ${heatRounded}/100`;
             },
             // Суммирует бонусы всей текущей "сборки" (перки + экипированная броня + моды оружия)
             getBuildBonus() {
@@ -7917,8 +8443,19 @@ onclick="Core.declineEncounter()">
             openAvatarPicker() {
                 Sound.play('click');
                 const grid = document.getElementById('avatar-picker-grid');
-                grid.innerHTML = DB.avatars.filter(a => (this.p.avatarsOwned || []).includes(a.id)).map(a => {
-                    const active = a.id === this.p.avatar;
+                const ownsAvatar = a => (this.p.avatarsOwned || []).includes(a.id) || (a.requiresSkin && (this.p.skinsOwned || []).includes(a.requiresSkin));
+                grid.innerHTML = DB.avatars.map(a => {
+                    const owned = ownsAvatar(a);
+                    if (!owned && !a.requiresSkin) return '';
+                    const active = owned && a.id === this.p.avatar;
+                    if (!owned) {
+                        const skinDef = DB.skins.find(s => s.id === a.requiresSkin);
+                        return `<button type="button" class="avatar-pick-btn locked" disabled style="--avatar-color:${a.accent}">
+                            <div class="avatar-pick-icon" style="filter:grayscale(1) brightness(0.5);">${a.svg}</div>
+                            <span class="avatar-pick-label">${a.name}</span>
+                            <span class="avatar-pick-tag">🔒 Нужен скин «${skinDef ? skinDef.name : a.requiresSkin}»</span>
+                        </button>`;
+                    }
                     return `<button type="button" class="avatar-pick-btn ${active ? 'active' : ''}" style="--avatar-color:${a.accent}" onclick="Core.selectAvatar('${a.id}')">
                         <div class="avatar-pick-icon">${a.svg}</div>
                         <span class="avatar-pick-label">${a.name}</span>
@@ -8015,6 +8552,7 @@ onclick="Core.declineEncounter()">
                         titleBadge.style.removeProperty('--title-accent');
                         titleBadge.style.removeProperty('--title-glow');
                     }
+                    titleBadge.style.color = (!equippedTitle.special && equippedTitle.titleColor) ? equippedTitle.titleColor : '';
                 }
 
                 const weapon = DB.weapons.find(w => w.id === this.p.activeWeapon) || DB.weapons[0];
@@ -8047,7 +8585,7 @@ onclick="Core.declineEncounter()">
                     return `<div class="title-card unlocked ${equipped ? 'equipped' : ''} ${t.special ? 'title-special' : ''}"${specialVars} onclick="Core.equipTitle('${t.id}')">
                         <div class="title-card-icon">${t.icon}</div>
                         <div class="title-card-info">
-                            <div class="title-card-name">${t.name}</div>
+                            <div class="title-card-name"${(!t.special && t.titleColor) ? ` style=\"color:${t.titleColor};\"` : ''}>${t.name}</div>
                             <div class="title-card-desc">${t.desc}</div>
                         </div>
                         ${tag}
@@ -8111,13 +8649,19 @@ onclick="Core.declineEncounter()">
                     </div>`;
                 }
                 container.innerHTML = html;
+                this.updatePlasmaHeatUI();
             },
             renderAbilityCooldowns() {
+                // ☢️ Перегрев плазмы спадает сам по себе — тикаем распад здесь же, на общем интервале боя
+                this.decayPlasmaHeatTick();
                 let abilities = this.getActiveWeaponAbilities();
                 let now = Date.now();
+                let isPlasma = this.p.activeWeapon === 'plasma';
+                let heatCritical = isPlasma && (this.plasmaHeat || 0) >= 90;
                 abilities.forEach(a => {
                     let btn = document.getElementById(`btn-attack-${a.key}`);
                     if (!btn) return;
+                    if (heatCritical && a.plasmaPowerful) { btn.disabled = true; btn.innerText = `🔒 ${a.label} (остывает)`; return; }
                     let remain = Math.ceil(((this.abilityCooldowns[a.key] || 0) - now) / 1000);
                     if (remain > 0) { btn.disabled = true; btn.innerText = `${a.label} (${remain}с)`; }
                     else { btn.disabled = false; btn.innerText = a.label; }
@@ -8125,6 +8669,10 @@ onclick="Core.declineEncounter()">
             },
 
             loop() {
+                // Сезон Пропуска Пустоши определяется по реальному времени каждую секунду —
+                // это подхватывает смену сезона, даже если игра всё это время была открыта.
+                this.checkBpSeasonRollover();
+                this.updateBpSeasonTimer();
                 if (this.p.hp <= 0) return;
 
                 let hazardMods = this.getHazardMods();
@@ -8517,6 +9065,7 @@ beginCombat(){
     this.combatState.gadgetUsesLeft = this.combatState.isBoss ? 2 : 1;
     this.abilityCooldowns = {};
     this.lastAttackType = null; this.sameAttackStreak = 0;
+    this.plasmaHeat = 0; this.plasmaHeatLastTick = Date.now();
     this.renderCombatAbilities();
     this.startCooldownTicker();
     Scene.showEnemy(this.combatState);
@@ -8587,6 +9136,17 @@ startCombat(isBossFight = false) {
                 let ability = this.getActiveWeaponAbilities().find(a => a.key === attackType);
                 if (!ability) return;
 
+                let isPlasma = this.p.activeWeapon === 'plasma';
+                // ☢️ КРИТИЧЕСКИЙ ПЕРЕГРЕВ (90-100): мощные плазменные атаки временно заблокированы —
+                // перегрев спадает сам со временем (см. decayPlasmaHeatTick), нужно переждать или
+                // продолжать базовым Импульсом, прежде чем снова использовать Перегрузку/Разряд/Расплавление.
+                if (isPlasma && ability.plasmaPowerful && (this.plasmaHeat || 0) >= 90) {
+                    Sound.play('hit');
+                    this.log(`☢️ КРИТИЧЕСКИЙ ПЕРЕГРЕВ! «${ability.label}» заблокирована, пока перегрев не спадёт сам. Используйте ⚡ Импульс или подождите.`, "combat-lose");
+                    Scene.badge('⚠️');
+                    return;
+                }
+
                 let now = Date.now();
                 if (now < (this.abilityCooldowns[attackType] || 0)) {
                     Sound.play('hit');
@@ -8610,6 +9170,7 @@ startCombat(isBossFight = false) {
                 let build = this.getBuildBonus();
                 let isRangedWpn = ["Пистолеты", "Штурмовые винтовки", "Энергетическое", "Тяжёлое оружие"].includes(currentWpn.class);
                 let matchupMult = this.getClassMatchupMult(this.combatState.class, currentWpn.class);
+                let plasmaHeatInfo = isPlasma ? this.getPlasmaHeatInfo() : null;
 
                 let baseDmg = Math.round(currentWpn.dmg * (1 + upLvl * 0.25) * hazardMods.dmgDealtMult * (1 + build.dmgMult) * matchupMult);
                 let damageSpread = (Math.random() * 0.4) - 0.2; 
@@ -8622,6 +9183,15 @@ startCombat(isBossFight = false) {
 
                 if (ability.dmgMult !== undefined) {
                     calculatedDmg = Math.round(calculatedDmg * ability.dmgMult);
+                }
+                // 🔥 Бонус урона от текущего перегрева (Нагрев +8% / Перегрев +18%, до +25% на макс. модернизации)
+                if (isPlasma && plasmaHeatInfo.dmgBonus) {
+                    calculatedDmg = Math.round(calculatedDmg * (1 + plasmaHeatInfo.dmgBonus));
+                }
+                // ☢️ Синергия с перегревом: «Перегрузка» и «Расплавление» становятся ещё эффективнее,
+                // если перегрев уже высок в момент применения способности
+                if (isPlasma && ability.heatSynergyBonus && (this.plasmaHeat || 0) >= (ability.heatSynergyThreshold || 60)) {
+                    calculatedDmg = Math.round(calculatedDmg * (1 + ability.heatSynergyBonus));
                 }
                 if (ability.critZero) {
                     playerCrit = 0;
@@ -8647,15 +9217,25 @@ startCombat(isBossFight = false) {
 
                 if (calculatedDmg > 0) {
                     if (isPlayerCrit) { calculatedDmg = Math.round(calculatedDmg * critMult); }
-                    let netEnemyDmg = Math.max(1, calculatedDmg - this.combatState.armor);
+                    // ☢️ Частичное игнорирование брони (Разряд/Расплавление)
+                    let effArmor = ability.armorPenPct ? this.combatState.armor * (1 - ability.armorPenPct) : this.combatState.armor;
+                    let netEnemyDmg = Math.max(1, Math.round(calculatedDmg - effArmor));
                     this.combatState.hp = Math.max(0, this.combatState.hp - netEnemyDmg);
                     let matchupNote = matchupMult > 1 ? ' ⚡ Слабое место!' : matchupMult < 1 ? ' 🛡️ Сопротивление.' : '';
-                    this.log(`Вы бьете (${attackType}): -${netEnemyDmg} ОЗ врагу. У него осталось: ${this.combatState.hp} ОЗ. ${isPlayerCrit ? '🔥 КРИТ!' : ''}${matchupNote}`);
+                    let armorNote = ability.armorPenPct ? ` 🛡️‍💥 Частично игнорирует броню.` : '';
+                    this.log(`Вы бьете (${attackType}): -${netEnemyDmg} ОЗ врагу. У него осталось: ${this.combatState.hp} ОЗ. ${isPlayerCrit ? '🔥 КРИТ!' : ''}${matchupNote}${armorNote}`);
                     Scene.attackAnim('player'); Scene.slashFx('enemy');
                     Scene.floatDamage('enemy', netEnemyDmg, isPlayerCrit);
                     Scene.hitFlash('enemy'); Scene.shake(); Scene.impactSpark('enemy', isPlayerCrit ? 10 : 6);
                     if (isPlayerCrit) Scene.critImpact('enemy');
                     if (matchupMult > 1) { Scene.badge('⚡'); Scene.matchupFlash('weak'); } else if (matchupMult < 1) { Scene.badge('🛡️'); Scene.matchupFlash('resist'); }
+                }
+
+                // ☢️ Накопление перегрева после применения способности
+                if (isPlasma && ability.heatGain) {
+                    this.addPlasmaHeat(this.getPlasmaHeatGain(ability.heatGain));
+                    this.log(`☢️ Перегрев: ${this.plasmaHeat}/100.`, this.plasmaHeat >= 90 ? "combat-lose" : "system");
+                    this.updatePlasmaHeatUI();
                 }
 
                 if(this.combatState.hp <= 0) {
@@ -8672,7 +9252,14 @@ startCombat(isBossFight = false) {
                     if(this.combatState.hp <= 0) { this.processVictory(); return; }
                 }
 
-                if (this.enemyTurn(build, hazardMods, playerBlock)) return;
+                // 🔥🔥 При перегреве 60+ игрок временно менее увёртлив в ответной атаке врага
+                let effBuild = build;
+                if (isPlasma) {
+                    let hiNow = this.getPlasmaHeatInfo();
+                    if (hiNow.dodgePenalty) effBuild = Object.assign({}, build, { dodgeChance: (build.dodgeChance || 0) - hiNow.dodgePenalty });
+                }
+
+                if (this.enemyTurn(effBuild, hazardMods, playerBlock)) return;
 
                 Scene.syncCombat();
                 this.save(); this.updateUI();
@@ -8759,14 +9346,24 @@ startCombat(isBossFight = false) {
                     if (matchupMult > 1) { Scene.badge('⚡'); Scene.matchupFlash('weak'); } else if (matchupMult < 1) { Scene.badge('🛡️'); Scene.matchupFlash('resist'); }
                     if (gadget.guaranteedStun) { this.combatState.stunned = true; this.log("💫 Враг оглушён и пропустит следующий ход!", "system"); Scene.badge('💫'); }
                     if (gadget.guaranteedBleed) { this.combatState.bleedTicks = Math.max(this.combatState.bleedTicks || 0, 4); this.log("🩸 Враг истекает кровью!", "combat-lose"); Scene.badge('🩸'); }
+                    if (wId === 'plasma' && gadget.heatGain) {
+                        this.addPlasmaHeat(this.getPlasmaHeatGain(gadget.heatGain));
+                        this.log(`☢️ Перегрузка ядра разогревает ствол: перегрев ${this.plasmaHeat}/100.`, "system");
+                    }
                 }
 
                 this.renderCombatAbilities();
+                this.updatePlasmaHeatUI();
 
                 if (this.combatState.hp <= 0) { this.processVictory(); return; }
 
                 let playerBlock = false;
-                if (this.enemyTurn(build, hazardMods, playerBlock)) return;
+                let plasmaEffBuild = build;
+                if (wId === 'plasma') {
+                    let hi = this.getPlasmaHeatInfo();
+                    if (hi.dodgePenalty) plasmaEffBuild = Object.assign({}, build, { dodgeChance: (build.dodgeChance || 0) - hi.dodgePenalty });
+                }
+                if (this.enemyTurn(plasmaEffBuild, hazardMods, playerBlock)) return;
 
                 Scene.syncCombat();
                 this.save(); this.updateUI();
@@ -8809,7 +9406,7 @@ startCombat(isBossFight = false) {
                     this.save(); this.updateUI();
                 }
             },
-            endCombat() { this.combatState = null; this.stopCooldownTicker(); document.getElementById('combat-actions').style.display = 'none'; document.getElementById('default-actions').style.display = 'grid'; Scene.hideEnemy(); Music.play('ambient'); this.save(); this.updateUI(); },
+            endCombat() { this.combatState = null; this.plasmaHeat = 0; this.plasmaHeatLastTick = Date.now(); this.stopCooldownTicker(); document.getElementById('combat-actions').style.display = 'none'; document.getElementById('default-actions').style.display = 'grid'; this.updatePlasmaHeatUI(); Scene.hideEnemy(); Music.play('ambient'); this.save(); this.updateUI(); },
 
             // Считает, сколько крышек реально нужно на воскрешение (не больше, чем не хватает до
             // полного ОЗ с учётом текущей опасности биома) и сколько из них реально спишется —
@@ -8886,7 +9483,7 @@ startCombat(isBossFight = false) {
                 this.save(); this.updateUI();
             },
 
-            equipWeapon(wpnId) { Sound.play('click'); this.p.activeWeapon = wpnId; this.log(`⚔️ Экипировано: ${DB.weapons.find(w => w.id === wpnId).name}`); if(this.combatState) { this.abilityCooldowns = {}; this.lastAttackType = null; this.sameAttackStreak = 0; this.renderCombatAbilities(); } this.save(); this.updateUI(); },
+            equipWeapon(wpnId) { Sound.play('click'); this.p.activeWeapon = wpnId; this.log(`⚔️ Экипировано: ${DB.weapons.find(w => w.id === wpnId).name}`); this.plasmaHeat = 0; this.plasmaHeatLastTick = Date.now(); if(this.combatState) { this.abilityCooldowns = {}; this.lastAttackType = null; this.sameAttackStreak = 0; this.renderCombatAbilities(); } this.updatePlasmaHeatUI(); this.save(); this.updateUI(); },
             
             upgradeWeapon(wpnId, cost) {
                 let curUpLvl = this.p.wpnUpgrades[wpnId] || 0;
@@ -9118,6 +9715,21 @@ startCombat(isBossFight = false) {
                     </div>`;
                 } else {
                     DB.blueprints.forEach(bp => {
+                        // ☢️ Во время 1 сезона Пропуска Пустоши плазма крафтится только через Premium-дорогу
+                        if (bp.targetId === 'plasma' && this.isPlasmaSeasonExclusive() && !this.p.weaponsOwned.includes('plasma')) {
+                            let wpnData = DB.weapons.find(w => w.id === 'plasma');
+                            el.innerHTML += `<div class="schem-entry" style="opacity:0.55;">
+                                <div class="schem-entry-header">
+                                    <span style="display:flex; align-items:center; gap:8px; min-width:0;">
+                                        <span class="weapon-icon-badge" style="width:30px; height:30px; border-radius:9px; flex-shrink:0; --wpn-color:${wpnData.color};">${Sprites.weapon(wpnData.id)}</span>
+                                        <span>${bp.name} <span style="font-size:9px; color:var(--text-muted); text-transform:uppercase;">(${wpnData.class})</span></span>
+                                    </span>
+                                </div>
+                                <div class="schem-res bad">🎫 Эксклюзив Premium-дороги 1 сезона (50 ур.) — обычный крафт откроется после окончания сезона.</div>
+                                <button class="schem-craft-btn" disabled>🔒 Недоступно</button>
+                            </div>`;
+                            return;
+                        }
                         let wpnData = DB.weapons.find(w => w.id === bp.targetId);
                         let meetsLvl = this.p.lvl >= bp.reqLvl;
                         let owned = this.p.weaponsOwned.includes(bp.targetId);
@@ -9159,6 +9771,9 @@ startCombat(isBossFight = false) {
 
             craftWeapon(id) {
                 let bp = DB.blueprints.find(b => b.id === id);
+                if(bp.targetId === 'plasma' && this.isPlasmaSeasonExclusive() && !this.p.weaponsOwned.includes('plasma')) {
+                    return alert("ПЛАЗМА пока доступна только через Premium-дорогу 1 сезона Пропуска Пустоши!");
+                }
                 for(let [res, count] of Object.entries(bp.cost)) { if((this.p.inv[res]||0) < count) return alert("Мало компонентов!"); }
                 if(this.p.weaponsOwned.includes(bp.targetId)) return alert("Уже создано!");
                 for(let [res, count] of Object.entries(bp.cost)) { this.p.inv[res] -= count; }
@@ -9599,7 +10214,9 @@ startCombat(isBossFight = false) {
                     this.p.modsEquipped[slot] = (mid && this.p.modsOwned.includes(mid)) ? mid : null;
                 });
                 if (preset.activePet && (this.p.petsOwned || []).includes(preset.activePet)) this.p.activePet = preset.activePet;
+                this.plasmaHeat = 0; this.plasmaHeatLastTick = Date.now();
                 if (this.combatState) { this.abilityCooldowns = {}; this.lastAttackType = null; this.sameAttackStreak = 0; this.renderCombatAbilities(); }
+                this.updatePlasmaHeatUI();
                 this.save(); this.updateUI(); this.renderPresetsTab();
                 this.log(`💾 Экипирована сборка: ${preset.name}`, "system");
             },
@@ -10334,6 +10951,7 @@ startCombat(isBossFight = false) {
                     titleBadge.style.removeProperty('--title-accent');
                     titleBadge.style.removeProperty('--title-glow');
                 }
+                titleBadge.style.color = (!equippedTitle.special && equippedTitle.titleColor) ? equippedTitle.titleColor : '';
 
                 const stats = [
                     { icon: '🏆', color: '#ffb703', label: 'Трофеи', value: `${row.trophies || 0}` },
@@ -10359,7 +10977,7 @@ startCombat(isBossFight = false) {
                     return `<div class="title-card unlocked ${equipped ? 'equipped' : ''} ${t.special ? 'title-special' : ''}"${specialVars}>
                         <div class="title-card-icon">${t.icon}</div>
                         <div class="title-card-info">
-                            <div class="title-card-name">${t.name}</div>
+                            <div class="title-card-name"${(!t.special && t.titleColor) ? ` style=\"color:${t.titleColor};\"` : ''}>${t.name}</div>
                             <div class="title-card-desc">${t.desc}</div>
                         </div>
                         ${tag}
@@ -11465,8 +12083,12 @@ startCombat(isBossFight = false) {
                 this.save(); this.updateUI(); this.renderShop(); this.checkTitles(); this.renderProfile();
             },
             adminAddCurrency(type, amount) {
-                if (type === 'vouchers') this.p.vouchers += amount; else this.p.caps += amount;
-                this.log(`⚙ Панель разработчика: начислено ${amount} ${type === 'vouchers' ? '🏷️' : '🪙'}.`, "loot");
+                if (type === 'vouchers') this.p.vouchers += amount;
+                else if (type === 'relic') this.p.relicWasteland = (this.p.relicWasteland || 0) + amount;
+                else if (type === 'trophies') { this.p.trophies = (this.p.trophies || 0) + amount; this.renderTrophyRoad(); }
+                else this.p.caps += amount;
+                let icon = type === 'vouchers' ? '🏷️' : type === 'relic' ? '🗝️' : type === 'trophies' ? '🏆' : '🪙';
+                this.log(`⚙ Панель разработчика: начислено ${amount} ${icon}.`, "loot");
                 this.save(); this.updateUI();
             },
             adminAddResource(name, amount) {
@@ -11486,6 +12108,38 @@ startCombat(isBossFight = false) {
                 this.p.avatarsOwned = DB.avatars.map(a => a.id);
                 this.log('⚙ Панель разработчика: выдано всё оружие, макс. уровень удочки, титулы и аватарки.', "loot");
                 this.save(); this.updateUI(); this.renderInventory(); this.renderProfile();
+            },
+            adminUnlockAllSkins() {
+                this.p.skinsOwned = DB.skins.map(s => s.id);
+                this.log('⚙ Панель разработчика: выданы все скины.', "loot");
+                this.save(); this.updateUI(); this.renderSkinShop();
+            },
+            adminUnlockAllArmor() {
+                this.p.armorOwned = DB.armor.map(a => a.id);
+                this.p.modsOwned = DB.weaponMods.map(m => m.id);
+                this.log('⚙ Панель разработчика: выдана вся броня и все моды оружия.', "loot");
+                this.save(); this.updateUI(); this.renderInventory();
+            },
+            adminUnlockAllGadgetsMegasila() {
+                this.p.gadgetsOwned = DB.gadgets.map(g => g.weaponId);
+                this.p.megasilaOwned = DB.megasila.map(m => m.weaponId);
+                this.log('⚙ Панель разработчика: выданы все гаджеты и мегасилы (для всех видов оружия, у которых они есть).', "loot");
+                this.save(); this.updateUI(); this.renderInventory();
+            },
+            adminUnlockAllPets() {
+                this.p.petsOwned = DB.pets.map(p => p.id);
+                this.log('⚙ Панель разработчика: приручены все питомцы.', "loot");
+                this.save(); this.updateUI();
+            },
+            adminMaxWeaponUpgrades() {
+                DB.weapons.forEach(w => { this.p.wpnUpgrades[w.id] = 10; });
+                this.log('⚙ Панель разработчика: всё оружие прокачано до Ур.10.', "loot");
+                this.save(); this.updateUI(); this.renderInventory();
+            },
+            adminGrantBpElite() {
+                this.p.bpPremium = true; this.p.bpElite = true;
+                this.log('⚙ Панель разработчика: выдан Premium + Elite пропуск Пустоши.', "loot");
+                this.save(); this.updateUI(); this.renderBp();
             },
             adminResetPlayer() {
                 if (!confirm('Полностью сбросить весь прогресс? Это действие необратимо.')) return;
@@ -11806,31 +12460,140 @@ startCombat(isBossFight = false) {
             },
             
             setBpSubTab(tab) { this.bpSubTab = tab; document.getElementById('bp-sub-rewards').className = tab==='rewards'?'bp-tab-sub active':'bp-tab-sub'; document.getElementById('bp-sub-quests').className = tab==='quests'?'bp-tab-sub active':'bp-tab-sub'; this.renderBp(); },
+
+            // ================= СЕЗОННАЯ СИСТЕМА: расчёт текущего 7-дневного слота по реальному времени =================
+            // slotIndex растёт бесконечно (0,1,2,...) — это уникальный "номер" сезона для сброса
+            // прогресса/истории. seasonDef — какое ИМЕННО оформление/конфиг показывать: если сезонов
+            // ещё не напасено вперёд, слот просто повторяет последний добавленный сезон, пока не
+            // будет дописан новый в массив SEASONS (тогда переключение произойдёт само).
+            getSeasonSlot() {
+                let elapsed = Date.now() - BP_SEASON_ANCHOR;
+                let slotIndex = elapsed < 0 ? 0 : Math.floor(elapsed / BP_SEASON_DURATION_MS);
+                let defIndex = Math.min(slotIndex, SEASONS.length - 1);
+                let seasonDef = SEASONS[defIndex];
+                let startMs = BP_SEASON_ANCHOR + slotIndex * BP_SEASON_DURATION_MS;
+                return { slotIndex, seasonDef, seasonUID: `slot_${slotIndex}`, startMs, endMs: startMs + BP_SEASON_DURATION_MS };
+            },
+            bpRewards() { return DB.getBpRewards(this.getSeasonSlot().seasonDef); },
+
+            // ☢️ Пока идёт САМЫЙ ПЕРВЫЙ 8-дневный слот Пропуска Пустоши (slotIndex === 0) — ПЛАЗМА
+            // доступна ИСКЛЮЧИТЕЛЬНО через Premium-дорогу 1 сезона (50 уровень) и не может быть
+            // скрафчена обычным способом. Как только слот 0 заканчивается — навсегда открывается крафт.
+            isPlasmaSeasonExclusive() {
+                return this.getSeasonSlot().slotIndex === 0;
+            },
+
+            // Проверяет, не сменился ли сезон с момента последнего захода. Если да — прошлый
+            // прогресс уходит в архив (bpSeasonHistory), а уровень/очки/претензии обнуляются.
+            // Уже полученные предметы, оружие, скины и ресурсы у игрока НЕ отнимаются —
+            // сбрасывается только прогресс самого Пропуска Пустоши текущего сезона.
+            checkBpSeasonRollover() {
+                const slot = this.getSeasonSlot();
+                if (!this.p.bpSeasonUID) {
+                    this.p.bpSeasonUID = slot.seasonUID;
+                    this.p.bpSeasonId = slot.seasonDef.id;
+                    return;
+                }
+                if (this.p.bpSeasonUID === slot.seasonUID) return;
+
+                if (!this.p.bpSeasonHistory) this.p.bpSeasonHistory = [];
+                let prevDef = SEASONS.find(s => s.id === this.p.bpSeasonId) || {};
+                this.p.bpSeasonHistory.push({
+                    uid: this.p.bpSeasonUID,
+                    seasonId: this.p.bpSeasonId,
+                    title: prevDef.title || this.p.bpSeasonId,
+                    icon: prevDef.icon || "🎫",
+                    maxLvlReached: this.p.bpLvl,
+                    finishedAt: Date.now()
+                });
+                if (this.p.bpSeasonHistory.length > 30) this.p.bpSeasonHistory = this.p.bpSeasonHistory.slice(-30);
+
+                this.p.bpSeasonUID = slot.seasonUID;
+                this.p.bpSeasonId = slot.seasonDef.id;
+                this.p.bpLvl = 1;
+                this.p.bpPoints = 0;
+                this.p.bpPremium = false;
+                this.p.bpElite = false;
+                this.p.bpClaimedFree = [];
+                this.p.bpClaimedPrem = [];
+                this.p.bpClaimedElite = [];
+                this.log(`🎫 Начался новый сезон Пропуска Пустоши: ${slot.seasonDef.icon} «${slot.seasonDef.title}»!`, "system");
+                this.save();
+            },
+
+            // Применяет фон/иконку/название текущего сезона к оформлению Пропуска Пустоши
+            applyBpSeasonTheme() {
+                const { seasonDef } = this.getSeasonSlot();
+                const container = document.getElementById('bp-container');
+                if (container) container.dataset.season = seasonDef.theme.key;
+                const collapsedBar = document.getElementById('bp-collapsed-bar');
+                if (collapsedBar) collapsedBar.dataset.season = seasonDef.theme.key;
+                const titleEl = document.getElementById('bp-season-title');
+                if (titleEl) titleEl.innerText = `${seasonDef.icon} ${seasonDef.title.toUpperCase()}`;
+                const subEl = document.getElementById('bp-season-sub');
+                if (subEl) subEl.innerText = `СЕЗОН ${SEASONS.indexOf(seasonDef) + 1}`;
+                const collapsedTitleEl = document.getElementById('bp-collapsed-title');
+                if (collapsedTitleEl) collapsedTitleEl.innerText = `${seasonDef.icon} ${seasonDef.title.toUpperCase()}`;
+            },
+
+            // Обновляет таймер до конца текущего сезона — считает от реального времени, поэтому
+            // корректно показывается даже после перезапуска игры спустя несколько дней.
+            updateBpSeasonTimer() {
+                const el = document.getElementById('bp-season-timer');
+                if (!el) return;
+                const { endMs } = this.getSeasonSlot();
+                let remaining = Math.max(0, endMs - Date.now());
+                let d = Math.floor(remaining / 86400000);
+                let h = Math.floor((remaining % 86400000) / 3600000);
+                let m = Math.floor((remaining % 3600000) / 60000);
+                el.innerText = `⏳ До нового сезона: ${d}д ${h}ч ${m}м`;
+            },
+
             buyBpPremium() {
-                if(this.p.vouchers < 49) return alert("Недостаточно ваучеров! Нужен премиум-контракт: 49 🏷️");
-                this.p.vouchers -= 49; this.p.bpPremium = true;
-                this.log("🌵 Активирован Элитный контракт Пустынного пропуска!", "loot");
-                this.save(); this.updateUI();
+                if (this.p.bpPremium) return;
+                let cost = DB.bpPrices.premiumVouchers;
+                if(this.p.vouchers < cost) return alert(`Недостаточно ваучеров! Нужен премиум-контракт: ${cost} 🏷️`);
+                this.p.vouchers -= cost; this.p.bpPremium = true;
+                this.log("🌵 Активирован Premium Пустынного пропуска!", "loot");
+                this.save(); this.updateUI(); this.renderBp();
+            },
+
+            // Elite дороже Premium и автоматически включает его — покупать оба пропуска отдельно не нужно.
+            // Если Premium уже куплен, доплата за апгрейд до Elite меньше полной цены.
+            buyBpElite() {
+                if (this.p.bpElite) return;
+                let cost = this.p.bpPremium ? Math.max(0, DB.bpPrices.eliteVouchers - DB.bpPrices.premiumVouchers) : DB.bpPrices.eliteVouchers;
+                if(this.p.vouchers < cost) return alert(`Недостаточно ваучеров! Нужно: ${cost} 🏷️`);
+                this.p.vouchers -= cost;
+                this.p.bpPremium = true;
+                this.p.bpElite = true;
+                this.log("👑 Активирован ELITE Пустынного пропуска! Premium включён автоматически.", "loot");
+                this.save(); this.updateUI(); this.renderBp();
             },
 
             claimBpReward(lvl, path) {
                 if(this.p.bpLvl < lvl) return;
+                const rewards = this.bpRewards();
                 if(path === 'free') {
                     if(this.p.bpClaimedFree.includes(lvl)) return;
                     this.p.bpClaimedFree.push(lvl);
-                    this.rewardDispatcher(DB.bpRewards[lvl-1].free);
-                } else {
+                    this.rewardDispatcher(rewards[lvl-1].free);
+                } else if(path === 'prem') {
                     if(!this.p.bpPremium || this.p.bpClaimedPrem.includes(lvl)) return;
                     this.p.bpClaimedPrem.push(lvl);
-                    this.rewardDispatcher(DB.bpRewards[lvl-1].prem);
+                    this.rewardDispatcher(rewards[lvl-1].prem);
+                } else if(path === 'elite') {
+                    if(!this.p.bpElite || this.p.bpClaimedElite.includes(lvl)) return;
+                    this.p.bpClaimedElite.push(lvl);
+                    this.rewardDispatcher(rewards[lvl-1].elite);
                 }
                 this.save(); this.updateUI();
             },
 
-            // Забирает разом все доступные на данный момент награды Пропуска Пустоши (бесплатные и, если открыт премиум, платные)
+            // Забирает разом все доступные на данный момент награды Пропуска Пустоши (Free, и Premium/Elite, если открыты)
             claimAllBpRewards() {
                 let claimedCount = 0;
-                DB.bpRewards.forEach(r => {
+                this.bpRewards().forEach(r => {
                     if(this.p.bpLvl < r.lvl) return;
                     if(r.free && !this.p.bpClaimedFree.includes(r.lvl)) {
                         this.p.bpClaimedFree.push(r.lvl);
@@ -11840,6 +12603,11 @@ startCombat(isBossFight = false) {
                     if(this.p.bpPremium && r.prem && !this.p.bpClaimedPrem.includes(r.lvl)) {
                         this.p.bpClaimedPrem.push(r.lvl);
                         this.rewardDispatcher(r.prem);
+                        claimedCount++;
+                    }
+                    if(this.p.bpElite && r.elite && !this.p.bpClaimedElite.includes(r.lvl)) {
+                        this.p.bpClaimedElite.push(r.lvl);
+                        this.rewardDispatcher(r.elite);
                         claimedCount++;
                     }
                 });
@@ -11886,6 +12654,40 @@ startCombat(isBossFight = false) {
                         this.log(`🎁 Награда ${sourceLabel}: скин «${skin.name}» уже есть — начислено 🏷️ x${bonus}`);
                     }
                 }
+                else if(r.type === 'title') {
+                    if(!this.p.unlockedTitles) this.p.unlockedTitles = ["newbie"];
+                    const titleDef = DB.titles.find(t => t.id === r.titleId);
+                    if (!this.p.unlockedTitles.includes(r.titleId)) {
+                        this.p.unlockedTitles.push(r.titleId);
+                        this.log(`🎁 Награда ${sourceLabel}: получен титул «${titleDef ? titleDef.name : r.titleId}»!`);
+                    } else {
+                        let bonus = 20; this.p.vouchers += bonus;
+                        this.log(`🎁 Награда ${sourceLabel}: титул «${titleDef ? titleDef.name : r.titleId}» уже есть — начислено 🏷️ x${bonus}`);
+                    }
+                }
+                // Единственное оружие сезона (50 уровень Premium-дороги). Пока конкретный ID
+                // не задан (season.weaponId === null) — выдаём компенсацию крышками с пометкой TODO.
+                else if(r.type === 'season_wpn') {
+                    if (r.wpnId) {
+                        if(!this.p.weaponsOwned.includes(r.wpnId)) this.p.weaponsOwned.push(r.wpnId);
+                        let wpnData = DB.weapons.find(w => w.id === r.wpnId);
+                        this.log(`🎁 Награда ${sourceLabel}: ${wpnData ? wpnData.name : 'Оружие сезона'} получено!`);
+                    } else {
+                        let bonus = 60; this.p.caps += bonus;
+                        this.log(`🎁 Награда ${sourceLabel}: оружие сезона ещё не добавлено (TODO) — начислено 🪙 x${bonus}`);
+                    }
+                }
+                // Эксклюзивный Elite-скин 100 уровня. Пока season.skinId не задан — компенсация ваучерами.
+                else if(r.type === 'season_skin') {
+                    let skin = r.skinId ? DB.skins.find(s => s.id === r.skinId) : null;
+                    if (skin) {
+                        if(!this.p.skinsOwned.includes(skin.id)) this.p.skinsOwned.push(skin.id);
+                        this.log(`🎁 Награда ${sourceLabel}: ${skin.icon} Эксклюзивный скин сезона «${skin.name}»!`);
+                    } else {
+                        let bonus = 80; this.p.vouchers += bonus;
+                        this.log(`🎁 Награда ${sourceLabel}: скин сезона ещё не добавлен (TODO) — начислено 🏷️ x${bonus}`);
+                    }
+                }
             },
 
             itemIcons: { "Запчасти": "⚙️", "Тяжелый Хлам": "🔩", "Ядерная Батарея": "☢️", "Сырое мясо": "🥩", "Жетон Схрона": "💠" },
@@ -11907,6 +12709,9 @@ startCombat(isBossFight = false) {
                     case 'gadget': return '🧰';
                     case 'megasila': return '⚡';
                     case 'skin': return (DB.skins.find(s => s.id === r.skinId) || {}).icon || '🧥';
+                    case 'season_wpn': return (r.wpnId && (DB.weapons.find(w => w.id === r.wpnId) || {}).icon) || '🔫';
+                    case 'season_skin': return (r.skinId && DB.skins.find(s => s.id === r.skinId) || {}).icon || '👑';
+                    case 'title': return (DB.titles.find(t => t.id === r.titleId) || {}).icon || '🏷️';
                     default: return '🎁';
                 }
             },
@@ -11952,9 +12757,11 @@ startCombat(isBossFight = false) {
                     circleEl.style.background = `conic-gradient(var(--neon-gold) ${bpPct}%, rgba(255,255,255,0.2) ${bpPct}% 100%)`;
                 }
                 let textEl = document.getElementById('bp-level-text');
-                if (textEl) textEl.innerText = this.p.bpLvl >= 100 ? "МАКС УРОВЕНЬ" : `ЭТАП ${this.p.bpLvl}`;
+                if (textEl) textEl.innerText = this.p.bpLvl >= 100 ? "МАКС УРОВЕНЬ / 100" : `УРОВЕНЬ ${this.p.bpLvl} / 100`;
                 let collapsedLevelEl = document.getElementById('bp-collapsed-level');
                 if (collapsedLevelEl) collapsedLevelEl.innerText = this.p.bpLvl >= 100 ? "МАКС" : `ЭТАП ${this.p.bpLvl}`;
+                this.applyBpSeasonTheme();
+                this.updateBpSeasonTimer();
                 let trophyCollapsedEl = document.getElementById('trophy-collapsed-level');
                 if (trophyCollapsedEl) trophyCollapsedEl.innerText = `${Math.min(this.p.trophies || 0, 5000)} / 5000`;
                 let trophyFillEl = document.getElementById('trophy-collapsed-fill');
@@ -11962,35 +12769,78 @@ startCombat(isBossFight = false) {
                 let trophyHasClaimable = DB.trophyRoad.some((n, idx) => (this.p.trophies || 0) >= n.trophies && !(this.p.trophyClaimed || []).includes(idx));
                 let profileTabEl = document.getElementById('tab-profile');
                 if (profileTabEl) profileTabEl.classList.toggle('tab-alert', trophyHasClaimable);
+
+                // Тройное состояние доступа: FREE / PREMIUM / ELITE (Elite включает Premium автоматически)
                 let statusEl = document.getElementById('bp-premium-status');
-                if(this.p.bpPremium) { statusEl.innerHTML = `<span style="color: var(--neon-gold); font-weight:bold;">✨ ПУСТЫННЫЙ ПРЕМИУМ АКТИВЕН</span>`; }
-                else { statusEl.innerHTML = `<button class="purple" style="padding:4px 10px; font-size:11px; border-radius:6px; margin: 4px 0;" onclick="Core.buyBpPremium()">Открыть Премиум (49 🏷️)</button>`; }
+                if (this.p.bpElite) {
+                    statusEl.innerHTML = `<span style="color: var(--neon-gold); font-weight:bold;">👑 ELITE ПУСТОШИ АКТИВЕН</span>`;
+                } else if (this.p.bpPremium) {
+                    let eliteCost = Math.max(0, DB.bpPrices.eliteVouchers - DB.bpPrices.premiumVouchers);
+                    statusEl.innerHTML = `<div style="display:flex; flex-direction:column; gap:4px; align-items:center; margin:4px 0;">
+                        <span style="color: var(--neon-gold); font-weight:bold;">✨ PREMIUM АКТИВЕН</span>
+                        <button class="gold bp-buy-3d" style="padding:7px 12px; font-size:10.5px;" onclick="Core.buyBpElite()">👑 Улучшить до ELITE (+${eliteCost} 🏷️)</button>
+                    </div>`;
+                } else {
+                    statusEl.innerHTML = `<div style="display:flex; gap:6px; justify-content:center; margin:4px 0;">
+                        <button class="purple bp-buy-3d" style="padding:7px 12px; font-size:10.5px;" onclick="Core.buyBpPremium()">⭐ Premium (${DB.bpPrices.premiumVouchers} 🏷️)</button>
+                        <button class="gold bp-buy-3d" style="padding:7px 12px; font-size:10.5px;" onclick="Core.buyBpElite()">👑 ELITE (${DB.bpPrices.eliteVouchers} 🏷️)</button>
+                    </div>`;
+                }
 
                 let container = document.getElementById('bp-content-render'); let bpHtml = '';
                 if(this.bpSubTab === 'rewards') {
-                    DB.bpRewards.forEach(r => {
+                    this.bpRewards().forEach(r => {
                         let isLvlUnlocked = this.p.bpLvl >= r.lvl;
                         let freeClaimed = this.p.bpClaimedFree.includes(r.lvl);
                         let premClaimed = this.p.bpClaimedPrem.includes(r.lvl);
+                        let eliteClaimed = this.p.bpClaimedElite.includes(r.lvl);
+                        let hasPrem = !!r.prem;
+                        let hasElite = !!r.elite;
+                        let isMilestone50 = r.lvl === 50;
+                        let isMilestone100 = r.lvl === 100;
 
-                        let freeBtn = freeClaimed ? `<div class="track-status claimed">${Icon.check()} ПОЛУЧЕНО</div>` : (isLvlUnlocked ? `<button class="bp-claim-btn" onclick="Core.claimBpReward(${r.lvl}, 'free')">Взять</button>` : `<div class="track-status locked">🔒 ЗАКРЫТО</div>`);
-                        let premBtn = !r.prem ? '' : (premClaimed ? `<div class="track-status claimed">${Icon.check()} ПОЛУЧЕНО</div>` : ((isLvlUnlocked && this.p.bpPremium) ? `<button class="bp-claim-btn" style="background:var(--neon-gold)" onclick="Core.claimBpReward(${r.lvl}, 'prem')">Взять</button>` : `<div class="track-status locked">🔒 ЗАКРЫТО</div>`));
-                        let premRewardHtml = r.prem ? `${this.rewardIcon(r.prem)} <span style="color:var(--neon-gold)">${this.formatRewardName(r.prem)}</span>` : '';
+                        let claimedTag = `<div class="track-status claimed">${Icon.check()} ПОЛУЧЕНО</div>`;
+                        let lockedTag = `<div class="track-status locked">🔒 ЗАКРЫТО</div>`;
+                        let freeBtn = freeClaimed ? claimedTag : (isLvlUnlocked ? `<button class="bp-claim-btn" onclick="Core.claimBpReward(${r.lvl}, 'free')">Взять</button>` : lockedTag);
+
+                        // Визуально это ВСЕГДА только две колонки: Free | Premium/Elite. Elite просто
+                        // "включает свет" в ячейках, где Premium-дорога изначально пуста — своей
+                        // отдельной третьей колонки у него нет. Единственное исключение — 100
+                        // уровень, где Premium и Elite-строки показаны друг под другом в той же
+                        // правой колонке (Elite-скин там ДОПОЛНИТЕЛЬНО к обычной Premium-награде).
+                        let secondColInner = '';
+                        if (hasPrem) {
+                            let premBtn = premClaimed ? claimedTag : ((isLvlUnlocked && this.p.bpPremium) ? `<button class="bp-claim-btn" style="background:var(--neon-gold)" onclick="Core.claimBpReward(${r.lvl}, 'prem')">Взять</button>` : lockedTag);
+                            secondColInner += `<div class="track-label">⭐ Premium</div>
+                                <div class="track-reward">${this.rewardIcon(r.prem)} <span style="color:var(--neon-gold)">${this.formatRewardName(r.prem)}</span></div>
+                                ${premBtn}`;
+                        }
+                        if (hasElite) {
+                            let eliteBtn = eliteClaimed ? claimedTag : ((isLvlUnlocked && this.p.bpElite) ? `<button class="bp-claim-btn elite-claim-btn" onclick="Core.claimBpReward(${r.lvl}, 'elite')">Взять</button>` : lockedTag);
+                            secondColInner += `<div class="track-label" style="${hasPrem?'margin-top:6px;':''}">👑 Elite</div>
+                                <div class="track-reward elite-reward-text">${this.rewardIcon(r.elite)} ${this.formatRewardName(r.elite)}</div>
+                                ${eliteBtn}`;
+                        }
+                        if (!hasPrem && !hasElite) secondColInner = '';
+                        let secondColClass = hasElite ? 'elite' : (hasPrem ? 'premium' : 'premium empty');
+
+                        let milestoneTag = '';
+                        if (isMilestone50) milestoneTag = `<div class="bp-milestone-tag gold">🆕 ОРУЖИЕ СЕЗОНА</div>`;
+                        if (isMilestone100) milestoneTag = `<div class="bp-milestone-tag elite">👑 ГЛАВНАЯ НАГРАДА СЕЗОНА</div>`;
 
                         bpHtml += `
-                        <div class="pass-tier-box ${isLvlUnlocked?'unlocked':''}">
-                            <div style="font-size:10.5px; font-weight:900; color:var(--neon-purple)">ЭТАП №${r.lvl} ${isLvlUnlocked?'🔓':'🔒'}</div>
+                        <div class="pass-tier-box ${isLvlUnlocked?'unlocked':''} ${isMilestone50?'bp-milestone bp-milestone-50':''} ${isMilestone100?'bp-milestone bp-milestone-100':''}">
+                            ${milestoneTag}
+                            <div style="font-size:${isMilestone100?'12.5px':'10.5px'}; font-weight:900; color:var(--neon-purple)">УРОВЕНЬ ${r.lvl} ${isLvlUnlocked?'🔓':'🔒'}</div>
                             <div class="bp-tracks-row">
                                 <div class="track-card free">
-                                    <div class="track-label">🆓 Бесплатно</div>
+                                    <div class="track-label">🆓 Free</div>
                                     <div class="track-reward">${this.rewardIcon(r.free)} <span style="color:#fff">${this.formatRewardName(r.free)}</span></div>
                                     ${freeBtn}
                                 </div>
                                 <div class="bp-divider"></div>
-                                <div class="track-card premium ${!r.prem?'empty':''}">
-                                    <div class="track-label">💎 Премиум</div>
-                                    <div class="track-reward">${premRewardHtml}</div>
-                                    ${premBtn}
+                                <div class="track-card ${secondColClass}">
+                                    ${secondColInner}
                                 </div>
                             </div>
                         </div>`;
