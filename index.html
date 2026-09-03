@@ -6742,6 +6742,23 @@ onclick="Core.declineEncounter()">
                     hp: row.hp, maxHp: row.max_hp, energy: row.energy, maxEnergy: row.max_energy,
                     caps: row.caps, trophies: row.trophies, currentBiome: row.current_biome
                 });
+                // ☢️ Облачное восстановление на новом устройстве могло принести СТАРЫЙ снимок
+                // row.data (сохранённый до перехода на 100-уровневую сезонную систему) в обход
+                // одноразовой миграции из Core.load() — та проверка выполняется только при чтении
+                // localStorage. Прогоняем ту же самую проверку здесь, чтобы Premium/уровни/
+                // собранные награды Пропуска Пустоши не "телепортировались" из старого сохранения.
+                if (!Core.p.bpSeasonV2Reset) {
+                    Core.p.bpLvl = 1;
+                    Core.p.bpPoints = 0;
+                    Core.p.bpPremium = false;
+                    Core.p.bpElite = false;
+                    Core.p.bpClaimedFree = [];
+                    Core.p.bpClaimedPrem = [];
+                    Core.p.bpClaimedElite = [];
+                    Core.p.bpSeasonId = null;
+                    Core.p.bpSeasonUID = null;
+                    Core.p.bpSeasonV2Reset = true;
+                }
                 Core.save();
             },
 
@@ -7624,7 +7641,7 @@ onclick="Core.declineEncounter()">
         };
 
         const Core = {
-            p: { hp: 50, maxHp: 50, energy: 100, maxEnergy: 100, rad: 0, hazards: {}, satiety: 100, lvl: 1, exp: 0, nextExp: 85, caps: 30, vouchers: 0, armor: 2, dodgeChance: 8, inv: { "Запчасти": 6, "Тяжелый Хлам": 0, "Ядерная Батарея": 0, "Сырое мясо": 1, "Жетон Схрона": 0 }, weaponsOwned: ["fists"], wpnUpgrades: { "fists": 0, "pipe": 0, "machete": 0, "pistol": 0, "revolver": 0, "shotgun": 0, "assault": 0, "plasma": 0, "minigun": 0, "gauss": 0 }, activeWeapon: "fists", rodLvl: 0, rodResetV2Done: true, rodCompensationPending: null, food: { "Жареное мясо крысы": 1 }, currentBiome: 0, bossesDefeated: [], bpLvl: 1, bpPoints: 0, bpPremium: false, bpElite: false, bpClaimedFree: [], bpClaimedPrem: [], bpClaimedElite: [], bpSeasonId: null, bpSeasonUID: null, bpSeasonHistory: [], dailyStreak: 0, lastDailyClaim: null, relicWasteland: 0, redeemedPromoCodes: [], freeBoxes: {}, nickname: "Странник", nicknameSet: false, avatarsOwned: ["ranger", "raider", "cyborg"], avatar: "ranger", titleId: "newbie", unlockedTitles: ["newbie"], maxBiomeReached: 0, bmLastSuccessDay: null, bmFailDay: null, bmFailCount: 0, marketEarnDay: null, marketEarnedToday: 0, marketDailyCapValue: null, exchangeDay: null, exchangeUsed: {}, marketBuyDay: null, marketBuySpentToday: 0, marketBuyDailyCapValue: null, skinsOwned: ["default"], activeSkin: "default", dailyQuests: [], dailyQuestsDay: null, petsOwned: [], activePet: null, installedAt: Date.now(), updateGiftClaimed: false, restockGiftEligible: false, restockGiftClaimed: false, restockGiftAt: null, pvpDuelLog: {}, wheelDay: null, wheelSpinsToday: 0, wheelFreeClaimed: false, wheelBonusSpins: 0, energyPackDay: null, energyPackBoughtToday: 0, buildPresets: [],
+            p: { hp: 50, maxHp: 50, energy: 100, maxEnergy: 100, rad: 0, hazards: {}, satiety: 100, lvl: 1, exp: 0, nextExp: 85, caps: 30, vouchers: 0, armor: 2, dodgeChance: 8, inv: { "Запчасти": 6, "Тяжелый Хлам": 0, "Ядерная Батарея": 0, "Сырое мясо": 1, "Жетон Схрона": 0 }, weaponsOwned: ["fists"], wpnUpgrades: { "fists": 0, "pipe": 0, "machete": 0, "pistol": 0, "revolver": 0, "shotgun": 0, "assault": 0, "plasma": 0, "minigun": 0, "gauss": 0 }, activeWeapon: "fists", rodLvl: 0, rodResetV2Done: true, rodCompensationPending: null, food: { "Жареное мясо крысы": 1 }, currentBiome: 0, bossesDefeated: [], bpLvl: 1, bpPoints: 0, bpPremium: false, bpElite: false, bpClaimedFree: [], bpClaimedPrem: [], bpClaimedElite: [], bpSeasonId: null, bpSeasonUID: null, bpSeasonHistory: [], bpSeasonV2Reset: true, dailyStreak: 0, lastDailyClaim: null, relicWasteland: 0, redeemedPromoCodes: [], freeBoxes: {}, nickname: "Странник", nicknameSet: false, avatarsOwned: ["ranger", "raider", "cyborg"], avatar: "ranger", titleId: "newbie", unlockedTitles: ["newbie"], maxBiomeReached: 0, bmLastSuccessDay: null, bmFailDay: null, bmFailCount: 0, marketEarnDay: null, marketEarnedToday: 0, marketDailyCapValue: null, exchangeDay: null, exchangeUsed: {}, marketBuyDay: null, marketBuySpentToday: 0, marketBuyDailyCapValue: null, skinsOwned: ["default"], activeSkin: "default", dailyQuests: [], dailyQuestsDay: null, petsOwned: [], activePet: null, installedAt: Date.now(), updateGiftClaimed: false, restockGiftEligible: false, restockGiftClaimed: false, restockGiftAt: null, pvpDuelLog: {}, wheelDay: null, wheelSpinsToday: 0, wheelFreeClaimed: false, wheelBonusSpins: 0, energyPackDay: null, energyPackBoughtToday: 0, buildPresets: [],
                 perksUnlocked: [], perkPoints: 0, armorOwned: ["rags"], activeArmor: "rags", modsOwned: [], modsEquipped: { optic: null, mag: null, grip: null }, gadgetsOwned: [], megasilaOwned: [], trophies: 0, trophyClaimed: [] },
             combatState: null, restUses: 5, nextRestTick: null, bpSubTab: 'rewards',
             hpRegenAccum: 0, satietyDecayAccum: 0, abilityCooldowns: {}, plasmaHeat: 0, plasmaHeatLastTick: 0,
@@ -8010,6 +8027,8 @@ onclick="Core.declineEncounter()">
                     // Игроки 50+ уровня, сохранённые ещё до снижения лимита привалов до 3,
                     // могли иметь 4-5 запасённых привалов — подрезаем под новый максимум.
                     if (this.restUses > this.getMaxRest()) this.restUses = this.getMaxRest();
+                    // 🛡️ Подрезаем битый/устаревший таймер привала сразу после загрузки сохранения.
+                    this.clampRestTick();
                     if(parsed.q) {
                         let defaultQuests = this.quests;
                         let savedById = {};
@@ -8122,6 +8141,31 @@ onclick="Core.declineEncounter()">
                     if(this.p.bpSeasonId === undefined) this.p.bpSeasonId = null;
                     if(this.p.bpSeasonUID === undefined) this.p.bpSeasonUID = null;
                     if(!this.p.bpSeasonHistory) this.p.bpSeasonHistory = [];
+                    // ☢️ ОДНОРАЗОВАЯ МИГРАЦИЯ НА НОВУЮ 100-УРОВНЕВУЮ СЕЗОННУЮ СИСТЕМУ ПРОПУСКА.
+                    // Новая система переиспользует старые поля (bpPremium/bpLvl/bpClaimedFree/
+                    // bpClaimedPrem/bpClaimedElite) без сброса. Из-за этого у игроков, купивших
+                    // СТАРЫЙ пропуск (или прогрессировавших в старой, более короткой версии),
+                    // Premium оказывался включён "бесплатно" сразу, а часть новых уровней —
+                    // включая ПЛАЗМУ на 50 уровне Premium-дороги и титул на 100 уровне Free —
+                    // была ошибочно помечена уже "полученной", хотя игрок её никогда не забирал
+                    // (см. bpClaimedFree/bpClaimedPrem.includes ниже — если номер уровня уже
+                    // был в старом массиве, кнопка сразу показывает "ПОЛУЧЕНО" и rewardDispatcher
+                    // ни разу не вызывается). Сбрасываем прогресс/статусы Пропуска Пустоши ровно
+                    // один раз для каждого игрока — оружие, титулы, ресурсы и прочие уже
+                    // полученные предметы НЕ отнимаются, обнуляется только сам трек пропуска.
+                    if (!this.p.bpSeasonV2Reset) {
+                        this.p.bpLvl = 1;
+                        this.p.bpPoints = 0;
+                        this.p.bpPremium = false;
+                        this.p.bpElite = false;
+                        this.p.bpClaimedFree = [];
+                        this.p.bpClaimedPrem = [];
+                        this.p.bpClaimedElite = [];
+                        this.p.bpSeasonId = null;
+                        this.p.bpSeasonUID = null;
+                        this.p.bpSeasonV2Reset = true;
+                        this.log("🎫 Пропуск Пустоши обновлён до новой 100-уровневой сезонной системы: прогресс пропуска сброшен (Premium/уровни/собранные награды), всё остальное — оружие, титулы, ресурсы — сохранено.", "system");
+                    }
                     this.checkBpSeasonRollover();
                     this.applyOfflineProgress();
                 } else {
@@ -8172,6 +8216,8 @@ onclick="Core.declineEncounter()">
                         slowedTarget += offlinePeriod;
                     }
                     this.nextRestTick = this.restUses < this.getMaxRest() ? slowedTarget : null;
+                    // 🛡️ Каким бы ни получился slowedTarget — не даём ему уйти дальше минуты вперёд.
+                    this.clampRestTick();
                 }
 
                 this.lastTick = now;
@@ -8597,6 +8643,20 @@ onclick="Core.declineEncounter()">
             getRestTime() { return 60; },
             // После 50 уровня максимум одновременно доступных привалов снижается с 5 до 3.
             getMaxRest() { return this.p.lvl >= 50 ? 3 : 5; },
+            // 🛡️ ПРЕДОХРАНИТЕЛЬ: таймер до следующего привала не может уйти дальше, чем на
+            // один период ожидания (getRestTime(), сейчас 60с) вперёд от текущего момента.
+            // Раньше при перезаходе в игру расчёт офлайн-прогресса (applyOfflineProgress)
+            // мог накопить рассинхрон между this.lastTick и this.nextRestTick (например,
+            // из-за старого/битого сохранения или смены системного времени), и таймер
+            // "уезжал" на месяцы/годы вперёд. Теперь любое значение nextRestTick жёстко
+            // подрезается этой функцией сразу после установки — ждать больше минуты
+            // до следующего привала физически невозможно.
+            clampRestTick() {
+                if (this.nextRestTick == null) return;
+                let maxAllowed = Date.now() + this.getRestTime() * 1000;
+                if (this.nextRestTick > maxAllowed) this.nextRestTick = maxAllowed;
+                if (this.nextRestTick < Date.now()) this.nextRestTick = Date.now();
+            },
 
             // Скорость регенерации ОЗ зависит от сытости: 100% = 1 ОЗ/3с, 50% = 1 ОЗ/18с, ниже ~20% — совсем медленно. При 0% сытости регенерация вообще не идёт.
             // (Ускорено по сравнению с прежним — было 5с/25с — но умеренно, не мгновенно.)
@@ -8720,11 +8780,13 @@ onclick="Core.declineEncounter()">
                 if (this.restUses < this.getMaxRest()) {
                     let period = this.getRestTime() * 1000;
                     if (!this.nextRestTick) this.nextRestTick = Date.now() + period;
+                    this.clampRestTick();
                     let remaining = Math.ceil((this.nextRestTick - Date.now()) / 1000);
                     if (remaining <= 0) {
                         this.restUses++;
                         this.log(`⛺ Привал готов. Откат: ${this.getRestTime()}с.`, "system");
                         this.nextRestTick = this.restUses < this.getMaxRest() ? Date.now() + (this.getRestTime() * 1000) : null;
+                        this.clampRestTick();
                         this.save(); this.updateUI();
                     } else {
                         let timerBadge = document.getElementById('rest-timer');
