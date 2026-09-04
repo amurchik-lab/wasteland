@@ -6760,6 +6760,12 @@ onclick="Core.declineEncounter()">
                     Core.p.bpSeasonUID = null;
                     Core.p.bpSeasonV2Reset = true;
                 }
+                // ☢️ Та же облачная копия могла быть сохранена ещё в ПРОШЛОМ 8-дневном слоте
+                // Пропуска Пустоши (bpSeasonUID из row.data устарел) — без этой проверки задания
+                // сезона (this.quests) и прогресс пропуска остаются от прошлого сезона навсегда,
+                // потому что обычный переход сезона (Core.loop() / Core.load()) уже отработал
+                // ДО того, как сюда пришли облачные данные, и второй раз сам по себе не сработает.
+                Core.checkBpSeasonRollover();
                 Core.save();
             },
 
@@ -8028,8 +8034,18 @@ onclick="Core.declineEncounter()">
                     // Игроки 50+ уровня, сохранённые ещё до снижения лимита привалов до 3,
                     // могли иметь 4-5 запасённых привалов — подрезаем под новый максимум.
                     if (this.restUses > this.getMaxRest()) this.restUses = this.getMaxRest();
-                    // 🛡️ Подрезаем битый/устаревший таймер привала сразу после загрузки сохранения.
-                    this.clampRestTick();
+                    // 🛡️ Подрезаем ТОЛЬКО откровенно битый таймер привала (заброшенный далеко за
+                    // один период вперёд ОТНОСИТЕЛЬНО МОМЕНТА УХОДА В ОФФЛАЙН — lastTick).
+                    // Раньше здесь стоял this.clampRestTick(), который сравнивал таймер с текущим
+                    // "now" ДО расчёта оффлайн-прогресса — а так как после любого реального отсутствия
+                    // nextRestTick почти всегда уже в прошлом относительно "now", это тут же взводило
+                    // его на текущий момент. applyOfflineProgress() после этого видел "время до привала
+                    // якобы = всё время оффлайна" и уводил расчётную цель далеко за "now" — привалы
+                    // переставали копиться в оффлайне вообще. Сверяем с lastTick, а не с "now".
+                    if (this.nextRestTick != null) {
+                        let maxAllowedAtDeparture = this.lastTick + this.getRestTime() * 1000;
+                        if (this.nextRestTick > maxAllowedAtDeparture) this.nextRestTick = maxAllowedAtDeparture;
+                    }
                     if(parsed.q) {
                         let defaultQuests = this.quests;
                         let savedById = {};
