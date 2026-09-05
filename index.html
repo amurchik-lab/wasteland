@@ -7351,6 +7351,18 @@ padding-top:9vh;
                     Core.p.bpSeasonUID = null;
                     Core.p.bpSeasonV2Reset = true;
                 }
+                // ☢️ Та же самая разовая миграция лимита уровня 100, что и в Core.load() (см. там
+                // подробный комментарий) — облачная копия могла принести "битый" уровень 101+ в
+                // обход проверки в Core.load(), если тут это первое чтение сохранения на устройстве.
+                if (!Core.p.lvlCapV1Done) {
+                    if (Core.p.lvl > 100) {
+                        Core.p.lvl = 100;
+                        Core.p.exp = 0;
+                        Core.p.nextExp = Core.computeNextExpForLevel(100);
+                        Core.log("⚠️ Уровень скорректирован до максимально допустимого (100).", "system");
+                    }
+                    Core.p.lvlCapV1Done = true;
+                }
                 // ☢️ Та же облачная копия могла быть сохранена ещё в ПРОШЛОМ 8-дневном слоте
                 // Пропуска Пустоши (bpSeasonUID из row.data устарел) — без этой проверки задания
                 // сезона (this.quests) и прогресс пропуска остаются от прошлого сезона навсегда,
@@ -8239,7 +8251,7 @@ padding-top:9vh;
         };
 
         const Core = {
-            p: { hp: 50, maxHp: 50, energy: 100, maxEnergy: 100, rad: 0, hazards: {}, satiety: 100, lvl: 1, exp: 0, nextExp: 85, caps: 30, vouchers: 0, armor: 2, dodgeChance: 8, inv: { "Запчасти": 6, "Тяжелый Хлам": 0, "Ядерная Батарея": 0, "Сырое мясо": 1, "Жетон Схрона": 0 }, weaponsOwned: ["fists"], wpnUpgrades: { "fists": 0, "pipe": 0, "machete": 0, "pistol": 0, "revolver": 0, "shotgun": 0, "assault": 0, "plasma": 0, "minigun": 0, "gauss": 0 }, activeWeapon: "fists", rodLvl: 0, rodResetV2Done: true, rodCompensationPending: null, food: { "Жареное мясо крысы": 1 }, currentBiome: 0, bossesDefeated: [], bpLvl: 1, bpPoints: 0, bpPremium: false, bpElite: false, bpClaimedFree: [], bpClaimedPrem: [], bpClaimedElite: [], bpSeasonId: null, bpSeasonUID: null, bpSeasonHistory: [], bpSeasonV2Reset: true, dailyStreak: 0, lastDailyClaim: null, relicWasteland: 0, redeemedPromoCodes: [], freeBoxes: {}, nickname: "Странник", nicknameSet: false, avatarsOwned: ["ranger", "raider", "cyborg"], avatar: "ranger", titleId: "newbie", unlockedTitles: ["newbie"], maxBiomeReached: 0, bmLastSuccessDay: null, bmFailDay: null, bmFailCount: 0, marketEarnDay: null, marketEarnedToday: 0, marketDailyCapValue: null, exchangeDay: null, exchangeUsed: {}, marketBuyDay: null, marketBuySpentToday: 0, marketBuyDailyCapValue: null, skinsOwned: ["default"], activeSkin: "default", dailyQuests: [], dailyQuestsDay: null, dailyQuestsPremium: [], dailyQuestsPremiumDay: null, petsOwned: [], activePet: null, installedAt: Date.now(), updateGiftClaimed: false, restockGiftEligible: false, restockGiftClaimed: false, restockGiftAt: null, pvpDuelLog: {}, wheelDay: null, wheelSpinsToday: 0, wheelFreeClaimed: false, wheelBonusSpins: 0, energyPackDay: null, energyPackBoughtToday: 0, buildPresets: [],
+            p: { hp: 50, maxHp: 50, energy: 100, maxEnergy: 100, rad: 0, hazards: {}, satiety: 100, lvl: 1, exp: 0, nextExp: 85, caps: 30, vouchers: 0, armor: 2, dodgeChance: 8, inv: { "Запчасти": 6, "Тяжелый Хлам": 0, "Ядерная Батарея": 0, "Сырое мясо": 1, "Жетон Схрона": 0 }, weaponsOwned: ["fists"], wpnUpgrades: { "fists": 0, "pipe": 0, "machete": 0, "pistol": 0, "revolver": 0, "shotgun": 0, "assault": 0, "plasma": 0, "minigun": 0, "gauss": 0 }, activeWeapon: "fists", rodLvl: 0, rodResetV2Done: true, rodCompensationPending: null, food: { "Жареное мясо крысы": 1 }, currentBiome: 0, bossesDefeated: [], bpLvl: 1, bpPoints: 0, bpPremium: false, bpElite: false, bpClaimedFree: [], bpClaimedPrem: [], bpClaimedElite: [], bpSeasonId: null, bpSeasonUID: null, bpSeasonHistory: [], bpSeasonV2Reset: true, lvlCapV1Done: true, dailyStreak: 0, lastDailyClaim: null, relicWasteland: 0, redeemedPromoCodes: [], freeBoxes: {}, nickname: "Странник", nicknameSet: false, avatarsOwned: ["ranger", "raider", "cyborg"], avatar: "ranger", titleId: "newbie", unlockedTitles: ["newbie"], maxBiomeReached: 0, bmLastSuccessDay: null, bmFailDay: null, bmFailCount: 0, marketEarnDay: null, marketEarnedToday: 0, marketDailyCapValue: null, exchangeDay: null, exchangeUsed: {}, marketBuyDay: null, marketBuySpentToday: 0, marketBuyDailyCapValue: null, skinsOwned: ["default"], activeSkin: "default", dailyQuests: [], dailyQuestsDay: null, dailyQuestsPremium: [], dailyQuestsPremiumDay: null, petsOwned: [], activePet: null, installedAt: Date.now(), updateGiftClaimed: false, restockGiftEligible: false, restockGiftClaimed: false, restockGiftAt: null, pvpDuelLog: {}, wheelDay: null, wheelSpinsToday: 0, wheelFreeClaimed: false, wheelBonusSpins: 0, energyPackDay: null, energyPackBoughtToday: 0, buildPresets: [],
                 perksUnlocked: [], perkPoints: 0, armorOwned: ["rags"], activeArmor: "rags", modsOwned: [], modsEquipped: { optic: null, mag: null, grip: null }, gadgetsOwned: [], megasilaOwned: [], trophies: 0, trophyClaimed: [], creditsSeen: false, questsResetV3Done: true,
                 echo: { active: false, chapter: 0, lastBiome: 0, started: false, completedAll: false, progress: [
                     { kills: 0, damage: 0, named: 0, fragments: 0, levels: 0, startLvl: null, bossDefeated: false, completed: false, storySeenIntro: false, storySeenOutro: false },
@@ -8797,6 +8809,22 @@ padding-top:9vh;
                         // "выполнено" вместе с остальным прогрессом пропуска (см. комментарий выше).
                         if (this.defaultQuests) this.quests = JSON.parse(JSON.stringify(this.defaultQuests));
                         this.log("🎫 Пропуск Пустоши обновлён до новой 100-уровневой сезонной системы: прогресс пропуска сброшен (Premium/уровни/собранные награды/задания сезона), всё остальное — оружие, титулы, ресурсы — сохранено.", "system");
+                    }
+                    // ☢️ ОДНОРАЗОВАЯ МИГРАЦИЯ: жёсткий лимит уровня 100. Баг ранее позволял части
+                    // игроков превысить этот лимит (уровни 101+). Разово подрезаем уровень обратно
+                    // до 100 и корректно пересчитываем nextExp по актуальной кривой (см.
+                    // computeNextExpForLevel выше) — иначе после отката с сервера локальный save
+                    // с "битым" уровнем при следующем же автосохранении затирал исправление в облаке.
+                    // Флаг lvlCapV1Done не даёт срабатывать повторно, если лимит уровня когда-нибудь
+                    // законно поднимут выше 100.
+                    if (!this.p.lvlCapV1Done) {
+                        if (this.p.lvl > 100) {
+                            this.p.lvl = 100;
+                            this.p.exp = 0;
+                            this.p.nextExp = this.computeNextExpForLevel(100);
+                            this.log("⚠️ Уровень скорректирован до максимально допустимого (100).", "system");
+                        }
+                        this.p.lvlCapV1Done = true;
                     }
                     // ☢️ ОДНОРАЗОВЫЙ СБРОС ЗАДАНИЙ СЕЗОНА (this.quests) ПОСЛЕ ОБНОВЛЕНИЯ СПИСКА ЗАДАНИЙ.
                     // Задания хранятся по статичным id и подтягиваются из сохранения "как есть" —
@@ -10268,6 +10296,23 @@ startCombat(isBossFight = false) {
                 document.getElementById('death-overlay').style.display = 'none';
                 this.log(`🧟 Вы воскресли у костра. Списано ${cost} 🪙 — ровно столько, сколько не хватало до полного ОЗ.`, "system");
                 this.endCombat();
+            },
+
+            // Считает "с нуля" требуемый nextExp для достижения targetLvl — та же кривая,
+            // что и в checkLvl() (см. ниже), вынесенная отдельно, чтобы можно было пересчитать
+            // корректный nextExp для уровня, на который игрок был принудительно откачен
+            // (см. lvlCapV1Done в Core.load() / Cloud.hydrateFromRow()), не проходя весь путь
+            // левелапа через накопление опыта.
+            computeNextExpForLevel(targetLvl) {
+                let lvl = 1, nextExp = 85;
+                while (lvl < targetLvl) {
+                    lvl++;
+                    let tier = Math.min(DB.levelExpTierStep.length - 1, Math.floor(lvl / 10));
+                    let step = DB.levelExpTierStep[tier];
+                    if (lvl > 20) step = step * Math.pow(1.045, lvl - 20);
+                    nextExp = Math.floor(nextExp + step);
+                }
+                return nextExp;
             },
 
             checkLvl() {
