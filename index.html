@@ -7200,12 +7200,12 @@ padding-top:9vh;
             // генерации ежедневных заданий на сегодня из него случайно выбирается ровно один
             // вариант (см. Core.generateDailyQuests()). Все количества нарочно скромные.
             dailyResourceRewardPool: [
-                { type: "item", item: "Запчасти", qty: 3 },
-                { type: "item", item: "Тяжелый Хлам", qty: 2 },
-                { type: "item", item: "Ядерная Батарея", qty: 1 },
-                { type: "item", item: "Жетон Схрона", qty: 1 },
-                { type: "caps", qty: 5 },
-                { type: "voucher", qty: 1 }
+                { name: "Запчасти x3", type: "item", item: "Запчасти", qty: 3 },
+                { name: "Тяжелый Хлам x2", type: "item", item: "Тяжелый Хлам", qty: 2 },
+                { name: "Ядерная Батарея x1", type: "item", item: "Ядерная Батарея", qty: 1 },
+                { name: "Жетон Схрона x1", type: "item", item: "Жетон Схрона", qty: 1 },
+                { name: "Крышки x5", type: "caps", qty: 5 },
+                { name: "Ваучеры x1", type: "voucher", qty: 1 }
             ],
             // Отдельный пул ежедневных заданий для владельцев Premium/Elite пропуска (см.
             // Core.generateDailyQuests() — генерируется РОВНО 1 такое задание в день, только пока
@@ -10348,10 +10348,11 @@ startCombat(isBossFight = false) {
                     let prog = this.p.echo.progress[idx];
                     let biome = DB.biomes[11 + idx];
                     if (prog && biome && !prog.completed) {
-                        // Если отметка стартового уровня главы по какой-то причине ещё не была
-                        // проставлена (старое сохранение, прерванная сессия и т.п.) — фиксируем её
-                        // прямо сейчас, а не оставляем задание навсегда замороженным на 0/5.
-                        if (prog.startLvl === null || prog.startLvl === undefined) prog.startLvl = this.p.lvl;
+                        // Та же защита, что и в ensureEchoState(): если отметка стартового уровня ещё
+                        // не проставлена, фиксируем её по минимальному уровню входа в главу (а не по
+                        // ТЕКУЩЕМУ уровню игрока) — иначе уже заработанные до этого момента уровни
+                        // задания "набрать 5 уровней" сгорели бы безвозвратно.
+                        if (prog.startLvl === null || prog.startLvl === undefined) prog.startLvl = Math.min(this.p.lvl, biome.minLvl || 100);
                         let obj = biome.objectives.find(o => o.kind === "levels");
                         let gained = Math.max(0, this.p.lvl - prog.startLvl);
                         prog.levels = obj ? Math.min(obj.target, gained) : gained;
@@ -10387,13 +10388,23 @@ startCombat(isBossFight = false) {
                 // startLvl ещё не существовало) — до сих пор отметка стартового уровня текущей главы
                 // могла остаться непроставленной, потому что она задавалась только в enterEchoProject(),
                 // а тот повторно не вызывается, пока игрок не выйдет из проекта и не зайдёт заново.
-                // Из-за этого прогресс задания "набрать 5 уровней" замирал на 0/5 навсегда. Чиним это
-                // здесь же, при каждом заходе на экран проекта, чтобы отметка ставилась сразу.
+                // Из-за этого прогресс задания "набрать 5 уровней" замирал на 0/5 навсегда.
+                // ВАЖНО: отметку нельзя ставить на ТЕКУЩИЙ уровень игрока — если игрок уже успел
+                // прокачаться, пока баг был жив (например, дошёл до 101 уровня), это стёрло бы уже
+                // заработанный прогресс дочиста. Вместо этого используем минимальный уровень входа
+                // в главу (одинаковый для всех глав проекта) как честную нижнюю границу отсчёта —
+                // так уже набранные уровни задним числом засчитываются, а не сгорают.
                 if (this.p.echo.active) {
                     let idx = this.p.echo.chapter;
                     let prog = this.p.echo.progress[idx];
-                    if (prog && !prog.completed && (prog.startLvl === null || prog.startLvl === undefined)) {
-                        prog.startLvl = this.p.lvl;
+                    let biome = DB.biomes[11 + idx];
+                    if (prog && biome && !prog.completed && (prog.startLvl === null || prog.startLvl === undefined)) {
+                        prog.startLvl = Math.min(this.p.lvl, biome.minLvl || 100);
+                        // Пересчитываем счётчик сразу же, а не ждём следующего левел-апа — иначе
+                        // экран проекта успел бы на мгновение показать 0/5 даже после починки отметки.
+                        let obj = biome.objectives.find(o => o.kind === "levels");
+                        let gained = Math.max(0, this.p.lvl - prog.startLvl);
+                        prog.levels = obj ? Math.min(obj.target, gained) : gained;
                     }
                 }
             },
@@ -14046,6 +14057,7 @@ startCombat(isBossFight = false) {
             },
             formatRewardName(r) {
                 if(!r) return 'Пусто';
+                if(!r.name) return this.rewardIcon(r) + ' Награда';
                 let name = r.name.replace(/\s*x(\d+)/gi, '\u00A0×$1');
                 // Убираем ведущий смайлик из названия, чтобы не дублировать значок типа награды
                 name = name.replace(/^[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\uFE0F\u200D\s]+/u, '');
