@@ -7254,7 +7254,8 @@ padding-top:9vh;
                 { code: "топ3", type: "wheelSpins", qty: 5, maxUses: 3, desc: "5 бесплатных круток 🎡 Колеса Фортуны" },
                 { code: "фортуна", type: "voucher", qty: 15, maxUses: 3, desc: "15 🏷️ Ваучеров" },
                 { code: "аваклоуна", type: "avatar", avatarId: "krustyAvatar", maxUses: 1, desc: "эксклюзивная аватарка «Аваклоун»" },
-                { code: "ваучеры80", type: "voucher", qty: 80, maxUses: 3, desc: "80 🏷️ Ваучеров" }
+                { code: "ваучеры80", type: "voucher", qty: 80, maxUses: 3, desc: "80 🏷️ Ваучеров" },
+                { code: "ваучерыэлит", type: "bp_elite", maxUses: 2, desc: "ELITE-пропуск Пустоши (без доп. наград)" }
             ]
         };
 
@@ -8569,6 +8570,13 @@ padding-top:9vh;
                 } else if(promo.type === 'bp_premium') {
                     this.p.bpPremium = true;
                     this.log(`🎟️ Промокод «${promo.code}» активирован: 🎫 Премиум-пропуск Пустоши активирован!`, "loot");
+                } else if(promo.type === 'bp_elite') {
+                    // Elite всегда включает Premium автоматически (см. buyBpElite()) — это не
+                    // "дополнительная награда", а неотъемлемая часть самого Elite-пропуска.
+                    this.p.bpPremium = true;
+                    this.p.bpElite = true;
+                    this.generateDailyQuests();
+                    this.log(`🎟️ Промокод «${promo.code}» активирован: 👑 ELITE-пропуск Пустоши активирован (Premium включён автоматически)!`, "loot");
                 } else if(promo.type === 'full_restore') {
                     this.p.hp = this.p.maxHp;
                     this.p.satiety = 100;
@@ -10339,7 +10347,11 @@ startCombat(isBossFight = false) {
                     let idx = this.p.echo.chapter;
                     let prog = this.p.echo.progress[idx];
                     let biome = DB.biomes[11 + idx];
-                    if (prog && biome && !prog.completed && prog.startLvl !== null && prog.startLvl !== undefined) {
+                    if (prog && biome && !prog.completed) {
+                        // Если отметка стартового уровня главы по какой-то причине ещё не была
+                        // проставлена (старое сохранение, прерванная сессия и т.п.) — фиксируем её
+                        // прямо сейчас, а не оставляем задание навсегда замороженным на 0/5.
+                        if (prog.startLvl === null || prog.startLvl === undefined) prog.startLvl = this.p.lvl;
                         let obj = biome.objectives.find(o => o.kind === "levels");
                         let gained = Math.max(0, this.p.lvl - prog.startLvl);
                         prog.levels = obj ? Math.min(obj.target, gained) : gained;
@@ -10369,6 +10381,20 @@ startCombat(isBossFight = false) {
             ensureEchoState() {
                 if(!this.p.echo || !Array.isArray(this.p.echo.progress) || this.p.echo.progress.length < this.echoChapterCount()) {
                     this.p.echo = { active: false, chapter: 0, lastBiome: this.p.currentBiome || 0, started: false, completedAll: false, progress: Array.from({ length: this.echoChapterCount() }, () => ({ kills: 0, damage: 0, named: 0, fragments: 0, levels: 0, startLvl: null, bossDefeated: false, completed: false, storySeenIntro: false, storySeenOutro: false })) };
+                }
+                // Критичный фикс: если игрок уже находится ВНУТРИ проекта (active=true, например
+                // после перезагрузки страницы посреди главы или из старого сохранения, где поле
+                // startLvl ещё не существовало) — до сих пор отметка стартового уровня текущей главы
+                // могла остаться непроставленной, потому что она задавалась только в enterEchoProject(),
+                // а тот повторно не вызывается, пока игрок не выйдет из проекта и не зайдёт заново.
+                // Из-за этого прогресс задания "набрать 5 уровней" замирал на 0/5 навсегда. Чиним это
+                // здесь же, при каждом заходе на экран проекта, чтобы отметка ставилась сразу.
+                if (this.p.echo.active) {
+                    let idx = this.p.echo.chapter;
+                    let prog = this.p.echo.progress[idx];
+                    if (prog && !prog.completed && (prog.startLvl === null || prog.startLvl === undefined)) {
+                        prog.startLvl = this.p.lvl;
+                    }
                 }
             },
 
@@ -14039,6 +14065,7 @@ startCombat(isBossFight = false) {
             },
 
             renderBp() {
+              try {
                 let reqPoints = this.bpReqForLevel(this.p.bpLvl);
                 let bpPct = this.p.bpLvl >= 100 ? 100 : Math.max(0, Math.min(100, Math.round((this.p.bpPoints / reqPoints) * 100)));
                 let circleEl = document.getElementById('bp-level-circle');
@@ -14080,9 +14107,9 @@ startCombat(isBossFight = false) {
                 if(this.bpSubTab === 'rewards') {
                     this.bpRewards().forEach(r => {
                         let isLvlUnlocked = this.p.bpLvl >= r.lvl;
-                        let freeClaimed = this.p.bpClaimedFree.includes(r.lvl);
-                        let premClaimed = this.p.bpClaimedPrem.includes(r.lvl);
-                        let eliteClaimed = this.p.bpClaimedElite.includes(r.lvl);
+                        let freeClaimed = (this.p.bpClaimedFree || []).includes(r.lvl);
+                        let premClaimed = (this.p.bpClaimedPrem || []).includes(r.lvl);
+                        let eliteClaimed = (this.p.bpClaimedElite || []).includes(r.lvl);
                         let hasPrem = !!r.prem;
                         let hasElite = !!r.elite;
                         let isMilestone50 = r.lvl === 50;
@@ -14175,7 +14202,7 @@ startCombat(isBossFight = false) {
                         </div>`;
                     }
                     html += `<div style="font-size:11px; font-weight:900; color:var(--neon-purple); margin:14px 0 2px;">📜 Задания сезона</div>`;
-                    this.quests.forEach(q => {
+                    (this.quests || []).forEach(q => {
                         html += `<div class="list-item" style="margin-bottom:4px; padding:8px;">
                             <div style="font-size:11px;">
                                 <b>${q.text}</b>
@@ -14186,6 +14213,16 @@ startCombat(isBossFight = false) {
                     });
                     container.innerHTML = html;
                 }
+              } catch (err) {
+                // 🛡️ Раньше необработанное исключение здесь молча "замораживало" экран Пропуска
+                // Пустоши на предыдущем состоянии (например, оставались видны карточки уровней
+                // при попытке открыть вкладку заданий), при этом прогресс заданий продолжал
+                // считаться в фоне — несовпадение выглядело как "задания выполняются, но вкладка
+                // не открывается". Теперь ошибка попадает в консоль для диагностики, а игрок
+                // видит понятное сообщение вместо зависшего интерфейса.
+                console.error('renderBp() error:', err);
+                this.log('⚠️ Не удалось отобразить Пропуск Пустоши — попробуйте перезайти в игру.', 'system');
+              }
             },
 
             switchTab(tab, btn) {
