@@ -140,6 +140,62 @@
         #tutorial-overlay.tut-anchor-bottom { justify-content: flex-end; padding-bottom: calc(var(--bottom-ui-h, 155px) + 26px); }
         #tutorial-overlay.tut-anchor-mid { justify-content: center; }
         .tut-card { background: var(--glass-bg-strong); backdrop-filter: blur(var(--glass-blur)) saturate(180%); -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%); border: 2px solid var(--neon-blue); border-radius: 20px; padding: 18px; width: 100%; max-width: 360px; text-align: center; box-shadow: 0 0 25px rgba(0, 240, 255, 0.4), var(--glass-shadow-soft); pointer-events: auto; }
+
+        /* ===== Единый визуальный шаблон «карточек исходов похода» (тайник/засада/караван/костёр/находка) =====
+           Раньше все они были одинаковыми безликими прямоугольниками из .tut-card с голым текстом
+           и кнопками-полосками — отсюда ощущение "сыро". Теперь у каждой карточки есть крупная
+           иконка-медальон, чёткий заголовок, описание отдельным блоком и кнопки с двумя строками
+           (что это даёт + статус/цена), поэтому исход читается за секунду, а не вчитыванием в абзац. */
+        .outcome-card { position: relative; background: var(--glass-bg-strong); backdrop-filter: blur(var(--glass-blur)) saturate(180%); -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%); border: 2px solid var(--oc-color, var(--neon-blue)); border-radius: 22px; padding: 22px 20px 18px; width: 100%; text-align: center; box-shadow: 0 0 30px color-mix(in srgb, var(--oc-color, var(--neon-blue)) 35%, transparent), var(--glass-shadow-soft); pointer-events: auto; animation: outcomeCardIn 0.22s ease-out; }
+        @keyframes outcomeCardIn { from { opacity: 0; transform: translateY(8px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        .outcome-card-icon { width: 54px; height: 54px; margin: 0 auto 10px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 26px; background: color-mix(in srgb, var(--oc-color, var(--neon-blue)) 18%, rgba(4,6,10,0.6)); border: 1.5px solid color-mix(in srgb, var(--oc-color, var(--neon-blue)) 55%, transparent); box-shadow: 0 0 16px color-mix(in srgb, var(--oc-color, var(--neon-blue)) 45%, transparent); }
+        .outcome-card-title { font-size: 16px; font-weight: 900; margin-bottom: 6px; letter-spacing: 0.2px; }
+        .outcome-card-desc { font-size: 12.5px; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px; }
+        .outcome-card-actions { display: flex; flex-direction: column; gap: 9px; }
+        .outcome-choice-btn { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 11px 14px; border-radius: 13px; text-align: left; }
+        .oc-btn-title { font-size: 13px; font-weight: 800; }
+        .oc-btn-title small { font-weight: 600; opacity: 0.75; font-size: 10.5px; }
+        .oc-btn-effect { font-size: 10.5px; font-weight: 600; opacity: 0.85; }
+        .oc-btn-status { font-size: 10px; font-weight: 700; color: var(--neon-orange, #ff8a3d); min-height: 12px; }
+        .outcome-cancel-btn { margin-top: 2px; padding: 9px; font-size: 11.5px; opacity: 0.7; background: transparent; border: 1px solid rgba(255,255,255,0.15); }
+        .outcome-reward-chip { display: inline-flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 5px 10px; font-size: 11.5px; font-weight: 700; margin: 2px 3px; }
+
+        /* ===== Костёр — отдельный, более тёплый визуал вместо общего "исходного" шаблона:
+           крупное пламя вместо иконки-медальона, разбор занятий строками с иконкой слева
+           (а не блоками с отдельной строкой статуса-плашкой под каждым — вместо неё цвет
+           текста самой строки эффекта меняется на отключённом занятии). */
+        .camp-card { position: relative; background: linear-gradient(180deg, rgba(40,20,8,0.92) 0%, rgba(10,7,6,0.96) 100%); backdrop-filter: blur(var(--glass-blur)) saturate(180%); -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%); border: 1.5px solid rgba(255,140,20,0.4); border-radius: 24px; padding: 24px 20px 18px; width: 100%; max-width: 380px; text-align: center; box-shadow: 0 0 34px rgba(255,120,20,0.22), var(--glass-shadow-soft); pointer-events: auto; animation: outcomeCardIn 0.22s ease-out; }
+        .camp-card-flame { font-size: 40px; margin-bottom: 4px; filter: drop-shadow(0 0 14px rgba(255,140,20,0.65)); animation: campFlameFlicker 2.4s ease-in-out infinite; }
+        @keyframes campFlameFlicker { 0%,100% { transform: scale(1) rotate(-1deg); } 50% { transform: scale(1.07) rotate(1deg); } }
+        .camp-card-title { font-size: 17px; font-weight: 900; margin-bottom: 6px; letter-spacing: 0.2px; color: #ffb703; text-shadow: 0 0 12px rgba(255,140,20,0.5); }
+        .camp-card-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px; }
+        .camp-options { display: flex; flex-direction: column; gap: 8px; }
+        .camp-option { display: flex; flex-direction: column; align-items: stretch; gap: 8px; padding: 10px 13px; border-radius: 15px; text-align: left; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); transition: opacity 0.2s ease, transform 0.12s ease; }
+        .camp-option:active { transform: scale(0.98); }
+        .camp-option-row { display: flex; align-items: center; gap: 12px; width: 100%; }
+        .camp-option-icon { flex: none; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; background: rgba(255,140,20,0.14); border: 1px solid rgba(255,140,20,0.3); }
+        .camp-option-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+        .camp-option-title { font-size: 12.5px; font-weight: 800; color: #fff; }
+        .camp-option-title small { font-weight: 600; opacity: 0.65; font-size: 10px; margin-left: 4px; }
+        .camp-option-effect { font-size: 10.5px; font-weight: 600; color: var(--text-muted); line-height: 1.35; }
+        .camp-option-effect.no-wrap { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .camp-option:disabled { opacity: 0.5; }
+        .camp-option:disabled .camp-option-effect { color: var(--neon-orange, #ff8a3d); opacity: 1; }
+        /* Явный "ценник" занятия у костра — что именно мы платим/теряем, отдельно от эффекта.
+           Расположен отдельной строкой под карточкой занятия (не сбоку), чтобы точно бросался в глаза. */
+        .camp-option-price { display: block; width: 100%; text-align: center; font-size: 11.5px; font-weight: 900; padding: 6px 10px; border-radius: 10px; white-space: nowrap; letter-spacing: 0.3px; box-sizing: border-box; }
+        .camp-option-price-cost { color: #ffc2cf; background: rgba(255,42,95,0.18); border: 1px solid rgba(255,42,95,0.45); }
+        .camp-option-price-free { color: var(--neon-green); background: rgba(57,255,20,0.14); border: 1px solid rgba(57,255,20,0.4); }
+        .camp-cancel-btn { margin-top: 4px; padding: 9px; font-size: 11.5px; opacity: 0.65; background: transparent; border: 1px solid rgba(255,255,255,0.15); border-radius: 13px; }
+
+        /* ===== Тост исхода разведки — карточка для находок без выбора (землемарка/пусто/ловушка),
+           чтобы результат ощущался как событие, а не строка в журнале. Сам закрывается через паузу. */
+        #explore-toast-overlay { position: fixed; left: 50%; top: 175px; transform: translateX(-50%) translateY(-14px); z-index: 6100; pointer-events: none; opacity: 0; transition: opacity 0.25s ease, transform 0.25s ease; width: min(340px, 88vw); }
+        #explore-toast-overlay.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .explore-toast-card { display: flex; align-items: center; gap: 12px; background: var(--glass-bg-strong); backdrop-filter: blur(var(--glass-blur)) saturate(180%); -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%); border: 2px solid var(--et-color, var(--neon-gold)); border-radius: 16px; padding: 12px 14px; box-shadow: 0 0 22px color-mix(in srgb, var(--et-color, var(--neon-gold)) 40%, transparent), var(--glass-shadow-soft); }
+        .explore-toast-icon { width: 38px; height: 38px; flex: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 19px; background: color-mix(in srgb, var(--et-color, var(--neon-gold)) 20%, rgba(4,6,10,0.6)); }
+        .explore-toast-title { font-size: 12.5px; font-weight: 800; color: #fff; margin-bottom: 2px; }
+        .explore-toast-sub { font-size: 10.5px; font-weight: 600; color: var(--text-muted); line-height: 1.4; }
         #tut-card { background: linear-gradient(160deg, rgba(46,32,16,0.97) 0%, rgba(18,11,5,0.98) 100%); backdrop-filter: none; -webkit-backdrop-filter: none; border: 2px solid #c9873c; border-radius: 20px; padding: 16px; width: 100%; max-width: 360px; text-align: left; box-shadow: 0 0 22px rgba(201,135,60,0.35), 0 12px 30px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,220,170,0.06); pointer-events: auto; animation: tutCardIn 0.35s cubic-bezier(0.25,1.2,0.4,1); }
         @keyframes tutCardIn { 0% { transform: translateY(10px) scale(0.97); opacity: 0; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
         .tut-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
@@ -541,6 +597,7 @@ transform:scale(1);
         .find-fx { position: absolute; left: 50%; top: 42%; font-size: 52px; transform: translate(-50%, -50%) scale(0.3); opacity: 0; z-index: 5; pointer-events: none; filter: drop-shadow(0 8px 10px rgba(0,0,0,0.6)); animation: findPop 1.5s cubic-bezier(.22,.9,.3,1) forwards; }
         @keyframes findPop { 0% { opacity: 0; transform: translate(-50%, -28%) scale(0.2); } 18% { opacity: 1; transform: translate(-50%, -54%) scale(1.2); } 30% { transform: translate(-50%, -50%) scale(1); } 78% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -68%) scale(0.85); } }
         .find-fx.enemy { filter: drop-shadow(0 0 10px var(--neon-red)) drop-shadow(0 8px 10px rgba(0,0,0,0.6)); }
+        .find-fx.elite { filter: drop-shadow(0 0 14px var(--neon-red)) drop-shadow(0 8px 10px rgba(0,0,0,0.6)); font-size: 60px; }
         .find-fx.empty { font-size: 38px; opacity: 0.9; }
         .lake-ripple { position: absolute; left: 50%; top: 48%; width: 18px; height: 18px; margin: -9px; border-radius: 50%; border: 2px solid rgba(127, 223, 255, 0.75); transform: translate(-50%, -50%) scale(0.2); opacity: 0.9; z-index: 4; pointer-events: none; animation: rippleGrow 1.5s ease-out forwards; }
         .lake-ripple.ripple2 { animation-delay: 0.22s; }
@@ -702,71 +759,6 @@ transform:scale(1);
         .stage-pvp-btn .stage-pvp-btn-icon { font-size: 15px; filter: drop-shadow(0 0 4px rgba(255,42,95,0.6)); }
         .stage-pvp-btn:active { transform: scale(0.94); box-shadow: 0 0 10px rgba(255,42,95,0.35), inset 0 1px 0 rgba(255,255,255,0.18); }
         .stage-hint { position: absolute; left: 10px; bottom: 10px; z-index: 4; font-size: 10.5px; color: var(--text-muted); background: rgba(6,8,12,0.5); padding: 6px 10px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.08); pointer-events: none; }
-
-        /* ===================================================================
-           ИВЕНТ: Супер-Босс «Враг Совета» — вся визуалка максимально лёгкая:
-           только transform/opacity в анимациях (GPU-composited), никаких
-           тяжёлых box-shadow-блюров каждый кадр, никакого JS rAF-цикла —
-           только редкие точечные DOM-обновления по интервалу/realtime-событию.
-           =================================================================== */
-        .event-toggle-btn {
-            position: absolute; top: 175px; right: 24px; z-index: 9; pointer-events: auto;
-            padding: 8px 14px; font-size: 11px; font-weight: 800; letter-spacing: .02em;
-            border-radius: 20px; border: 1px solid rgba(255,183,3,0.5);
-            background: linear-gradient(135deg, rgba(191,90,242,0.35), rgba(255,42,95,0.35)), rgba(6,8,12,0.72);
-            color: #fff; box-shadow: 0 0 0 rgba(0,0,0,0); cursor: pointer;
-            display: flex; align-items: center; gap: 5px;
-        }
-        .event-toggle-btn .eb-pulse-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--neon-gold); animation: ebDotPulse 1.4s ease-in-out infinite; }
-        @keyframes ebDotPulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: .35; transform: scale(1.3); } }
-
-        #event-boss-stage {
-            position: absolute; top: 165px; left: 14px; right: 14px;
-            bottom: max(155px, calc(var(--bottom-ui-h, 155px) + 16px));
-            border-radius: 24px; overflow: hidden; pointer-events: auto;
-            background: radial-gradient(ellipse at 50% 20%, rgba(191,90,242,0.16), transparent 60%), linear-gradient(180deg, #14060f 0%, #05070a 100%);
-            border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow);
-            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-            padding: 14px 12px 10px; box-sizing: border-box;
-        }
-        .eb-header { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 2px; }
-        .eb-title { font-size: 15px; font-weight: 900; letter-spacing: .03em; color: #fff; text-shadow: 0 0 14px rgba(255,42,95,0.65); text-align: center; }
-        .eb-timer { font-size: 10.5px; color: var(--neon-gold); font-weight: 700; }
-        .eb-boss-wrap { flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; min-height: 0; }
-        .eb-boss-figure { width: min(58vw, 230px); animation: ebFloat 3.6s ease-in-out infinite; will-change: transform; }
-        @keyframes ebFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
-        .eb-boss-figure.eb-hit { animation: ebFloat 3.6s ease-in-out infinite, ebHitShake 0.25s ease; }
-        @keyframes ebHitShake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
-        .eb-core-glow { animation: ebPulseGlow 2.2s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
-        @keyframes ebPulseGlow { 0%,100% { opacity: .55; } 50% { opacity: 1; } }
-        .eb-eye { animation: ebEyeGlow 1.8s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
-        @keyframes ebEyeGlow { 0%,100% { opacity: .7; } 50% { opacity: 1; } }
-
-        .eb-hpblock { width: 100%; max-width: 380px; margin: 0 auto; }
-        .eb-hp-label { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--text-muted); margin-bottom: 4px; }
-        .eb-hp-label b { color: #fff; }
-        .eb-hpbar-wrap { position: relative; width: 100%; padding: 7px 0; }
-        .eb-hpbar-outer { position: relative; width: 100%; height: 16px; border-radius: 10px; background: rgba(0,0,0,0.55); border: 1px solid rgba(255,255,255,0.14); overflow: hidden; }
-        .eb-hpbar-fill { height: 100%; background: linear-gradient(90deg, #ff2a5f, #bf5af2); transition: width 0.5s ease; }
-        /* Маленькие иконки наград прямо на полоске HP, на месте прежних длинных строк-наград ниже полоски */
-        .eb-tier-nodes { position: absolute; inset: 0; pointer-events: none; }
-        .eb-tier-node { position: absolute; top: 50%; transform: translate(-50%, -50%); width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; line-height: 1; background: rgba(10,8,14,0.92); border: 1.5px solid rgba(255,255,255,0.3); cursor: pointer; pointer-events: auto; }
-        .eb-tier-node.locked { opacity: .45; }
-        .eb-tier-node.reached { opacity: .9; border-color: rgba(255,255,255,0.55); }
-        .eb-tier-node.claimable { border-color: var(--neon-gold); box-shadow: 0 0 7px rgba(255,183,3,0.8); animation: ebNodePulse 1.3s ease-in-out infinite; }
-        .eb-tier-node.claimed { border-color: rgba(57,255,20,0.65); background: rgba(20,45,20,0.9); }
-        .eb-tier-node.claimed::after { content: '✓'; position: absolute; right: -3px; bottom: -3px; width: 12px; height: 12px; border-radius: 50%; background: #0a080e; color: #39ff14; font-size: 8px; font-weight: 900; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(57,255,20,0.5); }
-        @keyframes ebNodePulse { 0%,100% { transform: translate(-50%,-50%) scale(1); } 50% { transform: translate(-50%,-50%) scale(1.15); } }
-
-        .eb-footer { width: 100%; max-width: 380px; margin: 10px auto 0; display: flex; align-items: center; gap: 10px; }
-        .eb-mydmg { font-size: 10px; color: var(--text-muted); flex: 1; }
-        .eb-mydmg b { color: var(--neon-blue); }
-        .eb-hit-btn { padding: 12px 22px; font-size: 13px; font-weight: 900; border-radius: 30px; border: none; color: #fff; cursor: pointer; background: var(--grad-accent); box-shadow: 0 4px 18px rgba(255,42,95,0.4); transition: transform 0.12s ease, opacity 0.2s ease; }
-        .eb-hit-btn:active { transform: scale(0.94); }
-        .eb-hit-btn:disabled { opacity: 0.45; cursor: default; }
-        .eb-dmg-pop { position: absolute; font-weight: 900; font-size: 20px; color: #fff; text-shadow: 0 0 8px rgba(255,42,95,0.9); pointer-events: none; animation: ebDmgPop 0.7s ease-out forwards; z-index: 20; }
-        @keyframes ebDmgPop { 0% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; transform: translate(-50%, -46px); } }
-        .eb-ended-badge { margin-top: 10px; font-size: 11px; color: var(--text-muted); text-align: center; }
 
         .game-log {
             position: fixed;
@@ -1990,6 +1982,8 @@ transform:scale(1);
         .map-name { font-size: 14px; font-weight: 800; color: #fff; }
         .map-status { font-size: 10.5px; font-weight: 700; color: var(--text-muted); margin-top: 3px; }
         .map-card.current .map-status { color: var(--map-color, var(--neon-blue)); }
+        .map-journal-badge { font-size: 9.5px; font-weight: 700; color: var(--text-muted); margin-top: 4px; opacity: 0.85; }
+        .map-journal-badge.full { color: var(--neon-green, #39ff14); opacity: 1; }
         .map-current-flag {
             margin-left: auto; flex-shrink: 0; font-size: 9px; font-weight: 900; letter-spacing: 0.4px;
             color: var(--map-color, var(--neon-blue));
@@ -2051,7 +2045,7 @@ transform:scale(1);
             background: linear-gradient(90deg, transparent, var(--biome-accent, var(--neon-blue)), transparent);
             opacity: 0.65; filter: blur(0.4px);
         }
-        .action-panel { padding: 15px 14px 10px 14px; position: relative; }
+        .action-panel { padding: 11px 14px 6px 14px; position: relative; }
         .buttons-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         /* Компактные, но не крошечные кнопки боевого экрана — баланс между читаемостью лога боя
            и удобством нажатия. Затрагивает только #combat-actions, остальные экраны не меняются. */
@@ -2514,6 +2508,12 @@ transform:scale(1);
         .recipe-ing.bad { color: #8b1a1a; }
         .recipe-craft-btn { width: 100%; margin-top: 8px; padding: 9px; border-radius: 8px; border: none; background: linear-gradient(135deg,#7a4a20,#5a3a20); color: #ecd9ae; font-weight: 800; font-size: 12px; cursor: pointer; }
         .recipe-craft-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        /* Выбор количества для массовой готовки — показывается только если рецепт можно приготовить больше 1 раза подряд */
+        .recipe-qty-row { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; padding-top: 8px; border-top: 1px dashed rgba(90,58,32,0.35); }
+        .recipe-qty-row .mk-stepper button { border: 1px solid rgba(90,58,32,0.4); background: rgba(90,58,32,0.12); color: #3a2410; }
+        .recipe-qty-row .mk-stepper button:disabled { opacity: 0.35; }
+        .recipe-qty-row .mk-stepper span { color: #2a1a0c; }
+        .recipe-qty-max { font-size: 10.5px; font-weight: 700; color: #6b4a2a; }
 
         /* === Тех-Схемы (крафт снаряжения) === */
         #schematics-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: rgba(2,10,14,0.85); z-index: 5900; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 16px; backdrop-filter: blur(6px); }
@@ -3403,6 +3403,129 @@ padding-top:9vh;
         </div>
     </div>
 
+    <div id="cache-choice-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: radial-gradient(ellipse at center top, rgba(90,60,0,0.55) 0%, rgba(4, 6, 10, 0.95) 70%); z-index: 6200; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(8px);">
+        <div class="outcome-card" style="--oc-color: var(--neon-orange, #ff8a3d); max-width: 360px;">
+            <div class="outcome-card-icon">📦</div>
+            <h3 class="outcome-card-title" style="color: var(--neon-orange, #ff8a3d);">Приметный тайник</h3>
+            <p class="outcome-card-desc">Наполовину занесённый песком ящик. Можно аккуратно разобрать завал, либо вскрыть с ходу.</p>
+            <div class="outcome-card-actions">
+                <button class="outcome-choice-btn" onclick="Core.resolveCache('careful')">
+                    <span class="oc-btn-title">🧰 Аккуратно</span>
+                    <span class="oc-btn-effect">Надёжно — гарантированная, но скромная добыча</span>
+                </button>
+                <button class="success outcome-choice-btn" onclick="Core.resolveCache('fast')">
+                    <span class="oc-btn-title">⚡ Вскрыть с ходу</span>
+                    <span class="oc-btn-effect">Риск: богатая добыча или урон от ловушки</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="ambush-choice-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: radial-gradient(ellipse at center top, rgba(90,10,10,0.55) 0%, rgba(4, 6, 10, 0.95) 70%); z-index: 6200; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(8px);">
+        <div class="outcome-card" style="--oc-color: var(--neon-red); max-width: 360px;">
+            <div class="outcome-card-icon">⚠️</div>
+            <h3 class="outcome-card-title" style="color: var(--neon-red);">Внезапная встреча</h3>
+            <p class="outcome-card-desc">Противник заметил вас первым. Есть время принять решение.</p>
+            <div class="outcome-card-actions">
+                <button class="success outcome-choice-btn" onclick="Core.resolveAmbush('fight')">
+                    <span class="oc-btn-title">⚔️ Атаковать</span>
+                    <span class="oc-btn-effect">Обычный бой — со всеми его наградами и риском</span>
+                </button>
+                <button class="outcome-choice-btn" onclick="Core.resolveAmbush('sneak')">
+                    <span class="oc-btn-title">🤫 Проскользнуть</span>
+                    <span class="oc-btn-effect">Шанс тихо прихватить крышки и уйти без боя</span>
+                </button>
+                <button class="outcome-choice-btn" onclick="Core.resolveAmbush('flee')">
+                    <span class="oc-btn-title">🏃 Отступить</span>
+                    <span class="oc-btn-effect">Без риска и без награды</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="caravan-choice-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: radial-gradient(ellipse at center top, rgba(80,60,10,0.55) 0%, rgba(4, 6, 10, 0.95) 70%); z-index: 6200; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(8px);">
+        <div class="outcome-card" style="--oc-color: var(--neon-gold); max-width: 370px;">
+            <div class="outcome-card-icon">🛒</div>
+            <h3 class="outcome-card-title" style="color: var(--neon-gold);">Странствующий Караван</h3>
+            <p id="caravan-intro-text" class="outcome-card-desc">Торговец из каравана предлагает дело, пока его спутники сторожат повозки.</p>
+            <div class="outcome-card-actions">
+                <button id="caravan-sell-btn" class="outcome-choice-btn" onclick="Core.resolveCaravan('sell')">
+                    <span class="oc-btn-title">🔩 Продать весь Хлам</span>
+                    <span class="oc-btn-effect">Выгодный курс, лучше рыночного</span>
+                </button>
+                <button id="caravan-gamble-btn" class="success outcome-choice-btn" onclick="Core.resolveCaravan('gamble')">
+                    <span class="oc-btn-title">🎲 Рискнуть крышками</span>
+                    <span class="oc-btn-effect">Шанс на джекпот из Жетонов Схрона</span>
+                </button>
+                <button class="outcome-choice-btn" onclick="Core.resolveCaravan('leave')">
+                    <span class="oc-btn-title">🚶 Пройти мимо</span>
+                    <span class="oc-btn-effect">Без риска и без награды</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="camp-choice-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: radial-gradient(ellipse at center top, rgba(255,140,20,0.16) 0%, rgba(4, 6, 10, 0.95) 65%); z-index: 6200; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(8px);">
+        <div class="camp-card">
+            <div class="camp-card-flame">🔥</div>
+            <h3 class="camp-card-title">Костёр</h3>
+            <p class="camp-card-desc">Без общего лимита — каждое занятие своё и доступно снова, как только истечёт его личный откат и найдутся ресурсы.</p>
+            <div class="camp-options">
+                <button id="camp-cook-btn" class="camp-option" onclick="Core.chooseCamp('cook')">
+                    <span class="camp-option-row">
+                        <span class="camp-option-icon">🍲</span>
+                        <span class="camp-option-body">
+                            <span class="camp-option-title">Готовка</span>
+                            <span class="camp-option-effect" id="camp-cook-effect">+14⚡ · +10 сытости · удачливая добыча на 3 разведки</span>
+                        </span>
+                    </span>
+                    <span class="camp-option-price camp-option-price-cost">−1 🍖</span>
+                </button>
+                <button id="camp-repair-btn" class="camp-option" onclick="Core.chooseCamp('repair')">
+                    <span class="camp-option-row">
+                        <span class="camp-option-icon">🔧</span>
+                        <span class="camp-option-body">
+                            <span class="camp-option-title">Ремонт</span>
+                            <span class="camp-option-effect" id="camp-repair-effect">+10⚡ · +12 ОЗ · снижает опасность биома</span>
+                        </span>
+                    </span>
+                    <span class="camp-option-price camp-option-price-cost">−2 ⚙️</span>
+                </button>
+                <button id="camp-stories-btn" class="camp-option" onclick="Core.chooseCamp('stories')">
+                    <span class="camp-option-row">
+                        <span class="camp-option-icon">📖</span>
+                        <span class="camp-option-body">
+                            <span class="camp-option-title">Истории у костра</span>
+                            <span class="camp-option-effect" id="camp-stories-effect">+6⚡ · +6 XP</span>
+                        </span>
+                    </span>
+                    <span class="camp-option-price camp-option-price-free">Бесплатно</span>
+                </button>
+                <button class="camp-cancel-btn" onclick="Core.closeCampOverlay();">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="find-choice-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: radial-gradient(ellipse at center top, rgba(60,60,10,0.5) 0%, rgba(4, 6, 10, 0.95) 70%); z-index: 6200; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(8px);">
+        <div class="outcome-card" style="--oc-color: var(--neon-gold); max-width: 360px;">
+            <div class="outcome-card-icon">🔎</div>
+            <h3 class="outcome-card-title" style="color: var(--neon-gold);">Что-то на виду</h3>
+            <p class="outcome-card-desc">Среди завалов заметно что-то полезное. Можно забрать сразу, а можно задержаться и обыскать всё как следует.</p>
+            <div class="outcome-card-actions">
+                <button class="outcome-choice-btn" onclick="Core.resolveFind('quick')">
+                    <span class="oc-btn-title">👋 Забрать что на виду</span>
+                    <span class="oc-btn-effect">Надёжно и без риска — стандартная добыча</span>
+                </button>
+                <button class="success outcome-choice-btn" onclick="Core.resolveFind('thorough')">
+                    <span class="oc-btn-title">🔍 Обыскать тщательно</span>
+                    <span class="oc-btn-effect">Заметно больше добычи, но придётся задержаться — риск нахватать опасности биома</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="explore-toast-overlay"><div class="explore-toast-card"><div class="explore-toast-icon" id="explore-toast-icon">🎁</div><div><div class="explore-toast-title" id="explore-toast-title"></div><div class="explore-toast-sub" id="explore-toast-sub"></div></div></div></div>
+
     <div id="recipebook-overlay">
         <div class="book-container">
             <div class="book-header">
@@ -3812,59 +3935,6 @@ padding-top:9vh;
                 <button class="stage-log-toggle" id="stage-log-toggle" onclick="Scene.toggleLog()">📜 Журнал</button>
             </div>
 
-            <!-- ==================== ИВЕНТ: Супер-Босс «Враг Совета» ==================== -->
-            <div id="event-boss-stage" style="display:none;">
-                <div class="eb-header">
-                    <div class="eb-title">☠️ ВРАГ СОВ СОВЕТА</div>
-                    <div class="eb-timer" id="eb-timer">—</div>
-                </div>
-
-                <div class="eb-boss-wrap">
-                    <div class="eb-boss-figure" id="eb-boss-figure">
-                        <svg viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg" style="overflow:visible;">
-                            <ellipse cx="100" cy="225" rx="70" ry="10" fill="#000" opacity="0.45"/>
-                            <path class="eb-core-glow" d="M100 215 C40 215 30 150 40 100 C48 55 70 15 100 15 C130 15 152 55 160 100 C170 150 160 215 100 215 Z" fill="url(#ebBodyGrad)"/>
-                            <path d="M100 20 C75 20 60 55 55 95 C50 135 55 175 70 200 L70 150 C70 120 80 95 100 95 C120 95 130 120 130 150 L130 200 C145 175 150 135 145 95 C140 55 125 20 100 20 Z" fill="#0b0710" opacity="0.55"/>
-                            <path d="M100 12 C70 12 30 40 30 95 C30 100 34 102 37 98 C46 62 70 34 100 34 C130 34 154 62 163 98 C166 102 170 100 170 95 C170 40 130 12 100 12 Z" fill="#1b0e22" stroke="#bf5af2" stroke-width="1.5" opacity="0.9"/>
-                            <ellipse class="eb-eye" cx="82" cy="88" rx="7" ry="10" fill="#ff2a5f"/>
-                            <ellipse class="eb-eye" cx="118" cy="88" rx="7" ry="10" fill="#ff2a5f"/>
-                            <path d="M60 130 Q100 150 140 130 Q120 145 100 145 Q80 145 60 130 Z" fill="#ff2a5f" opacity="0.55"/>
-                            <path d="M100 34 L100 8 M78 40 L60 18 M122 40 L140 18" stroke="#ffb703" stroke-width="4" stroke-linecap="round" opacity="0.85"/>
-                            <circle cx="100" cy="8" r="5" fill="#ffb703"/>
-                            <circle cx="60" cy="18" r="4" fill="#ffb703"/>
-                            <circle cx="140" cy="18" r="4" fill="#ffb703"/>
-                            <defs>
-                                <radialGradient id="ebBodyGrad" cx="50%" cy="35%" r="70%">
-                                    <stop offset="0%" stop-color="#3a1046"/>
-                                    <stop offset="60%" stop-color="#1a0a1f"/>
-                                    <stop offset="100%" stop-color="#08050a"/>
-                                </radialGradient>
-                            </defs>
-                        </svg>
-                    </div>
-                </div>
-
-                <div class="eb-hpblock">
-                    <div class="eb-hp-label"><span>❤️ Здоровье Босса</span><b id="eb-hp-text">10 000 000 / 10 000 000</b></div>
-                    <div class="eb-hpbar-wrap">
-                        <div class="eb-hpbar-outer">
-                            <div class="eb-hpbar-fill" id="eb-hp-fill" style="width:100%;"></div>
-                        </div>
-                        <div class="eb-tier-nodes" id="eb-tier-nodes"></div>
-                    </div>
-                </div>
-
-                <div class="eb-footer">
-                    <div class="eb-mydmg">Твой урон боссу: <b id="eb-my-dmg">0</b></div>
-                    <button class="eb-hit-btn" id="eb-hit-btn" onclick="EventBoss.hit()">👊 УДАРИТЬ</button>
-                </div>
-                <div class="eb-ended-badge" id="eb-ended-badge" style="display:none;"></div>
-            </div>
-
-            <button class="event-toggle-btn" id="event-toggle-btn" onclick="Scene.toggleEventView()" style="display:none;">
-                <span class="eb-pulse-dot" id="event-toggle-dot" style="display:none;"></span>
-                <span id="event-toggle-label">⚔️ Ивент</span>
-            </button>
         </div>
         <div class="game-log" id="log"></div>
     </div>
@@ -4108,12 +4178,16 @@ padding-top:9vh;
 
     <div class="bottom-ui-container" id="bottom-ui-container">
         <div class="action-panel">
+            <div id="luck-meter-row" title="Растёт с каждой спокойной разведкой (без боя): повышает шанс на тайники и точки интереса. Полностью сбрасывается после боя или засады." style="display:flex; align-items:center; gap:8px; margin-bottom:6px; font-size:10px; color: var(--text-muted); cursor: help;">
+                <span style="white-space:nowrap;">🍀 Удача разведки</span>
+                <div class="progress-bar-outer" style="height:7px; flex:1; border-radius:5px;">
+                    <div id="luck-bar" class="progress-bar-inner" style="width:0%; background: linear-gradient(90deg, var(--neon-blue), var(--neon-green)); transition: width .4s;"></div>
+                </div>
+                <span id="luck-streak-label" style="white-space:nowrap;">🔥0</span>
+            </div>
             <div id="default-actions" class="buttons-grid">
                 <button id="btn-explore" class="primary" onclick="Core.explore()">🚶 Разведка (3⚡)</button>
-                <button id="btn-rest" onclick="Core.rest()">
-                    ⛺ Привал (<span id="rest-count">5</span>/<span id="rest-max">5</span>)
-                    <span id="rest-timer" class="timer-badge" style="display:none;">Откат</span>
-                </button>
+                <button id="btn-rest" onclick="Core.rest()">🔥 Костёр</button>
             </div>
             <div id="combat-actions" style="display: none; flex-direction: column; gap: 6px;">
                 <div id="combat-ability-grid" style="display: flex; flex-direction: column; gap: 6px;"></div>
@@ -5888,7 +5962,7 @@ padding-top:9vh;
             },
 
             // ---- Всплывающая иконка находки (озеро, мясо, хлам, враг, пусто...) поверх сцены ----
-            findIcons: { scrap: '⚙️', meat: '🥩', heavy: '🔩', lake: '🌊', enemy: '⚠️', empty: '🔍', caps: '🪙' },
+            findIcons: { scrap: '⚙️', meat: '🥩', heavy: '🔩', lake: '🌊', enemy: '⚠️', empty: '🔍', caps: '🪙', cache: '📦', landmark: '🧭', hazard: '☠️', elite: '⚔️', caravan: '🛒' },
             findEffect(kind) {
                 const layer = document.getElementById('fx-layer');
                 if (!layer) return;
@@ -5926,20 +6000,6 @@ padding-top:9vh;
                 if (btn) btn.innerHTML = open ? `${Icon.cross()} Закрыть` : '📜 Журнал';
                 if (open) log.scrollTop = log.scrollHeight;
             },
-
-            // ---- Переключение: сцена разведки <-> сцена ивент-босса ----
-            toggleEventView() {
-                const exploreEl = document.getElementById('stage-scene');
-                const eventEl = document.getElementById('event-boss-stage');
-                const label = document.getElementById('event-toggle-label');
-                if (!exploreEl || !eventEl) return;
-                EventBoss.view = !EventBoss.view;
-                exploreEl.style.display = EventBoss.view ? 'none' : '';
-                eventEl.style.display = EventBoss.view ? 'flex' : 'none';
-                if (label) label.textContent = EventBoss.view ? '🗺️ Карта' : '⚔️ Ивент';
-                Sound.play('click');
-                if (EventBoss.view) EventBoss.renderAll();
-            }
         };
 
         // Портрет Криса Пепла — наставника, который ведёт обучение и подсказки.
@@ -5978,7 +6038,7 @@ padding-top:9vh;
                 { type: "manual", pos: "mid", text: "Здарово, боец. Я — Крис Пепел, старожил этой Пустоши. Двести лет назад страны построили общий военный ИИ «ЭХО», чтобы он предотвращал войны. Он решил, что источник войны — сами люди, и в Час Стекла запустил по миру все ракеты разом. С тех пор всё, что здесь бродит — его создания. Покажу тебе самое важное за пару минут — остальное расскажу по пути. Погнали." },
                 { type: "manual", pos: "top", highlight: "status-bar", text: "Верхняя панель — твои показатели. ❤️ Жизнь, ⚡ энергия (тратится на разведку и бой), 🍖 сытость или ☢️ радиация. Правее — 🎖️ уровень, 🪙 крышки и 🏷️ ваучеры." },
                 { type: "click", trigger: "btn-explore", pos: "top", text: "Жми «🚶 Разведка» (3⚡) — так ты добываешь ресурсы, находки и иногда встречаешь противников." },
-                { type: "manual", pos: "top", highlight: "btn-rest", text: "Рядом кнопка «⛺ Привал» — лечит и восстанавливает силы бесплатно, но с ограничением в день. А в 📜 «Журнале» справа внизу — история твоих последних действий." },
+                { type: "manual", pos: "top", highlight: "btn-rest", text: "Рядом кнопка «🔥 Костёр» — на выбор: готовка, ремонт снаряжения или истории у костра, каждое занятие даёт разный эффект. Общего лимита нет: занятие снова доступно, как только у него истечёт свой короткий откат и найдутся нужные ресурсы. А в 📜 «Журнале» справа внизу — история твоих последних действий." },
                 { type: "click", trigger: "tab-inv", pos: "top", text: "Жми вкладку «🎒 Арсенал» — посмотрим, что у тебя есть." },
                 { type: "manual", pos: "bottom", text: "Здесь всё твоё: оружие (можно улучшать), удочки для рыбалки, еда для восстановления здоровья и сытости, и ресурсы для крафта — не продавай их сразу, пригодятся." },
                 { type: "click", trigger: "tab-craft", pos: "top", text: "Жми вкладку «🛠️ Крафт» — тут превращаешь ресурсы в пользу." },
@@ -6330,6 +6390,15 @@ padding-top:9vh;
         }
 
         const DB = {
+            // Пул точек интереса для "Журнала разведчика" — не привязан к конкретному биому,
+            // название комбинируется с именем текущего биома прямо в тексте лога (см. runExploreLandmark).
+            landmarkNames: [
+                "Заброшенный пост наблюдения",
+                "Остов довоенного транспорта",
+                "Тайник давно погибшего странника",
+                "Оплавленный указатель на старой дороге",
+                "Скрытый вход в засыпанный бункер"
+            ],
             biomes: [
                 { id: 0, name: "🪨 Неоновые Руины", minLvl: 1, bossDefeatedId: null, theme: { c1: "#00f0ff", c2: "#bf5af2", c3: "#ff2a5f", c4: "#ffb703", glow: "#111827", atmo: "rgba(0,240,255,0.10)", accent: "#00f0ff", accentSoft: "rgba(0,240,255,0.35)" }, enemies: [{ name: "Рад-Таракан", hp: 42, dmg: 7, armor: 0, class: "Быстрый", exp: 17 }, { name: "Кибер-Крыса", hp: 70, dmg: 8, armor: 1, class: "Обычный", exp: 29 }], boss: { name: "👑 Взбешенный Минори", hp: 124, dmg: 7, armor: 2, class: "Босс", exp: 138, rewardCaps: 18 } },
                 { id: 1, name: "🏚️ Ржавый Посёлок", minLvl: 10, bossDefeatedId: 0, theme: { c1: "#ff8a3d", c2: "#b5651d", c3: "#ffcf6b", c4: "#8c5a2b", glow: "#241a10", atmo: "rgba(255,140,50,0.12)", accent: "#ff9a3d", accentSoft: "rgba(255,154,61,0.35)" }, enemies: [{ name: "Слепой Гуль", hp: 68, dmg: 10, armor: 1, class: "Кровожадный", exp: 40 }, { name: "Сточный Клерк", hp: 83, dmg: 11, armor: 3, class: "Бронированный", exp: 52 }], boss: { name: "👑 Мясник Коллектора", hp: 286, dmg: 19, armor: 7, class: "Босс", exp: 345, rewardCaps: 40 } },
@@ -7089,10 +7158,10 @@ padding-top:9vh;
                 { id: "owl", name: "Странник Сова", icon: "🦉", price: 0, accent: "#ffcf4d", desc: "Перьевая броня цвета ночной охоты — бурые перья, янтарные линзы-глаза и ушки-пучки на капюшоне. Награда 100 уровня Elite-дороги 1 сезона." }
             ],
             lootboxes: [
-                { name: "Скрап-Ящик", price: 15, color: "#00f0ff", tier: 1, maxVouchers: 1, table: [{ item: "Запчасти x4", chance: 0.679 }, { item: "🧬 Сыворотка ОЗ (+10 к Макс ОЗ)", chance: 0.291 }, { item: "⛺ Привал x1", chance: 0.03 }] },
-                { name: "Продуктовый ящик", price: 20, color: "#39ff14", tier: 2, maxVouchers: 1, table: [{ item: "Сырое мясо x2", chance: 0.57 }, { item: "Жареное мясо крысы x1", chance: 0.38 }, { item: "⛺ Привал x1", chance: 0.05 }] },
-                { name: "Сейф Минори", price: 45, color: "#ffb703", tier: 3, maxVouchers: 2, table: [{ item: "🧬 Сыворотка ОЗ (+10 к Макс ОЗ)", chance: 0.29 }, { item: "🔋 Микро-батарея (+20 Энергии)", chance: 0.22 }, { item: "Сырое мясо x3", chance: 0.22 }, { item: "⛺ Привал x1", chance: 0.10 }, { item: "🧰 Гаджет (случайное оружие)", chance: 0.06 }, { item: "⚡ Мегасила (случайное оружие)", chance: 0.02 }, { item: "Ядерная Батарея x1", chance: 0.08 }, { item: "Жетон Схрона x1", chance: 0.01 }] },
-                { name: "Реликварий Пустоши", price: 5, color: "#ffd700", currency: "vouchers", premium: true, tier: 4, maxVouchers: 2, table: [{ item: "🎫 Пустынный Премиум-пропуск", chance: 0.01 }, { item: "⚡ Мегасила (случайное оружие)", chance: 0.05 }, { item: "🧰 Гаджет (случайное оружие)", chance: 0.09 }, { item: "🧬 Сыворотка ОЗ (+10 к Макс ОЗ)", chance: 0.23 }, { item: "🔋 Микро-батарея (+20 Энергии)", chance: 0.22 }, { item: "Запчасти x15", chance: 0.15 }, { item: "⛺ Привал x1", chance: 0.15 }, { item: "Ядерная Батарея x1", chance: 0.08 }, { item: "Жетон Схрона x2", chance: 0.02 } ] }
+                { name: "Скрап-Ящик", price: 15, color: "#00f0ff", tier: 1, maxVouchers: 1, table: [{ item: "Запчасти x4", chance: 0.679 }, { item: "🧬 Сыворотка ОЗ (+10 к Макс ОЗ)", chance: 0.291 }, { item: "Тяжелый Хлам x2", chance: 0.03 }] },
+                { name: "Продуктовый ящик", price: 20, color: "#39ff14", tier: 2, maxVouchers: 1, table: [{ item: "Сырое мясо x2", chance: 0.57 }, { item: "Жареное мясо крысы x1", chance: 0.38 }, { item: "Сырое мясо x4", chance: 0.05 }] },
+                { name: "Сейф Минори", price: 45, color: "#ffb703", tier: 3, maxVouchers: 2, table: [{ item: "🧬 Сыворотка ОЗ (+10 к Макс ОЗ)", chance: 0.29 }, { item: "🔋 Микро-батарея (+20 Энергии)", chance: 0.22 }, { item: "Сырое мясо x3", chance: 0.22 }, { item: "Тяжелый Хлам x3", chance: 0.10 }, { item: "🧰 Гаджет (случайное оружие)", chance: 0.06 }, { item: "⚡ Мегасила (случайное оружие)", chance: 0.02 }, { item: "Ядерная Батарея x1", chance: 0.08 }, { item: "Жетон Схрона x1", chance: 0.01 }] },
+                { name: "Реликварий Пустоши", price: 5, color: "#ffd700", currency: "vouchers", premium: true, tier: 4, maxVouchers: 2, table: [{ item: "🎫 Пустынный Премиум-пропуск", chance: 0.01 }, { item: "⚡ Мегасила (случайное оружие)", chance: 0.05 }, { item: "🧰 Гаджет (случайное оружие)", chance: 0.09 }, { item: "🧬 Сыворотка ОЗ (+10 к Макс ОЗ)", chance: 0.23 }, { item: "🔋 Микро-батарея (+20 Энергии)", chance: 0.22 }, { item: "Запчасти x15", chance: 0.15 }, { item: "Жетон Схрона x1", chance: 0.15 }, { item: "Ядерная Батарея x1", chance: 0.08 }, { item: "Жетон Схрона x2", chance: 0.02 } ] }
             ],
             // ===== Трофейная Дорога: постоянная (не сезонная) шкала за победы в бою, 1 трофей за обычного врага, 15 за босса =====
             // Награда на КАЖДОМ этапе, кратном 50 (100 этапов, от 50 до 5000 трофеев). Ваучеры специально
@@ -7323,7 +7392,8 @@ padding-top:9vh;
                 { code: "фортуна", type: "voucher", qty: 15, maxUses: 3, desc: "15 🏷️ Ваучеров" },
                 { code: "аваклоуна", type: "avatar", avatarId: "krustyAvatar", maxUses: 1, desc: "эксклюзивная аватарка «Аваклоун»" },
                 { code: "ваучеры80", type: "voucher", qty: 80, maxUses: 3, desc: "80 🏷️ Ваучеров" },
-                { code: "ваучерыэлит", type: "bp_elite", maxUses: 2, desc: "ELITE-пропуск Пустоши (без доп. наград)" }
+                { code: "ваучерыэлит", type: "bp_elite", maxUses: 2, desc: "ELITE-пропуск Пустоши (без доп. наград)" },
+                { code: "прости", type: "echo_levels", qty: 2, maxUses: 2, desc: "+2 уровня прогресса в текущем задании «Набрать уровни» проекта «Эхо Пустоши»" }
             ]
         };
 
@@ -7488,302 +7558,6 @@ padding-top:9vh;
                         return data;
                     })
                     .catch(err => ({ ok: false, reason: err.message }));
-            }
-        };
-
-        // ===================================================================
-        // EventBoss: мировой супер-босс «Враг Совета» — общий на всех игроков.
-        // Оптимизация сети/производительности:
-        //  - клики бьют по локальному optimistic-HP мгновенно (без ожидания сети);
-        //  - реальный урон копится в буфере и улетает на сервер одним RPC-вызовом
-        //    раз в ~1.2с (дебаунс, как и Cloud.push) — а не на каждый клик;
-        //  - синхронизация HP от других игроков идёт через один Realtime-канал
-        //    (push, а не поллинг), с редким фоновым опросом раз в 20с как fallback;
-        //  - никаких rAF-циклов и тяжёлых фильтров — только CSS-transform/opacity.
-        // ===================================================================
-        const EventBoss = {
-            TABLE_BOSS: 'event_boss',
-            TABLE_PART: 'event_boss_participants',
-            ROW_ID: 1,
-            HIT_COOLDOWN_MS: 550,
-            FLUSH_DELAY_MS: 1200,
-            TIERS: [
-                { at: 7500000, key: 't75', label: '5 💠 Жетонов Схрона', apply: p => { p.inv['Жетон Схрона'] = (p.inv['Жетон Схрона'] || 0) + 5; }, icon: '💠' },
-                { at: 5000000, key: 't50', label: '10 🏷️ Ваучеров', apply: p => { p.vouchers = (p.vouchers || 0) + 10; }, icon: '🏷️' },
-                { at: 2500000, key: 't25', label: '3 🗝️ Реликварий Пустоши', apply: p => { p.relicWasteland = (p.relicWasteland || 0) + 3; }, icon: '🗝️' },
-                { at: 0, key: 't0', label: '3 ☢️ Ядерные Батареи + 5 💠 Жетонов Схрона', apply: p => { p.inv['Ядерная Батарея'] = (p.inv['Ядерная Батарея'] || 0) + 3; p.inv['Жетон Схрона'] = (p.inv['Жетон Схрона'] || 0) + 5; }, icon: '☢️' }
-            ],
-
-            active: false, loaded: false, view: false,
-            hp: 10000000, maxHp: 10000000, endsAt: null,
-            myDamage: 0, claimedTiers: [],
-            pendingDamage: 0, flushTimer: null, flushMaxTimer: null, lastHitAt: 0, channel: null, pollInterval: null,
-
-            async init() {
-                if (!Cloud.ready || !Cloud.client) return;
-                try {
-                    const { data: boss, error } = await Cloud.client.from(this.TABLE_BOSS).select('*').eq('id', this.ROW_ID).maybeSingle();
-                    if (error || !boss) { this.loaded = false; return; }
-                    // Первая загрузка — принимаем значение как есть, клэмп ещё не нужен
-                    this.maxHp = boss.max_hp; this.hp = boss.hp; this.endsAt = boss.ends_at;
-                    this.active = true; this.loaded = true;
-
-                    const { data: part } = await Cloud.client.from(this.TABLE_PART).select('*').eq('player_id', Cloud.userId).maybeSingle();
-                    if (part) { this.myDamage = part.damage_dealt || 0; this.claimedTiers = part.claimed_tiers || []; }
-
-                    document.getElementById('event-toggle-btn').style.display = 'flex';
-                    this.updateToggleDot();
-                    this.renderAll();
-                    this.subscribeRealtime();
-                    // Фоновой fallback-опрос — редкий, только на случай обрыва Realtime-канала
-                    this.pollInterval = setInterval(() => this.pollState(), 20000);
-                } catch (e) { console.warn('EventBoss: init не удался', e.message); }
-            },
-
-            subscribeRealtime() {
-                if (!Cloud.client) return;
-                this.channel = Cloud.client.channel('event_boss_hp')
-                    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: this.TABLE_BOSS, filter: `id=eq.${this.ROW_ID}` }, payload => {
-                        if (!payload.new) return;
-                        this.applyServerHp(payload.new.hp, payload.new.max_hp, payload.new.ends_at);
-                        this.renderHp();
-                        this.renderTiers();
-                    })
-                    .subscribe();
-            },
-
-            async pollState() {
-                if (!Cloud.ready) return;
-                const { data: boss } = await Cloud.client.from(this.TABLE_BOSS).select('hp, max_hp, ends_at').eq('id', this.ROW_ID).maybeSingle();
-                if (boss) { this.applyServerHp(boss.hp, boss.max_hp, boss.ends_at); this.renderHp(); this.renderTiers(); }
-            },
-
-            // Полоска ХП босса никогда не должна визуально "отхиливаться".
-            // Из-за задержек сети (дебаунс отправки урона, Realtime-события от
-            // других игроков, редкий фоновый опрос) сервер иногда присылает
-            // значение ХП, которое временно "старше" того, что уже видно у нас
-            // на экране — если применить его напрямую, полоска на секунду
-            // прыгнет вверх и будет выглядеть как исцеление босса.
-            // Поэтому любое новое значение принимаем, только если оно ниже
-            // текущего (то есть отражает дополнительный урон), а не выше.
-            // Исключение — начало нового цикла ивента (сервер прислал другой
-            // ends_at или max_hp): тогда босс правда восстановлен, это не баг,
-            // и мы полностью сбрасываем локальное состояние.
-            applyServerHp(newHp, newMaxHp, newEndsAt) {
-                if (typeof newHp !== 'number') return;
-                const isNewCycle = (newEndsAt && this.endsAt && newEndsAt !== this.endsAt) ||
-                                    (newMaxHp && this.maxHp && newMaxHp !== this.maxHp);
-                if (isNewCycle) {
-                    this.hp = newHp;
-                    if (newMaxHp) this.maxHp = newMaxHp;
-                    if (newEndsAt) this.endsAt = newEndsAt;
-                    this.myDamage = 0;
-                    this.claimedTiers = [];
-                } else {
-                    this.hp = Math.min(this.hp, newHp);
-                    if (newMaxHp) this.maxHp = newMaxHp;
-                    if (newEndsAt) this.endsAt = newEndsAt;
-                }
-            },
-
-            isExpired() { return this.endsAt && Date.now() > new Date(this.endsAt).getTime(); },
-            isOver() { return !this.active || this.hp <= 0 || this.isExpired(); },
-
-            // Вызывается раз в секунду из общего Core.loop() — не заводим отдельный таймер
-            tick() {
-                if (!this.active || !this.view) return;
-                const timerEl = document.getElementById('eb-timer');
-                if (!timerEl) return;
-                if (this.hp <= 0) { timerEl.textContent = '☠️ Босс уничтожен!'; return; }
-                if (this.isExpired()) { timerEl.textContent = '⏱️ Ивент завершён'; return; }
-                const ms = new Date(this.endsAt).getTime() - Date.now();
-                const d = Math.floor(ms / 86400000), h = Math.floor(ms % 86400000 / 3600000), m = Math.floor(ms % 3600000 / 60000), s = Math.floor(ms % 60000 / 1000);
-                timerEl.textContent = `⏱️ Осталось: ${d}д ${h}ч ${m}м ${s}с`;
-            },
-
-            calcDamage() {
-                let p = Core.p;
-                let wpn = DB.weapons.find(w => w.id === p.activeWeapon) || DB.weapons[0];
-                let upLvl = p.wpnUpgrades[p.activeWeapon] || 0;
-                let build = Core.getBuildBonus();
-                let base = wpn.dmg * (1 + upLvl * 0.25) * (1 + build.dmgMult);
-                let spread = (Math.random() * 0.4) - 0.2;
-                let dmg = Math.round(base * (1 + spread));
-                let critChance = wpn.crit + upLvl + build.crit;
-                let isCrit = Math.random() * 100 < critChance;
-                if (isCrit) dmg = Math.round(dmg * 1.75);
-                return { dmg: Math.max(1, dmg), isCrit };
-            },
-
-            hit() {
-                if (this.isOver()) { this.renderAll(); return; }
-                let now = Date.now();
-                if (now - this.lastHitAt < this.HIT_COOLDOWN_MS) return;
-                this.lastHitAt = now;
-
-                let { dmg, isCrit } = this.calcDamage();
-                Sound.play('hit');
-
-                // Оптимистичное локальное обновление — мгновенный отклик без ожидания сети
-                this.hp = Math.max(0, this.hp - dmg);
-                this.myDamage += dmg;
-                this.pendingDamage += dmg;
-
-                this.popDamage(dmg, isCrit);
-                const fig = document.getElementById('eb-boss-figure');
-                if (fig) { fig.classList.remove('eb-hit'); void fig.offsetWidth; fig.classList.add('eb-hit'); }
-                this.renderHp(); this.renderTiers(); this.renderMyDmg();
-
-                // Дебаунс: ждём паузу в кликах 1.2с — но если игрок бьёт без остановки,
-                // принудительно сливаем буфер не реже раза в 3с, чтобы урон не копился
-                // бесконечно и другие игроки видели прогресс почти в реальном времени.
-                clearTimeout(this.flushTimer);
-                this.flushTimer = setTimeout(() => this.flush(), this.FLUSH_DELAY_MS);
-                if (!this.flushMaxTimer) {
-                    this.flushMaxTimer = setTimeout(() => this.flush(), 3000);
-                }
-
-                if (this.hp <= 0) this.log('☠️ Ты нанёс смертельный удар! Совет повержен... пока боевые системы не восстановят его.', 'combat-win');
-            },
-
-            async flush() {
-                clearTimeout(this.flushTimer); clearTimeout(this.flushMaxTimer);
-                this.flushMaxTimer = null;
-                if (this.pendingDamage <= 0 || !Cloud.ready) return;
-                let dmgToSend = this.pendingDamage;
-                this.pendingDamage = 0;
-                try {
-                    const { data, error } = await Cloud.client.rpc('event_boss_hit', { p_damage: dmgToSend, p_nickname: Core.p.nickname });
-                    if (error) { console.warn('EventBoss: hit RPC не удался', error.message); this.pendingDamage += dmgToSend; this.flushTimer = setTimeout(() => this.flush(), this.FLUSH_DELAY_MS); return; }
-                    if (data && data.length) {
-                        this.applyServerHp(data[0].hp, data[0].max_hp, data[0].ends_at);
-                        this.myDamage = data[0].damage_dealt;
-                        this.renderHp(); this.renderTiers(); this.renderMyDmg();
-                    }
-                } catch (e) { this.pendingDamage += dmgToSend; this.flushTimer = setTimeout(() => this.flush(), this.FLUSH_DELAY_MS); }
-            },
-
-            popDamage(dmg, isCrit) {
-                const wrap = document.querySelector('.eb-boss-wrap');
-                if (!wrap) return;
-                const el = document.createElement('div');
-                el.className = 'eb-dmg-pop';
-                el.style.left = (40 + Math.random() * 20) + '%';
-                el.style.top = '35%';
-                el.style.color = isCrit ? 'var(--neon-gold)' : '#fff';
-                el.style.fontSize = isCrit ? '26px' : '19px';
-                el.textContent = (isCrit ? '🔥 ' : '') + '-' + dmg;
-                wrap.appendChild(el);
-                setTimeout(() => el.remove(), 700);
-            },
-
-            async claim(tierKey) {
-                let tier = this.TIERS.find(t => t.key === tierKey);
-                if (!tier || this.claimedTiers.includes(tierKey) || this.hp > tier.at || this.myDamage <= 0) return;
-                try {
-                    const { data, error } = await Cloud.client.rpc('event_boss_claim_tier', { p_tier_key: tierKey });
-                    if (error || !data) { Core.log('⚠️ Не удалось забрать награду, попробуй ещё раз.', 'system'); return; }
-                    if (data === true || (data.ok !== undefined && data.ok)) {
-                        this.claimedTiers.push(tierKey);
-                        tier.apply(Core.p);
-                        Core.save(); Core.updateUI(); Core.renderInventory && Core.renderInventory();
-                        Sound.play('loot');
-                        Core.log(`🎁 Награда этапа получена: ${tier.label}!`, 'loot');
-                        this.renderTiers();
-                    } else {
-                        Core.log('⚠️ Награда уже была получена ранее.', 'system');
-                    }
-                } catch (e) { Core.log('⚠️ Ошибка сети при получении награды.', 'system'); }
-            },
-
-            log(msg, type) { if (Core && Core.log) Core.log(msg, type); },
-
-            // Всплывающая подпись прямо по центру экрана — показывает, какая
-            // именно награда стоит за этапом, когда игрок тапает по иконке.
-            // Отдельно от игрового журнала, чтобы это точно было заметно сразу.
-            showTierToast(icon, text, variant) {
-                const layer = document.getElementById('trophy-toast-layer');
-                if (!layer) return;
-                const d = document.createElement('div');
-                d.className = 'tier-toast tt-' + (variant || 'info');
-                d.innerHTML = `<span class="tt-icon">${icon}</span><span>${text}</span>`;
-                layer.appendChild(d);
-                setTimeout(() => d.remove(), 2600);
-            },
-
-            updateToggleDot() {
-                const dot = document.getElementById('event-toggle-dot');
-                if (!dot) return;
-                let hasClaimable = this.TIERS.some(t => this.hp <= t.at && this.myDamage > 0 && !this.claimedTiers.includes(t.key));
-                dot.style.display = hasClaimable ? 'inline-block' : 'none';
-            },
-
-            renderHp() {
-                const fill = document.getElementById('eb-hp-fill');
-                const text = document.getElementById('eb-hp-text');
-                if (fill) fill.style.width = Math.max(0, (this.hp / this.maxHp) * 100) + '%';
-                if (text) text.textContent = `${this.hp.toLocaleString('ru-RU')} / ${this.maxHp.toLocaleString('ru-RU')}`;
-                this.updateToggleDot();
-                if (this.isOver()) {
-                    const btn = document.getElementById('eb-hit-btn');
-                    if (btn) btn.disabled = true;
-                    const badge = document.getElementById('eb-ended-badge');
-                    if (badge) {
-                        badge.style.display = 'block';
-                        badge.textContent = this.hp <= 0 ? '☠️ Босс уничтожен! Забери оставшиеся награды ниже.' : '⏱️ Время ивента истекло.';
-                    }
-                }
-            },
-
-            renderMyDmg() {
-                const el = document.getElementById('eb-my-dmg');
-                if (el) el.textContent = this.myDamage.toLocaleString('ru-RU');
-            },
-
-            renderTiers() {
-                const box = document.getElementById('eb-tier-nodes');
-                if (!box) return;
-                // Позиция иконки на полоске считается прямо от порога этапа — всегда совпадает
-                // с местом, где заполнение полоски дойдёт до этой отметки, и не может разъехаться
-                // с реальными порогами (раньше позиции задавались отдельным списком и рассинхронились).
-                box.innerHTML = this.TIERS.map(t => {
-                    let reached = this.hp <= t.at;
-                    let claimed = this.claimedTiers.includes(t.key);
-                    let claimable = reached && !claimed && this.myDamage > 0;
-                    let cls = claimed ? 'claimed' : claimable ? 'claimable' : reached ? 'reached' : 'locked';
-                    let pos = Math.min(100, Math.max(0, (t.at / this.maxHp) * 100));
-                    return `<div class="eb-tier-node ${cls}" style="left:${pos}%;" title="${t.label}" onclick="EventBoss.tapTier('${t.key}')">${t.icon}</div>`;
-                }).join('');
-            },
-
-            // Тап по маленькой иконке этапа: если награда доступна — забирает её,
-            // иначе коротким сообщением в журнал показывает, что это за этап и когда откроется.
-            tapTier(tierKey) {
-                let t = this.TIERS.find(x => x.key === tierKey);
-                if (!t) return;
-                let reached = this.hp <= t.at;
-                let claimed = this.claimedTiers.includes(tierKey);
-                if (claimed) {
-                    this.showTierToast(t.icon, `${t.label} — уже получено`, 'claimed');
-                    this.log(`✅ ${t.icon} ${t.label} — уже получено.`, 'system');
-                    return;
-                }
-                if (reached && this.myDamage > 0) {
-                    this.showTierToast(t.icon, `Награда: ${t.label}`, 'boss');
-                    this.claim(tierKey);
-                    return;
-                }
-                if (reached) {
-                    this.showTierToast(t.icon, `Награда: ${t.label} — нанеси урон боссу, чтобы забрать`, 'info');
-                    this.log(`🔓 ${t.icon} ${t.label} — этап открыт, но нужно нанести урон боссу, чтобы забрать награду.`, 'system');
-                    return;
-                }
-                this.showTierToast(t.icon, `Награда: ${t.label} — откроется при ${t.at.toLocaleString('ru-RU')} ОЗ у босса`, 'locked');
-                this.log(`🔒 ${t.icon} ${t.label} — откроется при ${t.at.toLocaleString('ru-RU')} ОЗ у босса.`, 'system');
-            },
-
-            renderAll() {
-                this.renderHp(); this.renderTiers(); this.renderMyDmg(); this.tick();
             }
         };
 
@@ -8321,13 +8095,18 @@ padding-top:9vh;
 
         const Core = {
             p: { hp: 50, maxHp: 50, energy: 100, maxEnergy: 100, rad: 0, hazards: {}, satiety: 100, lvl: 1, exp: 0, nextExp: 85, caps: 30, vouchers: 0, armor: 2, dodgeChance: 8, inv: { "Запчасти": 6, "Тяжелый Хлам": 0, "Ядерная Батарея": 0, "Сырое мясо": 1, "Жетон Схрона": 0 }, weaponsOwned: ["fists"], wpnUpgrades: { "fists": 0, "pipe": 0, "machete": 0, "pistol": 0, "revolver": 0, "shotgun": 0, "assault": 0, "plasma": 0, "minigun": 0, "gauss": 0 }, activeWeapon: "fists", rodLvl: 0, rodResetV2Done: true, rodCompensationPending: null, food: { "Жареное мясо крысы": 1 }, currentBiome: 0, bossesDefeated: [], bpLvl: 1, bpPoints: 0, bpPremium: false, bpElite: false, bpClaimedFree: [], bpClaimedPrem: [], bpClaimedElite: [], bpSeasonId: null, bpSeasonUID: null, bpSeasonHistory: [], bpSeasonV2Reset: true, lvlCapV1Done: true, dailyStreak: 0, lastDailyClaim: null, relicWasteland: 0, redeemedPromoCodes: [], freeBoxes: {}, nickname: "Странник", nicknameSet: false, avatarsOwned: ["ranger", "raider", "cyborg"], avatar: "ranger", titleId: "newbie", unlockedTitles: ["newbie"], maxBiomeReached: 0, bmLastSuccessDay: null, bmFailDay: null, bmFailCount: 0, marketEarnDay: null, marketEarnedToday: 0, marketDailyCapValue: null, exchangeDay: null, exchangeUsed: {}, marketBuyDay: null, marketBuySpentToday: 0, marketBuyDailyCapValue: null, skinsOwned: ["default"], activeSkin: "default", dailyQuests: [], dailyQuestsDay: null, dailyQuestsPremium: [], dailyQuestsPremiumDay: null, petsOwned: [], activePet: null, installedAt: Date.now(), updateGiftClaimed: false, restockGiftEligible: false, restockGiftClaimed: false, restockGiftAt: null, pvpDuelLog: {}, wheelDay: null, wheelSpinsToday: 0, wheelFreeClaimed: false, wheelBonusSpins: 0, energyPackDay: null, energyPackBoughtToday: 0, buildPresets: [],
+                // ---- Реворк «Разведки» и «Костра» ----
+                exploreStreak: 0,     // серия подряд идущих мирных (не боевых) разведок — влияет на шанс тайника/точки интереса, показывается как "🍀 Удача разведки"
+                specialEventLock: 0,  // сколько ближайших разведок гарантированно будут обычной находкой — взводится на 2 после любого спецсобытия (тайник/засада/караван/бой/элит/точка интереса/опасный участок), чтобы спецсобытия не выпадали кластерами подряд
+                journal: {},          // { [biomeId]: { visited, landmarks: [idx,...], rewardClaimed } } — журнал точек интереса по биомам
+                campBuffCharges: 0,   // сколько ближайших разведок получат бонус к добыче после готовки у костра
                 perksUnlocked: [], perkPoints: 0, armorOwned: ["rags"], activeArmor: "rags", modsOwned: [], modsEquipped: { optic: null, mag: null, grip: null }, gadgetsOwned: [], megasilaOwned: [], trophies: 0, trophyClaimed: [], creditsSeen: false, questsResetV3Done: true,
                 echo: { active: false, chapter: 0, lastBiome: 0, started: false, completedAll: false, progress: [
                     { kills: 0, damage: 0, named: 0, fragments: 0, levels: 0, startLvl: null, bossDefeated: false, completed: false, storySeenIntro: false, storySeenOutro: false },
                     { kills: 0, damage: 0, named: 0, fragments: 0, levels: 0, startLvl: null, bossDefeated: false, completed: false, storySeenIntro: false, storySeenOutro: false },
                     { kills: 0, damage: 0, named: 0, fragments: 0, levels: 0, startLvl: null, bossDefeated: false, completed: false, storySeenIntro: false, storySeenOutro: false }
                 ] } },
-            combatState: null, restUses: 5, nextRestTick: null, bpSubTab: 'rewards',
+            combatState: null, campCooldowns: { cook: 0, repair: 0, stories: 0 }, bpSubTab: 'rewards',
             hpRegenAccum: 0, satietyDecayAccum: 0, abilityCooldowns: {}, plasmaHeat: 0, plasmaHeatLastTick: 0,
             lastAttackType: null, sameAttackStreak: 0, combatCooldownInterval: null,
             
@@ -8335,7 +8114,7 @@ padding-top:9vh;
                 { id: "q1", text: "Убить 8 мутантов-крыс", progress: 0, target: 8, points: 60, done: false, trigger: "kill_Кибер-Крыса" },
                 { id: "q2", text: "Убить 4 рад-тараканов", progress: 0, target: 4, points: 55, done: false, trigger: "kill_Рад-Таракан" },
                 { id: "q3", text: "Успешно сбежать из боя 2 раза", progress: 0, target: 2, points: 45, done: false, trigger: "flee" },
-                { id: "q5", text: "Перекусить на привале 6 раз", progress: 0, target: 6, points: 60, done: false, trigger: "rest" },
+                { id: "q5", text: "Перекусить у костра 6 раз", progress: 0, target: 6, points: 60, done: false, trigger: "rest" },
                 { id: "q8", text: "Приготовить еду на костре 2 раза", progress: 0, target: 2, points: 70, done: false, trigger: "craft_food" },
                 { id: "q9", text: "Убить 12 слепых гулей", progress: 0, target: 12, points: 100, done: false, trigger: "kill_Слепой Гуль" },
                 { id: "q10", text: "Убить 9 дронов-охотников", progress: 0, target: 9, points: 120, done: false, trigger: "kill_Дрон-Охотник" },
@@ -8362,7 +8141,7 @@ padding-top:9vh;
                 { id: "q32", text: "Убить 3 стражей Цитадели", progress: 0, target: 3, points: 320, done: false, trigger: "kill_Страж Цитадели" },
                 { id: "q33", text: "Убить 3 гвардейцев Омега", progress: 0, target: 3, points: 325, done: false, trigger: "kill_Гвардеец Омега" },
                 // ---- Расширение: дополнительные общие задания на выносливость ----
-                { id: "q36", text: "Перекусить на привале 14 раз", progress: 0, target: 14, points: 150, done: false, trigger: "rest" },
+                { id: "q36", text: "Перекусить у костра 14 раз", progress: 0, target: 14, points: 150, done: false, trigger: "rest" },
                 { id: "q37", text: "Приготовить еду на костре 14 раз", progress: 0, target: 14, points: 180, done: false, trigger: "craft_food" },
                 { id: "q38", text: "Приготовить еду на костре 21 раз", progress: 0, target: 21, points: 230, done: false, trigger: "craft_food" },
                 { id: "q39", text: "Успешно сбежать из боя 14 раз", progress: 0, target: 14, points: 170, done: false, trigger: "flee" },
@@ -8433,7 +8212,7 @@ padding-top:9vh;
                         this.applyOfflineProgress(); this.updateUI(); this.save();
                     }
                 });
-                window.addEventListener('pagehide', () => { this.lastTick = Date.now(); this.save(); if (typeof EventBoss !== 'undefined') EventBoss.flush(); });
+                window.addEventListener('pagehide', () => { this.lastTick = Date.now(); this.save(); });
                 this.log("☢️ Мега-обновление систем выживания запущено.", "system");
                 Cloud.init().then(ok => { // подключение к облаку — асинхронно, не блокирует запуск игры
                     if (ok) {
@@ -8441,7 +8220,6 @@ padding-top:9vh;
                         // Дальше проверяем место в рейтинге раз в минуту — не при каждом действии,
                         // чтобы не долбить Supabase лишними запросами.
                         setInterval(() => this.checkTopRankTitle(), 60000);
-                        EventBoss.init();
                     }
                 });
             },
@@ -8561,6 +8339,25 @@ padding-top:9vh;
                 const promo = DB.promoCodes.find(p => p.code.toLowerCase() === code);
                 if(!promo) { Sound.play('click'); this.showPromoFeedback(`${Icon.cross()} Такого промокода не существует`, 'error'); return; }
 
+                // Промокоды типа echo_levels дают прогресс только в конкретное задание проекта
+                // «Эхо Пустоши». Раньше при отсутствии подходящего активного задания код всё равно
+                // считался использованным и тратил один из немногих доступных вводов (напр. у "прости"
+                // их всего 2 на всю игру) — из-за этого казалось, что код "не работает". Теперь в такой
+                // ситуации код просто не принимается и лимит не тратится, чтобы его можно было ввести
+                // повторно позже, когда бонус реально будет куда применить.
+                if(promo.type === 'echo_levels') {
+                    let idx = this.p.echo ? this.p.echo.chapter : -1;
+                    let prog = this.p.echo && Array.isArray(this.p.echo.progress) ? this.p.echo.progress[idx] : null;
+                    let biome = DB.biomes[11 + idx];
+                    let obj = biome && biome.objectives ? biome.objectives.find(o => o.kind === "levels") : null;
+                    let applicable = this.p.echo && this.p.echo.started && !this.p.echo.completedAll && prog && biome && obj && !prog.completed;
+                    if(!applicable) {
+                        Sound.play('click');
+                        this.showPromoFeedback('⚠️ Сейчас применить этот промокод некуда — задание «Набрать уровни» текущей главы «Эхо Пустоши» неактивно или уже выполнено. Попробуйте позже.', 'error');
+                        return;
+                    }
+                }
+
                 if(!this.p.redeemedPromoCodes) this.p.redeemedPromoCodes = [];
                 if(this.p.redeemedPromoCodes.includes(promo.code)) {
                     Sound.play('click'); this.showPromoFeedback('⚠️ Этот промокод уже активирован на вашем аккаунте', 'error'); return;
@@ -8653,6 +8450,26 @@ padding-top:9vh;
                     this.p.wheelBonusSpins = (this.p.wheelBonusSpins || 0) + promo.qty;
                     this.log(`🎟️ Промокод «${promo.code}» активирован: +${promo.qty} 🎡 бесплатных круток Колеса Фортуны!`, "loot");
                     this.renderWheelInfo && this.renderWheelInfo();
+                } else if(promo.type === 'echo_levels') {
+                    // Начисляет прогресс именно в задание "Набрать N уровней" ТЕКУЩЕЙ главы проекта
+                    // «Эхо Пустоши» — а не в общую шкалу опыта/уровня игрока.
+                    if (this.p.echo && this.p.echo.started && !this.p.echo.completedAll && Array.isArray(this.p.echo.progress)) {
+                        let idx = this.p.echo.chapter;
+                        let prog = this.p.echo.progress[idx];
+                        let biome = DB.biomes[11 + idx];
+                        let obj = biome && biome.objectives ? biome.objectives.find(o => o.kind === "levels") : null;
+                        if (prog && biome && obj && !prog.completed) {
+                            let target = obj.target;
+                            let before = prog.levels || 0;
+                            prog.levels = Math.min(target, before + promo.qty);
+                            let gained = prog.levels - before;
+                            this.log(`🎟️ Промокод «${promo.code}» активирован: +${gained} к прогрессу задания «${obj.label}» текущей главы проекта «Эхо Пустоши» (${prog.levels}/${target})!`, "loot");
+                        } else {
+                            this.log(`🎟️ Промокод «${promo.code}» активирован, но применить бонус сейчас некуда — задание текущей главы уже выполнено.`, "loot");
+                        }
+                    } else {
+                        this.log(`🎟️ Промокод «${promo.code}» активирован, но применить бонус сейчас некуда — проект «Эхо Пустоши» ещё не начат.`, "loot");
+                    }
                 }
 
                 Sound.play('loot');
@@ -8713,30 +8530,21 @@ padding-top:9vh;
                 this.saveSettings();
             },
 
-            save() { localStorage.setItem('w_save_v7', JSON.stringify({ p: this.p, restUses: this.restUses, t: this.nextRestTick, q: this.quests, lt: this.lastTick, sda: this.satietyDecayAccum || 0, hra: this.hpRegenAccum || 0 })); Cloud.push(); },
+            save() { localStorage.setItem('w_save_v7', JSON.stringify({ p: this.p, cc: this.campCooldowns, q: this.quests, lt: this.lastTick, sda: this.satietyDecayAccum || 0, hra: this.hpRegenAccum || 0 })); Cloud.push(); },
             load() { 
                 let data = localStorage.getItem('w_save_v7'); 
                 if(data) { 
                     let parsed = JSON.parse(data); 
-                    this.p = parsed.p; this.restUses = parsed.restUses; this.nextRestTick = parsed.t; 
+                    this.p = parsed.p; 
+                    // ---- Костёр вместо «Привала»: больше нет общего ограниченного запаса зарядов,
+                    // который копится по таймеру, — каждое занятие у костра доступно всем игрокам
+                    // сразу же, как только истёк его личный (короткий) откат и хватает ресурсов.
+                    // Старые сохранения могли содержать restUses/t (заряды/таймер) — они больше не
+                    // используются и просто игнорируются при загрузке.
+                    this.campCooldowns = parsed.cc || { cook: 0, repair: 0, stories: 0 };
                     this.satietyDecayAccum = parsed.sda || 0;
                     this.hpRegenAccum = parsed.hra || 0;
                     this.lastTick = parsed.lt || Date.now();
-                    // Игроки 50+ уровня, сохранённые ещё до снижения лимита привалов до 3,
-                    // могли иметь 4-5 запасённых привалов — подрезаем под новый максимум.
-                    if (this.restUses > this.getMaxRest()) this.restUses = this.getMaxRest();
-                    // 🛡️ Подрезаем ТОЛЬКО откровенно битый таймер привала (заброшенный далеко за
-                    // один период вперёд ОТНОСИТЕЛЬНО МОМЕНТА УХОДА В ОФФЛАЙН — lastTick).
-                    // Раньше здесь стоял this.clampRestTick(), который сравнивал таймер с текущим
-                    // "now" ДО расчёта оффлайн-прогресса — а так как после любого реального отсутствия
-                    // nextRestTick почти всегда уже в прошлом относительно "now", это тут же взводило
-                    // его на текущий момент. applyOfflineProgress() после этого видел "время до привала
-                    // якобы = всё время оффлайна" и уводил расчётную цель далеко за "now" — привалы
-                    // переставали копиться в оффлайне вообще. Сверяем с lastTick, а не с "now".
-                    if (this.nextRestTick != null) {
-                        let maxAllowedAtDeparture = this.lastTick + this.getRestTime() * 1000;
-                        if (this.nextRestTick > maxAllowedAtDeparture) this.nextRestTick = maxAllowedAtDeparture;
-                    }
                     if(parsed.q) {
                         let defaultQuests = this.quests;
                         let savedById = {};
@@ -8749,6 +8557,11 @@ padding-top:9vh;
                     if(this.p.armor === undefined) this.p.armor = 2;
                     if(this.p.dodgeChance === undefined) this.p.dodgeChance = 8;
                     if(this.p.satiety === undefined) this.p.satiety = 100;
+                    // Миграция со старой системы "опасность сектора / danger" (убрана как непонятная
+                    // игрокам и провоцировавшая слишком частых элитов) на "Удачу разведки" —
+                    // прогресс серии переносим один-в-один, старые мёртвые поля удаляем из сохранения.
+                    if (this.p.exploreStreak === undefined) this.p.exploreStreak = this.p.streak || 0;
+                    delete this.p.danger; delete this.p.streak;
                     // Миграция старой системы "много удочек" → одна прокачиваемая удочка.
                     // Уровень новой удочки = максимальный тир среди ранее собранных удочек (прогресс не теряется).
                     // За каждую ИЗБЫТОЧНУЮ удочку (тир 2+, кроме той, что стала новым уровнем) — компенсация,
@@ -8921,9 +8734,10 @@ padding-top:9vh;
                 }
             },
 
-            // Досчитывает здоровье/привалы за время, пока игра была закрыта или свёрнута.
+            // Досчитывает здоровье за время, пока игра была закрыта или свёрнута.
             // Все процессы идут в оффлайне, но вдвое медленнее, чем при активной игре.
-            // Сытость в оффлайне не расходуется вообще.
+            // Сытость в оффлайне не расходуется вообще. Костёр больше не нуждается в оффлайн-расчёте —
+            // его откаты не общие и не копятся, а просто сравниваются с текущим временем при заходе к костру.
             applyOfflineProgress() {
                 if (!this.lastTick) { this.lastTick = Date.now(); return; }
                 let now = Date.now();
@@ -8931,7 +8745,7 @@ padding-top:9vh;
                 if (elapsedSec < 1) return;
                 if (this.p.hp <= 0) { this.lastTick = now; return; } // погибший игрок не восстанавливается в оффлайне
 
-                let gainedHp = 0, gainedRest = 0;
+                let gainedHp = 0;
                 let hazardMods = this.getHazardMods();
 
                 // Сытость в оффлайне больше не расходуется — игрок не голодает, пока не в игре.
@@ -8950,30 +8764,10 @@ padding-top:9vh;
                     }
                 }
 
-                // --- Привалы: восстанавливаются вдвое медленнее, чем онлайн ---
-                if (this.restUses < this.getMaxRest()) {
-                    let onlinePeriod = this.getRestTime() * 1000;
-                    let offlinePeriod = onlinePeriod * 2;
-                    if (!this.nextRestTick) this.nextRestTick = this.lastTick + onlinePeriod;
-                    // время, остававшееся по онлайн-таймеру на момент ухода в оффлайн, тоже замедляем вдвое
-                    let remainingOnline = Math.max(0, this.nextRestTick - this.lastTick);
-                    let slowedTarget = this.lastTick + remainingOnline * 2;
-                    while (this.restUses < this.getMaxRest() && slowedTarget <= now) {
-                        this.restUses++; gainedRest++;
-                        slowedTarget += offlinePeriod;
-                    }
-                    this.nextRestTick = this.restUses < this.getMaxRest() ? slowedTarget : null;
-                    // 🛡️ Каким бы ни получился slowedTarget — не даём ему уйти дальше минуты вперёд.
-                    this.clampRestTick();
-                }
-
                 this.lastTick = now;
 
-                if (gainedHp || gainedRest) {
-                    let parts = [];
-                    if (gainedHp) parts.push(`❤️ +${gainedHp} ОЗ`);
-                    if (gainedRest) parts.push(`⛺ +${gainedRest} привал(ов)`);
-                    this.log(`💤 Пока вас не было: ${parts.join(', ')}.`, "system");
+                if (gainedHp) {
+                    this.log(`💤 Пока вас не было: ❤️ +${gainedHp} ОЗ.`, "system");
                 }
             },
             
@@ -9103,11 +8897,8 @@ padding-top:9vh;
                     let mega = DB.megasila.find(m => m.weaponId === this.p.activeWeapon);
                     if (mega) { for (let k in mega.effect) { b[k] = (b[k] || 0) + mega.effect[k]; } }
                 }
-                // Синергия: Мастерство оружия — активный ствол с открытыми и гаджетом, и мегасилой получает доп. урон по редкости
-                if (this.p.gadgetsOwned.includes(this.p.activeWeapon) && this.p.megasilaOwned.includes(this.p.activeWeapon)) {
-                    let wpn = DB.weapons.find(w => w.id === this.p.activeWeapon);
-                    if (wpn) { b.dmgMult += (DB.masteryBonusByTier[wpn.tier] || 0); b.masteryActive = true; }
-                }
+                // Мастерство оружия (синергия гаджет + мегасила) удалено из игры по прямому запросу:
+                // связка гаджета и мегасилы больше не даёт никакого бонуса к урону.
                 if (this.p.activePet) {
                     let pet = DB.pets.find(p => p.id === this.p.activePet);
                     if (pet && pet.effect) {
@@ -9140,6 +8931,10 @@ padding-top:9vh;
                 document.getElementById('en-bar').style.width = (this.p.energy / this.p.maxEnergy * 100) + '%';
                 document.getElementById('satiety-val').innerText = `${this.p.satiety}%`;
                 document.getElementById('satiety-bar').style.width = this.p.satiety + '%';
+                let luckBarEl = document.getElementById('luck-bar');
+                if (luckBarEl) luckBarEl.style.width = Math.min(100, (this.p.exploreStreak || 0) / 15 * 100) + '%';
+                let streakLabelEl = document.getElementById('luck-streak-label');
+                if (streakLabelEl) streakLabelEl.innerText = `🔥${this.p.exploreStreak || 0}`;
 
                 const biomeHazard = DB.biomes[this.p.currentBiome].hazard;
                 const radContainer = document.getElementById('rad-container');
@@ -9165,8 +8960,6 @@ padding-top:9vh;
                 document.getElementById('next-exp-val').innerText = this.p.nextExp;
                 animateValue(document.getElementById('caps-val'), document.getElementById('caps-val').innerText, this.p.caps, 450);
                 document.getElementById('vouchers-val').innerText = this.p.vouchers;
-                document.getElementById('rest-count').innerText = this.restUses;
-                document.getElementById('rest-max').innerText = this.getMaxRest();
                 document.getElementById('current-location-badge').innerText = `📍 ${DB.biomes[this.p.currentBiome].name}`;
                 
                 // Кнопка покупки уровней БП блокируется на капе
@@ -9385,25 +9178,43 @@ padding-top:9vh;
                     </div>`;
                 }).join('');
             },
-            log(msg, type = '') { const box = document.getElementById('log'); const e = document.createElement('div'); e.className = `log-entry ${type}`; e.innerHTML = msg; box.appendChild(e); box.scrollTop = box.scrollHeight; Scene.setCaption(msg, type); },
-            // До и после 50 уровня привалы восстанавливаются с одинаковой скоростью — 1 раз в минуту.
-            getRestTime() { return 60; },
-            // После 50 уровня максимум одновременно доступных привалов снижается с 5 до 3.
-            getMaxRest() { return this.p.lvl >= 50 ? 3 : 5; },
-            // 🛡️ ПРЕДОХРАНИТЕЛЬ: таймер до следующего привала не может уйти дальше, чем на
-            // один период ожидания (getRestTime(), сейчас 60с) вперёд от текущего момента.
-            // Раньше при перезаходе в игру расчёт офлайн-прогресса (applyOfflineProgress)
-            // мог накопить рассинхрон между this.lastTick и this.nextRestTick (например,
-            // из-за старого/битого сохранения или смены системного времени), и таймер
-            // "уезжал" на месяцы/годы вперёд. Теперь любое значение nextRestTick жёстко
-            // подрезается этой функцией сразу после установки — ждать больше минуты
-            // до следующего привала физически невозможно.
-            clampRestTick() {
-                if (this.nextRestTick == null) return;
-                let maxAllowed = Date.now() + this.getRestTime() * 1000;
-                if (this.nextRestTick > maxAllowed) this.nextRestTick = maxAllowed;
-                if (this.nextRestTick < Date.now()) this.nextRestTick = Date.now();
+
+            log(msg, type = '') {
+                const box = document.getElementById('log');
+                const e = document.createElement('div'); e.className = `log-entry ${type}`; e.innerHTML = msg; box.appendChild(e);
+                // Ограничиваем журнал последними N записями — раньше записи копились в DOM без
+                // ограничения на протяжении всей сессии, и через долгую игру их накапливались
+                // сотни/тысячи, что постепенно замедляло игру (лишние DOM-узлы, reflow при скролле).
+                const MAX_LOG_ENTRIES = 60;
+                while (box.children.length > MAX_LOG_ENTRIES) box.removeChild(box.firstChild);
+                box.scrollTop = box.scrollHeight; Scene.setCaption(msg, type);
             },
+            // Небольшая всплывающая карточка исхода разведки — для событий без выбора (находка/точка
+            // интереса/опасный участок/пусто), чтобы результат читался как событие, а не как строка
+            // в журнале. Дублирует log() визуально, сам закрывается через паузу.
+            showExploreToast(icon, title, sub, color) {
+                let overlay = document.getElementById('explore-toast-overlay');
+                if (!overlay) return;
+                document.getElementById('explore-toast-icon').innerText = icon;
+                document.getElementById('explore-toast-title').innerText = title;
+                document.getElementById('explore-toast-sub').innerText = sub || '';
+                overlay.querySelector('.explore-toast-card').style.setProperty('--et-color', color || 'var(--neon-gold)');
+                overlay.classList.add('show');
+                clearTimeout(this._exploreToastTimer);
+                this._exploreToastTimer = setTimeout(() => overlay.classList.remove('show'), 2200);
+            },
+
+            // ===================== «КОСТЁР» вместо «Привала» =====================
+            // Раньше отдых был общим запасом из 3-5 зарядов, которые копились по таймеру (1/60с) —
+            // если заряды кончались, единственным способом отдохнуть было ждать реальное время
+            // (или купить заряд за ваучеры в лутбоксах). Это не зависело от того, как играет
+            // человек, и по сути было платным ожиданием. Теперь у костра нет общего запаса и
+            // нет ожидания вообще: каждое из трёх занятий доступно в любой момент, а ограничивает
+            // его лишь то, что игрок реально контролирует — есть ли под рукой ресурсы (еда/Запчасти)
+            // и не остыло ли именно это занятие после недавнего использования (свой короткий откат
+            // на каждое, а не общий на всех троих). Никаких накоплений/оффлайн-расчётов больше не
+            // требуется — откат просто сравнивается с текущим временем в момент открытия костра.
+            getCampCooldown(mode) { return mode === 'stories' ? 20000 : 45000; },
 
             // Скорость регенерации ОЗ зависит от сытости: 100% = 1 ОЗ/3с, 50% = 1 ОЗ/18с, ниже ~20% — совсем медленно. При 0% сытости регенерация вообще не идёт.
             // (Ускорено по сравнению с прежним — было 5с/25с — но умеренно, не мгновенно.)
@@ -9483,6 +9294,11 @@ padding-top:9vh;
                 if (this.p.hp <= 0) return;
 
                 let hazardMods = this.getHazardMods();
+                // Раньше save()/updateUI() вызывались отдельно в каждом из блоков ниже — до 4 раз за
+                // один тик секундного таймера. Теперь копим флаги и делаем не больше одного вызова
+                // каждого в конце тика: результат тот же (все изменения p уже применены), а лишних
+                // перестроений DOM и записей в localStorage в секунду становится в разы меньше.
+                let needsUpdate = false, needsSave = false;
 
                 // Сытость убывает со временем, в бою — быстрее, в опасных биомах может убывать быстрее (satietyMult)
                 // (Замедлено по сравнению с прежним — было 4с/12с за очко — теперь сытость держится дольше.)
@@ -9492,7 +9308,7 @@ padding-top:9vh;
                     if (this.satietyDecayAccum >= decayInterval) {
                         this.satietyDecayAccum -= decayInterval;
                         this.p.satiety = Math.max(0, this.p.satiety - 1);
-                        this.save(); this.updateUI();
+                        needsSave = true; needsUpdate = true;
                     }
                 }
 
@@ -9504,7 +9320,7 @@ padding-top:9vh;
                     if (this.hpRegenAccum >= interval) {
                         this.hpRegenAccum -= interval;
                         this.p.hp = Math.min(allowedMax, this.p.hp + 1);
-                        this.updateUI();
+                        needsUpdate = true;
                     }
                 } else {
                     this.hpRegenAccum = 0;
@@ -9518,37 +9334,36 @@ padding-top:9vh;
                     if (this.starveAccum >= starveInterval) {
                         this.starveAccum -= starveInterval;
                         this.p.hp = Math.max(1, this.p.hp - 1);
-                        this.save(); this.updateUI();
+                        needsSave = true; needsUpdate = true;
                     }
                 } else {
                     this.starveAccum = 0;
                 }
 
-                if (this.restUses < this.getMaxRest()) {
-                    let period = this.getRestTime() * 1000;
-                    if (!this.nextRestTick) this.nextRestTick = Date.now() + period;
-                    this.clampRestTick();
-                    let remaining = Math.ceil((this.nextRestTick - Date.now()) / 1000);
-                    if (remaining <= 0) {
-                        this.restUses++;
-                        this.log(`⛺ Привал готов. Откат: ${this.getRestTime()}с.`, "system");
-                        this.nextRestTick = this.restUses < this.getMaxRest() ? Date.now() + (this.getRestTime() * 1000) : null;
-                        this.clampRestTick();
-                        this.save(); this.updateUI();
-                    } else {
-                        let timerBadge = document.getElementById('rest-timer');
-                        if (timerBadge) {
-                            timerBadge.style.display = 'block';
-                            timerBadge.innerText = `+1 через ${remaining}с`;
-                        }
+                // Пассивная регенерация энергии — небольшая, но постоянная (+1 каждые 18с, ~3.3/мин),
+                // не связанная с костром. Фоновая регенерация слегка ускорена по сравнению с прежней
+                // (было раз в 25с), чтобы простой между разведками не ощущался полным затыком — но
+                // по-прежнему остаётся именно фоном, а не заменой осознанному выбору занятия у костра
+                // (см. chooseCamp). Костёр (см. РЕВОРК «Костра» выше) больше не тикает в общем цикле —
+                // у каждого занятия свой независимый откат, который проверяется только при открытии.
+                if (this.p.energy < this.p.maxEnergy) {
+                    this.energyRegenAccum = (this.energyRegenAccum || 0) + 1;
+                    if (this.energyRegenAccum >= 18) {
+                        this.energyRegenAccum -= 18;
+                        this.p.energy = Math.min(this.p.maxEnergy, this.p.energy + 1);
+                        needsUpdate = true;
                     }
-                } else { this.nextRestTick = null; let tb = document.getElementById('rest-timer'); if(tb) tb.style.display = 'none'; }
+                } else {
+                    this.energyRegenAccum = 0;
+                }
+
+                if (needsSave) this.save();
+                if (needsUpdate) this.updateUI();
 
                 this.updateDailyTimer();
                 this.updateGiftTimer();
                 this.updateSkinShopTimers();
                 this.generateDailyQuests();
-                if (typeof EventBoss !== 'undefined') EventBoss.tick();
                 this.lastTick = Date.now();
             },
 
@@ -9685,49 +9500,396 @@ padding-top:9vh;
                 let pet = DB.pets.find(p => p.id === this.p.activePet);
                 return (pet && pet.effect) ? pet.effect : {};
             },
+            // ===================== РЕВОРК «РАЗВЕДКИ» v2 =====================
+            // Старая система держала скрытый параметр "опасность сектора" (0-100), который рос
+            // почти от любого исхода и по достижении 70 ГАРАНТИРОВАННО подсовывал элитного врага.
+            // Игроку эта механика была не видна по смыслу (просто шкала с непонятным названием),
+            // а по факту означала "элиты почти после каждой десятой разведки" — отсюда и жалобы
+            // на непонятность и слишком частых элитов. Новая версия полностью убирает эту скрытую
+            // эскалацию:
+            //  — Элитные встречи и Караван — теперь обычные события в общей таблице весов, с низким
+            //    фиксированным шансом (см. rollExploreEvent). Никакого накопления/принудительного
+            //    срабатывания больше нет — элиты стали действительно редкими и непредсказуемыми.
+            //  — exploreStreak — серия подряд идущих "мирных" (не боевых) разведок. Показывается
+            //    игроку как понятная шкала "🍀 Удача разведки": растёт от мирных исходов, слегка
+            //    повышает шанс на тайники/точки интереса, полностью сбрасывается после боя, засады
+            //    или опасного участка местности. Никакого влияния на частоту боёв/элитов не имеет.
+            // exploreStreak сбрасывается при смене биома (см. teleport) и лениво при первой разведке
+            // в новом биоме (см. проверку _lastExploreBiome ниже).
             explore() {
                 Sound.play('click'); if (this.combatState || this.p.energy < 3) return;
+                if (this._lastExploreBiome !== this.p.currentBiome) {
+                    this.p.exploreStreak = 0; this._lastExploreBiome = this.p.currentBiome;
+                }
                 this.p.energy -= 3; Tut.actionTriggered('btn-explore');
                 this.triggerQuest("explore");
                 this.exposeRadiation("Разведка загрязнённой местности");
                 Scene.exploreStart();
-                let roll = Math.random();
-                // Шансы разведки: находка 45%, озеро/рыбалка ~4.33% (уменьшено в 3 раза от исходных
-                // 13%, освободившиеся ~8.67% ушли в "пусто"), враг 20%, пусто ~30.67%.
+
+                if (!this.p.journal) this.p.journal = {};
+                if (!this.p.journal[this.p.currentBiome]) this.p.journal[this.p.currentBiome] = { visited: 0, landmarks: [], rewardClaimed: false };
+                this.p.journal[this.p.currentBiome].visited++;
+
+                let streak = this.p.exploreStreak || 0;
+
                 setTimeout(() => {
-                    if (roll < 0.45) {
-                        let petFx = this.getActivePetEffect();
-                        // Крышки с разведки больше не зависят от биома вообще — на любом
-                        // биоме находка даёт столько же, сколько в самом первом (1-2 шт.).
-                        let c = (Math.floor(Math.random() * 2) + 1) + (petFx.exploreCapsBonus || 0); this.p.caps += c;
-                        let lootRoll = Math.random();
-                        let bonusScrap = '';
-                        if (petFx.extraScrapChance && Math.random() < petFx.extraScrapChance) {
-                            this.p.inv["Запчасти"] = (this.p.inv["Запчасти"] || 0) + 1;
-                            bonusScrap = ` 🐕 Лом раскопал ещё Запчасти x1!`;
-                        }
-                        // Жетоны Схрона: отдельный фиксированный шанс, не зависящий от типа находки и от биома.
-                        let tokenMsg = '';
-                        if (Math.random() < 0.12) {
-                            let tokenQty = 1 + Math.floor(Math.random() * 3);
-                            this.p.inv["Жетон Схрона"] = (this.p.inv["Жетон Схрона"] || 0) + tokenQty;
-                            tokenMsg = ` 💠 Жетон Схрона +${tokenQty}!`;
-                        }
-                        if(lootRoll < 0.5) { this.p.inv["Запчасти"]++; this.log(`🎁 Найдено: Запчасти x1, Крышки (+${c} 🪙).${bonusScrap}${tokenMsg} +10 XP.`, "loot"); Scene.findEffect('scrap'); }
-                        else if(lootRoll < 0.8) { this.p.inv["Сырое мясо"] = (this.p.inv["Сырое мясо"]||0)+1; this.log(`🥩 Найдено: Сырое мясо x1, Крышки (+${c} 🪙).${bonusScrap}${tokenMsg} +10 XP.`, "loot"); Scene.findEffect('meat'); }
-                        else { this.p.inv["Тяжелый Хлам"] = (this.p.inv["Тяжелый Хлам"]||0)+1; this.log(`⚙️ Найдено: Тяжелый Хлам x1, Крышки (+${c} 🪙).${bonusScrap}${tokenMsg} +15 XP.`, "loot"); Scene.findEffect('heavy'); }
-                        this.p.exp += 10; this.checkLvl();
-                    } else if (roll < 0.493333) {
-                        if (this.p.lvl < 5 || (this.settings && this.settings.fishingEnabled === false)) { this.log("Локация чиста. Ничего интересного."); Scene.findEffect('empty'); }
-                        else { this.log("🌊 Вы наткнулись на заброшенное озеро посреди Пустоши..."); Scene.findEffect('lake'); this.offerFishing(); }
+                    let type = this.rollExploreEvent(streak);
+                    let echoSafe = true; // не дёргаем шанс сюжетного фрагмента посреди завязки боя
+
+                    switch (type) {
+                        case 'find':
+                            this.runExploreFind();
+                            this.p.exploreStreak = Math.min(15, streak + 1);
+                            echoSafe = false; // фрагмент проверяется уже после выбора игрока внутри resolveFind
+                            break;
+                        case 'cache':
+                            this.runExploreCache();
+                            this.p.exploreStreak = Math.min(15, streak + 1);
+                            echoSafe = false; // фрагмент проверяется уже после выбора игрока внутри resolveCache
+                            break;
+                        case 'landmark':
+                            this.runExploreLandmark();
+                            this.p.exploreStreak = Math.min(15, streak + 1);
+                            break;
+                        case 'caravan':
+                            this.runExploreCaravan();
+                            this.p.exploreStreak = Math.min(15, streak + 1);
+                            echoSafe = false; // фрагмент проверяется уже после выбора игрока внутри resolveCaravan
+                            break;
+                        case 'hazardTerrain':
+                            this.runExploreHazard();
+                            this.p.exploreStreak = 0;
+                            break;
+                        case 'ambush':
+                            this.runExploreAmbush();
+                            this.p.exploreStreak = 0;
+                            echoSafe = false; // фрагмент проверяется уже после выбора игрока внутри resolveAmbush
+                            break;
+                        case 'combat':
+                            Scene.findEffect('enemy'); this.startCombat(false);
+                            this.p.exploreStreak = 0;
+                            echoSafe = false;
+                            break;
+                        case 'elite':
+                            this.runExploreElite();
+                            this.p.exploreStreak = 0;
+                            echoSafe = false;
+                            break;
+                        case 'lake':
+                            this.log("🌊 Вы наткнулись на заброшенное озеро посреди Пустоши...");
+                            Scene.findEffect('lake'); this.offerFishing();
+                            break;
+                        default:
+                            Scene.findEffect('empty');
+                            this.showExploreToast('🌫️', 'Пусто', 'Ничего интересного', 'var(--text-muted)');
+                            this.p.exploreStreak = 0;
                     }
-                    else if (roll < 0.693333) { Scene.findEffect('enemy'); this.startCombat(false); } else { this.log("Локация чиста. Ничего интересного."); Scene.findEffect('empty'); }
-                    // Особое задание проекта «Эхо Пустоши» — шанс найти сюжетный фрагмент во время
-                    // разведки. Не срабатывает во время боевой ветки (roll в диапазоне 0.4933-0.6933),
-                    // чтобы сообщение не путалось с завязкой боя.
-                    if (roll < 0.493333 || roll >= 0.693333) this.echoTryFragment();
+
+                    if (this.campBuffCharges > 0 && type !== 'empty') this.campBuffCharges--;
+                    if (echoSafe) this.echoTryFragment();
                     this.save(); this.updateUI();
                 }, 550);
+            },
+
+            // Веса событий разведки — фиксированные (никакой скрытой эскалации). Удача разведки
+            // (exploreStreak, капается на 15) мягко повышает долю тайников/точек интереса за
+            // аккуратную игру. Элита и Караван — редкие, независимые от чего-либо ещё исходы.
+            rollExploreEvent(streak) {
+                let lakeUnlocked = this.p.lvl >= 5 && !(this.settings && this.settings.fishingEnabled === false);
+                let w = {
+                    empty: 20,
+                    find: 30,
+                    cache: 4, // шанс тайника снижен по прямому запросу
+                    landmark: 3, // шанс точки интереса снижен по прямому запросу
+                    caravan: 3, // шанс каравана/торговца снижен по прямому запросу
+                    hazardTerrain: 3, // шанс опасного участка (риск) снижен по прямому запросу
+                    ambush: 5, // шанс засады снижен по прямому запросу
+                    combat: 10,
+                    elite: 3 / 14, // шанс элитного противника снижен ещё вдвое сверх прежнего по прямому запросу
+                    lake: lakeUnlocked ? 4 : 0
+                };
+                if (!lakeUnlocked) w.empty += 4;
+
+                let streakBonus = Math.min(10, (streak || 0) * 0.6);
+                w.cache += streakBonus * 0.55;
+                w.landmark += streakBonus * 0.45;
+
+                // ---- Защита от "кластеров" спецсобытий ----
+                // Раньше спецсобытия (всё, кроме обычной находки и пустой локации) могли выпасть
+                // несколько раз подряд просто по теории вероятностей — редко, но ощутимо неприятно
+                // ("опять тайник, опять засада"). Теперь сразу после любого спецсобытия следующие
+                // 2 разведки гарантированно возвращают обычную находку, и только потом снова
+                // участвует полная таблица весов выше.
+                if (this.p.specialEventLock > 0) {
+                    this.p.specialEventLock--;
+                    this._forcedFind = true;
+                    return 'find';
+                }
+
+                let total = Object.values(w).reduce((a, b) => a + b, 0);
+                let roll = Math.random() * total;
+                let key = 'empty';
+                for (let k in w) {
+                    if (roll < w[k]) { key = k; break; }
+                    roll -= w[k];
+                }
+                if (key === 'find') this._forcedFind = false;
+                if (key !== 'find' && key !== 'empty') this.p.specialEventLock = 2;
+                return key;
+            },
+
+            // Обычная находка. Если это одна из 2 гарантированных "спокойных" разведок сразу после
+            // спецсобытия (см. specialEventLock) — разрешается мгновенно и тихо, лёгким тостом, без
+            // всплывающей карточки с выбором: это именно то самое "обычная разведка", которое должно
+            // явно отличаться от настоящего события и не выглядеть как ещё один "ивент". Выбор между
+            // "быстро" и "тщательно" (см. resolveFind) остаётся только для находок, выпавших по-настоящему
+            // случайно вне периода гарантированного затишья.
+            runExploreFind() {
+                if (this._forcedFind) {
+                    this._forcedFind = false;
+                    this.resolveFind('quick');
+                    return;
+                }
+                document.getElementById('find-choice-overlay').style.display = 'flex';
+            },
+            resolveFind(mode) {
+                document.getElementById('find-choice-overlay').style.display = 'none';
+                let thorough = mode === 'thorough';
+                let petFx = this.getActivePetEffect();
+                let mult = (this.campBuffCharges > 0 ? 1.15 : 1) * (thorough ? 1.8 : 1);
+                let c = Math.round(((Math.floor(Math.random() * 2) + 1) + (petFx.exploreCapsBonus || 0)) * mult);
+                this.p.caps += c;
+                let lootRoll = Math.random();
+                let bonusScrap = '';
+                if (petFx.extraScrapChance && Math.random() < petFx.extraScrapChance) {
+                    this.p.inv["Запчасти"] = (this.p.inv["Запчасти"] || 0) + 1;
+                    bonusScrap = ` 🐕 Лом раскопал ещё Запчасти x1!`;
+                }
+                let tokenMsg = '';
+                if (Math.random() < (thorough ? 0.22 : 0.12)) {
+                    let tokenQty = 1 + Math.floor(Math.random() * 3);
+                    this.p.inv["Жетон Схрона"] = (this.p.inv["Жетон Схрона"] || 0) + tokenQty;
+                    tokenMsg = ` 💠 Жетон Схрона +${tokenQty}!`;
+                }
+                let qty = thorough ? 2 : 1;
+                let xp = thorough ? 18 : 10;
+                let resName, sceneFx, toastIcon;
+                if (lootRoll < 0.5) { this.p.inv["Запчасти"] = (this.p.inv["Запчасти"] || 0) + qty; resName = `Запчасти x${qty}`; sceneFx = 'scrap'; toastIcon = '⚙️'; }
+                else if (lootRoll < 0.8) { this.p.inv["Сырое мясо"] = (this.p.inv["Сырое мясо"] || 0) + qty; resName = `Сырое мясо x${qty}`; sceneFx = 'meat'; toastIcon = '🥩'; }
+                else { this.p.inv["Тяжелый Хлам"] = (this.p.inv["Тяжелый Хлам"] || 0) + qty; resName = `Тяжелый Хлам x${qty}`; xp = thorough ? 24 : 15; sceneFx = 'heavy'; toastIcon = '🔩'; }
+                Scene.findEffect(sceneFx);
+                let extra = (bonusScrap + tokenMsg).trim();
+                this.showExploreToast(toastIcon, thorough ? 'Богатая находка' : 'Находка', `${resName} · +${c} 🪙 · +${xp} XP${extra ? ' · ' + extra : ''}`, 'var(--neon-gold)');
+                this.p.exp += xp; this.checkLvl();
+                if (thorough) {
+                    let biome = DB.biomes[this.p.currentBiome];
+                    if (biome.hazard && Math.random() < 0.35) {
+                        let gain = 4 + Math.floor(Math.random() * 6);
+                        this.setHazard(Math.min(100, this.getHazard() + gain));
+                        this.log(`${biome.hazard.icon} Задержавшись у находки, вы нахватали: ${biome.hazard.label} +${gain}%.`, "combat-lose");
+                    }
+                }
+                this.echoTryFragment();
+                this.save(); this.updateUI();
+            },
+
+            // Тайник — событие с выбором игрока: надёжно и небыстро, либо быстро и рискованно.
+            runExploreCache() {
+                this.log("📦 Вы заметили приметный тайник, наполовину занесённый песком...");
+                Scene.findEffect('cache');
+                document.getElementById('cache-choice-overlay').style.display = 'flex';
+            },
+            resolveCache(mode) {
+                document.getElementById('cache-choice-overlay').style.display = 'none';
+                let petFx = this.getActivePetEffect();
+                let mult = this.campBuffCharges > 0 ? 1.15 : 1;
+                if (mode === 'careful') {
+                    let c = Math.round((3 + Math.floor(Math.random() * 3) + (petFx.exploreCapsBonus || 0)) * mult);
+                    this.p.caps += c;
+                    this.p.inv["Запчасти"] = (this.p.inv["Запчасти"] || 0) + 2;
+                    this.p.exp += 16; this.checkLvl();
+                    this.log(`🧰 Аккуратно вскрытый тайник: Запчасти x2, Крышки (+${c} 🪙), +16 XP.`, "loot");
+                } else {
+                    if (Math.random() < 0.65) {
+                        let c = Math.round((6 + Math.floor(Math.random() * 6) + (petFx.exploreCapsBonus || 0)) * mult);
+                        this.p.caps += c;
+                        this.p.inv["Тяжелый Хлам"] = (this.p.inv["Тяжелый Хлам"] || 0) + 1;
+                        let tokenMsg = '';
+                        if (Math.random() < 0.3) { let q = 1 + Math.floor(Math.random() * 2); this.p.inv["Жетон Схрона"] = (this.p.inv["Жетон Схрона"] || 0) + q; tokenMsg = ` 💠 Жетон Схрона +${q}!`; }
+                        this.p.exp += 26; this.checkLvl();
+                        this.log(`💰 Тайник вскрыт с ходу — богатая добыча! Крышки (+${c} 🪙), Тяжелый Хлам x1.${tokenMsg} +26 XP.`, "loot");
+                    } else {
+                        let dmg = 4 + Math.floor(Math.random() * 6);
+                        this.p.hp = Math.max(1, this.p.hp - dmg);
+                        this.log(`💥 Ловушка! Поспешив, вы получили ${dmg} ОЗ урона.`, "combat-lose");
+                    }
+                }
+                this.echoTryFragment();
+                this.save(); this.updateUI();
+            },
+
+            // Точка интереса — пополняет "Журнал разведчика" по текущему биому. Когда собраны все
+            // точки биома — единоразовая крупная награда за полное исследование региона.
+            runExploreLandmark() {
+                let journal = this.p.journal[this.p.currentBiome];
+                let pool = DB.landmarkNames;
+                let unfound = pool.map((_, i) => i).filter(i => !journal.landmarks.includes(i));
+                if (unfound.length === 0) { this.runExploreFind(); return; }
+                let idx = unfound[Math.floor(Math.random() * unfound.length)];
+                journal.landmarks.push(idx);
+                let biomeName = DB.biomes[this.p.currentBiome].name;
+                let mult = this.campBuffCharges > 0 ? 1.15 : 1;
+                let c = Math.round((4 + Math.floor(Math.random() * 4)) * mult);
+                this.p.caps += c;
+                this.p.exp += 22; this.checkLvl();
+                this.showExploreToast('🧭', 'Точка интереса', `«${pool[idx]}» · +${c} 🪙 · +22 XP · Журнал ${journal.landmarks.length}/${pool.length}`, 'var(--neon-blue)');
+                Scene.findEffect('landmark');
+                if (journal.landmarks.length === pool.length && !journal.rewardClaimed) {
+                    journal.rewardClaimed = true;
+                    let bonusCaps = 40 + this.p.lvl * 2;
+                    this.p.caps += bonusCaps;
+                    this.p.vouchers = (this.p.vouchers || 0) + 1;
+                    this.log(`🗺️ Регион «${biomeName}» полностью исследован! Награда: +${bonusCaps} 🪙 и +1 🏷️ Ваучер.`, "system");
+                }
+            },
+
+            // Опасный участок местности — либо нарастает "хазард" биома (радиация/холод/токсины и т.п.),
+            // либо (в безобидных биомах без хазарда) небольшой прямой урон от ловушки/провала.
+            runExploreHazard() {
+                let biome = DB.biomes[this.p.currentBiome];
+                Scene.findEffect('hazard');
+                if (biome.hazard) {
+                    let gain = 8 + Math.floor(Math.random() * 10);
+                    this.setHazard(Math.min(100, this.getHazard() + gain));
+                    this.showExploreToast(biome.hazard.icon, 'Опасный участок', `${biome.hazard.label} +${gain}%`, 'var(--neon-red)');
+                } else {
+                    let dmg = 3 + Math.floor(Math.random() * 5);
+                    this.p.hp = Math.max(1, this.p.hp - dmg);
+                    this.showExploreToast('⚠️', 'Ловушка', `-${dmg} ОЗ`, 'var(--neon-red)');
+                }
+            },
+
+            // Внезапная встреча — в отличие от обычного боя, даёт игроку выбор: атаковать сразу,
+            // попытаться проскользнуть (шанс небольшой награды без риска) или отступить без последствий.
+            runExploreAmbush() {
+                this.log("⚠️ Из руин навстречу выскакивает противник, застигнув вас врасплох!");
+                Scene.findEffect('enemy');
+                document.getElementById('ambush-choice-overlay').style.display = 'flex';
+            },
+            resolveAmbush(mode) {
+                document.getElementById('ambush-choice-overlay').style.display = 'none';
+                if (mode === 'fight') {
+                    this.startCombat(false);
+                } else if (mode === 'sneak') {
+                    if (Math.random() < 0.6) {
+                        let c = 2 + Math.floor(Math.random() * 3);
+                        this.p.caps += c; this.p.exp += 8; this.checkLvl();
+                        this.log(`🤫 Вы бесшумно проскользнули мимо и прихватили оброненные Крышки (+${c} 🪙).`, "loot");
+                    } else {
+                        this.log("🤫 Проскочить незаметно не удалось, но вы успели отступить без потерь.");
+                    }
+                    this.echoTryFragment();
+                    this.save(); this.updateUI();
+                } else {
+                    this.log("🏃 Вы отступили, не рискуя ввязываться в бой.");
+                    this.echoTryFragment();
+                    this.save(); this.updateUI();
+                }
+            },
+
+            // ===== НОВОЕ СОБЫТИЕ РАЗВЕДКИ: «Странствующий Караван» =====
+            // Редкая мирная встреча (см. вес 'caravan' в rollExploreEvent) с бродячим торговцем.
+            // Даёт игроку реальный выбор, а не просто текст: либо выгодно сбыть скопившийся
+            // Тяжёлый Хлам одним махом (курс заметно лучше рыночного — 8 🪙/шт против 5 🪙/шт
+            // у Дяди Скрапа), либо рискнуть частью Крышек ради шанса на редкий джекпот из
+            // Жетонов Схрона, либо просто пройти мимо без последствий.
+            runExploreCaravan() {
+                this.log("🛒 Навстречу выезжает потрёпанный караван кочевников — есть время перекинуться парой слов с торговцем...");
+                Scene.findEffect('caravan');
+                let heavyQty = this.p.inv["Тяжелый Хлам"] || 0;
+                let gambleCost = 10 + this.p.currentBiome * 4;
+                let sellBtn = document.getElementById('caravan-sell-btn');
+                let gambleBtn = document.getElementById('caravan-gamble-btn');
+                let introText = document.getElementById('caravan-intro-text');
+                if (introText) introText.innerText = "Торговец из каравана предлагает дело, пока его спутники сторожат повозки.";
+                if (sellBtn) {
+                    let can = heavyQty > 0;
+                    sellBtn.disabled = !can;
+                    sellBtn.style.opacity = can ? '1' : '0.5';
+                    let t = sellBtn.querySelector('.oc-btn-title'), e = sellBtn.querySelector('.oc-btn-effect');
+                    if (t) t.innerText = can ? `🔩 Продать весь Хлам x${heavyQty}` : `🔩 Продать Хлам`;
+                    if (e) e.innerText = can ? `+${heavyQty * 8} 🪙 — выгодный курс` : `Нечего продавать`;
+                }
+                if (gambleBtn) {
+                    let can = this.p.caps >= gambleCost;
+                    gambleBtn.disabled = !can;
+                    gambleBtn.style.opacity = can ? '1' : '0.5';
+                    let t = gambleBtn.querySelector('.oc-btn-title');
+                    if (t) t.innerText = `🎲 Рискнуть ${gambleCost} 🪙 за куш`;
+                }
+                document.getElementById('caravan-choice-overlay').style.display = 'flex';
+            },
+            resolveCaravan(mode) {
+                document.getElementById('caravan-choice-overlay').style.display = 'none';
+                if (mode === 'sell') {
+                    let heavyQty = this.p.inv["Тяжелый Хлам"] || 0;
+                    if (heavyQty <= 0) { this.log("🔩 У вас не было Тяжелого Хлама на продажу."); this.save(); this.updateUI(); return; }
+                    let earned = heavyQty * 8;
+                    this.p.inv["Тяжелый Хлам"] = 0;
+                    this.p.caps += earned;
+                    this.log(`🔩 Торговец каравана забрал весь Тяжелый Хлам (x${heavyQty}) по щедрому курсу: +${earned} 🪙.`, "loot");
+                } else if (mode === 'gamble') {
+                    let gambleCost = 10 + this.p.currentBiome * 4;
+                    if (this.p.caps < gambleCost) { this.log("🎲 Не хватает Крышек, чтобы рискнуть."); this.save(); this.updateUI(); return; }
+                    this.p.caps -= gambleCost;
+                    if (Math.random() < 0.45) {
+                        // Куш Крышек — чисто случайная величина (от 1x до 4x ставки), без привязки к фиксированной формуле
+                        let capsWin = gambleCost + Math.floor(Math.random() * (gambleCost * 3));
+                        this.p.caps += capsWin;
+                        if (this.p.lvl < 50) {
+                            // До 50 уровня Странник получает Жетоны Схрона
+                            let tokenQty = 2 + Math.floor(Math.random() * 3);
+                            this.p.inv["Жетон Схрона"] = (this.p.inv["Жетон Схрона"] || 0) + tokenQty;
+                            this.log(`🎲 Удача на вашей стороне! Куш: +${capsWin} 🪙 и 💠 Жетон Схрона x${tokenQty}.`, "loot");
+                        } else {
+                            // После 50 уровня — более редкая и ценная награда: Ваучеры, но в меньшем количестве
+                            let voucherQty = 1 + (Math.random() < 0.35 ? 1 : 0);
+                            this.p.vouchers = (this.p.vouchers || 0) + voucherQty;
+                            this.log(`🎲 Удача на вашей стороне! Куш: +${capsWin} 🪙 и 🏷️ Ваучеры x${voucherQty}.`, "loot");
+                        }
+                    } else {
+                        this.log(`🎲 Не повезло — торговец лишь развёл руками и убрал ${gambleCost} 🪙 в карман.`, "combat-lose");
+                    }
+                } else {
+                    this.log("🚶 Вы вежливо отказались и пошли своей дорогой.");
+                }
+                this.echoTryFragment();
+                this.save(); this.updateUI();
+            },
+
+            // Элитная встреча — теперь редкий независимый исход разведки (см. вес 'elite' в
+            // rollExploreEvent), а не гарантированное срабатывание по накопленной шкале. Усиленная
+            // версия сильнейшего противника биома: больше HP/урона/опыта и гарантированный бонус
+            // к добыче за победу (см. processVictory).
+            runExploreElite() {
+                this.log("👁️ Опасность в этом секторе достигла предела — навстречу выходит закалённый противник...");
+                Scene.findEffect('elite');
+                let activeBiome = DB.biomes[this.p.currentBiome];
+                let base = activeBiome.enemies[activeBiome.enemies.length - 1];
+                let enemy = {
+                    ...base,
+                    name: `${base.name}-Ветеран`,
+                    hp: Math.floor(base.hp * 1.6),
+                    dmg: Math.floor(base.dmg * 1.25),
+                    armor: Math.floor(base.armor * 1.2),
+                    exp: Math.floor(base.exp * 2),
+                    isElite: true,
+                    isBoss: false,
+                    bleedTicks: 0,
+                    stunned: false
+                };
+                enemy.maxHp = enemy.hp;
+                this.showEnemyIntro(enemy);
             },
 
             offerFishing() {
@@ -9749,6 +9911,10 @@ padding-top:9vh;
             },
 
             startFishing() {
+                // Защита от повторного запуска поверх уже идущей рыбалки: без этой проверки старые
+                // decayTimer/countdownTimer терялись (this.fishing перезаписывался новым объектом),
+                // но не останавливались — оставались "висеть" в фоне до конца сессии.
+                if (this.fishing && this.fishing.active) { clearInterval(this.fishing.decayTimer); clearInterval(this.fishing.countdownTimer); }
                 Sound.play('click');
                 let rodLvl = this.p.rodLvl || 0;
                 if (!rodLvl) { this.log("🎣 Сначала соберите удочку в Тех-Схемах."); return; }
@@ -9859,19 +10025,90 @@ padding-top:9vh;
                 this.showCraftResult(DB.rod.icon, "🛠️ Улучшение успешно!", `${DB.rod.name} · Ур. ${this.p.rodLvl}`, "Удочка усовершенствована — теперь можно поймать более крупную рыбу!");
             },
 
+            // Костёр всегда открывается — больше нет общего запаса зарядов, который может закончиться.
+            // Пока окно открыто, откат тикает раз в секунду (см. renderCampOverlay), а не показывает
+            // статичное число, актуальное только на момент открытия.
             rest() {
-                if (this.restUses <= 0) return Sound.play('hit');
-                Sound.play('click'); this.restUses--;
-                this.triggerQuest("rest");
-                this.p.energy = Math.min(this.p.maxEnergy, this.p.energy + 20);
-                this.log(`⛺ Вы отдохнули на привале. Энергия восстановлена на +20 ед.`);
+                Sound.play('click');
+                document.getElementById('camp-choice-overlay').style.display = 'flex';
+                this.renderCampOverlay();
+                clearInterval(this._campOverlayInterval);
+                this._campOverlayInterval = setInterval(() => this.renderCampOverlay(), 1000);
+            },
+            closeCampOverlay() {
+                document.getElementById('camp-choice-overlay').style.display = 'none';
+                clearInterval(this._campOverlayInterval);
+            },
+            // Обновляет состояние всех трёх занятий костра: недоступно из-за отката (свой у каждого
+            // занятия) или из-за нехватки ресурса — сообщение подставляется прямо в строку эффекта
+            // (никаких отдельных плашек-статусов рядом), а в обычном состоянии строка возвращается
+            // к описанию награды.
+            renderCampOverlay() {
+                let now = Date.now();
+                let hasFood = (this.p.inv["Сырое мясо"] || 0) > 0 || Object.values(this.p.food || {}).some(v => v > 0);
+                let hasScrap = (this.p.inv["Запчасти"] || 0) >= 2;
+                let defs = [
+                    { mode: 'cook', btn: 'camp-cook-btn', effect: 'camp-cook-effect', ok: hasFood, lack: 'Нет еды', normal: '+14⚡ · +10 сытости · удачливая добыча на 3 разведки' },
+                    { mode: 'repair', btn: 'camp-repair-btn', effect: 'camp-repair-effect', ok: hasScrap, lack: 'Нужно 2 Запчасти', normal: '+10⚡ · +12 ОЗ · снижает опасность биома' },
+                    { mode: 'stories', btn: 'camp-stories-btn', effect: 'camp-stories-effect', ok: true, lack: '', normal: '+6⚡ · +6 XP' }
+                ];
+                defs.forEach(d => {
+                    let btn = document.getElementById(d.btn);
+                    let effectEl = document.getElementById(d.effect);
+                    if (!btn) return;
+                    let remain = Math.ceil(((this.campCooldowns[d.mode] || 0) - now) / 1000);
+                    let onCooldown = remain > 0;
+                    let disabled = !d.ok || onCooldown;
+                    btn.disabled = disabled;
+                    if (effectEl) {
+                        effectEl.innerText = onCooldown ? `⏳ Восстановится через ${remain}с` : (!d.ok ? `🚫 ${d.lack}` : d.normal);
+                        effectEl.classList.toggle('no-wrap', onCooldown);
+                    }
+                });
+            },
+            chooseCamp(mode) {
+                let now = Date.now();
+                if ((this.campCooldowns[mode] || 0) > now) { Sound.play('hit'); return; }
                 let currentHazard = this.getHazard();
                 let biomeHazard = DB.biomes[this.p.currentBiome].hazard;
-                if (biomeHazard && currentHazard > 0) {
-                    let hazardHeal = Math.min(currentHazard, 15 + Math.floor(Math.random() * 10));
-                    this.setHazard(currentHazard - hazardHeal);
-                    this.log(`${biomeHazard.icon} Привал снижает ${biomeHazard.label.toLowerCase()}: -${hazardHeal}% (осталось ${this.getHazard()}%).`, "loot");
+
+                if (mode === 'cook') {
+                    let hasRawMeat = (this.p.inv["Сырое мясо"] || 0) > 0;
+                    let foodKey = hasRawMeat ? "Сырое мясо" : Object.keys(this.p.food || {}).find(k => this.p.food[k] > 0);
+                    if (!foodKey) { this.log("🍲 Нет еды для готовки — выберите другое занятие."); return; }
+                    this.triggerQuest("rest");
+                    if (hasRawMeat) this.p.inv["Сырое мясо"]--; else this.p.food[foodKey]--;
+                    this.p.energy = Math.min(this.p.maxEnergy, this.p.energy + 14);
+                    this.p.satiety = Math.min(100, this.p.satiety + 10);
+                    this.campBuffCharges = 3;
+                    this.campCooldowns.cook = now + this.getCampCooldown('cook');
+                    this.log(`🍲 Вы приготовили ${foodKey} на костре. Энергия +14, Сытость +10. Следующие ${this.campBuffCharges} разведки будут удачливее.`, "loot");
+                } else if (mode === 'repair') {
+                    if ((this.p.inv["Запчасти"] || 0) < 2) { this.log("🔧 Не хватает Запчастей (нужно 2) — выберите другое занятие."); return; }
+                    this.triggerQuest("rest");
+                    this.p.inv["Запчасти"] -= 2;
+                    this.p.energy = Math.min(this.p.maxEnergy, this.p.energy + 10);
+                    this.p.hp = Math.min(this.p.maxHp, this.p.hp + 12);
+                    this.campCooldowns.repair = now + this.getCampCooldown('repair');
+                    if (biomeHazard && currentHazard > 0) {
+                        let hazardHeal = Math.min(currentHazard, 30 + Math.floor(Math.random() * 10));
+                        this.setHazard(currentHazard - hazardHeal);
+                        this.log(`🔧 Ремонт снаряжения у костра: Энергия +10, ОЗ +12, ${biomeHazard.label.toLowerCase()} -${hazardHeal}% (осталось ${this.getHazard()}%).`, "loot");
+                    } else {
+                        this.log(`🔧 Ремонт снаряжения у костра: Энергия +10, ОЗ +12.`, "loot");
+                    }
+                } else {
+                    this.triggerQuest("rest");
+                    this.p.energy = Math.min(this.p.maxEnergy, this.p.energy + 6);
+                    this.p.exp += 6; this.checkLvl();
+                    this.campCooldowns.stories = now + this.getCampCooldown('stories');
+                    if (biomeHazard && currentHazard > 0) {
+                        let hazardHeal = Math.min(currentHazard, 12 + Math.floor(Math.random() * 8));
+                        this.setHazard(currentHazard - hazardHeal);
+                    }
+                    this.log(`📖 Истории у костра успокаивают нервы. Энергия +6, +6 XP.`, "loot");
                 }
+                this.closeCampOverlay();
                 this.save(); this.updateUI();
             },
             
@@ -10321,6 +10558,13 @@ startCombat(isBossFight = false) {
                     this.triggerQuest("kill_any");
                     this.echoTrack("kill", 1);
                     this.echoTrack("named", 1, { name: this.combatState.name });
+                    if (this.combatState.isElite) {
+                        let eliteCaps = 15 + this.p.lvl;
+                        this.p.caps += eliteCaps;
+                        let tokenQty = 1 + Math.floor(Math.random() * 2);
+                        this.p.inv["Жетон Схрона"] = (this.p.inv["Жетон Схрона"] || 0) + tokenQty;
+                        this.log(`⚔️ Закалённый противник повержен! Бонус за элитную встречу: +${eliteCaps} 🪙 и 💠 Жетон Схрона x${tokenQty}.`, "loot");
+                    }
                 }
                 Scene.enemyDefeated(this.combatState.isBoss);
                 this.p.exp += this.combatState.exp; this.checkLvl(); this.endCombat();
@@ -10401,7 +10645,7 @@ startCombat(isBossFight = false) {
                     if (this.p.lvl > 20) {
                         step = step * Math.pow(1.045, this.p.lvl - 20);
                     }
-                    this.p.nextExp = Math.floor(this.p.nextExp + step); this.nextRestTick = null;
+                    this.p.nextExp = Math.floor(this.p.nextExp + step);
                     this.p.maxHp += 5; this.p.armor += 1; this.p.perkPoints = (this.p.perkPoints || 0) + 1;
                     this.log(`🌟 Уровень повышен: ${this.p.lvl}! Макс ОЗ +5, Броня +1, Очко перка +1.`, "system");
                     Scene.levelUpFlash(this.p.lvl);
@@ -10426,9 +10670,6 @@ startCombat(isBossFight = false) {
                         }
                     }
                 }
-                // На 50 уровне максимум привалов снижается до 3 — если к этому моменту
-                // накоплено больше, лишнее не сгорает мгновенно, а подрезается до нового лимита.
-                if (this.restUses > this.getMaxRest()) this.restUses = this.getMaxRest();
             },
 
             teleport(biomeId) {
@@ -10438,7 +10679,7 @@ startCombat(isBossFight = false) {
                 if (target.bossDefeatedId !== null && !this.p.bossesDefeated.includes(target.bossDefeatedId)) {
                     return alert(`Переход заблокирован! Сначала победите Босса локации: ${DB.biomes[target.bossDefeatedId].name}`);
                 }
-                this.p.currentBiome = biomeId; if(biomeId > (this.p.maxBiomeReached || 0)) this.p.maxBiomeReached = biomeId; this.applyBiomeTheme(biomeId); Sound.play('biome'); this.save(); this.updateUI();
+                this.p.currentBiome = biomeId; if(biomeId > (this.p.maxBiomeReached || 0)) this.p.maxBiomeReached = biomeId; this.p.exploreStreak = 0; this._lastExploreBiome = biomeId; this.applyBiomeTheme(biomeId); Sound.play('biome'); this.save(); this.updateUI();
             },
 
             // ===================== ПРОЕКТ «ЭХО ПУСТОШИ» =====================
@@ -10929,18 +11170,57 @@ startCombat(isBossFight = false) {
 
             renderRecipeBook() {
                 const el = document.getElementById('recipebook-list'); el.innerHTML = '';
+                if (!this.recipeQty) this.recipeQty = {};
                 DB.cooking.forEach(recipe => {
-                    let canCraft = true;
+                    // Максимум, сколько порций можно приготовить прямо сейчас, исходя из наличных ингредиентов
+                    let maxQty = Infinity;
+                    Object.entries(recipe.cost).forEach(([res, count]) => {
+                        let have = this.p.inv[res] || 0;
+                        maxQty = Math.min(maxQty, Math.floor(have / count));
+                    });
+                    if (!isFinite(maxQty)) maxQty = 0;
+                    let qty = this.recipeQty[recipe.id] || 1;
+                    qty = Math.max(1, Math.min(qty, Math.max(maxQty, 1)));
+                    this.recipeQty[recipe.id] = qty;
+                    let canCraft = maxQty >= 1 && qty <= maxQty;
                     let ingHtml = Object.entries(recipe.cost).map(([res, count]) => {
-                        let have = this.p.inv[res] || 0; let ok = have >= count; if (!ok) canCraft = false;
-                        return `<div class="recipe-ing ${ok?'ok':'bad'}">${ok?Icon.check():Icon.cross()} ${res}: ${have}/${count}</div>`;
+                        let need = count * qty;
+                        let have = this.p.inv[res] || 0;
+                        let ok = have >= need;
+                        return `<div class="recipe-ing ${ok?'ok':'bad'}">${ok?Icon.check():Icon.cross()} ${res}: ${have}/${need}</div>`;
                     }).join('');
+                    // Массовая готовка: стрелка количества показывается только когда рецепт можно приготовить больше одного раза подряд
+                    let qtyRowHtml = maxQty > 1 ? `
+                        <div class="recipe-qty-row">
+                            <div class="mk-stepper">
+                                <button ${qty<=1?'disabled':''} onclick="Core.recipeChangeQty('${recipe.id}', -1)">−</button>
+                                <span id="recipe-qty-${recipe.id}">${qty}</span>
+                                <button ${qty>=maxQty?'disabled':''} onclick="Core.recipeChangeQty('${recipe.id}', 1)">+</button>
+                            </div>
+                            <span class="recipe-qty-max">макс. ${maxQty}</span>
+                        </div>` : '';
                     el.innerHTML += `<div class="recipe-entry">
                         <div class="recipe-entry-header"><span>${recipe.icon || '🍽️'} ${recipe.name}</span><span>+${recipe.heal}%</span></div>
                         ${ingHtml}
-                        <button class="recipe-craft-btn" ${canCraft?'':'disabled'} onclick="Core.craftFood('${recipe.id}')">Приготовить</button>
+                        ${qtyRowHtml}
+                        <button class="recipe-craft-btn" ${canCraft?'':'disabled'} onclick="Core.craftFood('${recipe.id}')">${qty>1?`Приготовить x${qty}`:'Приготовить'}</button>
                     </div>`;
                 });
+            },
+            // Меняет выбранное количество порций для массовой готовки конкретного рецепта
+            recipeChangeQty(id, delta) {
+                let recipe = DB.cooking.find(c => c.id === id);
+                if (!recipe) return;
+                let maxQty = Infinity;
+                Object.entries(recipe.cost).forEach(([res, count]) => {
+                    let have = this.p.inv[res] || 0;
+                    maxQty = Math.min(maxQty, Math.floor(have / count));
+                });
+                if (!isFinite(maxQty)) maxQty = 0;
+                if (!this.recipeQty) this.recipeQty = {};
+                let cur = this.recipeQty[id] || 1;
+                this.recipeQty[id] = Math.max(1, Math.min(Math.max(maxQty, 1), cur + delta));
+                this.renderRecipeBook();
             },
 
             // === Тех-Схемы (крафт оружия и удочек) ===
@@ -11022,12 +11302,23 @@ startCombat(isBossFight = false) {
 
             craftFood(id) {
                 let recipe = DB.cooking.find(c => c.id === id);
-                for(let [res, count] of Object.entries(recipe.cost)) { if((this.p.inv[res]||0) < count) return alert("Мало ингредиентов!"); }
-                for(let [res, count] of Object.entries(recipe.cost)) { this.p.inv[res] -= count; }
-                this.p.food[recipe.name] = (this.p.food[recipe.name]||0) + 1;
+                if (!recipe) return;
+                // Массовая готовка: берём выбранное игроком количество и на всякий случай
+                // подрезаем его по факту наличных ингредиентов прямо сейчас
+                let maxQty = Infinity;
+                for (let [res, count] of Object.entries(recipe.cost)) {
+                    let have = this.p.inv[res] || 0;
+                    maxQty = Math.min(maxQty, Math.floor(have / count));
+                }
+                if (!isFinite(maxQty)) maxQty = 0;
+                let qty = Math.max(1, Math.min((this.recipeQty && this.recipeQty[id]) || 1, Math.max(maxQty, 1)));
+                if (maxQty < 1 || qty > maxQty) return alert("Мало ингредиентов!");
+                for (let [res, count] of Object.entries(recipe.cost)) { this.p.inv[res] -= count * qty; }
+                this.p.food[recipe.name] = (this.p.food[recipe.name]||0) + qty;
                 this.triggerQuest("craft_food");
+                if (this.recipeQty) this.recipeQty[id] = 1;
                 this.save(); this.updateUI(); this.renderRecipeBook();
-                this.showCraftResult(recipe.icon || "🍽️", `${Icon.check('var(--neon-green)')} Крафт успешен!`, recipe.name, `+${recipe.heal}% к сытости при употреблении`);
+                this.showCraftResult(recipe.icon || "🍽️", `${Icon.check('var(--neon-green)')} Крафт успешен!`, qty > 1 ? `${recipe.name} x${qty}` : recipe.name, `+${recipe.heal}% к сытости при употреблении`);
             },
 
             craftWeapon(id) {
@@ -11094,7 +11385,8 @@ startCombat(isBossFight = false) {
                 let baseDmg = Math.round(wpn.dmg * (1 + upLvl * 0.25) * (1 + (build.dmgMult || 0)));
                 let gadgetOwned = this.p.gadgetsOwned.includes(this.p.activeWeapon);
                 let megaOwned = this.p.megasilaOwned.includes(this.p.activeWeapon);
-                return { wpn, upLvl, build, isRanged, totalArmor, totalDodge, totalCrit, critMult, dmgMultPct, hazardResistPct, bleedPct, baseDmg, gadgetOwned, megaOwned, masteryActive: gadgetOwned && megaOwned };
+                // Мастерство оружия (гаджет + мегасила) удалено из игры — связка больше не даёт бонусов и не считается активной
+                return { wpn, upLvl, build, isRanged, totalArmor, totalDodge, totalCrit, critMult, dmgMultPct, hazardResistPct, bleedPct, baseDmg, gadgetOwned, megaOwned, masteryActive: false };
             },
 
             // Анализ реально выбранных элементов сборки → архетип (не жёсткий класс, а описание стиля игры)
@@ -11185,10 +11477,7 @@ startCombat(isBossFight = false) {
                 if (armorId === 'hazmat' && survivalCount >= 2 && ['machete', 'plasma'].includes(wId)) {
                     list.push({ icon: '☣️', name: 'РАДИОАКТИВНЫЙ СТАЛКЕР', desc: 'Костюм РХБЗ и оружие ближнего боя с эффектами позволяют выживать там, где гибнут остальные.' });
                 }
-                if (this.p.gadgetsOwned.includes(wId) && this.p.megasilaOwned.includes(wId)) {
-                    let wpn = DB.weapons.find(w => w.id === wId);
-                    list.push({ icon: '🏆', name: 'МАСТЕР ОРУЖИЯ', desc: `Гаджет и мегасила «${wpn ? wpn.name : ''}» открыты одновременно — активна синергия Мастерства (+${Math.round((DB.masteryBonusByTier[wpn && wpn.tier] || 0) * 100)}% урона).` });
-                }
+                // Синергия «Мастер оружия» (гаджет + мегасила) удалена из игры по прямому запросу — больше не отображается и ничего не даёт.
                 if (armorId === 'titan' && (this.p.armor + this.getBuildBonus().armor) >= 30) {
                     list.push({ icon: '🦾', name: 'ХОДЯЧАЯ КРЕПОСТЬ', desc: 'Титановый экзоскелет и высокая суммарная броня делают вас почти неуязвимым для физического урона.' });
                 }
@@ -11750,14 +12039,13 @@ startCombat(isBossFight = false) {
                     let btnLabel = owned ? `${Icon.check('var(--neon-green)')} Открыт`
                         : !unlocked ? `🔒 Апгрейд оружия до Ур. 5 (сейчас ${upLvl}/10)`
                         : `Открыть за ${gadget.cost} 🧬`;
-                    let masteryActive = owned && this.p.megasilaOwned.includes(wId);
+                    // Мастерство оружия (гаджет + мегасила) удалено из игры — тег больше не показывается
                     el.innerHTML += `<div class="gadget-list-card" style="opacity:${(owned || unlocked) ? 1 : 0.6}">
                         <div class="gadget-list-head">
                             <div class="gadget-list-icon">${gadget.icon}</div>
                             <div class="gadget-list-headtext">
                                 <div class="gadget-list-name">${gadget.name}</div>
                                 <div class="gadget-list-wpn">${wpn.icon} ${wpn.name} · ${wpn.tier}</div>
-                                ${masteryActive ? `<span class="mastery-tag">🏆 Мастерство активно (+${Math.round((DB.masteryBonusByTier[wpn.tier]||0)*100)}% урона)</span>` : ''}
                             </div>
                         </div>
                         <div class="gadget-list-desc">${gadget.desc}</div>
@@ -12030,7 +12318,7 @@ startCombat(isBossFight = false) {
                     let btnLabel = owned ? `${Icon.check('var(--neon-green)')} Активна`
                         : !unlocked ? `🔒 Апгрейд оружия до Ур. 10 (сейчас ${upLvl}/10)`
                         : `Открыть за ${mega.cost} 🧬`;
-                    let masteryActive = owned && this.p.gadgetsOwned.includes(wId);
+                    // Мастерство оружия (гаджет + мегасила) удалено из игры — тег больше не показывается
                     el.innerHTML += `<div class="mega-list-card" style="opacity:${(owned || unlocked) ? 1 : 0.6}">
                         <div class="mega-list-head">
                             <div class="mega-list-icon">${mega.icon}</div>
@@ -12038,7 +12326,6 @@ startCombat(isBossFight = false) {
                                 <div class="mega-list-name">${mega.name}</div>
                                 <div class="mega-list-wpn">${wpn.icon} ${wpn.name} · ${wpn.tier}</div>
                                 <span class="mega-list-passive-tag">⚡ Пассивно</span>
-                                ${masteryActive ? `<span class="mastery-tag">🏆 Мастерство активно (+${Math.round((DB.masteryBonusByTier[wpn.tier]||0)*100)}% урона)</span>` : ''}
                             </div>
                         </div>
                         <div class="mega-list-desc">${mega.desc}</div>
@@ -12470,6 +12757,13 @@ startCombat(isBossFight = false) {
                         bossBtn = `<div class="map-boss-row"><div class="map-boss-done">🏆 Босс ликвидирован</div></div>`;
                     }
 
+                    let journalEntry = (this.p.journal && this.p.journal[b.id]) || { landmarks: [] };
+                    let journalTotal = DB.landmarkNames.length;
+                    let journalDone = journalEntry.landmarks.length;
+                    let journalBadge = journalDone === journalTotal
+                        ? `<div class="map-journal-badge full">🗺️ Регион исследован</div>`
+                        : `<div class="map-journal-badge">🧭 Журнал: ${journalDone}/${journalTotal}</div>`;
+
                     mHtml += `
                         <div class="map-card ${isCurrent?'current':''} ${locked?'locked':''}" style="--map-color:${b.theme.accent}; --map-glow:${b.theme.accentSoft};">
                             <div class="map-card-header">
@@ -12477,6 +12771,7 @@ startCombat(isBossFight = false) {
                                 <div class="map-info">
                                     <div class="map-name">${title}</div>
                                     <div class="map-status">${statusText}</div>
+                                    ${journalBadge}
                                 </div>
                                 ${isCurrent ? '<div class="map-current-flag">📍 ЗДЕСЬ</div>' : ''}
                             </div>
@@ -12595,7 +12890,7 @@ startCombat(isBossFight = false) {
                                     ${Sprites.crateThumb(box.tier, box.color)}
                                     <div>
                                         <div class="direct-card-title">${box.name}</div>
-                                        <div class="direct-card-sub">Ресурсы, расходники и небольшой шанс на бонусный привал</div>
+                                        <div class="direct-card-sub">Ресурсы и расходники для похода и костра</div>
                                     </div>
                                 </div>
                                 <button class="direct-buy-btn" onclick="event.stopPropagation(); Core.buyBox(${idx})">${box.price} ${currencyIcon}</button>
@@ -13635,8 +13930,7 @@ startCombat(isBossFight = false) {
                 // уровень, крышки, ваучеры, трофеи, оружие, титулы, питомцы, квесты и т.д.
                 this.p = JSON.parse(JSON.stringify(this.defaultPlayer));
                 this.quests = JSON.parse(JSON.stringify(this.defaultQuests));
-                this.restUses = this.getMaxRest();
-                this.nextRestTick = null;
+                this.campCooldowns = { cook: 0, repair: 0, stories: 0 };
                 this.lastTick = Date.now();
                 this.satietyDecayAccum = 0;
                 this.hpRegenAccum = 0;
@@ -13799,7 +14093,7 @@ startCombat(isBossFight = false) {
                 else if (chosen.includes("🧬")) { this.p.maxHp += 10; this.p.hp = Math.min(this.p.maxHp, this.p.hp + 10); chosenIcon = "🧬"; } 
                 else if (chosen.includes("🔋")) { this.p.energy = Math.min(this.p.maxEnergy, this.p.energy + 20); chosenIcon = "🔋"; } 
                 else if (chosen.includes("Жареное")) { this.p.food["Жареное мясо крысы"] = (this.p.food["Жареное мясо крысы"]||0) + 1; chosenIcon = "🍗"; }
-                else if (chosen.includes("Привал")) { this.restUses = Math.min(this.getMaxRest(), this.restUses + 1); chosenIcon = "⛺"; }
+
                 else if (chosen.includes("Мегасила")) {
                     let g = this.grantRandomMegasila();
                     if (g) { chosen = `⚡ ${g.name}`; chosenIcon = g.icon; }
