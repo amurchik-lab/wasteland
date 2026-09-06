@@ -385,38 +385,68 @@ transform:scale(1);
         .echo-project-divider { width: 60px; height: 2px; margin: 14px auto 0; background: linear-gradient(90deg, transparent, rgba(143,217,255,0.6), transparent); position: relative; z-index: 1; }
         .echo-project-card:not(.locked) { cursor: pointer; }
         .echo-project-card:not(.locked):active { transform: scale(0.98); }
+        .echo-project-progress { margin-top: 16px; position: relative; z-index: 1; }
+        .echo-project-progress-bar { height: 6px; border-radius: 6px; background: rgba(255,255,255,0.1); overflow: hidden; }
+        .echo-project-progress-fill { height: 100%; border-radius: 6px; background: linear-gradient(90deg, #8fd9ff, #bf5af2); transition: width 0.4s ease; }
+        .echo-project-progress-label { margin-top: 7px; font-size: 9.5px; font-weight: 800; letter-spacing: 0.3px; color: var(--text-muted); }
 
-        /* ===== Экран проекта «Эхо Пустоши»: шапка, узлы-главы, панель заданий текущей главы ===== */
-        .echo-back-btn { display: flex; align-items: center; gap: 6px; width: 100%; padding: 11px 14px; margin-bottom: 12px; border-radius: 14px; border: 1.5px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.05); color: var(--text-muted); font-size: 11.5px; font-weight: 800; cursor: pointer; transition: all 0.2s ease; }
+        /* ===== Экран проекта «Эхо Пустоши»: шапка ===== */
+        .echo-back-btn { display: flex; align-items: center; gap: 6px; width: 100%; padding: 11px 14px; margin-bottom: 14px; border-radius: 14px; border: 1.5px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.05); color: var(--text-muted); font-size: 11.5px; font-weight: 800; cursor: pointer; transition: all 0.2s ease; }
         .echo-back-btn:hover { color: #fff; border-color: rgba(143,217,255,0.4); }
-        .echo-nodes-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
-        .echo-node-card { flex: 1 1 27%; min-width: 88px; position: relative; padding: 12px 8px 10px; border-radius: 16px; text-align: center; background: linear-gradient(155deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.015) 100%), rgba(14,17,26,0.88); border: 1.5px solid rgba(255,255,255,0.12); overflow: hidden; transition: all 0.2s ease; }
-        .echo-node-card.locked { opacity: 0.5; filter: grayscale(0.5); }
-        .echo-node-card.unlocked, .echo-node-card.current, .echo-node-card.completed { cursor: pointer; }
-        .echo-node-card.current { border-color: #8fd9ff; box-shadow: 0 0 22px rgba(143,217,255,0.3), inset 0 1px 0 rgba(255,255,255,0.1); }
-        .echo-node-card.completed { border-color: rgba(57,255,20,0.5); }
-        .echo-node-icon { font-size: 22px; margin-bottom: 4px; }
-        .echo-node-name { font-size: 9.5px; font-weight: 900; color: #fff; line-height: 1.25; }
-        .echo-node-tag { margin-top: 5px; font-size: 8px; font-weight: 800; letter-spacing: 0.3px; color: var(--text-muted); }
-        .echo-node-card.current .echo-node-tag { color: #8fd9ff; }
-        .echo-node-card.completed .echo-node-tag { color: var(--neon-green); }
-        .echo-chapter-panel { position: relative; padding: 18px 16px; border-radius: 20px; background: linear-gradient(165deg, rgba(20,25,40,0.9), rgba(8,10,18,0.95)); border: 1.5px solid rgba(143,217,255,0.25); box-shadow: 0 8px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06); margin-bottom: 12px; }
-        .echo-chapter-name { font-size: 15px; font-weight: 900; color: #fff; }
-        .echo-chapter-sub { font-size: 10.5px; color: #8fd9ff; font-weight: 700; margin-top: 2px; margin-bottom: 14px; }
-        .echo-obj-row { margin-bottom: 11px; }
-        .echo-obj-row:last-child { margin-bottom: 0; }
-        .echo-obj-label { display: flex; align-items: center; justify-content: space-between; font-size: 10.5px; font-weight: 700; color: var(--text-muted); margin-bottom: 5px; gap: 8px; }
-        .echo-obj-label span:first-child { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 0; }
+        .echo-back-btn:active { transform: scale(0.98); }
+
+        /* ===== Дорожка глав проекта — горизонтальная цепочка узлов со своим цветом на главу ===== */
+        .echo-track-wrap { overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; scrollbar-width: none; margin: 0 -2px 16px; padding: 0 2px; }
+        .echo-track-wrap::-webkit-scrollbar { display: none; }
+        .echo-track { position: relative; display: flex; gap: 4px; padding: 8px 4px 2px; }
+        .echo-track::before { content: ''; position: absolute; left: 30px; right: 30px; top: 32px; height: 2px; background: linear-gradient(90deg, rgba(255,255,255,0.18), rgba(255,255,255,0.05)); z-index: 0; }
+        .echo-track-node { position: relative; z-index: 1; flex: 0 0 72px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .echo-track-node.current, .echo-track-node.completed { cursor: pointer; }
+        .echo-track-node.current:active, .echo-track-node.completed:active { transform: scale(0.95); }
+        .echo-track-node-ring { position: relative; width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at 35% 30%, rgba(255,255,255,0.12), transparent 60%), rgba(14,17,26,0.95); border: 2px solid rgba(255,255,255,0.14); font-size: 22px; transition: all 0.25s ease; }
+        .echo-track-node.locked .echo-track-node-ring { filter: grayscale(0.75); opacity: 0.5; }
+        .echo-track-node.current .echo-track-node-ring { border-color: var(--node-c, #8fd9ff); box-shadow: 0 0 0 4px var(--node-glow, rgba(143,217,255,0.18)), 0 0 16px var(--node-glow, rgba(143,217,255,0.35)); animation: echoNodePulse 2.2s ease-in-out infinite; }
+        .echo-track-node.completed .echo-track-node-ring { border-color: var(--node-c, var(--neon-green)); box-shadow: 0 0 12px var(--node-glow, rgba(57,255,20,0.3)); }
+        @keyframes echoNodePulse { 0%, 100% { box-shadow: 0 0 0 4px var(--node-glow, rgba(143,217,255,0.18)), 0 0 16px var(--node-glow, rgba(143,217,255,0.35)); } 50% { box-shadow: 0 0 0 7px var(--node-glow, rgba(143,217,255,0.08)), 0 0 24px var(--node-glow, rgba(143,217,255,0.5)); } }
+        .echo-track-node-seal { position: absolute; bottom: -2px; right: -2px; width: 18px; height: 18px; border-radius: 50%; background: var(--neon-green); color: #06210a; font-size: 11px; font-weight: 900; display: flex; align-items: center; justify-content: center; border: 2px solid var(--bg-main); }
+        .echo-track-node-lock { position: absolute; bottom: -2px; right: -2px; width: 18px; height: 18px; border-radius: 50%; background: rgba(18,20,28,0.95); color: var(--text-muted); font-size: 9px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--bg-main); }
+        .echo-track-node-name { margin-top: 6px; font-size: 8.8px; font-weight: 800; color: var(--text-muted); line-height: 1.25; max-width: 68px; }
+        .echo-track-node.current .echo-track-node-name { color: #fff; }
+        .echo-track-node.completed .echo-track-node-name { color: var(--node-c, var(--neon-green)); }
+        .echo-track-node-fill-track { margin-top: 5px; width: 38px; height: 3px; border-radius: 3px; background: rgba(255,255,255,0.08); overflow: hidden; }
+        .echo-track-node-fill { height: 100%; border-radius: 3px; background: var(--node-c, #8fd9ff); transition: width 0.4s ease; }
+
+        /* ===== Панель заданий текущей главы — цвет подстраивается под тему биома главы ===== */
+        .echo-chapter-panel { position: relative; padding: 18px 16px; border-radius: 20px; background: linear-gradient(165deg, rgba(20,25,40,0.9), rgba(8,10,18,0.95)); border: 1.5px solid var(--map-color, rgba(143,217,255,0.25)); box-shadow: 0 8px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06), 0 0 26px var(--map-glow, transparent); margin-bottom: 12px; transition: border-color 0.4s ease, box-shadow 0.4s ease; }
+        .echo-chapter-head { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+        .echo-chapter-icon-badge { width: 44px; height: 44px; flex-shrink: 0; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 21px; background: rgba(255,255,255,0.06); border: 1.5px solid var(--map-color, rgba(255,255,255,0.2)); box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 0 10px var(--map-glow, transparent); }
+        .echo-chapter-titles { flex: 1; min-width: 0; }
+        .echo-chapter-name { font-size: 15px; font-weight: 900; color: #fff; line-height: 1.25; }
+        .echo-chapter-sub { font-size: 10.5px; color: var(--map-color, #8fd9ff); font-weight: 700; margin-top: 2px; }
+        .echo-chapter-count { flex-shrink: 0; font-size: 9px; font-weight: 900; letter-spacing: 0.3px; color: var(--text-muted); background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); padding: 5px 9px; border-radius: 20px; white-space: nowrap; }
+        .echo-obj-list { display: flex; flex-direction: column; gap: 9px; }
+        .echo-obj-row { position: relative; display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); transition: all 0.3s ease; }
+        .echo-obj-row.done { background: rgba(57,255,20,0.07); border-color: rgba(57,255,20,0.25); }
+        .echo-obj-icon { flex-shrink: 0; width: 28px; height: 28px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 14px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); }
+        .echo-obj-row.done .echo-obj-icon { background: rgba(57,255,20,0.14); border-color: rgba(57,255,20,0.4); }
+        .echo-obj-body { flex: 1; min-width: 0; }
+        .echo-obj-label { display: flex; align-items: center; justify-content: space-between; font-size: 10.5px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; gap: 8px; }
+        .echo-obj-label span:first-child { flex: 1; min-width: 0; }
         .echo-obj-label .echo-obj-frac { flex-shrink: 0; font-weight: 900; color: #fff; }
         .echo-obj-row.done .echo-obj-label { color: var(--neon-green); }
-        .echo-obj-row.done .echo-obj-label .echo-obj-frac { color: var(--neon-green); }
         .echo-obj-bar { height: 7px; border-radius: 6px; background: rgba(255,255,255,0.08); overflow: hidden; }
-        .echo-obj-bar-fill { height: 100%; border-radius: 6px; background: linear-gradient(90deg, #8fd9ff, #bf5af2); transition: width 0.4s ease; }
+        .echo-obj-bar-fill { height: 100%; border-radius: 6px; background: linear-gradient(90deg, var(--map-color, #8fd9ff), #bf5af2); transition: width 0.4s ease; }
         .echo-obj-row.done .echo-obj-bar-fill { background: linear-gradient(90deg, var(--neon-green), #39ff14); }
+        .echo-obj-check { flex-shrink: 0; width: 20px; height: 20px; border-radius: 50%; background: var(--neon-green); color: #06210a; font-size: 12px; font-weight: 900; display: flex; align-items: center; justify-content: center; }
+
+        /* ===== Вызов босса главы / переход к ней ===== */
         .echo-boss-row { margin-top: 14px; }
-        .echo-boss-btn { width: 100%; padding: 12px 12px; border-radius: 14px; font-size: 12px; font-weight: 900; border: none; cursor: pointer; color: #fff; background: linear-gradient(135deg, #ff2a5f, #bf5af2); box-shadow: 0 4px 18px rgba(191,90,242,0.4), inset 0 1px 0 rgba(255,255,255,0.25); animation: echoPulse 2s ease-in-out infinite; }
-        .echo-boss-locked { text-align: center; font-size: 10.5px; font-weight: 700; color: var(--text-muted); background: rgba(255,255,255,0.04); border: 1px dashed rgba(255,255,255,0.14); border-radius: 14px; padding: 11px 12px; }
-        .echo-boss-done { text-align: center; font-size: 11px; font-weight: 800; color: var(--neon-green); background: rgba(57,255,20,0.08); border: 1px solid rgba(57,255,20,0.3); border-radius: 14px; padding: 11px 12px; }
+        .echo-boss-btn { width: 100%; padding: 13px 12px; border-radius: 16px; font-size: 12px; font-weight: 900; border: none; cursor: pointer; color: #fff; background: linear-gradient(135deg, #ff2a5f, #bf5af2); box-shadow: 0 4px 18px rgba(191,90,242,0.4), inset 0 1px 0 rgba(255,255,255,0.25); animation: echoPulse 2s ease-in-out infinite; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .echo-boss-btn:active { transform: scale(0.97); }
+        .echo-boss-locked { text-align: center; font-size: 10.5px; font-weight: 700; color: var(--text-muted); background: rgba(255,255,255,0.04); border: 1px dashed rgba(255,255,255,0.16); border-radius: 16px; padding: 12px 14px; }
+        .echo-boss-done { text-align: center; font-size: 11px; font-weight: 800; color: var(--neon-green); background: rgba(57,255,20,0.08); border: 1px solid rgba(57,255,20,0.3); border-radius: 16px; padding: 12px 14px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .echo-goto-btn { width: 100%; padding: 12px; border-radius: 16px; font-size: 11.5px; font-weight: 900; border: none; cursor: pointer; color: #06210a; background: var(--map-color, var(--neon-green)); box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), 0 0 16px var(--map-glow, transparent); display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .echo-goto-btn:active { transform: scale(0.97); }
         .echo-finale-banner { text-align: center; font-size: 10.5px; font-weight: 700; color: #8fd9ff; background: rgba(143,217,255,0.08); border: 1px solid rgba(143,217,255,0.3); border-radius: 16px; padding: 12px 14px; margin-bottom: 12px; line-height: 1.5; }
 
         /* ===== Полноэкранный рассказ проекта «Эхо Пустоши» (интро/аутро глав) ===== */
@@ -10382,6 +10412,25 @@ startCombat(isBossFight = false) {
             echoChapterCount() {
                 return DB.biomes.filter(b => b.isEcho).length;
             },
+            // Считает общий процент выполнения главы проекта «Эхо Пустоши» усреднением прогресса
+            // по всем её заданиям (kill/damage/namedkill/explore/levels/boss) — используется и в
+            // мини-полоске узла на дорожке глав, и при желании где-либо ещё, чтобы не дублировать
+            // расчёт в нескольких местах разметки.
+            echoChapterPct(biome, prog) {
+                if (!biome || !prog || !Array.isArray(biome.objectives) || !biome.objectives.length) return 0;
+                let total = 0;
+                biome.objectives.forEach(o => {
+                    if (o.kind === "boss") { total += prog.bossDefeated ? 1 : 0; return; }
+                    let cur = 0;
+                    if (o.kind === "kill") cur = prog.kills;
+                    else if (o.kind === "damage") cur = prog.damage;
+                    else if (o.kind === "namedkill") cur = prog.named;
+                    else if (o.kind === "explore") cur = prog.fragments;
+                    else if (o.kind === "levels") cur = prog.levels;
+                    total += Math.min(1, (cur || 0) / o.target);
+                });
+                return Math.round((total / biome.objectives.length) * 100);
+            },
             ensureEchoState() {
                 if(!this.p.echo || !Array.isArray(this.p.echo.progress) || this.p.echo.progress.length < this.echoChapterCount()) {
                     this.p.echo = { active: false, chapter: 0, lastBiome: this.p.currentBiome || 0, started: false, completedAll: false, progress: Array.from({ length: this.echoChapterCount() }, () => ({ kills: 0, damage: 0, named: 0, fragments: 0, levels: 0, startLvl: null, bossDefeated: false, completed: false, storySeenIntro: false, storySeenOutro: false })) };
@@ -12228,38 +12277,53 @@ startCombat(isBossFight = false) {
                 if (this.p.echo && this.p.echo.active) {
                     mHtml += `<button class="echo-back-btn" onclick="Core.leaveEchoProject()">← Вернуться на карту Пустоши</button>`;
 
-                    mHtml += `<div class="echo-nodes-row">`;
+                    mHtml += `<div class="echo-track-wrap"><div class="echo-track">`;
                     for (let i = 0; i < this.echoChapterCount(); i++) {
                         let nb = DB.biomes[11 + i];
                         let nprog = this.p.echo.progress[i];
                         let status = nprog.completed ? 'completed' : (i === this.p.echo.chapter ? 'current' : 'locked');
-                        let tag = status === 'completed' ? '🏆 Пройдено' : (status === 'current' ? '📍 Сейчас' : '🔒 Впереди');
                         let nameParts = nb.name.split(' ');
                         let icon = nameParts[0];
                         let title = nameParts.slice(1).join(' ');
-                        mHtml += `<div class="echo-node-card ${status}" ${status !== 'locked' ? `onclick="Core.echoTeleport(${nb.id})"` : ''}>
-                            <div class="echo-node-icon">${icon}</div>
-                            <div class="echo-node-name">${title}</div>
-                            <div class="echo-node-tag">${tag}</div>
+                        let pct = this.echoChapterPct(nb, nprog);
+                        let badge = status === 'completed' ? `<div class="echo-track-node-seal">✓</div>` : (status === 'locked' ? `<div class="echo-track-node-lock">🔒</div>` : '');
+                        mHtml += `<div class="echo-track-node ${status}" style="--node-c:${nb.theme.accent}; --node-glow:${nb.theme.accentSoft};" ${status !== 'locked' ? `onclick="Core.echoTeleport(${nb.id})"` : ''}>
+                            <div class="echo-track-node-ring">${icon}${badge}</div>
+                            <div class="echo-track-node-name">${title}</div>
+                            <div class="echo-track-node-fill-track"><div class="echo-track-node-fill" style="width:${pct}%"></div></div>
                         </div>`;
                     }
-                    mHtml += `</div>`;
+                    mHtml += `</div></div>`;
 
                     let viewBiome = DB.biomes[this.p.currentBiome];
                     if (!viewBiome || !viewBiome.isEcho) viewBiome = DB.biomes[11 + this.p.echo.chapter];
                     let viewIdx = viewBiome.echoIdx;
                     let vprog = this.p.echo.progress[viewIdx];
+                    let vNameParts = viewBiome.name.split(' ');
+
+                    mHtml += `<div style="--map-color:${viewBiome.theme.accent}; --map-glow:${viewBiome.theme.accentSoft};">`;
 
                     mHtml += `<div class="echo-chapter-panel">
-                        <div class="echo-chapter-name">${viewBiome.name}</div>
-                        <div class="echo-chapter-sub">${viewBiome.subtitle || ''}</div>`;
+                        <div class="echo-chapter-head">
+                            <div class="echo-chapter-icon-badge">${vNameParts[0]}</div>
+                            <div class="echo-chapter-titles">
+                                <div class="echo-chapter-name">${vNameParts.slice(1).join(' ')}</div>
+                                <div class="echo-chapter-sub">${viewBiome.subtitle || ''}</div>
+                            </div>
+                            <div class="echo-chapter-count">${viewIdx + 1}/${this.echoChapterCount()}</div>
+                        </div>
+                        <div class="echo-obj-list">`;
 
                     viewBiome.objectives.forEach(o => {
                         if (o.kind === 'boss') {
                             let done = vprog.bossDefeated;
                             mHtml += `<div class="echo-obj-row ${done ? 'done' : ''}">
-                                <div class="echo-obj-label"><span>${o.icon} ${o.label}</span><span class="echo-obj-frac">${done ? '✓' : '—'}</span></div>
-                                <div class="echo-obj-bar"><div class="echo-obj-bar-fill" style="width:${done ? 100 : 0}%"></div></div>
+                                <div class="echo-obj-icon">${o.icon}</div>
+                                <div class="echo-obj-body">
+                                    <div class="echo-obj-label"><span>${o.label}</span></div>
+                                    <div class="echo-obj-bar"><div class="echo-obj-bar-fill" style="width:${done ? 100 : 0}%"></div></div>
+                                </div>
+                                ${done ? `<div class="echo-obj-check">✓</div>` : ''}
                             </div>`;
                             return;
                         }
@@ -12273,21 +12337,29 @@ startCombat(isBossFight = false) {
                         let pct = Math.min(100, Math.round((shown / tgt) * 100));
                         let done = shown >= tgt;
                         mHtml += `<div class="echo-obj-row ${done ? 'done' : ''}">
-                            <div class="echo-obj-label"><span>${o.icon} ${o.label}</span><span class="echo-obj-frac">${shown.toLocaleString()}/${tgt.toLocaleString()}</span></div>
-                            <div class="echo-obj-bar"><div class="echo-obj-bar-fill" style="width:${pct}%"></div></div>
+                            <div class="echo-obj-icon">${o.icon}</div>
+                            <div class="echo-obj-body">
+                                <div class="echo-obj-label"><span>${o.label}</span>${done ? '' : `<span class="echo-obj-frac">${shown.toLocaleString()}/${tgt.toLocaleString()}</span>`}</div>
+                                <div class="echo-obj-bar"><div class="echo-obj-bar-fill" style="width:${pct}%"></div></div>
+                            </div>
+                            ${done ? `<div class="echo-obj-check">✓</div>` : ''}
                         </div>`;
                     });
-                    mHtml += `</div>`;
+                    mHtml += `</div></div>`;
 
                     if (vprog.completed) {
-                        mHtml += `<div class="map-boss-row"><div class="map-boss-done">🏆 Глава завершена</div></div>`;
+                        mHtml += `<div class="echo-boss-row"><div class="echo-boss-done">🏆 Глава завершена</div></div>`;
                     } else if (vprog.bossDefeated) {
-                        mHtml += `<div class="map-boss-row"><div class="map-boss-done">🏆 Босс ликвидирован</div></div>`;
+                        mHtml += `<div class="echo-boss-row"><div class="echo-boss-done">🏆 Босс ликвидирован</div></div>`;
                     } else if (this.p.currentBiome === viewBiome.id && this.echoNonBossObjectivesDone(viewIdx) && !this.combatState) {
-                        mHtml += `<div class="map-boss-row"><button class="map-boss-btn" onclick="Core.startCombat(true)">👁️ Вызвать ${viewBiome.boss.name}</button></div>`;
+                        mHtml += `<div class="echo-boss-row"><button class="echo-boss-btn" onclick="Core.startCombat(true)">👁️ Вызвать ${viewBiome.boss.name}</button></div>`;
                     } else if (this.p.currentBiome !== viewBiome.id) {
-                        mHtml += `<div class="map-boss-row"><button class="map-btn-pill go" onclick="Core.echoTeleport(${viewBiome.id})">🚀 Перейти сюда</button></div>`;
+                        mHtml += `<div class="echo-boss-row"><button class="echo-goto-btn" onclick="Core.echoTeleport(${viewBiome.id})">🚀 Перейти сюда</button></div>`;
+                    } else {
+                        mHtml += `<div class="echo-boss-row"><div class="echo-boss-locked">🔒 Выполните задания главы, чтобы вызвать босса</div></div>`;
                     }
+
+                    mHtml += `</div>`;
 
                     el.innerHTML = mHtml;
                     return;
@@ -12341,6 +12413,14 @@ startCombat(isBossFight = false) {
                     const sub = echoDone
                         ? "Проект пройден полностью — можно вернуться и перечитать сюжет"
                         : (this.p.echo && this.p.echo.started ? "Расследование продолжается — нажмите, чтобы вернуться" : "Новая глава истории Пустоши открыта");
+                    const chapterTotal = this.echoChapterCount();
+                    const chapterDone = this.p.echo && Array.isArray(this.p.echo.progress) ? this.p.echo.progress.filter(pr => pr.completed).length : 0;
+                    const progressHtml = (this.p.echo && this.p.echo.started && !echoDone)
+                        ? `<div class="echo-project-progress">
+                                <div class="echo-project-progress-bar"><div class="echo-project-progress-fill" style="width:${Math.round((chapterDone / chapterTotal) * 100)}%"></div></div>
+                                <div class="echo-project-progress-label">Глава ${this.p.echo.chapter + 1} из ${chapterTotal} · пройдено ${chapterDone}/${chapterTotal}</div>
+                           </div>`
+                        : '';
                     mHtml += `
                         <div class="echo-project-card" onclick="Core.enterEchoProject()">
                             <div class="echo-project-shimmer"></div>
@@ -12350,6 +12430,7 @@ startCombat(isBossFight = false) {
                             <div class="echo-project-sub">${sub}</div>
                             <div class="echo-project-divider"></div>
                             <div class="echo-project-desc">За гранью Цитадели Омега пробуждается нечто древнее и куда более значительное. Источник сигнала найден — нажмите, чтобы войти.</div>
+                            ${progressHtml}
                         </div>`;
                 } else {
                     mHtml += `
