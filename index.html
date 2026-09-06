@@ -395,52 +395,90 @@ transform:scale(1);
         .echo-back-btn:hover { color: #fff; border-color: rgba(143,217,255,0.4); }
         .echo-back-btn:active { transform: scale(0.98); }
 
-        /* ===== Дорожка глав проекта — горизонтальная цепочка узлов со своим цветом на главу ===== */
-        .echo-track-wrap { overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; scrollbar-width: none; margin: 0 -2px 16px; padding: 0 2px; }
-        .echo-track-wrap::-webkit-scrollbar { display: none; }
-        .echo-track { position: relative; display: flex; gap: 4px; padding: 8px 4px 2px; }
-        .echo-track::before { content: ''; position: absolute; left: 30px; right: 30px; top: 32px; height: 2px; background: linear-gradient(90deg, rgba(255,255,255,0.18), rgba(255,255,255,0.05)); z-index: 0; }
-        .echo-track-node { position: relative; z-index: 1; flex: 0 0 72px; display: flex; flex-direction: column; align-items: center; text-align: center; }
-        .echo-track-node.current, .echo-track-node.completed { cursor: pointer; }
-        .echo-track-node.current:active, .echo-track-node.completed:active { transform: scale(0.95); }
-        .echo-track-node-ring { position: relative; width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at 35% 30%, rgba(255,255,255,0.12), transparent 60%), rgba(14,17,26,0.95); border: 2px solid rgba(255,255,255,0.14); font-size: 22px; transition: all 0.25s ease; }
-        .echo-track-node.locked .echo-track-node-ring { filter: grayscale(0.75); opacity: 0.5; }
-        .echo-track-node.current .echo-track-node-ring { border-color: var(--node-c, #8fd9ff); box-shadow: 0 0 0 4px var(--node-glow, rgba(143,217,255,0.18)), 0 0 16px var(--node-glow, rgba(143,217,255,0.35)); animation: echoNodePulse 2.2s ease-in-out infinite; }
-        .echo-track-node.completed .echo-track-node-ring { border-color: var(--node-c, var(--neon-green)); box-shadow: 0 0 12px var(--node-glow, rgba(57,255,20,0.3)); }
-        @keyframes echoNodePulse { 0%, 100% { box-shadow: 0 0 0 4px var(--node-glow, rgba(143,217,255,0.18)), 0 0 16px var(--node-glow, rgba(143,217,255,0.35)); } 50% { box-shadow: 0 0 0 7px var(--node-glow, rgba(143,217,255,0.08)), 0 0 24px var(--node-glow, rgba(143,217,255,0.5)); } }
-        .echo-track-node-seal { position: absolute; bottom: -2px; right: -2px; width: 18px; height: 18px; border-radius: 50%; background: var(--neon-green); color: #06210a; font-size: 11px; font-weight: 900; display: flex; align-items: center; justify-content: center; border: 2px solid var(--bg-main); }
-        .echo-track-node-lock { position: absolute; bottom: -2px; right: -2px; width: 18px; height: 18px; border-radius: 50%; background: rgba(18,20,28,0.95); color: var(--text-muted); font-size: 9px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--bg-main); }
-        .echo-track-node-name { margin-top: 6px; font-size: 8.8px; font-weight: 800; color: var(--text-muted); line-height: 1.25; max-width: 68px; }
-        .echo-track-node.current .echo-track-node-name { color: #fff; }
-        .echo-track-node.completed .echo-track-node-name { color: var(--node-c, var(--neon-green)); }
-        .echo-track-node-fill-track { margin-top: 5px; width: 38px; height: 3px; border-radius: 3px; background: rgba(255,255,255,0.08); overflow: hidden; }
-        .echo-track-node-fill { height: 100%; border-radius: 3px; background: var(--node-c, #8fd9ff); transition: width 0.4s ease; }
+        /* ===== Карточка текущей главы проекта — тот же формат, что у обычных карточек биомов на карте,
+           только с фирменными штрихами проекта (вращающийся блик, номер главы, полоса прогресса главы) ===== */
+        .echo-current-card {
+            position: relative; cursor: pointer; overflow: hidden;
+            background: linear-gradient(145deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%), rgba(16, 18, 28, 0.85);
+            border: 1.5px solid var(--map-color, rgba(255,255,255,0.2));
+            border-radius: 18px;
+            padding: 14px 16px;
+            margin-bottom: 6px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 6px 18px rgba(0,0,0,0.35), 0 0 20px var(--map-glow, transparent);
+            transition: all 0.3s ease;
+        }
+        .echo-current-card:active { transform: scale(0.98); }
+        .echo-current-card::before {
+            content: ''; position: absolute; inset: 0; pointer-events: none;
+            background: radial-gradient(circle at 100% 0%, var(--map-color, transparent) 0%, transparent 60%);
+            opacity: 0.18;
+        }
+        .echo-current-shine {
+            position: absolute; inset: -50%; pointer-events: none; opacity: 0.55;
+            background: conic-gradient(from 0deg, transparent, var(--map-glow, rgba(143,217,255,0.2)), transparent 35%);
+            animation: echoRotate 10s linear infinite;
+        }
+        .echo-current-header { position: relative; z-index: 1; display: flex; align-items: center; gap: 12px; }
+        .echo-current-icon {
+            position: relative; width: 46px; height: 46px; flex-shrink: 0; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center; font-size: 22px;
+            background: linear-gradient(150deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02));
+            border: 1.5px solid var(--map-color, rgba(255,255,255,0.2));
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 0 10px var(--map-glow, transparent);
+        }
+        .echo-current-icon-num {
+            position: absolute; top: -6px; left: -6px; width: 17px; height: 17px; border-radius: 6px;
+            background: var(--map-color, #8fd9ff); color: #06210a; font-size: 9px; font-weight: 900;
+            display: flex; align-items: center; justify-content: center; border: 2px solid var(--bg-main);
+        }
+        .echo-current-info { flex: 1; min-width: 0; }
+        .echo-current-name { font-size: 14px; font-weight: 800; color: #fff; }
+        .echo-current-status { font-size: 10.5px; font-weight: 700; color: var(--map-color, #8fd9ff); margin-top: 3px; }
+        .echo-current-flag {
+            flex-shrink: 0; font-size: 9px; font-weight: 900; letter-spacing: 0.3px; white-space: nowrap;
+            color: var(--map-color, #8fd9ff);
+            background: rgba(255,255,255,0.06);
+            border: 1px solid var(--map-color, rgba(255,255,255,0.3));
+            padding: 5px 9px; border-radius: 20px;
+        }
+        .echo-current-progress { position: relative; z-index: 1; margin-top: 12px; }
+        .echo-current-progress-bar { height: 6px; border-radius: 6px; background: rgba(255,255,255,0.08); overflow: hidden; }
+        .echo-current-progress-fill { height: 100%; border-radius: 6px; background: linear-gradient(90deg, var(--map-color, #8fd9ff), #bf5af2); transition: width 0.4s ease; }
+        .echo-current-progress-label { margin-top: 6px; font-size: 9px; font-weight: 800; color: var(--text-muted); }
 
-        /* ===== Панель заданий текущей главы — цвет подстраивается под тему биома главы ===== */
-        .echo-chapter-panel { position: relative; padding: 18px 16px; border-radius: 20px; background: linear-gradient(165deg, rgba(20,25,40,0.9), rgba(8,10,18,0.95)); border: 1.5px solid var(--map-color, rgba(143,217,255,0.25)); box-shadow: 0 8px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06), 0 0 26px var(--map-glow, transparent); margin-bottom: 12px; transition: border-color 0.4s ease, box-shadow 0.4s ease; }
-        .echo-chapter-head { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
-        .echo-chapter-icon-badge { width: 44px; height: 44px; flex-shrink: 0; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 21px; background: rgba(255,255,255,0.06); border: 1.5px solid var(--map-color, rgba(255,255,255,0.2)); box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 0 10px var(--map-glow, transparent); }
+        /* ===== Индикатор общего пути по проекту — точки, без раскрытия названий будущих глав ===== */
+        .echo-progress-dots { display: flex; align-items: center; justify-content: center; gap: 7px; margin: 12px 0 16px; }
+        .echo-progress-dot { width: 8px; height: 8px; border-radius: 3px; background: rgba(255,255,255,0.12); transition: all 0.3s ease; }
+        .echo-progress-dot.completed { background: var(--neon-green); box-shadow: 0 0 6px rgba(57,255,20,0.5); }
+        .echo-progress-dot.current { width: 20px; border-radius: 4px; background: var(--dot-c, #8fd9ff); box-shadow: 0 0 8px var(--dot-glow, rgba(143,217,255,0.6)); animation: echoDotPulse 1.8s ease-in-out infinite; }
+        .echo-progress-dot.locked { background: rgba(255,255,255,0.08); }
+        @keyframes echoDotPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+        /* ===== Панель заданий текущей главы — компактная, лёгкий акцент цвета главы, без давления на глаза ===== */
+        .echo-chapter-panel { position: relative; padding: 13px 13px; border-radius: 16px; background: linear-gradient(165deg, rgba(20,25,40,0.85), rgba(8,10,18,0.92)); border: 1px solid var(--map-color, rgba(143,217,255,0.2)); box-shadow: 0 4px 16px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05), 0 0 10px var(--map-glow, transparent); margin-bottom: 10px; transition: border-color 0.4s ease, box-shadow 0.4s ease; }
+        .echo-chapter-head { display: flex; align-items: center; gap: 9px; margin-bottom: 11px; }
+        .echo-chapter-icon-badge { width: 34px; height: 34px; flex-shrink: 0; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 16px; background: rgba(255,255,255,0.05); border: 1px solid var(--map-color, rgba(255,255,255,0.18)); box-shadow: inset 0 1px 0 rgba(255,255,255,0.16); }
         .echo-chapter-titles { flex: 1; min-width: 0; }
-        .echo-chapter-name { font-size: 15px; font-weight: 900; color: #fff; line-height: 1.25; }
-        .echo-chapter-sub { font-size: 10.5px; color: var(--map-color, #8fd9ff); font-weight: 700; margin-top: 2px; }
-        .echo-chapter-count { flex-shrink: 0; font-size: 9px; font-weight: 900; letter-spacing: 0.3px; color: var(--text-muted); background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); padding: 5px 9px; border-radius: 20px; white-space: nowrap; }
-        .echo-obj-list { display: flex; flex-direction: column; gap: 9px; }
-        .echo-obj-row { position: relative; display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); transition: all 0.3s ease; }
-        .echo-obj-row.done { background: rgba(57,255,20,0.07); border-color: rgba(57,255,20,0.25); }
-        .echo-obj-icon { flex-shrink: 0; width: 28px; height: 28px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 14px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); }
-        .echo-obj-row.done .echo-obj-icon { background: rgba(57,255,20,0.14); border-color: rgba(57,255,20,0.4); }
+        .echo-chapter-name { font-size: 12.5px; font-weight: 900; color: #fff; line-height: 1.25; }
+        .echo-chapter-sub { font-size: 9px; color: var(--map-color, #8fd9ff); font-weight: 700; margin-top: 1px; }
+        .echo-chapter-count { flex-shrink: 0; font-size: 8px; font-weight: 900; letter-spacing: 0.3px; color: var(--text-muted); background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); padding: 4px 7px; border-radius: 20px; white-space: nowrap; }
+        .echo-obj-list { display: flex; flex-direction: column; gap: 6px; }
+        .echo-obj-row { position: relative; display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 11px; background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.06); transition: all 0.3s ease; }
+        .echo-obj-row.done { background: rgba(57,255,20,0.06); border-color: rgba(57,255,20,0.2); }
+        .echo-obj-icon { flex-shrink: 0; width: 22px; height: 22px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 11px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
+        .echo-obj-row.done .echo-obj-icon { background: rgba(57,255,20,0.12); border-color: rgba(57,255,20,0.35); }
         .echo-obj-body { flex: 1; min-width: 0; }
-        .echo-obj-label { display: flex; align-items: center; justify-content: space-between; font-size: 10.5px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; gap: 8px; }
+        .echo-obj-label { display: flex; align-items: center; justify-content: space-between; font-size: 9.5px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; gap: 6px; }
         .echo-obj-label span:first-child { flex: 1; min-width: 0; }
         .echo-obj-label .echo-obj-frac { flex-shrink: 0; font-weight: 900; color: #fff; }
         .echo-obj-row.done .echo-obj-label { color: var(--neon-green); }
-        .echo-obj-bar { height: 7px; border-radius: 6px; background: rgba(255,255,255,0.08); overflow: hidden; }
-        .echo-obj-bar-fill { height: 100%; border-radius: 6px; background: linear-gradient(90deg, var(--map-color, #8fd9ff), #bf5af2); transition: width 0.4s ease; }
+        .echo-obj-bar { height: 5px; border-radius: 5px; background: rgba(255,255,255,0.07); overflow: hidden; }
+        .echo-obj-bar-fill { height: 100%; border-radius: 5px; background: linear-gradient(90deg, var(--map-color, #8fd9ff), #bf5af2); transition: width 0.4s ease; }
         .echo-obj-row.done .echo-obj-bar-fill { background: linear-gradient(90deg, var(--neon-green), #39ff14); }
-        .echo-obj-check { flex-shrink: 0; width: 20px; height: 20px; border-radius: 50%; background: var(--neon-green); color: #06210a; font-size: 12px; font-weight: 900; display: flex; align-items: center; justify-content: center; }
+        .echo-obj-check { flex-shrink: 0; width: 17px; height: 17px; border-radius: 50%; background: var(--neon-green); color: #06210a; font-size: 10.5px; font-weight: 900; display: flex; align-items: center; justify-content: center; }
 
         /* ===== Вызов босса главы / переход к ней ===== */
-        .echo-boss-row { margin-top: 14px; }
+        .echo-boss-row { margin-top: 12px; }
         .echo-boss-btn { width: 100%; padding: 13px 12px; border-radius: 16px; font-size: 12px; font-weight: 900; border: none; cursor: pointer; color: #fff; background: linear-gradient(135deg, #ff2a5f, #bf5af2); box-shadow: 0 4px 18px rgba(191,90,242,0.4), inset 0 1px 0 rgba(255,255,255,0.25); animation: echoPulse 2s ease-in-out infinite; display: flex; align-items: center; justify-content: center; gap: 6px; }
         .echo-boss-btn:active { transform: scale(0.97); }
         .echo-boss-locked { text-align: center; font-size: 10.5px; font-weight: 700; color: var(--text-muted); background: rgba(255,255,255,0.04); border: 1px dashed rgba(255,255,255,0.16); border-radius: 16px; padding: 12px 14px; }
@@ -10443,7 +10481,16 @@ startCombat(isBossFight = false) {
                 // Учитываем только ТЕКУЩУЮ (незавершённую) главу — прошлые уже закрыты, будущие
                 // ещё не начаты, там считать нечего. Дальше startLvl нигде не используется —
                 // прогресс с этого момента растёт только через события левел-апа в checkLvl().
-                if (!this.p.echoLevelsMigratedV2) {
+                //
+                // ВАЖНО: это V3, а не V2. Флаг V2 относился к первой версии этой миграции, которая
+                // досчитывала прогресс ТОЛЬКО если у игрока уже была явно записана отметка startLvl —
+                // а у большинства пострадавших от бага её как раз и не было (это и было причиной
+                // бага), так что для них V2 молча ничего не досчитывала, но всё равно помечала
+                // миграцию как выполненную. В результате часть игроков так и осталась с недосчитанными
+                // "старыми" уровнями, набранными до фикса. V3 использует НОВЫЙ флаг, поэтому
+                // прогоняется ещё раз для всех — в том числе для тех, у кого V2 уже отметилась как
+                // пройденная, но реального перерасчёта не сделала.
+                if (!this.p.echoLevelsMigratedV3) {
                     if (this.p.echo.started && Array.isArray(this.p.echo.progress)) {
                         let idx = this.p.echo.chapter;
                         let prog = this.p.echo.progress[idx];
@@ -10462,6 +10509,7 @@ startCombat(isBossFight = false) {
                         }
                     }
                     this.p.echoLevelsMigratedV2 = true;
+                    this.p.echoLevelsMigratedV3 = true;
                 }
             },
 
@@ -10548,7 +10596,11 @@ startCombat(isBossFight = false) {
                 if (!prog || prog.completed) return;
                 let obj = biome.objectives.find(o => o.kind === "explore");
                 if (!obj || prog.fragments >= obj.target) return;
-                if (Math.random() < 0.22) {
+                // Шанс находки сюжетного предмета разведки (Осколки Памяти / Архивные Записи /
+                // резонансные всплески / жетоны Странников и т.д. — везде используется этот же метод)
+                // сильно урезан: было 22%, стало 7% — почти втрое реже, чтобы сбор ощущался как
+                // редкая и ценная находка, а не гарантированный побочный эффект почти каждой разведки.
+                if (Math.random() < 0.07) {
                     prog.fragments++;
                     this.p.exp += 40; this.checkLvl();
                     this.log(`${obj.icon} ${biome.fragmentFoundText || 'Найден фрагмент.'} (${prog.fragments}/${obj.target})`, "loot");
@@ -12277,23 +12329,50 @@ startCombat(isBossFight = false) {
                 if (this.p.echo && this.p.echo.active) {
                     mHtml += `<button class="echo-back-btn" onclick="Core.leaveEchoProject()">← Вернуться на карту Пустоши</button>`;
 
-                    mHtml += `<div class="echo-track-wrap"><div class="echo-track">`;
-                    for (let i = 0; i < this.echoChapterCount(); i++) {
-                        let nb = DB.biomes[11 + i];
-                        let nprog = this.p.echo.progress[i];
-                        let status = nprog.completed ? 'completed' : (i === this.p.echo.chapter ? 'current' : 'locked');
-                        let nameParts = nb.name.split(' ');
-                        let icon = nameParts[0];
-                        let title = nameParts.slice(1).join(' ');
-                        let pct = this.echoChapterPct(nb, nprog);
-                        let badge = status === 'completed' ? `<div class="echo-track-node-seal">✓</div>` : (status === 'locked' ? `<div class="echo-track-node-lock">🔒</div>` : '');
-                        mHtml += `<div class="echo-track-node ${status}" style="--node-c:${nb.theme.accent}; --node-glow:${nb.theme.accentSoft};" ${status !== 'locked' ? `onclick="Core.echoTeleport(${nb.id})"` : ''}>
-                            <div class="echo-track-node-ring">${icon}${badge}</div>
-                            <div class="echo-track-node-name">${title}</div>
-                            <div class="echo-track-node-fill-track"><div class="echo-track-node-fill" style="width:${pct}%"></div></div>
-                        </div>`;
+                    // Показываем игроку только ТЕКУЩУЮ главу — какие биомы ждут дальше, заранее
+                    // не раскрываем, чтобы не спойлерить порядок проекта. Карточка сделана в том же
+                    // формате, что у обычных карточек биомов на карте (шапка со статусом + флагом),
+                    // только с фирменными штрихами проекта: вращающийся блик, номер главы на иконке
+                    // и собственная полоса прогресса по этой главе.
+                    let curChapterIdx = this.p.echo.chapter;
+                    let curChapterBiome = DB.biomes[11 + curChapterIdx];
+                    let curChapterProg = this.p.echo.progress[curChapterIdx];
+                    let curNameParts = curChapterBiome.name.split(' ');
+                    let curIcon = curNameParts[0];
+                    let curTitle = curNameParts.slice(1).join(' ');
+                    let curPct = this.echoChapterPct(curChapterBiome, curChapterProg);
+                    let curTotal = this.echoChapterCount();
+                    let curIsHere = this.p.currentBiome === curChapterBiome.id;
+                    let curStatusText = curChapterProg.completed
+                        ? `🏆 Глава ${curChapterIdx + 1} из ${curTotal} · пройдена`
+                        : `Глава ${curChapterIdx + 1} из ${curTotal} · ${curIsHere ? 'вы здесь' : 'доступна для перехода'}`;
+                    let curFlag = curChapterProg.completed ? '🏆 ПРОЙДЕНО' : (curIsHere ? '📍 ЗДЕСЬ' : '🚀 ПЕРЕЙТИ');
+
+                    mHtml += `<div class="echo-current-card" style="--map-color:${curChapterBiome.theme.accent}; --map-glow:${curChapterBiome.theme.accentSoft};" onclick="Core.echoTeleport(${curChapterBiome.id})">
+                        <div class="echo-current-shine"></div>
+                        <div class="echo-current-header">
+                            <div class="echo-current-icon"><span class="echo-current-icon-num">${curChapterIdx + 1}</span>${curIcon}</div>
+                            <div class="echo-current-info">
+                                <div class="echo-current-name">${curTitle}</div>
+                                <div class="echo-current-status">${curStatusText}</div>
+                            </div>
+                            <div class="echo-current-flag">${curFlag}</div>
+                        </div>
+                        <div class="echo-current-progress">
+                            <div class="echo-current-progress-bar"><div class="echo-current-progress-fill" style="width:${curPct}%"></div></div>
+                            <div class="echo-current-progress-label">${curPct}% главы пройдено</div>
+                        </div>
+                    </div>`;
+
+                    let dotsTotal = this.echoChapterCount();
+                    mHtml += `<div class="echo-progress-dots">`;
+                    for (let i = 0; i < dotsTotal; i++) {
+                        let dprog = this.p.echo.progress[i];
+                        let dCls = dprog.completed ? 'completed' : (i === curChapterIdx ? 'current' : 'locked');
+                        let dStyle = i === curChapterIdx ? ` style="--dot-c:${curChapterBiome.theme.accent}; --dot-glow:${curChapterBiome.theme.accentSoft};"` : '';
+                        mHtml += `<div class="echo-progress-dot ${dCls}"${dStyle}></div>`;
                     }
-                    mHtml += `</div></div>`;
+                    mHtml += `</div>`;
 
                     let viewBiome = DB.biomes[this.p.currentBiome];
                     if (!viewBiome || !viewBiome.isEcho) viewBiome = DB.biomes[11 + this.p.echo.chapter];
