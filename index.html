@@ -10337,30 +10337,30 @@ startCombat(isBossFight = false) {
                     this.p.maxHp += 5; this.p.armor += 1; this.p.perkPoints = (this.p.perkPoints || 0) + 1;
                     this.log(`🌟 Уровень повышен: ${this.p.lvl}! Макс ОЗ +5, Броня +1, Очко перка +1.`, "system");
                     Scene.levelUpFlash(this.p.lvl);
+                    // Задание "набрать 5 уровней" проекта «Эхо Пустоши» — полностью переписано.
+                    // Раньше прогресс считался как разница между текущим уровнем и уровнем на момент
+                    // входа в главу (startLvl) — при малейшем сбое в простановке этой отметки (гонки
+                    // при загрузке, повторные входы/выходы из проекта, старые сохранения без этого
+                    // поля) счётчик замирал или обнулялся, и задание переставало засчитываться.
+                    // Теперь вместо расчёта "было/стало" считается сам ФАКТ левел-апа: пока проект
+                    // начат и текущая глава ещё не завершена, каждое повышение уровня (в ЛЮБОМ биоме
+                    // карты Пустоши, не обязательно внутри самого проекта) даёт ровно +1 к счётчику.
+                    // Это не зависит ни от какой стартовой отметки и не может "сломаться" гонкой
+                    // состояний — засчитывается прямо в момент, когда уровень действительно повышен.
+                    if (this.p.echo && this.p.echo.started && !this.p.echo.completedAll) {
+                        let idx = this.p.echo.chapter;
+                        let prog = this.p.echo.progress[idx];
+                        let biome = DB.biomes[11 + idx];
+                        if (prog && biome && !prog.completed) {
+                            let obj = biome.objectives.find(o => o.kind === "levels");
+                            let target = obj ? obj.target : 5;
+                            prog.levels = Math.min(target, (prog.levels || 0) + 1);
+                        }
+                    }
                 }
                 // На 50 уровне максимум привалов снижается до 3 — если к этому моменту
                 // накоплено больше, лишнее не сгорает мгновенно, а подрезается до нового лимита.
                 if (this.restUses > this.getMaxRest()) this.restUses = this.getMaxRest();
-                // Задание "набрать 5 уровней" проекта «Эхо Пустоши» — считаем прирост уровня
-                // относительно отметки, сделанной в момент входа в текущую главу проекта.
-                // Отслеживается, пока проект начат и текущая глава не завершена — НЕ важно, в каком
-                // биоме игрок находится и открыт ли сейчас экран проекта (раньше требовалось active,
-                // из-за чего прокачка в обычных биомах карты вообще не засчитывалась в это задание).
-                if (this.p.echo && this.p.echo.started && !this.p.echo.completedAll) {
-                    let idx = this.p.echo.chapter;
-                    let prog = this.p.echo.progress[idx];
-                    let biome = DB.biomes[11 + idx];
-                    if (prog && biome && !prog.completed) {
-                        // Та же защита, что и в ensureEchoState(): если отметка стартового уровня ещё
-                        // не проставлена, фиксируем её по минимальному уровню входа в главу (а не по
-                        // ТЕКУЩЕМУ уровню игрока) — иначе уже заработанные до этого момента уровни
-                        // задания "набрать 5 уровней" сгорели бы безвозвратно.
-                        if (prog.startLvl === null || prog.startLvl === undefined) prog.startLvl = Math.min(this.p.lvl, biome.minLvl || 100);
-                        let obj = biome.objectives.find(o => o.kind === "levels");
-                        let gained = Math.max(0, this.p.lvl - prog.startLvl);
-                        prog.levels = obj ? Math.min(obj.target, gained) : gained;
-                    }
-                }
             },
 
             teleport(biomeId) {
@@ -10386,36 +10386,33 @@ startCombat(isBossFight = false) {
                 if(!this.p.echo || !Array.isArray(this.p.echo.progress) || this.p.echo.progress.length < this.echoChapterCount()) {
                     this.p.echo = { active: false, chapter: 0, lastBiome: this.p.currentBiome || 0, started: false, completedAll: false, progress: Array.from({ length: this.echoChapterCount() }, () => ({ kills: 0, damage: 0, named: 0, fragments: 0, levels: 0, startLvl: null, bossDefeated: false, completed: false, storySeenIntro: false, storySeenOutro: false })) };
                 }
-                // Критичный фикс: если игрок уже находится ВНУТРИ проекта (active=true, например
-                // после перезагрузки страницы посреди главы или из старого сохранения, где поле
-                // startLvl ещё не существовало) — до сих пор отметка стартового уровня текущей главы
-                // могла остаться непроставленной, потому что она задавалась только в enterEchoProject(),
-                // а тот повторно не вызывается, пока игрок не выйдет из проекта и не зайдёт заново.
-                // Из-за этого прогресс задания "набрать 5 уровней" замирал на 0/5 навсегда.
-                // ВАЖНО: отметку нельзя ставить на ТЕКУЩИЙ уровень игрока — если игрок уже успел
-                // прокачаться, пока баг был жив (например, дошёл до 101 уровня), это стёрло бы уже
-                // заработанный прогресс дочиста. Вместо этого используем минимальный уровень входа
-                // в главу (одинаковый для всех глав проекта) как честную нижнюю границу отсчёта —
-                // так уже набранные уровни задним числом засчитываются, а не сгорают.
-                //
-                // ВАЖНО: раньше это условие требовало this.p.echo.active (игрок именно на экране
-                // проекта прямо сейчас). Из-за этого прокачка уровней в ЛЮБОМ обычном биоме карты
-                // Пустоши (пока игрок вышел с экрана проекта) вообще не засчитывалась в задание
-                // "набрать 5 уровней" — прогресс обновлялся только пока человек буквально сидел
-                // на экране главы. Теперь задание отслеживается, пока проект вообще начат (started)
-                // и текущая глава не завершена — не важно, в каком биоме игрок при этом качается.
-                if (this.p.echo.started && !this.p.echo.completedAll) {
-                    let idx = this.p.echo.chapter;
-                    let prog = this.p.echo.progress[idx];
-                    let biome = DB.biomes[11 + idx];
-                    if (prog && biome && !prog.completed) {
-                        if (prog.startLvl === null || prog.startLvl === undefined) prog.startLvl = Math.min(this.p.lvl, biome.minLvl || 100);
-                        // Пересчитываем счётчик сразу же, а не ждём следующего левел-апа — иначе
-                        // экран проекта успел бы на мгновение показать 0/5 даже после починки отметки.
-                        let obj = biome.objectives.find(o => o.kind === "levels");
-                        let gained = Math.max(0, this.p.lvl - prog.startLvl);
-                        prog.levels = obj ? Math.min(obj.target, gained) : gained;
+                // ОДНОРАЗОВАЯ МИГРАЦИЯ со старой (сломанной) системы отсчёта задания "набрать 5
+                // уровней" на новую, событийную (см. подробный комментарий в checkLvl() — там
+                // теперь считается сам факт левел-апа, а не разница "было/стало" от startLvl).
+                // Досчитываем один раз то, что игрок реально успел наработать по старой логике,
+                // чтобы никто не потерял уже заработанный прогресс при переходе на новую систему.
+                // Учитываем только ТЕКУЩУЮ (незавершённую) главу — прошлые уже закрыты, будущие
+                // ещё не начаты, там считать нечего. Дальше startLvl нигде не используется —
+                // прогресс с этого момента растёт только через события левел-апа в checkLvl().
+                if (!this.p.echoLevelsMigratedV2) {
+                    if (this.p.echo.started && Array.isArray(this.p.echo.progress)) {
+                        let idx = this.p.echo.chapter;
+                        let prog = this.p.echo.progress[idx];
+                        let biome = DB.biomes[11 + idx];
+                        if (prog && biome && !prog.completed) {
+                            let obj = biome.objectives.find(o => o.kind === "levels");
+                            let target = obj ? obj.target : 5;
+                            // Если отметка startLvl вообще не была проставлена (самый частый случай
+                            // бага — она попросту никогда не срабатывала), берём минимальный уровень
+                            // входа в главу проекта (обычно 100) как честную нижнюю границу отсчёта:
+                            // попасть в эту главу можно только начиная с этого уровня, так что оценка
+                            // не завышает прогресс, а лишь не даёт сгореть уже заработанным уровням.
+                            let baseline = (prog.startLvl !== null && prog.startLvl !== undefined) ? prog.startLvl : (biome.minLvl || 100);
+                            let legacyGained = Math.max(0, this.p.lvl - baseline);
+                            prog.levels = Math.min(target, Math.max(prog.levels || 0, legacyGained));
+                        }
                     }
+                    this.p.echoLevelsMigratedV2 = true;
                 }
             },
 
