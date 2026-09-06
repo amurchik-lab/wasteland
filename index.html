@@ -9179,16 +9179,7 @@ padding-top:9vh;
                 }).join('');
             },
 
-            log(msg, type = '') {
-                const box = document.getElementById('log');
-                const e = document.createElement('div'); e.className = `log-entry ${type}`; e.innerHTML = msg; box.appendChild(e);
-                // Ограничиваем журнал последними N записями — раньше записи копились в DOM без
-                // ограничения на протяжении всей сессии, и через долгую игру их накапливались
-                // сотни/тысячи, что постепенно замедляло игру (лишние DOM-узлы, reflow при скролле).
-                const MAX_LOG_ENTRIES = 60;
-                while (box.children.length > MAX_LOG_ENTRIES) box.removeChild(box.firstChild);
-                box.scrollTop = box.scrollHeight; Scene.setCaption(msg, type);
-            },
+            log(msg, type = '') { const box = document.getElementById('log'); const e = document.createElement('div'); e.className = `log-entry ${type}`; e.innerHTML = msg; box.appendChild(e); box.scrollTop = box.scrollHeight; Scene.setCaption(msg, type); },
             // Небольшая всплывающая карточка исхода разведки — для событий без выбора (находка/точка
             // интереса/опасный участок/пусто), чтобы результат читался как событие, а не как строка
             // в журнале. Дублирует log() визуально, сам закрывается через паузу.
@@ -9680,6 +9671,7 @@ padding-top:9vh;
                 Scene.findEffect(sceneFx);
                 let extra = (bonusScrap + tokenMsg).trim();
                 this.showExploreToast(toastIcon, thorough ? 'Богатая находка' : 'Находка', `${resName} · +${c} 🪙 · +${xp} XP${extra ? ' · ' + extra : ''}`, 'var(--neon-gold)');
+                this.log(`${toastIcon} ${thorough ? 'Богатая находка' : 'Находка'}: ${resName} · +${c} 🪙 · +${xp} XP${extra ? ' · ' + extra : ''}`, "loot");
                 this.p.exp += xp; this.checkLvl();
                 if (thorough) {
                     let biome = DB.biomes[this.p.currentBiome];
@@ -9743,6 +9735,7 @@ padding-top:9vh;
                 this.p.caps += c;
                 this.p.exp += 22; this.checkLvl();
                 this.showExploreToast('🧭', 'Точка интереса', `«${pool[idx]}» · +${c} 🪙 · +22 XP · Журнал ${journal.landmarks.length}/${pool.length}`, 'var(--neon-blue)');
+                this.log(`🧭 Точка интереса «${pool[idx]}»: +${c} 🪙 · +22 XP · Журнал разведчика ${journal.landmarks.length}/${pool.length}`, "loot");
                 Scene.findEffect('landmark');
                 if (journal.landmarks.length === pool.length && !journal.rewardClaimed) {
                     journal.rewardClaimed = true;
@@ -9762,10 +9755,12 @@ padding-top:9vh;
                     let gain = 8 + Math.floor(Math.random() * 10);
                     this.setHazard(Math.min(100, this.getHazard() + gain));
                     this.showExploreToast(biome.hazard.icon, 'Опасный участок', `${biome.hazard.label} +${gain}%`, 'var(--neon-red)');
+                    this.log(`${biome.hazard.icon} Опасный участок: ${biome.hazard.label} +${gain}%`, "combat-lose");
                 } else {
                     let dmg = 3 + Math.floor(Math.random() * 5);
                     this.p.hp = Math.max(1, this.p.hp - dmg);
                     this.showExploreToast('⚠️', 'Ловушка', `-${dmg} ОЗ`, 'var(--neon-red)');
+                    this.log(`⚠️ Ловушка: -${dmg} ОЗ`, "combat-lose");
                 }
             },
 
