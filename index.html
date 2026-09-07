@@ -10929,12 +10929,15 @@ startCombat(isBossFight = false) {
                 // Задания сезона/пропуска на убийства конкретным оружием или целым классом оружия —
                 // смотрим, чем игрок реально дерётся ПРЯМО СЕЙЧАС (активное оружие в момент победы).
                 let activeWpnDef = DB.weapons.find(w => w.id === this.p.activeWeapon);
-                this.triggerQuest(`kill_with_${this.p.activeWeapon}`);
-                if (activeWpnDef) this.triggerQuest(`kill_class_${activeWpnDef.class}`);
-                this.trackWeaponMastery(this.p.activeWeapon, 'kills', 1);
+                let biomeOk = this.p.currentBiome >= ((this.p.maxBiomeReached || 0) - 2);
+                if (biomeOk) {
+                    this.triggerQuest(`kill_with_${this.p.activeWeapon}`);
+                    if (activeWpnDef) this.triggerQuest(`kill_class_${activeWpnDef.class}`);
+                    this.trackWeaponMastery(this.p.activeWeapon, 'kills', 1);
+                }
                 // Мастерство: «безупречная победа» (ни разу не задет) и «мгновенная ликвидация»
                 // (враг убит первым же попаданием) — не считаются в бою с боссом биома.
-                if (!this.combatState.isBoss) {
+                if (!this.combatState.isBoss && biomeOk) {
                     if (!this.combatTookDamage) this.trackWeaponMastery(this.p.activeWeapon, 'flawless', 1);
                     if ((this.combatHitsLanded || 0) === 1) this.trackWeaponMastery(this.p.activeWeapon, 'oneshot', 1);
                 }
@@ -10942,23 +10945,27 @@ startCombat(isBossFight = false) {
                     this.p.bossesDefeated.push(this.p.currentBiome);
                     this.p.caps += this.combatState.rewardCaps;
                     this.log(`🏆 ЛЕГЕНДАРНО! Сверх-босс ${this.combatState.name} пал! Получено крышек: +${this.combatState.rewardCaps} 🪙. Опыт: +${this.combatState.exp} XP.`, "combat-win");
-                    this.triggerQuest("kill_boss");
-                    this.triggerQuest("kill_any");
-                    this.echoTrack("boss", 1);
-                    this.trackWeaponMastery(this.p.activeWeapon, 'boss', 1);
+                    if (biomeOk) {
+                        this.triggerQuest("kill_boss");
+                        this.triggerQuest("kill_any");
+                        this.echoTrack("boss", 1);
+                        this.trackWeaponMastery(this.p.activeWeapon, 'boss', 1);
+                    }
                 } else {
                     this.log(`🎉 Победа! Противник ${this.combatState.name} уничтожен. +${this.combatState.exp} XP.`, "combat-win");
-                    this.triggerQuest(`kill_${this.combatState.name}`);
-                    this.triggerQuest("kill_any");
-                    this.echoTrack("kill", 1);
-                    this.echoTrack("named", 1, { name: this.combatState.name });
+                    if (biomeOk) {
+                        this.triggerQuest(`kill_${this.combatState.name}`);
+                        this.triggerQuest("kill_any");
+                        this.echoTrack("kill", 1);
+                        this.echoTrack("named", 1, { name: this.combatState.name });
+                    }
                     if (this.combatState.isElite) {
                         let eliteCaps = 15 + this.p.lvl;
                         this.p.caps += eliteCaps;
                         let tokenQty = 1 + Math.floor(Math.random() * 2);
                         this.p.inv["Жетон Схрона"] = (this.p.inv["Жетон Схрона"] || 0) + tokenQty;
                         this.log(`⚔️ Закалённый противник повержен! Бонус за элитную встречу: +${eliteCaps} 🪙 и 💠 Жетон Схрона x${tokenQty}.`, "loot");
-                        this.trackWeaponMastery(this.p.activeWeapon, 'elite', 1);
+                        if (biomeOk) this.trackWeaponMastery(this.p.activeWeapon, 'elite', 1);
                     }
                 }
                 this.checkMasteryToast(this.p.activeWeapon);
