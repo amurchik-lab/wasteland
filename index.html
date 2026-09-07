@@ -1774,6 +1774,194 @@ transform:scale(1);
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
         }
         .weapon-btn-pill:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .weapon-actions { flex-wrap: wrap; }
+        .weapon-btn-pill.mastery {
+            background: linear-gradient(135deg, rgba(191,90,242,0.55), rgba(218,34,255,0.4));
+            color: #fff;
+            box-shadow: 0 6px 16px rgba(191,90,242,0.35), inset 0 1px 0 rgba(255,255,255,0.3);
+        }
+        .weapon-btn-pill.mastery:hover { transform: translateY(-2px); }
+        .weapon-btn-pill.mastery.maxed {
+            background: linear-gradient(135deg, #ffd23f, #ff9500);
+            color: #291900;
+        }
+
+        /* ===== Мастерство оружия: собственный визуальный язык — «диагностический терминал
+           оружия», намеренно непохожий на Пропуск Пустоши/Билд-Мастерскую (никаких плоских
+           карточек-«трек» и сплошной фиолетово-золотой заливки). Ключевые приёмы:
+             1) Вся панель подсвечивается ФИРМЕННЫМ ЦВЕТОМ САМОГО ОРУЖИЯ (--mastery-wpn-color
+                выставляется в JS на #mastery-panel), а не фиксированным фиолетовым — у
+                каждого оружия свой «терминал».
+             2) Прогресс каждой категории — не одна гладкая полоса, а СЕГМЕНТИРОВАННЫЙ
+                индикатор из стольких секций, сколько этапов в категории — сразу видно,
+                на каком именно этапе застрял прогресс.
+             3) Этапы — не строка-карточка «в стиле трека», а вертикальная ЛЕСТНИЦА с
+                соединительной шиной слева (как ветка древа умений), где награды вынесены
+                в отдельные подсвеченные чипы, а не слиты одним текстом.
+             4) Над лестницей — отдельный пунктирный блок «Как прокачать», объясняющий,
+                какое именно действие двигает прогресс по этой вкладке. ===== */
+        #mastery-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: radial-gradient(circle at 50% 15%, rgba(191,90,242,0.14), rgba(6,4,10,0.95) 68%); z-index: 5900; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 16px; backdrop-filter: blur(6px); }
+        .mastery-panel {
+            --mastery-wpn-color: var(--neon-purple);
+            --mastery-wpn-glow: rgba(191,90,242,0.5);
+            width: 100%; max-width: 380px; max-height: 84vh; position: relative;
+            display: flex; flex-direction: column; overflow: hidden;
+            padding: 16px 15px 14px;
+            background: linear-gradient(180deg, rgba(12,13,20,0.97), rgba(7,7,12,0.98));
+            border: 1px solid var(--mastery-wpn-color);
+            border-radius: 16px;
+            box-shadow: 0 0 40px var(--mastery-wpn-glow), inset 0 0 30px rgba(0,0,0,0.35);
+        }
+        /* тонкая «плата» с засечками поверх фона — читается как техническая панель, а не карточка лута */
+        .mastery-panel::before {
+            content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+            background-image:
+                linear-gradient(90deg, transparent 0, transparent calc(100% - 1px), rgba(255,255,255,0.05) 100%),
+                repeating-linear-gradient(90deg, transparent 0 23px, rgba(255,255,255,0.03) 23px 24px);
+            opacity: 0.5;
+        }
+        .mastery-panel > * { position: relative; z-index: 1; }
+        .mastery-close-btn { position: absolute; top: 10px; right: 10px; width: 30px; height: 30px; border-radius: 8px; background: rgba(255,255,255,0.07); border: 1px solid var(--mastery-wpn-color); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 2; }
+        .mastery-close-btn .mini-ico { width: 14px; height: 14px; }
+        .mastery-panel-head { display: flex; align-items: center; gap: 12px; padding-bottom: 11px; margin-bottom: 3px; }
+        .mastery-wpn-medallion {
+            flex-shrink: 0; width: 68px; height: 68px; position: relative;
+            display: flex; align-items: center; justify-content: center;
+            background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--mastery-wpn-color) 35%, transparent), rgba(10,10,16,0.9));
+            border-radius: 14px;
+            border: 1.5px solid var(--mastery-wpn-color);
+            box-shadow: 0 0 14px var(--mastery-wpn-glow), inset 0 1px 0 rgba(255,255,255,0.15);
+        }
+        .mastery-wpn-medallion::after {
+            content: ''; position: absolute; inset: -5px; border-radius: 17px;
+            border: 1px dashed var(--mastery-wpn-color); opacity: 0.55;
+        }
+        .mastery-wpn-medallion svg { width: 80%; height: 80%; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
+        .mastery-wpn-info { flex: 1; min-width: 0; }
+        .mastery-wpn-eyebrow { font-size: 9.5px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--mastery-wpn-color); font-weight: 800; font-family: monospace; }
+        .mastery-wpn-name { font-size: 15px; font-weight: 900; color: #fff; line-height: 1.25; margin-top: 2px; }
+        .mastery-wpn-overall { font-size: 10.5px; color: var(--text-muted); margin-top: 3px; }
+        .mastery-wpn-overall b { color: #fff; }
+        .mastery-scanline { height: 1px; margin: 0 0 12px; background: linear-gradient(90deg, transparent, var(--mastery-wpn-color), transparent); opacity: 0.7; }
+
+        .mastery-tabgrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px 7px; margin-bottom: 12px; overflow-x: hidden; }
+        .mastery-tabcell {
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+            padding: 10px 4px 8px; text-align: center; min-width: 0; position: relative;
+            background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.02) 60%), rgba(14,14,22,0.75);
+            border: 1px solid rgba(255,255,255,0.16);
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05);
+            color: var(--text-muted); cursor: pointer; transition: all 0.2s ease;
+        }
+        .mastery-tabcell:hover { border-color: color-mix(in srgb, var(--mastery-wpn-color) 55%, rgba(255,255,255,0.16)); color: #fff; }
+        .mastery-tabcell .mtc-icon { font-size: 17px; line-height: 1; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.6)); }
+        .mastery-tabcell .mtc-label { font-size: 9px; font-weight: 800; line-height: 1.2; word-break: break-word; white-space: normal; text-transform: uppercase; letter-spacing: 0.2px; color: #fff; }
+        .mastery-tabcell .mtc-frac { font-size: 8.5px; font-weight: 700; opacity: 0.9; font-family: monospace; color: var(--text-muted); }
+        .mastery-tabcell.active {
+            background: linear-gradient(180deg, color-mix(in srgb, var(--mastery-wpn-color) 30%, transparent), color-mix(in srgb, var(--mastery-wpn-color) 8%, transparent) 65%), rgba(14,14,22,0.9);
+            border-color: var(--mastery-wpn-color); color: #fff;
+            box-shadow: 0 0 14px var(--mastery-wpn-glow), inset 0 1px 0 rgba(255,255,255,0.12);
+        }
+        .mastery-tabcell.active .mtc-frac { color: var(--mastery-wpn-color); }
+        .mastery-tabcell.full { border-color: var(--neon-green); background: linear-gradient(180deg, rgba(57,255,20,0.14), rgba(57,255,20,0.03) 60%), rgba(14,14,22,0.75); }
+        .mastery-tabcell.full .mtc-frac { color: var(--neon-green); }
+        .mastery-tabcell.full.active { box-shadow: 0 0 14px rgba(57,255,20,0.4), inset 0 1px 0 rgba(255,255,255,0.12); }
+        .mastery-tabcell.final-cell { grid-column: 1 / -1; flex-direction: row; justify-content: center; gap: 8px; background: linear-gradient(180deg, rgba(255,183,3,0.14), rgba(255,183,3,0.03) 60%), rgba(14,14,22,0.75); border-color: rgba(255,183,3,0.5); }
+        .mastery-tabcell.final-cell .mtc-frac { color: #ffd76a; }
+        .mastery-tabcell.final-cell.active { background: linear-gradient(180deg, rgba(255,183,3,0.3), rgba(255,183,3,0.08) 65%), rgba(14,14,22,0.9); border-color: var(--neon-gold); box-shadow: 0 0 14px rgba(255,183,3,0.45), inset 0 1px 0 rgba(255,255,255,0.12); }
+
+        .mastery-body { overflow-y: auto; overflow-x: hidden; flex: 1; padding-right: 2px; }
+
+        /* Пояснение «что качать» — свёрнутая по умолчанию серая строка-аккордеон,
+           открывается по тапу (как «Необходимые ресурсы» в Тех-Схемах), чтобы не
+           отвлекать на себя внимание рядом с прогрессом. */
+        .mastery-howto { margin: 0 0 12px; }
+        .mastery-howto summary { list-style: none; cursor: pointer; font-size: 10.5px; font-weight: 800; color: var(--text-muted); display: flex; align-items: center; gap: 6px; padding: 6px 2px; user-select: none; }
+        .mastery-howto summary::-webkit-details-marker { display: none; }
+        .mastery-howto summary::after { content: '▸'; margin-left: auto; font-size: 9px; color: var(--text-muted); transition: transform 0.15s ease; }
+        .mastery-howto[open] summary::after { transform: rotate(90deg); }
+        .mastery-howto .mh-ico { flex-shrink: 0; font-size: 13px; line-height: 1; opacity: 0.8; }
+        .mastery-howto .mh-body { padding: 2px 2px 8px 21px; font-size: 10.5px; line-height: 1.45; color: var(--text-muted); }
+
+        .mastery-readout { margin-bottom: 14px; }
+        .mastery-readout-top { display: flex; justify-content: space-between; align-items: baseline; font-size: 11.5px; font-weight: 800; color: #fff; margin-bottom: 7px; gap: 8px; }
+        .mastery-readout-top span:last-child { color: var(--mastery-wpn-color); font-size: 11px; white-space: nowrap; font-family: monospace; }
+        .mastery-segbar { display: flex; gap: 3px; }
+        .mastery-seg { flex: 1; height: 9px; border-radius: 3px; background: rgba(255,255,255,0.07); overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.4); position: relative; }
+        .mastery-seg-fill { height: 100%; width: 0%; background: var(--mastery-wpn-color); transition: width 0.5s ease; }
+        .mastery-seg.claimed .mastery-seg-fill { background: var(--neon-green); width: 100%; }
+        .mastery-seg:not(:last-child)::after { content: ''; position: absolute; right: -3px; top: 0; bottom: 0; width: 3px; background: rgba(7,7,12,0.98); }
+
+        /* Лестница этапов: узлы соединены вертикальной шиной — читается как прогресс,
+           а не как список карточек товара. */
+        /* Этапы — центральная колонка карточек, каждая со «значком»-номером,
+           утопленным в верхний край карточки. Без боковой лестницы и без замков —
+           недоступный этап просто приглушён. */
+        .mastery-ladder { display: flex; flex-direction: column; align-items: center; gap: 14px; padding-top: 4px; }
+        .ladder-step { width: 100%; max-width: 260px; display: flex; flex-direction: column; align-items: center; }
+        .ladder-step-badge {
+            width: 27px; height: 27px; border-radius: 50%; z-index: 2;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px; font-weight: 900; font-family: monospace;
+            background: radial-gradient(circle at 35% 30%, rgba(255,255,255,0.14), rgba(10,10,16,0.95));
+            border: 2px solid rgba(255,255,255,0.3); color: #fff;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.12);
+            margin-bottom: -13px;
+        }
+        .ladder-step.ready .ladder-step-badge { border-color: var(--neon-gold); background: radial-gradient(circle at 35% 30%, rgba(255,183,3,0.45), rgba(30,16,4,0.95)); color: #ffd76a; box-shadow: 0 0 10px rgba(255,183,3,0.55), inset 0 1px 0 rgba(255,255,255,0.15); animation: trophyNodePulse 1.9s ease-in-out infinite; }
+        .ladder-step.claimed .ladder-step-badge { border-color: var(--neon-green); background: radial-gradient(circle at 35% 30%, rgba(57,255,20,0.35), rgba(6,20,4,0.95)); color: var(--neon-green); box-shadow: 0 0 8px rgba(57,255,20,0.4), inset 0 1px 0 rgba(255,255,255,0.1); }
+        .ladder-step.locked .ladder-step-badge { border-color: rgba(255,255,255,0.3); color: var(--text-muted); }
+        .ladder-card {
+            width: 100%; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)), rgba(16,16,24,0.75);
+            border: 1px solid rgba(255,255,255,0.18); border-radius: 14px; padding: 18px 14px 12px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05);
+        }
+        .ladder-step.ready .ladder-card { border-color: rgba(255,183,3,0.6); background: linear-gradient(180deg, rgba(255,183,3,0.16), rgba(255,183,3,0.04)), rgba(16,16,24,0.75); box-shadow: 0 3px 12px rgba(255,183,3,0.18), inset 0 1px 0 rgba(255,255,255,0.06); }
+        .ladder-step.claimed .ladder-card { border-color: rgba(57,255,20,0.32); background: linear-gradient(180deg, rgba(57,255,20,0.06), rgba(255,255,255,0.015)), rgba(16,16,24,0.6); }
+        .ladder-step.locked .ladder-card { opacity: 0.62; }
+        .ladder-target { font-size: 11px; font-weight: 800; color: #fff; }
+        .mastery-reward-row { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; }
+        .mastery-reward-chip { display: inline-flex; align-items: center; gap: 4px; background: rgba(255,215,0,0.14); border: 1px solid rgba(255,215,0,0.5); color: #ffd76a; border-radius: 20px; padding: 3px 9px 3px 7px; font-size: 9px; font-weight: 800; white-space: nowrap; box-shadow: inset 0 1px 0 rgba(255,255,255,0.08); }
+        .mastery-reward-chip .mrc-ico { font-size: 10px; }
+        .ladder-claimed-tag { font-size: 9px; font-weight: 800; letter-spacing: 0.3px; text-transform: uppercase; color: var(--neon-green); }
+        .ladder-btn {
+            width: 100%; margin-top: 2px; padding: 9px 13px; border-radius: 9px; font-weight: 800; font-size: 10.5px; letter-spacing: 0.3px; cursor: pointer;
+            border: 1px solid var(--neon-gold);
+            background: linear-gradient(135deg, #ffd23f, #ff9500);
+            color: #291900; white-space: nowrap; text-transform: uppercase;
+            box-shadow: 0 4px 12px rgba(255,183,3,0.4), inset 0 1px 0 rgba(255,255,255,0.35);
+            transition: transform 0.15s ease;
+        }
+        .ladder-btn:hover { transform: translateY(-1px); }
+
+        .mastery-final-panel { text-align: center; padding: 4px 2px 2px; }
+        .mastery-final-medallion { width: 100px; height: 100px; margin: 0 auto 10px; position: relative; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at 35% 30%, rgba(255,183,3,0.3), rgba(20,8,28,0.9)); border-radius: 20px; border: 2px solid var(--neon-gold); box-shadow: 0 0 20px rgba(255,183,3,0.4); }
+        .mastery-final-medallion::after { content: ''; position: absolute; inset: -6px; border-radius: 24px; border: 1px dashed var(--neon-gold); opacity: 0.5; }
+        .mastery-final-panel.ready .mastery-final-medallion { animation: trophyNodePulse 1.9s ease-in-out infinite; }
+        .mastery-final-medallion svg { width: 78%; height: 78%; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
+        .mastery-final-title { font-size: 16px; font-weight: 900; color: var(--neon-gold); text-shadow: 0 0 10px rgba(255,183,3,0.4); }
+        .mastery-final-desc { font-size: 10.5px; color: var(--text-muted); margin-top: 6px; line-height: 1.45; }
+        .mastery-final-gauge { margin: 12px 0; }
+        .mastery-final-statgrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin: 10px 0; text-align: left; }
+        .mastery-final-statchip { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 7px 9px; font-size: 10px; gap: 6px; }
+        .mastery-final-statchip b { color: var(--neon-purple); flex-shrink: 0; font-family: monospace; }
+        .mastery-final-statchip.done { border-color: rgba(57,255,20,0.4); background: rgba(57,255,20,0.06); }
+        .mastery-final-statchip.done b { color: var(--neon-green); }
+        .mastery-final-track { height: 10px; border-radius: 5px; background: rgba(255,255,255,0.08); overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.4); }
+        .mastery-final-fill { height: 100%; width: 0%; border-radius: 5px; background: linear-gradient(90deg, var(--mastery-wpn-color), var(--neon-gold)); transition: width 0.5s ease; }
+        .mastery-final-rewardlabel { font-size: 9.5px; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase; color: var(--text-muted); margin: 10px 0 6px; }
+        .mastery-final-rewardrow { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; margin-bottom: 12px; }
+        .mastery-reward-chip.title-chip { background: rgba(255,183,3,0.16); border-color: var(--neon-gold); color: #ffd76a; box-shadow: 0 0 8px rgba(255,183,3,0.3); }
+        .mastery-final-btn {
+            width: 100%; padding: 13px; font-size: 12.5px; border-radius: 12px; font-weight: 900; letter-spacing: 0.3px;
+            border: none; cursor: pointer; transition: all 0.25s ease;
+            background: linear-gradient(135deg, #ffd23f, #ff9500); color: #291900;
+            box-shadow: 0 6px 18px rgba(255,183,3,0.4), inset 0 1px 0 rgba(255,255,255,0.35);
+        }
+        .mastery-final-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 9px 22px rgba(255,183,3,0.5), inset 0 1px 0 rgba(255,255,255,0.35); }
+        .mastery-final-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; background: rgba(255,255,255,0.07); color: var(--text-muted); box-shadow: none; }
 
         /* ===== Карточки припасов (Еда и Ресурсы в Арсенале) — приведены к стилю карточек оружия ===== */
         .supply-card {
@@ -2207,6 +2395,12 @@ transform:scale(1);
         .title-card.unlocked { opacity:1; filter:none; cursor:pointer; }
         .title-card.equipped { border-color: var(--neon-gold); box-shadow: 0 0 14px rgba(255,183,3,0.3), inset 0 1px 0 rgba(255,255,255,0.08); }
         .title-card-icon { width:38px; height:38px; border-radius:12px; background: rgba(255,255,255,0.06); border:1.5px solid rgba(255,255,255,0.18); box-shadow: inset 0 1px 0 rgba(255,255,255,0.15); display:flex; align-items:center; justify-content:center; font-size:19px; flex-shrink:0; }
+        /* Титулы «Мастер <оружие>» показывают настоящую модель оружия (Sprites.weapon)
+           вместо эмодзи. titleIconHtml() оборачивает такую модель в .title-icon-model
+           с инлайн-размером под конкретное место использования (плашка/карточка/лог) —
+           обычные эмодзи-титулы этот класс не получают и рендерятся как раньше. */
+        .title-icon-model { display:inline-flex; align-items:center; justify-content:center; vertical-align:middle; flex-shrink:0; }
+        .title-icon-model svg { width:100%; height:100%; display:block; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.55)); }
         .title-card.unlocked .title-card-icon { border-color: rgba(255,183,3,0.5); box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), 0 0 8px rgba(255,183,3,0.25); }
         .title-card-info { flex:1; min-width:0; }
         .title-card-name { font-weight:800; font-size:12.5px; color:#fff; }
@@ -3296,6 +3490,23 @@ padding-top:9vh;
         </div>
     </div>
 
+    <div id="mastery-overlay">
+        <div class="mastery-panel" id="mastery-panel">
+            <button class="mastery-close-btn" onclick="Core.closeMastery()"><svg class="mini-ico" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5.2 5.2l9.6 9.6M14.8 5.2L5.2 14.8" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg></button>
+            <div class="mastery-panel-head">
+                <div class="mastery-wpn-medallion" id="mastery-wpn-medallion"></div>
+                <div class="mastery-wpn-info">
+                    <div class="mastery-wpn-eyebrow">Мастерство оружия</div>
+                    <div class="mastery-wpn-name" id="mastery-wpn-name"></div>
+                    <div class="mastery-wpn-overall" id="mastery-wpn-overall"></div>
+                </div>
+            </div>
+            <div class="mastery-scanline"></div>
+            <div class="mastery-tabgrid" id="mastery-tabs"></div>
+            <div class="mastery-body" id="mastery-body"></div>
+        </div>
+    </div>
+
     <div id="leaderboard-overlay">
         <div class="leaderboard-container">
             <button class="bp-overlay-close" onclick="Core.closeLeaderboard()">✕</button>
@@ -3518,7 +3729,7 @@ padding-top:9vh;
                 </button>
                 <button class="success outcome-choice-btn" onclick="Core.resolveFind('thorough')">
                     <span class="oc-btn-title">🔍 Обыскать тщательно</span>
-                    <span class="oc-btn-effect">Заметно больше добычи, но придётся задержаться — риск нахватать опасности биома</span>
+                    <span class="oc-btn-effect">Шанс на заметно больше добычи, но риск: хазард биома гарантирован, а в случае неудачи — ещё и урон, находка не достанется</span>
                 </button>
             </div>
         </div>
@@ -4191,7 +4402,7 @@ padding-top:9vh;
             </div>
             <div id="combat-actions" style="display: none; flex-direction: column; gap: 6px;">
                 <div id="combat-ability-grid" style="display: flex; flex-direction: column; gap: 6px;"></div>
-                <button id="btn-flee" class="combat-compact-btn" style="width:100%;" onclick="Core.executeFlee()">🏃 Сбежать (50%)</button>
+                <button id="btn-flee" class="combat-compact-btn" style="width:100%;" onclick="Core.executeFlee()">🏃 Сбежать (30%)</button>
             </div>
         </div>
 
@@ -4948,29 +5159,29 @@ padding-top:9vh;
             // намеренно уникальны на весь файл — карточки оружия рендерятся одновременно
             // в списке экипировки, и совпадающие id привели бы к порче отрисовки.
             weaponSets: {
-                fists: `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                fists: (id) => `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
                     <defs>
-                        <linearGradient id="wFistsSkin" x1="0" y1="0" x2="1" y2="1">
+                        <linearGradient id="wFistsSkin-${id}" x1="0" y1="0" x2="1" y2="1">
                             <stop offset="0%" stop-color="#dcb28c"/><stop offset="100%" stop-color="#a97c53"/>
                         </linearGradient>
                     </defs>
                     <g transform="rotate(-16 32 32)">
-                        <rect x="13" y="25" width="11" height="15" rx="3" fill="url(#wFistsSkin)" stroke="#6b4a2f" stroke-width="1"/>
-                        <rect x="21" y="17" width="27" height="22" rx="9" fill="url(#wFistsSkin)" stroke="#6b4a2f" stroke-width="1.4"/>
+                        <rect x="13" y="25" width="11" height="15" rx="3" fill="url(#wFistsSkin-${id})" stroke="#6b4a2f" stroke-width="1"/>
+                        <rect x="21" y="17" width="27" height="22" rx="9" fill="url(#wFistsSkin-${id})" stroke="#6b4a2f" stroke-width="1.4"/>
                         <circle cx="29" cy="21" r="4" fill="none" stroke="#9aa4b2" stroke-width="2.6"/>
                         <circle cx="37" cy="19" r="4" fill="none" stroke="#9aa4b2" stroke-width="2.6"/>
                         <circle cx="44" cy="23" r="4" fill="none" stroke="#9aa4b2" stroke-width="2.6"/>
                         <rect x="20" y="35" width="22" height="6" rx="2.5" fill="#6b4a2f"/>
                     </g>
                 </svg>`,
-                pipe: `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                pipe: (id) => `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
                     <defs>
-                        <linearGradient id="wPipeMetal" x1="0" y1="0" x2="1" y2="1">
+                        <linearGradient id="wPipeMetal-${id}" x1="0" y1="0" x2="1" y2="1">
                             <stop offset="0%" stop-color="#8a795c"/><stop offset="55%" stop-color="#4b4033"/><stop offset="100%" stop-color="#241f17"/>
                         </linearGradient>
                     </defs>
                     <g transform="rotate(-40 32 32)">
-                        <rect x="9" y="28" width="46" height="9" rx="4.5" fill="url(#wPipeMetal)" stroke="#39ff14" stroke-width="1" stroke-opacity="0.55"/>
+                        <rect x="9" y="28" width="46" height="9" rx="4.5" fill="url(#wPipeMetal-${id})" stroke="#39ff14" stroke-width="1" stroke-opacity="0.55"/>
                         <rect x="9" y="28" width="46" height="2.6" fill="#a4906c" opacity="0.5"/>
                         <ellipse cx="52" cy="32.5" rx="3.4" ry="4.5" fill="#1c1912"/>
                         <rect x="21" y="26" width="9" height="13" rx="2" fill="#1c2018" stroke="#39ff14" stroke-width="1" stroke-opacity="0.7"/>
@@ -4978,28 +5189,28 @@ padding-top:9vh;
                         <path d="M34 30 L40 29 M36 34 L42 33" stroke="#c76a2b" stroke-width="1.6" opacity="0.75"/>
                     </g>
                 </svg>`,
-                machete: `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                machete: (id) => `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
                     <defs>
-                        <linearGradient id="wMacheteBlade" x1="0" y1="0" x2="1" y2="0">
+                        <linearGradient id="wMacheteBlade-${id}" x1="0" y1="0" x2="1" y2="0">
                             <stop offset="0%" stop-color="#eef2f6"/><stop offset="60%" stop-color="#9aa7b5"/><stop offset="100%" stop-color="#57616e"/>
                         </linearGradient>
                     </defs>
                     <g transform="rotate(-42 32 32)">
-                        <path d="M13 31 L49 25 L54 32 L16 39 Z" fill="url(#wMacheteBlade)" stroke="#39ff14" stroke-width="1" stroke-opacity="0.5"/>
+                        <path d="M13 31 L49 25 L54 32 L16 39 Z" fill="url(#wMacheteBlade-${id})" stroke="#39ff14" stroke-width="1" stroke-opacity="0.5"/>
                         <path d="M49 25 L54 32 L45 30 Z" fill="#d6dde3"/>
                         <path d="M15 32 L48 27" stroke="#5b6572" stroke-width="0.8" opacity="0.6"/>
                         <rect x="5" y="32" width="13" height="8.5" rx="3" fill="#2c2118" stroke="#6b4a2f" stroke-width="1"/>
                         <path d="M7 33.4 L17 34.4 M7 36.6 L17 37.6 M7 39.2 L17 40.2" stroke="#140f0a" stroke-width="1" opacity="0.6"/>
                     </g>
                 </svg>`,
-                pistol: `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                pistol: (id) => `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
                     <defs>
-                        <linearGradient id="wPistolBody" x1="0" y1="0" x2="1" y2="1">
+                        <linearGradient id="wPistolBody-${id}" x1="0" y1="0" x2="1" y2="1">
                             <stop offset="0%" stop-color="#404b5c"/><stop offset="100%" stop-color="#1c222c"/>
                         </linearGradient>
                     </defs>
                     <g transform="rotate(-30 32 32)">
-                        <rect x="13" y="27" width="31" height="8" rx="2.6" fill="url(#wPistolBody)" stroke="#00f0ff" stroke-width="1" stroke-opacity="0.6"/>
+                        <rect x="13" y="27" width="31" height="8" rx="2.6" fill="url(#wPistolBody-${id})" stroke="#00f0ff" stroke-width="1" stroke-opacity="0.6"/>
                         <rect x="40" y="24.5" width="11" height="5" rx="1.6" fill="#232a35"/>
                         <circle cx="47" cy="27" r="1.1" fill="#00f0ff"/>
                         <path d="M17 35 L23 47 L29 47 L27 35 Z" fill="#232a35" stroke="#141820" stroke-width="0.8"/>
@@ -5007,14 +5218,14 @@ padding-top:9vh;
                         <rect x="30" y="29" width="9" height="1.6" fill="#0d3b40" opacity="0.7"/>
                     </g>
                 </svg>`,
-                revolver: `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                revolver: (id) => `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
                     <defs>
-                        <linearGradient id="wRevolverBody" x1="0" y1="0" x2="1" y2="1">
+                        <linearGradient id="wRevolverBody-${id}" x1="0" y1="0" x2="1" y2="1">
                             <stop offset="0%" stop-color="#4f5c70"/><stop offset="100%" stop-color="#1f2632"/>
                         </linearGradient>
                     </defs>
                     <g transform="rotate(-30 32 32)">
-                        <rect x="13" y="27" width="38" height="7" rx="2" fill="url(#wRevolverBody)" stroke="#00f0ff" stroke-width="1" stroke-opacity="0.6"/>
+                        <rect x="13" y="27" width="38" height="7" rx="2" fill="url(#wRevolverBody-${id})" stroke="#00f0ff" stroke-width="1" stroke-opacity="0.6"/>
                         <circle cx="27" cy="30.5" r="7.4" fill="#2a3140" stroke="#00f0ff" stroke-width="1" stroke-opacity="0.65"/>
                         <circle cx="27" cy="30.5" r="2.1" fill="#12151c"/>
                         <circle cx="22.4" cy="26.8" r="1.3" fill="#12151c"/><circle cx="31.6" cy="26.8" r="1.3" fill="#12151c"/>
@@ -5024,60 +5235,60 @@ padding-top:9vh;
                         <path d="M46 27 L52 26 L52 30 L46 31 Z" fill="#232a35"/>
                     </g>
                 </svg>`,
-                shotgun: `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                shotgun: (id) => `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
                     <defs>
-                        <linearGradient id="wShotgunWood" x1="0" y1="0" x2="1" y2="1">
+                        <linearGradient id="wShotgunWood-${id}" x1="0" y1="0" x2="1" y2="1">
                             <stop offset="0%" stop-color="#6a4830"/><stop offset="100%" stop-color="#2c1c12"/>
                         </linearGradient>
                     </defs>
                     <g transform="rotate(-30 32 32)">
                         <rect x="7" y="27" width="47" height="6.5" rx="2.6" fill="#2a2f38" stroke="#ff2a5f" stroke-width="1" stroke-opacity="0.55"/>
                         <rect x="7" y="34" width="38" height="5" rx="2.2" fill="#1c2028" stroke="#0e1116" stroke-width="0.8"/>
-                        <rect x="19" y="23.6" width="15" height="5" rx="2" fill="url(#wShotgunWood)"/>
-                        <path d="M13 33 L19 47 L27 47 L23 33 Z" fill="url(#wShotgunWood)" stroke="#1a100a" stroke-width="0.8"/>
+                        <rect x="19" y="23.6" width="15" height="5" rx="2" fill="url(#wShotgunWood-${id})"/>
+                        <path d="M13 33 L19 47 L27 47 L23 33 Z" fill="url(#wShotgunWood-${id})" stroke="#1a100a" stroke-width="0.8"/>
                         <rect x="4" y="29" width="7" height="9.5" rx="2.4" fill="#3a3f48"/>
                         <circle cx="53" cy="30.2" r="1.1" fill="#ff2a5f"/>
                     </g>
                 </svg>`,
-                assault: `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                assault: (id) => `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
                     <defs>
-                        <linearGradient id="wAssaultBody" x1="0" y1="0" x2="1" y2="1">
+                        <linearGradient id="wAssaultBody-${id}" x1="0" y1="0" x2="1" y2="1">
                             <stop offset="0%" stop-color="#4f3a28"/><stop offset="100%" stop-color="#241a10"/>
                         </linearGradient>
                     </defs>
                     <g transform="rotate(-30 32 32)">
                         <rect x="7" y="27" width="47" height="6" rx="2" fill="#2a2f38" stroke="#ff2a5f" stroke-width="1" stroke-opacity="0.55"/>
-                        <path d="M23 33 Q20.5 44 26.5 49 L32 47.6 Q27.6 40 27.6 33 Z" fill="url(#wAssaultBody)" stroke="#170f08" stroke-width="1"/>
+                        <path d="M23 33 Q20.5 44 26.5 49 L32 47.6 Q27.6 40 27.6 33 Z" fill="url(#wAssaultBody-${id})" stroke="#170f08" stroke-width="1"/>
                         <rect x="34" y="23" width="10" height="4" rx="1.5" fill="#1c2028"/>
                         <rect x="46.5" y="23.5" width="2.4" height="7" fill="#1c2028"/>
                         <path d="M7 29 L1.5 27 L1.5 33.5 L7 33.5 Z" fill="#1c2028" stroke="#0d1013" stroke-width="0.6"/>
                         <rect x="42" y="30" width="11" height="2.6" fill="#4f3a28"/>
                     </g>
                 </svg>`,
-                plasma: `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                plasma: (id) => `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
                     <defs>
-                        <linearGradient id="wPlasmaBody" x1="0" y1="0" x2="1" y2="1">
+                        <linearGradient id="wPlasmaBody-${id}" x1="0" y1="0" x2="1" y2="1">
                             <stop offset="0%" stop-color="#3a1420"/><stop offset="100%" stop-color="#180810"/>
                         </linearGradient>
-                        <radialGradient id="wPlasmaCore" cx="0.5" cy="0.5" r="0.6">
+                        <radialGradient id="wPlasmaCore-${id}" cx="0.5" cy="0.5" r="0.6">
                             <stop offset="0%" stop-color="#ffc2d6"/><stop offset="55%" stop-color="#ff2a5f"/><stop offset="100%" stop-color="#ff2a5f" stop-opacity="0"/>
                         </radialGradient>
                     </defs>
                     <g transform="rotate(-30 32 32)">
-                        <rect x="12" y="27" width="35" height="8.5" rx="3" fill="url(#wPlasmaBody)" stroke="#ff2a5f" stroke-width="1.2"/>
-                        <circle cx="23" cy="31.2" r="5.4" fill="url(#wPlasmaCore)" class="eye-glow"/>
+                        <rect x="12" y="27" width="35" height="8.5" rx="3" fill="url(#wPlasmaBody-${id})" stroke="#ff2a5f" stroke-width="1.2"/>
+                        <circle cx="23" cy="31.2" r="5.4" fill="url(#wPlasmaCore-${id})" class="eye-glow"/>
                         <rect x="42" y="28" width="11" height="6" rx="2" fill="#521a28" stroke="#ff2a5f" stroke-width="0.8" stroke-opacity="0.6"/>
                         <path d="M15 35.5 L19.5 47 L26 47 L22.5 35.5 Z" fill="#241016" stroke="#120508" stroke-width="0.8"/>
                     </g>
                 </svg>`,
-                minigun: `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                minigun: (id) => `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
                     <defs>
-                        <linearGradient id="wMinigunBody" x1="0" y1="0" x2="1" y2="1">
+                        <linearGradient id="wMinigunBody-${id}" x1="0" y1="0" x2="1" y2="1">
                             <stop offset="0%" stop-color="#7a6636"/><stop offset="100%" stop-color="#3a2f1c"/>
                         </linearGradient>
                     </defs>
                     <g transform="rotate(-26 32 32)">
-                        <rect x="9" y="25" width="17" height="15" rx="4.5" fill="url(#wMinigunBody)" stroke="#ffb703" stroke-width="1.2"/>
+                        <rect x="9" y="25" width="17" height="15" rx="4.5" fill="url(#wMinigunBody-${id})" stroke="#ffb703" stroke-width="1.2"/>
                         <rect x="26" y="27" width="24" height="2.8" fill="#241d10"/>
                         <rect x="26" y="31" width="24" height="2.8" fill="#241d10"/>
                         <rect x="26" y="35" width="24" height="2.8" fill="#241d10"/>
@@ -5087,14 +5298,14 @@ padding-top:9vh;
                         <rect x="4" y="29" width="8" height="8.5" rx="2.4" fill="#3a2f1c" stroke="#241d10" stroke-width="0.8"/>
                     </g>
                 </svg>`,
-                gauss: `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                gauss: (id) => `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
                     <defs>
-                        <linearGradient id="wGaussBody" x1="0" y1="0" x2="1" y2="1">
+                        <linearGradient id="wGaussBody-${id}" x1="0" y1="0" x2="1" y2="1">
                             <stop offset="0%" stop-color="#5b6a4a"/><stop offset="100%" stop-color="#232a1c"/>
                         </linearGradient>
                     </defs>
                     <g transform="rotate(-28 32 32)">
-                        <rect x="9" y="28" width="43" height="6.5" rx="3" fill="url(#wGaussBody)" stroke="#ffb703" stroke-width="1.2"/>
+                        <rect x="9" y="28" width="43" height="6.5" rx="3" fill="url(#wGaussBody-${id})" stroke="#ffb703" stroke-width="1.2"/>
                         <circle cx="24" cy="31.2" r="4.6" fill="none" stroke="#ffb703" stroke-width="1.6" class="eye-glow"/>
                         <circle cx="33" cy="31.2" r="4.6" fill="none" stroke="#ffb703" stroke-width="1.6" class="eye-glow"/>
                         <path d="M13 34.5 L17.5 47 L24 47 L20.5 34.5 Z" fill="#232a1c" stroke="#12160e" stroke-width="0.8"/>
@@ -5107,7 +5318,16 @@ padding-top:9vh;
             // При неизвестном/отсутствующем id безопасно откатывается на "fists",
             // чтобы никогда не вернуть пустую строку и не сломать разметку карточки.
             weapon(weaponId) {
-                return this.weaponSets[weaponId] || this.weaponSets.fists;
+                // Тот же самый оружейный SVG нередко отрисован одновременно в нескольких местах разом
+                // (значок в руке персонажа на сцене боя + карточка в Арсенале + медальон в Мастерстве
+                // и т.д.). Раньше id градиентов внутри были статичными («wPipeMetal» и т.п.), поэтому
+                // при повторной отрисовке/закрытии одной из копий браузер терял первоисточник
+                // градиента — и все её "тёзки" в других местах экрана (включая сцену боя) внезапно
+                // становились прозрачными. Уникальный суффикс на каждый вызов полностью убирает
+                // конфликт id — по аналогии с тем, как уже сделано для скинов персонажа выше.
+                this._weaponSpriteSeq = (this._weaponSpriteSeq || 0) + 1;
+                const fn = this.weaponSets[weaponId] || this.weaponSets.fists;
+                return fn(weaponId + '-' + this._weaponSpriteSeq);
             },
 
             // ---- Миниатюра контейнера для карточек магазина ----
@@ -7405,6 +7625,110 @@ padding-top:9vh;
         });
 
         // ===================================================================
+        // Мастерство оружия: для каждого оружия — 4 вкладки прогресса (Урон, Убийства,
+        // Критические удары и особая вкладка, разная по духу для разных классов оружия),
+        // по 5 этапов на вкладку. За каждый пройденный этап — награда для прокачки
+        // (запчасти, схроны, ядерные батареи, ваучеры, крышки, реликварии). Когда все
+        // 4 вкладки закрыты на максимум — игрок получает эксклюзивный титул
+        // «Мастер <оружие в родительном падеже>» и крупный финальный набор наград.
+        // Награды растут вместе с редкостью оружия (мультипликатор по DB.weapons[].tier).
+        (function buildWeaponMastery() {
+            const DMG_TIERS = [10000, 50000, 100000, 1000000, 10000000];
+            const KILL_TIERS = [1, 50, 100, 500, 1000];
+            const CRIT_TIERS = [10, 100, 500, 2500, 10000];
+            const TIER_MULT = { "Стартовое": 0.6, "Обычное": 0.8, "Редкое": 1.0, "Эпическое": 1.3, "Легендарное": 1.6 };
+            // Отдельный множитель СЛОЖНОСТИ заданий (не награды!) — чем выше редкость оружия,
+            // тем труднее выполнить его этапы Мастерства. У «Обычного» оружия множитель = 1,
+            // то есть цели остаются ровно такими же, какими были всегда. У «Стартового»
+            // (Кулаки) множитель < 1 — требования немного СНИЖЕНЫ. Награды за этапы считаются
+            // отдельно через TIER_MULT выше и от этого множителя никак не зависят.
+            const TASK_DIFF_MULT = { "Стартовое": 0.7, "Обычное": 1.0, "Редкое": 1.3, "Эпическое": 1.7, "Легендарное": 2.2 };
+            // Аккуратно округляет масштабированную цель до «красивого» числа (2 значащие
+            // цифры), сохраняя минимум 1 — чтобы цифры целей выглядели рукотворными, а не
+            // сырым произведением.
+            function niceRound(n) {
+                if (n < 10) return Math.max(1, Math.round(n));
+                const mag = Math.pow(10, Math.floor(Math.log10(n)) - 1);
+                return Math.max(1, Math.round(n / mag) * mag);
+            }
+            function scaleTiers(tiers, taskMult) {
+                return tiers.map(t => niceRound(t * taskMult));
+            }
+            // Особая вкладка отличается по духу для разных классов оружия и использует
+            // ТОЛЬКО метрики, которые реально можно фармить бесконечно (в отличие от боссов
+            // биомов — их на весь сохранённый прогресс всего 11, и после победы они не
+            // возрождаются, поэтому цели вида «убейте 100 боссов» физически недостижимы):
+            //  - Ближний бой → «Безупречные победы»: победа без единого полученного удара.
+            //  - Дробовик/Тяжёлое/Энергетическое → «Мгновенные ликвidации»: враг убит первым же попаданием.
+            //  - Пистолеты/Штурмовые винтовки → «Зачистка элиты»: закалённые враги — редкий,
+            //    но неограниченно повторяемый исход разведки.
+            const META = {
+                fists:    { genitive: "Кулаков",              special: { label: "Безупречные победы", icon: "🛡️", statKey: "flawless", tiers: [5, 25, 75, 200, 500] } },
+                pipe:     { genitive: "Ржавой Трубы",          special: { label: "Безупречные победы", icon: "🛡️", statKey: "flawless", tiers: [5, 25, 75, 200, 500] } },
+                machete:  { genitive: "Мачете Скитальца",      special: { label: "Безупречные победы", icon: "🛡️", statKey: "flawless", tiers: [5, 20, 60, 160, 400] } },
+                pistol:   { genitive: "Самопала",              special: { label: "Зачистка элиты",     icon: "🎖️", statKey: "elite",    tiers: [1, 10, 30, 80, 200] } },
+                revolver: { genitive: "Тяжёлого Револьвера",   special: { label: "Зачистка элиты",     icon: "🎖️", statKey: "elite",    tiers: [1, 10, 25, 70, 180] } },
+                shotgun:  { genitive: "Дробовика «Костолом»",  special: { label: "Мгновенные ликвидации", icon: "💢", statKey: "oneshot", tiers: [5, 20, 60, 150, 400] } },
+                assault:  { genitive: "Штурмовой АК-74Рад",    special: { label: "Зачистка элиты",     icon: "🎖️", statKey: "elite",    tiers: [1, 8, 20, 60, 150] } },
+                plasma:   { genitive: "ПЛАЗМЫ",                special: { label: "Мгновенные ликвидации", icon: "💢", statKey: "oneshot", tiers: [5, 15, 45, 120, 300] } },
+                minigun:  { genitive: "Минигана «Молотилка»",  special: { label: "Мгновенные ликвидации", icon: "💢", statKey: "oneshot", tiers: [5, 15, 40, 100, 250] } },
+                gauss:    { genitive: "Винтовки Гаусса",       special: { label: "Зачистка элиты",     icon: "🎖️", statKey: "elite",    tiers: [1, 6, 15, 40, 100] } }
+            };
+            function hexToRgbaLocal(hex, alpha) {
+                let h = (hex || "#bf5af2").replace('#', '');
+                let r = parseInt(h.substring(0, 2), 16), g = parseInt(h.substring(2, 4), 16), b = parseInt(h.substring(4, 6), 16);
+                return `rgba(${r},${g},${b},${alpha})`;
+            }
+            function tierReward(tierIdx, mult) {
+                const plans = [
+                    [{ type: 'item', item: 'Запчасти', base: 14 }],
+                    [{ type: 'item', item: 'Тяжелый Хлам', base: 7 }, { type: 'caps', base: 30 }],
+                    [{ type: 'item', item: 'Ядерная Батарея', base: 3 }, { type: 'item', item: 'Жетон Схрона', base: 2 }],
+                    [{ type: 'voucher', base: 14 }, { type: 'item', item: 'Ядерная Батарея', base: 4 }],
+                    [{ type: 'relic_wasteland', base: 2 }, { type: 'voucher', base: 35 }, { type: 'caps', base: 260 }]
+                ];
+                return plans[tierIdx].map(pl => {
+                    let qty = Math.max(1, Math.round(pl.base * mult));
+                    let name = pl.type === 'item' ? `${pl.item} x${qty}` : pl.type === 'caps' ? `Крышки x${qty}` : pl.type === 'voucher' ? `Ваучеры x${qty}` : `Реликварий Пустоши x${qty}`;
+                    let obj = { type: pl.type, qty, name };
+                    if (pl.item) obj.item = pl.item;
+                    return obj;
+                });
+            }
+            function buildCategory(label, icon, statKey, tiers, mult) {
+                return { label, icon, statKey, tiers: tiers.map((target, i) => ({ target, reward: tierReward(i, mult) })) };
+            }
+            DB.weaponMastery = {};
+            DB.weapons.forEach(w => {
+                const meta = META[w.id]; if (!meta) return;
+                const mult = TIER_MULT[w.tier] || 1; // множитель НАГРАД — не трогаем, награды прежние
+                const taskMult = TASK_DIFF_MULT[w.tier] || 1; // множитель СЛОЖНОСТИ целей — зависит от редкости
+                DB.weaponMastery[w.id] = {
+                    genitive: meta.genitive,
+                    categories: [
+                        buildCategory('Урон', '💥', 'dmg', scaleTiers(DMG_TIERS, taskMult), mult),
+                        buildCategory('Убийства', '💀', 'kills', scaleTiers(KILL_TIERS, taskMult), mult),
+                        buildCategory('Критические удары', '🔥', 'crit', scaleTiers(CRIT_TIERS, taskMult), mult),
+                        buildCategory(meta.special.label, meta.special.icon, meta.special.statKey, scaleTiers(meta.special.tiers, taskMult), mult)
+                    ],
+                    finalReward: [
+                        { type: 'relic_wasteland', qty: Math.max(2, Math.round(5 * mult)), name: `Реликварий Пустоши x${Math.max(2, Math.round(5 * mult))}` },
+                        { type: 'voucher', qty: Math.round(150 * mult), name: `Ваучеры x${Math.round(150 * mult)}` },
+                        { type: 'caps', qty: Math.round(1200 * mult), name: `Крышки x${Math.round(1200 * mult)}` }
+                    ]
+                };
+                let titleId = 'masterWpn_' + w.id;
+                if (!DB.titles.find(t => t.id === titleId)) {
+                    DB.titles.push({
+                        id: titleId, icon: Sprites.weapon(w.id), iconIsModel: true, name: `Мастер ${meta.genitive}`,
+                        desc: `Пройдены на максимум все этапы Мастерства оружия «${w.name}».`,
+                        check: p => false, special: true, accent: w.color, glow: hexToRgbaLocal(w.color, 0.4)
+                    });
+                }
+            });
+        })();
+
+        // ===================================================================
         // Cloud: слой синхронизации сохранения с Supabase (аккаунт + облачный прогресс).
         // Работает поверх localStorage, а не вместо него: локальное сохранение
         // остаётся мгновенным и работает офлайн, а Cloud асинхронно подтягивает/
@@ -8096,7 +8420,7 @@ padding-top:9vh;
         };
 
         const Core = {
-            p: { hp: 50, maxHp: 50, energy: 100, maxEnergy: 100, rad: 0, hazards: {}, satiety: 100, lvl: 1, exp: 0, nextExp: 85, caps: 30, vouchers: 0, armor: 2, dodgeChance: 8, inv: { "Запчасти": 6, "Тяжелый Хлам": 0, "Ядерная Батарея": 0, "Сырое мясо": 1, "Жетон Схрона": 0 }, weaponsOwned: ["fists"], wpnUpgrades: { "fists": 0, "pipe": 0, "machete": 0, "pistol": 0, "revolver": 0, "shotgun": 0, "assault": 0, "plasma": 0, "minigun": 0, "gauss": 0 }, activeWeapon: "fists", rodLvl: 0, rodResetV2Done: true, rodCompensationPending: null, food: { "Жареное мясо крысы": 1 }, currentBiome: 0, bossesDefeated: [], bpLvl: 1, bpPoints: 0, bpPremium: false, bpElite: false, bpClaimedFree: [], bpClaimedPrem: [], bpClaimedElite: [], bpSeasonId: null, bpSeasonUID: null, bpSeasonHistory: [], bpSeasonV2Reset: true, lvlCapV1Done: true, dailyStreak: 0, lastDailyClaim: null, relicWasteland: 0, redeemedPromoCodes: [], freeBoxes: {}, nickname: "Странник", nicknameSet: false, avatarsOwned: ["ranger", "raider", "cyborg"], avatar: "ranger", titleId: "newbie", unlockedTitles: ["newbie"], maxBiomeReached: 0, bmLastSuccessDay: null, bmFailDay: null, bmFailCount: 0, marketEarnDay: null, marketEarnedToday: 0, marketDailyCapValue: null, exchangeDay: null, exchangeUsed: {}, marketBuyDay: null, marketBuySpentToday: 0, marketBuyDailyCapValue: null, skinsOwned: ["default"], activeSkin: "default", dailyQuests: [], dailyQuestsDay: null, dailyQuestsPremium: [], dailyQuestsPremiumDay: null, petsOwned: [], activePet: null, installedAt: Date.now(), updateGiftClaimed: false, restockGiftEligible: false, restockGiftClaimed: false, restockGiftAt: null, pvpDuelLog: {}, wheelDay: null, wheelSpinsToday: 0, wheelFreeClaimed: false, wheelBonusSpins: 0, energyPackDay: null, energyPackBoughtToday: 0, buildPresets: [],
+            p: { hp: 50, maxHp: 50, energy: 100, maxEnergy: 100, rad: 0, hazards: {}, satiety: 100, lvl: 1, exp: 0, nextExp: 85, caps: 30, vouchers: 0, armor: 2, dodgeChance: 8, inv: { "Запчасти": 6, "Тяжелый Хлам": 0, "Ядерная Батарея": 0, "Сырое мясо": 1, "Жетон Схрона": 0 }, weaponsOwned: ["fists"], wpnUpgrades: { "fists": 0, "pipe": 0, "machete": 0, "pistol": 0, "revolver": 0, "shotgun": 0, "assault": 0, "plasma": 0, "minigun": 0, "gauss": 0 }, wpnMastery: { "fists": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0 }, "pipe": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0 }, "machete": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0 }, "pistol": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0 }, "revolver": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0 }, "shotgun": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0 }, "assault": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0 }, "plasma": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0 }, "minigun": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0 }, "gauss": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0 } }, wpnMasteryClaimed: {}, wpnMasteryTitleClaimed: [], activeWeapon: "fists", rodLvl: 0, rodResetV2Done: true, rodCompensationPending: null, food: { "Жареное мясо крысы": 1 }, currentBiome: 0, bossesDefeated: [], bpLvl: 1, bpPoints: 0, bpPremium: false, bpElite: false, bpClaimedFree: [], bpClaimedPrem: [], bpClaimedElite: [], bpSeasonId: null, bpSeasonUID: null, bpSeasonHistory: [], bpSeasonV2Reset: true, lvlCapV1Done: true, dailyStreak: 0, lastDailyClaim: null, relicWasteland: 0, redeemedPromoCodes: [], freeBoxes: {}, nickname: "Странник", nicknameSet: false, avatarsOwned: ["ranger", "raider", "cyborg"], avatar: "ranger", titleId: "newbie", unlockedTitles: ["newbie"], maxBiomeReached: 0, bmLastSuccessDay: null, bmFailDay: null, bmFailCount: 0, marketEarnDay: null, marketEarnedToday: 0, marketDailyCapValue: null, exchangeDay: null, exchangeUsed: {}, marketBuyDay: null, marketBuySpentToday: 0, marketBuyDailyCapValue: null, skinsOwned: ["default"], activeSkin: "default", dailyQuests: [], dailyQuestsDay: null, dailyQuestsPremium: [], dailyQuestsPremiumDay: null, petsOwned: [], activePet: null, installedAt: Date.now(), updateGiftClaimed: false, restockGiftEligible: false, restockGiftClaimed: false, restockGiftAt: null, pvpDuelLog: {}, wheelDay: null, wheelSpinsToday: 0, wheelFreeClaimed: false, wheelBonusSpins: 0, energyPackDay: null, energyPackBoughtToday: 0, buildPresets: [],
                 // ---- Реворк «Разведки» и «Костра» ----
                 exploreStreak: 0,     // серия подряд идущих мирных (не боевых) разведок — влияет на шанс тайника/точки интереса, показывается как "🍀 Удача разведки"
                 specialEventLock: 0,  // сколько ближайших разведок гарантированно будут обычной находкой — взводится на 2 после любого спецсобытия (тайник/засада/караван/бой/элит/точка интереса/опасный участок), чтобы спецсобытия не выпадали кластерами подряд
@@ -8555,6 +8879,15 @@ padding-top:9vh;
                     }
                     if(!this.p.wpnUpgrades) this.p.wpnUpgrades = { "fists": 0, "pipe": 0, "machete": 0, "pistol": 0, "revolver": 0, "shotgun": 0, "assault": 0, "plasma": 0, "minigun": 0, "gauss": 0 };
                     DB.weapons.forEach(w => { if(this.p.wpnUpgrades[w.id] === undefined) this.p.wpnUpgrades[w.id] = 0; });
+                    // ---- Мастерство оружия: статистика по каждому виду оружия (урон/убийства/крит/особое)
+                    // и список уже забранных этапов по каждой вкладке + список выданных финальных титулов.
+                    if(!this.p.wpnMastery) this.p.wpnMastery = {};
+                    if(!this.p.wpnMasteryClaimed) this.p.wpnMasteryClaimed = {};
+                    if(!this.p.wpnMasteryTitleClaimed) this.p.wpnMasteryTitleClaimed = [];
+                    DB.weapons.forEach(w => {
+                        if(!this.p.wpnMastery[w.id]) this.p.wpnMastery[w.id] = { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0 };
+                        if(!this.p.wpnMasteryClaimed[w.id]) this.p.wpnMasteryClaimed[w.id] = {};
+                    });
                     if(!this.p.bossesDefeated) this.p.bossesDefeated = [];
                     if(this.p.armor === undefined) this.p.armor = 2;
                     if(this.p.dodgeChance === undefined) this.p.dodgeChance = 8;
@@ -8998,7 +9331,7 @@ padding-top:9vh;
                     }
                 });
                 if (newlyUnlocked.length) {
-                    newlyUnlocked.forEach(t => this.log(`🏆 Новый титул получен: ${t.icon} «${t.name}»!`, "loot"));
+                    newlyUnlocked.forEach(t => this.log(`🏆 Новый титул получен: ${this.titleIconHtml(t, 26)} «${t.name}»!`, "loot"));
                     this.save();
                 }
             },
@@ -9131,7 +9464,7 @@ padding-top:9vh;
                 const equippedTitle = DB.titles.find(t => t.id === this.p.titleId) || DB.titles[0];
                 const titleBadge = document.getElementById('profile-title-badge');
                 if (titleBadge) {
-                    titleBadge.innerText = `${equippedTitle.icon} ${equippedTitle.name}`;
+                    titleBadge.innerHTML = `${this.titleIconHtml(equippedTitle, 15)} ${equippedTitle.name}`;
                     titleBadge.classList.toggle('title-special', !!equippedTitle.special);
                     if (equippedTitle.special) {
                         titleBadge.style.setProperty('--title-accent', equippedTitle.accent || 'var(--neon-purple)');
@@ -9171,7 +9504,7 @@ padding-top:9vh;
                         : '<span class="title-card-tag">Надеть</span>';
                     const specialVars = t.special ? ` style="--title-accent:${t.accent || 'var(--neon-purple)'}; --title-glow:${t.glow || 'rgba(191,90,242,0.35)'};"` : '';
                     return `<div class="title-card unlocked ${equipped ? 'equipped' : ''} ${t.special ? 'title-special' : ''}"${specialVars} onclick="Core.equipTitle('${t.id}')">
-                        <div class="title-card-icon">${t.icon}</div>
+                        <div class="title-card-icon">${this.titleIconHtml(t, 26)}</div>
                         <div class="title-card-info">
                             <div class="title-card-name"${(!t.special && t.titleColor) ? ` style=\"color:${t.titleColor};\"` : ''}>${t.name}</div>
                             <div class="title-card-desc">${t.desc}</div>
@@ -9181,6 +9514,14 @@ padding-top:9vh;
                 }).join('');
             },
 
+            // Титулы «Мастер <оружие>» хранят в t.icon не эмодзи, а готовый SVG модели
+            // оружия (t.iconIsModel === true). Эта обёртка даёт каждому месту вывода
+            // (плашка титула, карточка в списке, запись в журнале) свой инлайн-размер px,
+            // а обычные эмодзи-титулы возвращает как есть — без изменений.
+            titleIconHtml(t, px) {
+                if (!t || !t.iconIsModel) return t ? t.icon : '';
+                return `<span class="title-icon-model" style="width:${px}px;height:${px}px;">${t.icon}</span>`;
+            },
             log(msg, type = '') { const box = document.getElementById('log'); const e = document.createElement('div'); e.className = `log-entry ${type}`; e.innerHTML = msg; box.appendChild(e); box.scrollTop = box.scrollHeight; Scene.setCaption(msg, type); },
             // Небольшая всплывающая карточка исхода разведки — для событий без выбора (находка/точка
             // интереса/опасный участок/пусто), чтобы результат читался как событие, а не как строка
@@ -9647,7 +9988,15 @@ padding-top:9vh;
             },
             resolveFind(mode) {
                 document.getElementById('find-choice-overlay').style.display = 'none';
-                let thorough = mode === 'thorough';
+                let searchedThorough = mode === 'thorough';
+                // Шанс 2:8 (20%) на то, что тщательный обыск даст именно "богатую находку" —
+                // раньше это было гарантировано, а рандом висел на хазарде (почти всегда прилетал).
+                // Теперь наоборот: хазард — гарантированная плата за задержку, а рандом решает,
+                // насколько находка оказалась хорошей.
+                let thorough = searchedThorough && Math.random() < 0.2;
+                // Если тщательный обыск НЕ выбил богатую находку — сверх хазарда игрок ещё и
+                // получает урон, и обычный ресурс в этот раз ему не достаётся (риск не отбился).
+                let failedThorough = searchedThorough && !thorough;
                 let petFx = this.getActivePetEffect();
                 let mult = (this.campBuffCharges > 0 ? 1.15 : 1) * (thorough ? 1.8 : 1);
                 let c = Math.round(((Math.floor(Math.random() * 2) + 1) + (petFx.exploreCapsBonus || 0)) * mult);
@@ -9666,18 +10015,28 @@ padding-top:9vh;
                 }
                 let qty = thorough ? 2 : 1;
                 let xp = thorough ? 18 : 10;
-                let resName, sceneFx, toastIcon;
-                if (lootRoll < 0.5) { this.p.inv["Запчасти"] = (this.p.inv["Запчасти"] || 0) + qty; resName = `Запчасти x${qty}`; sceneFx = 'scrap'; toastIcon = '⚙️'; }
+                let resName, sceneFx, toastIcon, dmg = 0;
+                if (failedThorough) {
+                    dmg = Math.round(this.p.maxHp * (0.05 + Math.random() * 0.05));
+                    this.p.hp = Math.max(1, this.p.hp - dmg);
+                    xp = 0;
+                    sceneFx = 'empty'; toastIcon = '⚠️';
+                } else if (lootRoll < 0.5) { this.p.inv["Запчасти"] = (this.p.inv["Запчасти"] || 0) + qty; resName = `Запчасти x${qty}`; sceneFx = 'scrap'; toastIcon = '⚙️'; }
                 else if (lootRoll < 0.8) { this.p.inv["Сырое мясо"] = (this.p.inv["Сырое мясо"] || 0) + qty; resName = `Сырое мясо x${qty}`; sceneFx = 'meat'; toastIcon = '🥩'; }
                 else { this.p.inv["Тяжелый Хлам"] = (this.p.inv["Тяжелый Хлам"] || 0) + qty; resName = `Тяжелый Хлам x${qty}`; xp = thorough ? 24 : 15; sceneFx = 'heavy'; toastIcon = '🔩'; }
                 Scene.findEffect(sceneFx);
                 let extra = (bonusScrap + tokenMsg).trim();
-                this.showExploreToast(toastIcon, thorough ? 'Богатая находка' : 'Находка', `${resName} · +${c} 🪙 · +${xp} XP${extra ? ' · ' + extra : ''}`, 'var(--neon-gold)');
-                this.log(`${toastIcon} ${thorough ? 'Богатая находка' : 'Находка'}: ${resName} · +${c} 🪙 · +${xp} XP${extra ? ' · ' + extra : ''}`, "loot");
+                if (failedThorough) {
+                    this.showExploreToast(toastIcon, 'Обыск не задался', `-${dmg} ОЗ · +${c} 🪙${extra ? ' · ' + extra : ''}`, 'var(--neon-red)');
+                    this.log(`⚠️ Тщательный обыск не задался: ресурс не достался, -${dmg} ОЗ. Крышки +${c} 🪙 всё же перепали.${extra ? ' ' + extra : ''}`, "combat-lose");
+                } else {
+                    this.showExploreToast(toastIcon, thorough ? 'Богатая находка' : 'Находка', `${resName} · +${c} 🪙 · +${xp} XP${extra ? ' · ' + extra : ''}`, 'var(--neon-gold)');
+                    this.log(`${toastIcon} ${thorough ? 'Богатая находка' : 'Находка'}: ${resName} · +${c} 🪙 · +${xp} XP${extra ? ' · ' + extra : ''}`, "loot");
+                }
                 this.p.exp += xp; this.checkLvl();
-                if (thorough) {
+                if (searchedThorough) {
                     let biome = DB.biomes[this.p.currentBiome];
-                    if (biome.hazard && Math.random() < 0.35) {
+                    if (biome.hazard) {
                         let gain = 4 + Math.floor(Math.random() * 6);
                         this.setHazard(Math.min(100, this.getHazard() + gain));
                         this.log(`${biome.hazard.icon} Задержавшись у находки, вы нахватали: ${biome.hazard.label} +${gain}%.`, "combat-lose");
@@ -9704,7 +10063,7 @@ padding-top:9vh;
                     this.p.exp += 16; this.checkLvl();
                     this.log(`🧰 Аккуратно вскрытый тайник: Запчасти x2, Крышки (+${c} 🪙), +16 XP.`, "loot");
                 } else {
-                    if (Math.random() < 0.65) {
+                    if (Math.random() < 0.13) {
                         let c = Math.round((6 + Math.floor(Math.random() * 6) + (petFx.exploreCapsBonus || 0)) * mult);
                         this.p.caps += c;
                         this.p.inv["Тяжелый Хлам"] = (this.p.inv["Тяжелый Хлам"] || 0) + 1;
@@ -9776,9 +10135,11 @@ padding-top:9vh;
             resolveAmbush(mode) {
                 document.getElementById('ambush-choice-overlay').style.display = 'none';
                 if (mode === 'fight') {
-                    this.startCombat(false);
+                    // Враг, напавший на игрока сам (а не наоборот) — по определению элитный:
+                    // сильнее обычного противника биома, но и опыта за победу над ним больше.
+                    this.showEnemyIntro(this.buildEliteEnemy());
                 } else if (mode === 'sneak') {
-                    if (Math.random() < 0.6) {
+                    if (Math.random() < 0.13) {
                         let c = 2 + Math.floor(Math.random() * 3);
                         this.p.caps += c; this.p.exp += 8; this.checkLvl();
                         this.log(`🤫 Вы бесшумно проскользнули мимо и прихватили оброненные Крышки (+${c} 🪙).`, "loot");
@@ -9839,7 +10200,12 @@ padding-top:9vh;
                     let gambleCost = 10 + this.p.currentBiome * 4;
                     if (this.p.caps < gambleCost) { this.log("🎲 Не хватает Крышек, чтобы рискнуть."); this.save(); this.updateUI(); return; }
                     this.p.caps -= gambleCost;
-                    if (Math.random() < 0.45) {
+                    // Шанс на куш плавно падает по мере роста ставки (она растёт вместе с биомом) —
+                    // чем больше игрок ставит на кон, тем менее выгодна для него сделка. Игроку
+                    // это нигде не показывается: ни в тексте, ни в UI, чтобы не выглядело как
+                    // явный "счётчик" удачи — куш должен ощущаться просто везением или невезением.
+                    let winChance = Math.max(0.14, 0.34 - Math.max(0, gambleCost - 10) * 0.005);
+                    if (Math.random() < winChance) {
                         // Куш Крышек — чисто случайная величина (от 1x до 4x ставки), без привязки к фиксированной формуле
                         let capsWin = gambleCost + Math.floor(Math.random() * (gambleCost * 3));
                         this.p.caps += capsWin;
@@ -9864,13 +10230,13 @@ padding-top:9vh;
                 this.save(); this.updateUI();
             },
 
-            // Элитная встреча — теперь редкий независимый исход разведки (см. вес 'elite' в
-            // rollExploreEvent), а не гарантированное срабатывание по накопленной шкале. Усиленная
-            // версия сильнейшего противника биома: больше HP/урона/опыта и гарантированный бонус
-            // к добыче за победу (см. processVictory).
-            runExploreElite() {
-                this.log("👁️ Опасность в этом секторе достигла предела — навстречу выходит закалённый противник...");
-                Scene.findEffect('elite');
+            // Строит объект усиленного «элитного» противника — сильнейший враг биома с
+            // ощутимой прибавкой к HP/урону/брони и удвоенным опытом. Раньше использовался
+            // только редким случайным событием разведки «Элита» (см. runExploreElite ниже),
+            // теперь также используется засадой (resolveAmbush → 'fight'): по определению,
+            // если враг нападает на игрока сам, а не наоборот — он элитный, то есть сильнее
+            // обычного противника биома, но и опыта за него положено больше.
+            buildEliteEnemy() {
                 let activeBiome = DB.biomes[this.p.currentBiome];
                 let base = activeBiome.enemies[activeBiome.enemies.length - 1];
                 let enemy = {
@@ -9886,7 +10252,17 @@ padding-top:9vh;
                     stunned: false
                 };
                 enemy.maxHp = enemy.hp;
-                this.showEnemyIntro(enemy);
+                return enemy;
+            },
+
+            // Элитная встреча — теперь редкий независимый исход разведки (см. вес 'elite' в
+            // rollExploreEvent), а не гарантированное срабатывание по накопленной шкале. Усиленная
+            // версия сильнейшего противника биома: больше HP/урона/опыта и гарантированный бонус
+            // к добыче за победу (см. processVictory).
+            runExploreElite() {
+                this.log("👁️ Опасность в этом секторе достигла предела — навстречу выходит закалённый противник...");
+                Scene.findEffect('elite');
+                this.showEnemyIntro(this.buildEliteEnemy());
             },
 
             offerFishing() {
@@ -10226,6 +10602,11 @@ beginCombat(){
     this.abilityCooldowns = {};
     this.lastAttackType = null; this.sameAttackStreak = 0;
     this.plasmaHeat = 0; this.plasmaHeatLastTick = Date.now();
+    // Мастерство оружия: флаги для «безупречной победы» (без урона по игроку)
+    // и «мгновенной ликвидации» (враг убит первым же попаданием) — сбрасываются
+    // на каждый новый бой и проверяются в processVictory().
+    this.combatTookDamage = false;
+    this.combatHitsLanded = 0;
     this.renderCombatAbilities();
     this.startCooldownTicker();
     Scene.showEnemy(this.combatState);
@@ -10382,6 +10763,9 @@ startCombat(isBossFight = false) {
                     let netEnemyDmg = Math.max(1, Math.round(calculatedDmg - effArmor));
                     this.combatState.hp = Math.max(0, this.combatState.hp - netEnemyDmg);
                     this.echoTrack("damage", netEnemyDmg);
+                    this.trackWeaponMastery(this.p.activeWeapon, 'dmg', netEnemyDmg);
+                    this.combatHitsLanded = (this.combatHitsLanded || 0) + 1;
+                    if (isPlayerCrit) this.trackWeaponMastery(this.p.activeWeapon, 'crit', 1);
                     let matchupNote = matchupMult > 1 ? ' ⚡ Слабое место!' : matchupMult < 1 ? ' 🛡️ Сопротивление.' : '';
                     let armorNote = ability.armorPenPct ? ` 🛡️‍💥 Частично игнорирует броню.` : '';
                     this.log(`Вы бьете (${attackType}): -${netEnemyDmg} ОЗ врагу. У него осталось: ${this.combatState.hp} ОЗ. ${isPlayerCrit ? '🔥 КРИТ!' : ''}${matchupNote}${armorNote}`);
@@ -10408,6 +10792,7 @@ startCombat(isBossFight = false) {
                     let bleedDmg = Math.round((this.combatState.maxHp * 0.05 + 2) * (1 + build.bleedMult));
                     this.combatState.hp = Math.max(0, this.combatState.hp - bleedDmg);
                     this.echoTrack("damage", bleedDmg);
+                    this.trackWeaponMastery(this.p.activeWeapon, 'dmg', bleedDmg);
                     this.combatState.bleedTicks--;
                     this.log(`🩸 Кровотечение наносит врагу -${bleedDmg} ОЗ. (Осталось: ${this.combatState.hp} ОЗ, ходов дебаффа: ${this.combatState.bleedTicks})`);
                     Scene.floatDamage('enemy', bleedDmg, false, 'bleed');
@@ -10460,6 +10845,7 @@ startCombat(isBossFight = false) {
                     }
 
                     this.p.hp = Math.max(0, this.p.hp - finalIncoming);
+                    this.combatTookDamage = true;
                     this.log(`💥 ${this.combatState.name} атакует вас: -${finalIncoming} ОЗ. (Ваше здоровье: ${this.p.hp} ОЗ)`, "combat-lose");
                     Scene.slashFx('player', 'claw');
                     Scene.floatDamage('player', finalIncoming, false, playerBlock ? 'block' : '');
@@ -10500,6 +10886,9 @@ startCombat(isBossFight = false) {
                     let netDmg = gadget.ignoreArmor ? dmg : Math.max(1, dmg - this.combatState.armor);
                     this.combatState.hp = Math.max(0, this.combatState.hp - netDmg);
                     this.echoTrack("damage", netDmg);
+                    this.trackWeaponMastery(wId, 'dmg', netDmg);
+                    this.combatHitsLanded = (this.combatHitsLanded || 0) + 1;
+                    if (gadget.guaranteedCrit) this.trackWeaponMastery(wId, 'crit', 1);
                     let matchupNote = matchupMult > 1 ? ' ⚡ Слабое место!' : matchupMult < 1 ? ' 🛡️ Сопротивление.' : '';
                     this.log(`${gadget.icon} Гаджет «${gadget.name}»: -${netDmg} ОЗ врагу [${this.combatState.name}]!${matchupNote}`, "combat-win");
                     Scene.attackAnim('player'); Scene.slashFx('enemy');
@@ -10542,6 +10931,13 @@ startCombat(isBossFight = false) {
                 let activeWpnDef = DB.weapons.find(w => w.id === this.p.activeWeapon);
                 this.triggerQuest(`kill_with_${this.p.activeWeapon}`);
                 if (activeWpnDef) this.triggerQuest(`kill_class_${activeWpnDef.class}`);
+                this.trackWeaponMastery(this.p.activeWeapon, 'kills', 1);
+                // Мастерство: «безупречная победа» (ни разу не задет) и «мгновенная ликвидация»
+                // (враг убит первым же попаданием) — не считаются в бою с боссом биома.
+                if (!this.combatState.isBoss) {
+                    if (!this.combatTookDamage) this.trackWeaponMastery(this.p.activeWeapon, 'flawless', 1);
+                    if ((this.combatHitsLanded || 0) === 1) this.trackWeaponMastery(this.p.activeWeapon, 'oneshot', 1);
+                }
                 if(this.combatState.isBoss) {
                     this.p.bossesDefeated.push(this.p.currentBiome);
                     this.p.caps += this.combatState.rewardCaps;
@@ -10549,6 +10945,7 @@ startCombat(isBossFight = false) {
                     this.triggerQuest("kill_boss");
                     this.triggerQuest("kill_any");
                     this.echoTrack("boss", 1);
+                    this.trackWeaponMastery(this.p.activeWeapon, 'boss', 1);
                 } else {
                     this.log(`🎉 Победа! Противник ${this.combatState.name} уничтожен. +${this.combatState.exp} XP.`, "combat-win");
                     this.triggerQuest(`kill_${this.combatState.name}`);
@@ -10561,8 +10958,10 @@ startCombat(isBossFight = false) {
                         let tokenQty = 1 + Math.floor(Math.random() * 2);
                         this.p.inv["Жетон Схрона"] = (this.p.inv["Жетон Схрона"] || 0) + tokenQty;
                         this.log(`⚔️ Закалённый противник повержен! Бонус за элитную встречу: +${eliteCaps} 🪙 и 💠 Жетон Схрона x${tokenQty}.`, "loot");
+                        this.trackWeaponMastery(this.p.activeWeapon, 'elite', 1);
                     }
                 }
+                this.checkMasteryToast(this.p.activeWeapon);
                 Scene.enemyDefeated(this.combatState.isBoss);
                 this.p.exp += this.combatState.exp; this.checkLvl(); this.endCombat();
             },
@@ -10570,7 +10969,7 @@ startCombat(isBossFight = false) {
             executeFlee() {
                 if(!this.combatState) return;
                 if(this.combatState.isBoss) return alert("От Босса нельзя сбежать!");
-                if(Math.random() < 0.5) {
+                if(Math.random() < 0.3) {
                     let fleeExp = Math.floor(this.combatState.exp / 2);
                     this.log(`🏃 Успешный тактический побег! Получено частичное ХР: +${fleeExp}.`);
                     this.triggerQuest("flee");
@@ -10581,6 +10980,7 @@ startCombat(isBossFight = false) {
                     Scene.attackAnim('enemy'); Scene.slashFx('player', 'claw');
                     Scene.floatDamage('player', finalIncoming, false); Scene.hitFlash('player'); Scene.shake(); Scene.impactSpark('player');
                     this.p.hp = Math.max(0, this.p.hp - finalIncoming); if(this.p.hp <= 0) this.triggerDeath();
+                    this.combatTookDamage = true;
                     this.save(); this.updateUI();
                 }
             },
@@ -11056,6 +11456,9 @@ startCombat(isBossFight = false) {
                                 <button class="weapon-btn-pill upgrade ${isMaxed?'maxed':''}" ${isMaxed?'disabled':''} onclick="Core.upgradeWeapon('${wId}', ${upgradeCost})">
                                     ${isMaxed?'🔝 МАКС. УРОВЕНЬ':`🔺 Апгрейд · ${this.itemIcons["Запчасти"]} ${upgradeCost}`}
                                 </button>
+                                <button class="weapon-btn-pill mastery ${this.masteryIsWeaponMaxed(wId)?'maxed':''}" onclick="Core.openMastery('${wId}')">
+                                    ${this.masteryIsWeaponMaxed(wId) ? '👑 Мастерство ✓' : '🎖️ Мастерство'}
+                                </button>
                             </div>
                         </div>`;
                 });
@@ -11155,6 +11558,228 @@ startCombat(isBossFight = false) {
                     }
                 }
                 rEl.innerHTML = hasRes ? rHtml : `<div class="supply-empty">📦 Ресурсов пока нет. Разведайте местность или разберите хлам.</div>`;
+            },
+
+            // ===================================================================
+            // === Мастерство оружия ===
+            // Копит статистику по каждому оружию (урон/убийства/крит/особая метрика) и
+            // не сохраняет/не рендерит сама — этим занимаются вызывающие места и openMastery().
+            trackWeaponMastery(wId, statKey, amount) {
+                if (!wId || !amount) return;
+                if (!this.p.wpnMastery) this.p.wpnMastery = {};
+                if (!this.p.wpnMastery[wId]) this.p.wpnMastery[wId] = { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0 };
+                this.p.wpnMastery[wId][statKey] = (this.p.wpnMastery[wId][statKey] || 0) + amount;
+            },
+
+            // Лёгкое уведомление в журнал, когда после боя стал доступен новый этап Мастерства
+            // (не спамит на каждый удар — вызывается один раз, сразу после победы).
+            checkMasteryToast(wId) {
+                let cfg = DB.weaponMastery[wId]; if (!cfg) return;
+                let claimed = (this.p.wpnMasteryClaimed && this.p.wpnMasteryClaimed[wId]) || {};
+                let stats = this.p.wpnMastery[wId] || {};
+                let anyReady = cfg.categories.some(cat => {
+                    let done = claimed[cat.statKey] || [];
+                    return cat.tiers.some((t, i) => !done.includes(i) && (stats[cat.statKey] || 0) >= t.target);
+                });
+                if (anyReady) {
+                    let wpn = DB.weapons.find(w => w.id === wId);
+                    this.log(`🎖️ Доступна новая награда Мастерства для «${wpn ? wpn.name : wId}»!`, "loot");
+                }
+            },
+
+            openMastery(wId) {
+                Sound.play('click');
+                this.masteryWeaponId = wId;
+                this.masteryTab = 0;
+                this.renderMasteryHeader();
+                this.renderMasteryTabs();
+                this.renderMasteryBody();
+                document.getElementById('mastery-overlay').style.display = 'flex';
+            },
+            closeMastery() { document.getElementById('mastery-overlay').style.display = 'none'; },
+            switchMasteryTab(idx) { Sound.play('click'); this.masteryTab = idx; this.renderMasteryTabs(); this.renderMasteryBody(); },
+
+            masteryIsWeaponMaxed(wId) {
+                let cfg = DB.weaponMastery[wId]; if (!cfg) return false;
+                let claimed = (this.p.wpnMasteryClaimed && this.p.wpnMasteryClaimed[wId]) || {};
+                return cfg.categories.every(cat => (claimed[cat.statKey] || []).length >= cat.tiers.length);
+            },
+
+            renderMasteryHeader() {
+                let wId = this.masteryWeaponId;
+                let wpn = DB.weapons.find(w => w.id === wId);
+                let cfg = DB.weaponMastery[wId];
+                let claimed = (this.p.wpnMasteryClaimed && this.p.wpnMasteryClaimed[wId]) || {};
+                let totalTiers = cfg.categories.reduce((s, c) => s + c.tiers.length, 0);
+                let doneTiers = cfg.categories.reduce((s, c) => s + (claimed[c.statKey] || []).length, 0);
+
+                let panelEl = document.getElementById('mastery-panel');
+                panelEl.style.setProperty('--mastery-wpn-color', wpn.color);
+                panelEl.style.setProperty('--mastery-wpn-glow', this.hexToRgba(wpn.color, 0.5));
+
+                let medallion = document.getElementById('mastery-wpn-medallion');
+                medallion.innerHTML = Sprites.weapon(wId);
+
+                document.getElementById('mastery-wpn-name').innerText = wpn.name;
+                document.getElementById('mastery-wpn-overall').innerHTML = `${wpn.tier} · Пройдено этапов: <b>${doneTiers}/${totalTiers}</b>`;
+            },
+
+            renderMasteryTabs() {
+                let wId = this.masteryWeaponId;
+                let cfg = DB.weaponMastery[wId];
+                let claimed = (this.p.wpnMasteryClaimed && this.p.wpnMasteryClaimed[wId]) || {};
+                let tabsHtml = cfg.categories.map((cat, i) => {
+                    let done = (claimed[cat.statKey] || []).length;
+                    let full = done >= cat.tiers.length;
+                    return `<div class="mastery-tabcell ${this.masteryTab === i ? 'active' : ''} ${full ? 'full' : ''}" onclick="Core.switchMasteryTab(${i})">
+                        <div class="mtc-icon">${cat.icon}</div>
+                        <div class="mtc-label">${cat.label}</div>
+                        <div class="mtc-frac">${full ? '✓ Максимум' : `${done}/${cat.tiers.length}`}</div>
+                    </div>`;
+                }).join('');
+                let isMaxed = this.masteryIsWeaponMaxed(wId);
+                tabsHtml += `<div class="mastery-tabcell final-cell ${this.masteryTab === 'final' ? 'active' : ''}" onclick="Core.switchMasteryTab('final')">
+                    <div class="mtc-icon">🏆</div><div class="mtc-label">Итог${isMaxed ? ' ✓' : ''}</div>
+                </div>`;
+                document.getElementById('mastery-tabs').innerHTML = tabsHtml;
+            },
+
+            masteryHowto: {
+                dmg: 'Наносите урон этим оружием в любых стычках — каждая единица урона идёт в зачёт этой вкладки.',
+                kills: 'Убивайте врагов этим оружием — каждое убийство продвигает прогресс.',
+                crit: 'Наносите критические удары этим оружием — цельтесь в уязвимые зоны, чтобы чаще критовать.',
+                flawless: 'Завершите бой этим оружием, не получив ни одного удара, — засчитывается только «чистая» победа.',
+                elite: 'Уничтожайте закалённых (элитных) противников этим оружием — они выделяются при встрече.',
+                oneshot: 'Убивайте врагов этим оружием с одного попадания — цель должна умереть мгновенно.'
+            },
+
+            ruCount(n, one, few, many) {
+                let mod100 = Math.abs(n) % 100;
+                let mod10 = mod100 % 10;
+                if (mod100 > 10 && mod100 < 20) return many;
+                if (mod10 === 1) return one;
+                if (mod10 >= 2 && mod10 <= 4) return few;
+                return many;
+            },
+
+            masteryTierPhrase(statKey, n) {
+                let s = n.toLocaleString('ru-RU');
+                switch (statKey) {
+                    case 'dmg': return `Нанести ${s} урона`;
+                    case 'kills': return `Убить ${s} ${this.ruCount(n, 'врага', 'врагов', 'врагов')}`;
+                    case 'crit': return `Нанести ${s} ${this.ruCount(n, 'критический удар', 'критических удара', 'критических ударов')}`;
+                    case 'flawless': return `Завершить ${s} ${this.ruCount(n, 'бой', 'боя', 'боёв')} без урона`;
+                    case 'elite': return `Уничтожить ${s} ${this.ruCount(n, 'элитного противника', 'элитных противников', 'элитных противников')}`;
+                    case 'oneshot': return `Убить ${s} ${this.ruCount(n, 'врага', 'врагов', 'врагов')} с одного попадания`;
+                    default: return `Этап · ${s}`;
+                }
+            },
+
+            renderMasteryBody() {
+                let wId = this.masteryWeaponId;
+                let cfg = DB.weaponMastery[wId];
+                let el = document.getElementById('mastery-body');
+                if (this.masteryTab === 'final') { this.renderMasteryFinal(el, wId, cfg); return; }
+
+                let cat = cfg.categories[this.masteryTab];
+                let stats = this.p.wpnMastery[wId] || {};
+                let value = stats[cat.statKey] || 0;
+                let claimed = ((this.p.wpnMasteryClaimed && this.p.wpnMasteryClaimed[wId]) || {})[cat.statKey] || [];
+                let maxTarget = cat.tiers[cat.tiers.length - 1].target;
+                let howtoText = this.masteryHowto[cat.statKey] || 'Используйте это оружие в бою, чтобы продвигать прогресс этой вкладки.';
+
+                let html = `<details class="mastery-howto"><summary><span class="mh-ico">📡</span>Как прокачать</summary><div class="mh-body">${howtoText}</div></details>`;
+
+                html += `<div class="mastery-readout">
+                    <div class="mastery-readout-top"><span>${cat.icon} ${cat.label}</span><span>${value.toLocaleString('ru-RU')} / ${maxTarget.toLocaleString('ru-RU')}</span></div>
+                    <div class="mastery-segbar">${cat.tiers.map((t, i) => {
+                        let segPct = claimed.includes(i) ? 100 : Math.max(0, Math.min(100, Math.round((value / t.target) * 100)));
+                        return `<div class="mastery-seg ${claimed.includes(i) ? 'claimed' : ''}"><div class="mastery-seg-fill" style="width:${segPct}%;"></div></div>`;
+                    }).join('')}</div>
+                </div>`;
+
+                html += `<div class="mastery-ladder">`;
+                cat.tiers.forEach((tier, idx) => {
+                    let isClaimed = claimed.includes(idx);
+                    let isReady = !isClaimed && value >= tier.target;
+                    let stateCls = isClaimed ? 'claimed' : (isReady ? 'ready' : 'locked');
+                    let rewardChips = tier.reward.map(r => `<span class="mastery-reward-chip"><span class="mrc-ico">${this.rewardIcon(r)}</span>${r.name}</span>`).join('');
+                    let footer = isClaimed
+                        ? `<div class="ladder-claimed-tag">✓ Получено</div>`
+                        : (isReady ? `<button class="ladder-btn" onclick="Core.claimMasteryTier('${wId}', '${cat.statKey}', ${idx})">Забрать</button>` : '');
+                    html += `<div class="ladder-step ${stateCls}">
+                        <div class="ladder-step-badge">${isClaimed ? '✓' : (idx + 1)}</div>
+                        <div class="ladder-card">
+                            <div class="ladder-target">${cat.icon} ${this.masteryTierPhrase(cat.statKey, tier.target)}</div>
+                            <div class="mastery-reward-row">${rewardChips}</div>
+                            ${footer}
+                        </div>
+                    </div>`;
+                });
+                html += `</div>`;
+                el.innerHTML = html;
+            },
+
+            renderMasteryFinal(el, wId, cfg) {
+                let wpn = DB.weapons.find(w => w.id === wId);
+                let claimed = (this.p.wpnMasteryClaimed && this.p.wpnMasteryClaimed[wId]) || {};
+                let totalTiers = cfg.categories.reduce((s, c) => s + c.tiers.length, 0);
+                let doneTiers = cfg.categories.reduce((s, c) => s + (claimed[c.statKey] || []).length, 0);
+                let isMaxed = doneTiers >= totalTiers;
+                let titleGiven = (this.p.wpnMasteryTitleClaimed || []).includes(wId);
+                let pct = Math.round((doneTiers / totalTiers) * 100);
+
+                let statChips = cfg.categories.map(c => {
+                    let done = (claimed[c.statKey] || []).length;
+                    let doneFull = done >= c.tiers.length;
+                    return `<div class="mastery-final-statchip ${doneFull ? 'done' : ''}"><span>${c.icon} ${c.label}</span><b>${doneFull ? '✓' : `${done}/${c.tiers.length}`}</b></div>`;
+                }).join('');
+
+                let rewardChips = cfg.finalReward.map(r => `<span class="mastery-reward-chip"><span class="mrc-ico">${this.rewardIcon(r)}</span>${r.name}</span>`).join('');
+
+                let html = `<div class="mastery-final-panel ${isMaxed ? 'ready' : ''}" style="--mastery-wpn-color:${wpn.color};">
+                    <div class="mastery-final-medallion">${Sprites.weapon(wId)}</div>
+                    <div class="mastery-final-title">Мастер ${cfg.genitive}</div>
+                    <div class="mastery-final-desc">Пройдите все 4 вкладки Мастерства этого оружия на максимум, чтобы получить эксклюзивный титул и крупный набор наград.</div>
+                    <div class="mastery-final-gauge"><div class="mastery-final-track"><div class="mastery-final-fill" style="width:${pct}%;"></div></div></div>
+                    <div class="mastery-final-statgrid">${statChips}</div>
+                    <div class="mastery-final-rewardlabel">🎁 Финальная награда</div>
+                    <div class="mastery-final-rewardrow">${rewardChips}<span class="mastery-reward-chip title-chip"><span class="mrc-ico">🏆</span>Титул «Мастер ${cfg.genitive}»</span></div>
+                    <button class="mastery-final-btn" ${(!isMaxed || titleGiven) ? 'disabled' : ''} onclick="Core.claimMasteryTitle('${wId}')">
+                        ${titleGiven ? '✓ Титул получен' : isMaxed ? '🏆 Забрать титул и награды' : `🔒 Пройдено ${doneTiers}/${totalTiers}`}
+                    </button>
+                </div>`;
+                el.innerHTML = html;
+            },
+
+            claimMasteryTier(wId, statKey, idx) {
+                let cfg = DB.weaponMastery[wId]; if (!cfg) return;
+                let cat = cfg.categories.find(c => c.statKey === statKey); if (!cat) return;
+                let tier = cat.tiers[idx]; if (!tier) return;
+                if (!this.p.wpnMasteryClaimed) this.p.wpnMasteryClaimed = {};
+                if (!this.p.wpnMasteryClaimed[wId]) this.p.wpnMasteryClaimed[wId] = {};
+                let claimed = this.p.wpnMasteryClaimed[wId][statKey] || (this.p.wpnMasteryClaimed[wId][statKey] = []);
+                if (claimed.includes(idx)) return;
+                let value = (this.p.wpnMastery[wId] || {})[statKey] || 0;
+                if (value < tier.target) return;
+                claimed.push(idx);
+                let wpn = DB.weapons.find(w => w.id === wId);
+                tier.reward.forEach(r => this.rewardDispatcher(r, `Мастерства «${wpn.name}»`));
+                this.save(); this.updateUI(); this.renderMasteryHeader(); this.renderMasteryTabs(); this.renderMasteryBody(); this.renderInventory();
+            },
+
+            claimMasteryTitle(wId) {
+                let cfg = DB.weaponMastery[wId]; if (!cfg) return;
+                if ((this.p.wpnMasteryTitleClaimed || []).includes(wId)) return;
+                if (!this.masteryIsWeaponMaxed(wId)) return;
+                if (!this.p.wpnMasteryTitleClaimed) this.p.wpnMasteryTitleClaimed = [];
+                this.p.wpnMasteryTitleClaimed.push(wId);
+                let wpn = DB.weapons.find(w => w.id === wId);
+                let titleId = 'masterWpn_' + wId;
+                if (!this.p.unlockedTitles.includes(titleId)) this.p.unlockedTitles.push(titleId);
+                cfg.finalReward.forEach(r => this.rewardDispatcher(r, `Мастерства «${wpn.name}»`));
+                this.log(`🏆 ВЫСШЕЕ МАСТЕРСТВО! Получен эксклюзивный титул «Мастер ${cfg.genitive}» и полный финальный набор наград!`, "combat-win");
+                this.save(); this.updateUI(); this.renderMasteryTabs(); this.renderMasteryFinal(document.getElementById('mastery-body'), wId, cfg); this.renderInventory();
             },
 
             // === Книга Рецептов ===
@@ -12487,7 +13112,7 @@ startCombat(isBossFight = false) {
 
                 const equippedTitle = DB.titles.find(t => t.id === row.title_id) || DB.titles[0];
                 const titleBadge = document.getElementById('pp-title-badge');
-                titleBadge.innerText = `${equippedTitle.icon} ${equippedTitle.name}`;
+                titleBadge.innerHTML = `${this.titleIconHtml(equippedTitle, 15)} ${equippedTitle.name}`;
                 titleBadge.classList.toggle('title-special', !!equippedTitle.special);
                 if (equippedTitle.special) {
                     titleBadge.style.setProperty('--title-accent', equippedTitle.accent || 'var(--neon-purple)');
@@ -12520,7 +13145,7 @@ startCombat(isBossFight = false) {
                         : '';
                     const specialVars = t.special ? ` style="--title-accent:${t.accent || 'var(--neon-purple)'}; --title-glow:${t.glow || 'rgba(191,90,242,0.35)'};"` : '';
                     return `<div class="title-card unlocked ${equipped ? 'equipped' : ''} ${t.special ? 'title-special' : ''}"${specialVars}>
-                        <div class="title-card-icon">${t.icon}</div>
+                        <div class="title-card-icon">${this.titleIconHtml(t, 26)}</div>
                         <div class="title-card-info">
                             <div class="title-card-name"${(!t.special && t.titleColor) ? ` style=\"color:${t.titleColor};\"` : ''}>${t.name}</div>
                             <div class="title-card-desc">${t.desc}</div>
