@@ -269,6 +269,7 @@
         
         /* Награда вылезает из ящика */
         .reward-emerge { position: absolute; left: 50%; bottom: 35%; transform: translate(-50%, 20px) scale(0); opacity: 0; z-index: 15; font-size: 56px; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.7)); text-shadow: 0 0 20px var(--box-color); }
+        .reward-emerge svg { width: 56px; height: 56px; display: block; overflow: visible; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.7)); }
         .crate.opened .reward-emerge { animation: rewardEmergeFloat 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
 
         /* ============================================================
@@ -311,14 +312,58 @@
         @keyframes gemPulse { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.4); } }
         .crate-tier-4 .crate-gem { display: block; }
 
-        .crate-crest { display: none; position: absolute; top: -15px; left: 50%; width: 36px; height: 18px; margin-left: -18px; z-index: 21; }
+        .crate-crest { display: none; position: absolute; top: -15px; left: 50%; width: 36px; height: 18px; margin-left: -18px; z-index: 21; opacity: 1; transition: opacity 0.35s ease, transform 0.5s ease; }
         .crate-crest svg { width: 100%; height: 100%; display: block; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.65)); }
         .crate-tier-4 .crate-crest { display: block; }
+        /* Корона (гребень) — деталь закрытой крышки: после открытия ящика крышка откидывается
+           назад, а корона на ней визуально "протыкала" вылетающую награду. Прячем её, как
+           только ящик перешёл в состояние .opened. */
+        .crate.opened .crate-crest { opacity: 0; transform: translateY(-10px) scale(0.7); pointer-events: none; }
 
         .crate-rivet { display: none; position: absolute; width: 5px; height: 5px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff8e0, #b8860b 70%, #4a2f08); box-shadow: 0 1px 2px rgba(0,0,0,0.7); z-index: 6; }
-        .crate-tier-3 .crate-rivet, .crate-tier-4 .crate-rivet { display: block; }
+        .crate-tier-3 .crate-rivet, .crate-tier-4 .crate-rivet, .crate-tier-5 .crate-rivet { display: block; }
         .crate-rivet.r1 { top: 8px; left: 10px; } .crate-rivet.r2 { top: 8px; right: 10px; }
         .crate-rivet.r3 { bottom: 10px; left: 10px; } .crate-rivet.r4 { bottom: 10px; right: 10px; }
+
+        /* ============================================================
+           ТИР 5 — «РЕЛИКВАРИЙ ПУСТОШИ» (эксклюзивная переработка).
+           Единственный ящик, оставшийся в магазине: пышный, обособленный
+           силуэт готического ковчега — выше и шире прочих тиров, с нимбом
+           из вращающихся лучей, тройным кристальным навершием и резным
+           гребнем, вместо простого сундука тира 4.
+           ============================================================ */
+        .crate-tier-5 { width: 172px; height: 168px; }
+        .crate-halo { display: none; }
+        .crate-tier-5 .crate-halo { display: block; position: absolute; left: 50%; top: 46%; width: 210px; height: 210px; margin: -105px 0 0 -105px; z-index: 1; pointer-events: none; opacity: 0.9; background: conic-gradient(from 0deg, rgba(191,90,242,0.0) 0deg, rgba(255,215,80,0.55) 25deg, rgba(191,90,242,0.0) 60deg, rgba(255,215,80,0.0) 180deg, rgba(191,90,242,0.5) 220deg, rgba(255,215,80,0.0) 260deg, rgba(255,215,80,0.0) 360deg); border-radius: 50%; filter: blur(2px); animation: relicHaloSpin 7s linear infinite; }
+        @keyframes relicHaloSpin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .crate-tier-5 .crate-body { border-radius: 16px 16px 26px 26px; background: linear-gradient(160deg, #fff6dc 0%, #f0c04a 22%, #bf5af2 48%, #6a1fb0 72%, #2a0d4a 100%); border: 3px solid #2a0d4a; box-shadow: inset 0 3px 5px rgba(255,255,255,0.65), inset 0 -5px 12px rgba(0,0,0,0.8), 0 22px 46px rgba(0,0,0,0.85), 0 0 50px rgba(191,90,242,0.45), 0 0 26px rgba(255,183,3,0.35); }
+        .crate-tier-5 .crate-body::before { border-radius: 14px 14px 24px 24px; background: repeating-linear-gradient(90deg, transparent, transparent 9px, rgba(0,0,0,0.14) 9px, rgba(0,0,0,0.14) 10px), radial-gradient(ellipse at 50% 12%, rgba(255,255,255,0.4), transparent 55%); }
+        .crate-tier-5 .crate-body::after { content: ''; position: absolute; left: 50%; top: 30%; width: 60%; height: 34%; transform: translateX(-50%); border: 2px solid rgba(255,244,214,0.55); border-radius: 50% 50% 6px 6px / 60% 60% 6px 6px; box-shadow: inset 0 0 12px rgba(255,215,120,0.35); }
+        .crate-tier-5 .crate-lid { border-radius: 60% 60% 10px 10px / 75% 75% 10px 10px; height: 44%; background: linear-gradient(160deg, #fffaf0 0%, #ffe9a8 25%, #e0a3ff 55%, #7a2fc0 85%, #2a0d4a 100%); border: 3px solid #2a0d4a; box-shadow: inset 0 3px 5px rgba(255,255,255,0.7), inset 0 -3px 7px rgba(0,0,0,0.75), 0 12px 24px rgba(0,0,0,0.65), 0 0 22px rgba(191,90,242,0.5); }
+        .crate-tier-5 .crate-bands { width: 10px; background: linear-gradient(90deg, #fffaf0 0%, #f0c04a 35%, #bf5af2 70%, #4a1a80 100%); box-shadow: inset 0 1px 3px rgba(255,255,255,0.7), 0 2px 8px rgba(0,0,0,0.75); }
+        .crate-tier-5 .crate-lock { display: none; }
+        .crate-tier-5 .crate-hinge { background: linear-gradient(180deg, #fffaf0 0%, #bf5af2 100%); width: 20px; height: 12px; box-shadow: 0 0 8px rgba(191,90,242,0.75); }
+        .crate-tier-5 .crate-glow { inset: -75px; filter: blur(46px); }
+        .crate-tier-5 .crate-gem { display: block; top: 30%; width: 34px; height: 34px; margin: -17px 0 0 -17px; }
+        .crate-tier-5 .crate-gem-shape { background: radial-gradient(circle at 35% 28%, #ffffff, #ffd24a 35%, #bf5af2 70%, #4a1a80 100%); box-shadow: 0 0 24px 7px rgba(191,90,242,0.85), 0 0 14px 4px rgba(255,183,3,0.6), inset 0 1px 3px rgba(255,255,255,0.85); }
+        .crate-gem-side { display: none; }
+        .crate-tier-5 .crate-gem-side { display: block; position: absolute; top: 40%; width: 14px; height: 14px; z-index: 12; }
+        .crate-tier-5 .crate-gem-side.left { left: 22%; margin-left: -7px; }
+        .crate-tier-5 .crate-gem-side.right { right: 22%; margin-right: -7px; }
+        .crate-tier-5 .crate-gem-side-shape { width: 100%; height: 100%; background: radial-gradient(circle at 35% 30%, #fff8e0, #ffd24a 45%, #ff8a00 100%); clip-path: polygon(50% 0%, 90% 35%, 76% 100%, 24% 100%, 10% 35%); box-shadow: 0 0 10px 3px rgba(255,183,3,0.75); animation: gemPulse 2.2s ease-in-out infinite; }
+        .crate-tier-5 .crate-rivet { background: radial-gradient(circle at 35% 30%, #fff8e0, #bf5af2 70%, #2a0d4a); width: 6px; height: 6px; }
+        .crate-tier-5 .crate-crest { display: block; top: -26px; width: 52px; height: 26px; margin-left: -26px; z-index: 21; filter: drop-shadow(0 0 8px rgba(255,215,80,0.7)); }
+        .crate-thumb .crate-tier-5.crate { transform: scale(0.32) translateY(0px); }
+
+        /* ---- Уникальные «шкурки» для обычных ящиков (находки в разведке) ---- */
+        .crate-skin-scrap .crate-body { background: linear-gradient(155deg, #8a8578 0%, #524d3f 55%, #2a2720 100%) !important; }
+        .crate-skin-scrap .crate-body::after { content:''; position:absolute; width:14px; height:10px; left:14%; top:22%; background: radial-gradient(circle, rgba(160,90,40,0.55), transparent 70%); border-radius: 50%; }
+        .crate-skin-scrap .crate-lid { background: linear-gradient(160deg, #96907f 0%, #5c5544 55%, #2a2720 100%) !important; }
+        .crate-skin-scrap .crate-lock { filter: grayscale(0.4) sepia(0.3); }
+        .crate-skin-ration .crate-body::after { content:''; position:absolute; left:20%; top:40%; width:60%; height:8px; background: repeating-linear-gradient(90deg, #dfe6cd 0 6px, #37501f 6px 12px); opacity:0.6; transform: rotate(-3deg); }
+        .crate-skin-ration .crate-lid::after { content:'⭐'; position:absolute; left:50%; top:35%; transform:translateX(-50%); font-size:10px; filter:grayscale(0.3) opacity(0.8); }
+        .crate-skin-safe .crate-dial::after { background: var(--neon-gold) !important; box-shadow: 0 0 6px var(--neon-gold); }
+        .crate-skin-safe .crate-body::after { content:''; position:absolute; left:8%; top:12%; width:18px; height:18px; border:2px solid rgba(255,183,3,0.4); border-radius:50%; }
 
         /* ---- Уменьшенная статичная копия ящика для карточек магазина ---- */
         .crate-thumb { position: relative; width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
@@ -347,8 +392,80 @@
         @keyframes rewardIconBounce { 0% { transform: scale(0) rotateZ(-30deg); } 60% { transform: scale(1.15); } 100% { transform: scale(1) rotateZ(0); } }
         
         .reward-title { font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.6); margin-bottom: 8px; }
-        .reward-name { font-size: 16px; font-weight: 800; color: var(--reward-color, #00f0ff); text-shadow: 0 0 12px var(--reward-color, #00f0ff); margin-bottom: 16px; line-height: 1.3; }
+        /* Итоговая карточка Реликвария Пустоши: появляется ПОСЛЕ последнего приза в очереди,
+           только если призов было больше одного (см. showRelicSummary/advanceRelic). Список
+           наград сгруппирован по названию — повторы схлопываются в "×N" вместо N одинаковых строк. */
+        .reward-summary-list { display: none; flex-direction: column; gap: 8px; width: 100%; max-height: 46vh; overflow-y: auto; margin: 4px 0 16px; padding-right: 2px; box-sizing: border-box; }
+        .reward-summary-row { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 8px 10px; text-align: left; }
+        .reward-summary-icon { font-size: 22px; flex-shrink: 0; width: 28px; text-align: center; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
+        .reward-summary-icon svg { width: 26px; height: 26px; display: block; margin: 0 auto; }
+        .reward-summary-name { flex: 1; min-width: 0; font-size: 11.5px; font-weight: 700; color: #fff; line-height: 1.35; overflow-wrap: break-word; word-break: normal; hyphens: none; }
+        .reward-summary-count { flex-shrink: 0; font-size: 11px; font-weight: 900; color: var(--reward-color, #ffd700); background: rgba(255,255,255,0.1); border-radius: 999px; padding: 3px 10px; white-space: nowrap; }
+        .reward-name { font-size: 16px; font-weight: 800; color: var(--reward-color, #00f0ff); text-shadow: 0 0 12px var(--reward-color, #00f0ff); margin-bottom: 16px; line-height: 1.3; overflow-wrap: break-word; word-break: normal; hyphens: none; }
         .reward-button { padding: 10px 26px; font-size: 11px; font-weight: 800; letter-spacing: 0.5px; }
+        .reward-counter { position: absolute; top: 12px; right: 16px; font-size: 11px; font-weight: 900; color: #fff; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.25); border-radius: 20px; padding: 3px 10px; letter-spacing: 0.5px; }
+
+        /* ============================================================
+           ОБЫЧНЫЕ ЯЩИКИ: выбор из 3 карточек вслепую (находки в разведке).
+           ============================================================ */
+        #boxpick-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: radial-gradient(ellipse at center top, rgba(20,30,60,0.7) 0%, rgba(4, 6, 10, 0.95) 70%); z-index: 6050; display: none; flex-direction: column; justify-content: center; align-items: center; backdrop-filter: blur(8px); padding: 20px; }
+        #boxpick-overlay.active { display: flex; }
+        .boxpick-head { text-align: center; margin-bottom: 22px; }
+        .boxpick-title { font-size: 15px; font-weight: 900; color: #fff; margin-bottom: 4px; }
+        .boxpick-sub { font-size: 12px; color: var(--text-muted); }
+        .boxpick-row { display: flex; gap: 10px; justify-content: center; margin-bottom: 22px; }
+        /* ============================================================
+           Карточки выбора "Найденного Тайника" — редизайн: сама карточка
+           окрашена в цвет редкости плотным глянцевым градиентом (без
+           отдельного светящегося шарика по центру), сверху — стеклянный
+           блик и бегущий диагональный шиммер, чтобы карточка читалась
+           как настоящий "запечатанный" глянцевый трофей.
+           ============================================================ */
+        .boxpick-card { width: 96px; height: 140px; border-radius: 20px; position: relative; cursor: pointer;
+            background:
+                linear-gradient(200deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.08) 30%, transparent 55%),
+                linear-gradient(155deg, var(--hint-color, #00f0ff) 0%, rgba(13,17,29,0.95) 78%);
+            border: 2px solid var(--hint-color, #00f0ff); display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: transform 0.18s ease, box-shadow 0.2s ease; overflow: hidden;
+            box-shadow: 0 10px 26px rgba(0,0,0,0.5), 0 0 18px -2px var(--hint-color, #00f0ff), inset 0 1px 0 rgba(255,255,255,0.35); }
+        .boxpick-card:not(.revealed):active { transform: scale(0.95); }
+        .boxpick-card .boxpick-hint-glow { position: absolute; inset: -20px; background: radial-gradient(circle, var(--hint-color, #00f0ff) 0%, transparent 70%); opacity: 0.35; animation: boxpickHintPulse 1.8s ease-in-out infinite; }
+        @keyframes boxpickHintPulse { 0%, 100% { opacity: 0.22; } 50% { opacity: 0.5; } }
+        /* Стеклянный блик-полумесяц сверху карточки — придаёт объём глянцевой поверхности */
+        .boxpick-card::before { content: ''; position: absolute; top: -18%; left: -10%; right: -10%; height: 55%; z-index: 1; pointer-events: none;
+            background: radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.12) 45%, transparent 75%);
+            border-radius: 50%; }
+        /* Бегущий диагональный блик по запечатанной рубашке — исчезает, как только карточка раскрыта */
+        .boxpick-card::after { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+            background: linear-gradient(115deg, transparent 42%, rgba(255,255,255,0.45) 50%, transparent 58%);
+            background-size: 240% 240%; background-position: 200% 0; animation: boxpickShimmer 2.8s ease-in-out infinite; mix-blend-mode: overlay; }
+        .boxpick-card.revealed::after { animation: none; opacity: 0; }
+        @keyframes boxpickShimmer { 0% { background-position: 220% 0; } 100% { background-position: -60% 0; } }
+        .boxpick-card .boxpick-face { display: none; z-index: 2; text-align: center; padding: 8px 7px; width: 100%; box-sizing: border-box; }
+        .boxpick-card.revealed { cursor: default; border-color: var(--hint-color, #00f0ff); box-shadow: 0 0 22px var(--hint-color, #00f0ff); }
+        .boxpick-card.revealed .boxpick-face { display: block; animation: boxpickFaceIn 0.35s ease; }
+        @keyframes boxpickFaceIn { 0% { transform: scale(0.6) rotateY(90deg); opacity: 0; } 100% { transform: scale(1) rotateY(0deg); opacity: 1; } }
+        .boxpick-face-icon { font-size: 28px; margin-bottom: 7px; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.55)); }
+        .boxpick-face-icon svg { width: 32px; height: 32px; display: block; margin: 0 auto; }
+        /* Перенос текста только по границам слов (никогда посреди слова) — раньше длинные
+           названия наград ломались некрасиво на узких карточках. */
+        .boxpick-face-name { font-size: 9.5px; font-weight: 800; color: #fff; line-height: 1.3; overflow-wrap: break-word; word-break: normal; hyphens: none; }
+        .boxpick-card.chosen { transform: scale(1.06); box-shadow: 0 0 30px var(--hint-color, #39ff14); }
+        .boxpick-card.not-chosen { opacity: 0.55; filter: grayscale(0.3); }
+        .boxpick-hintline { text-align: center; font-size: 10.5px; color: var(--text-muted); margin-bottom: 14px; max-width: 280px; overflow-wrap: break-word; word-break: normal; }
+        #boxpick-continue { display: none; }
+        #boxpick-continue.show { display: inline-flex; }
+
+        /* ============================================================
+           НАЙДЕННЫЕ ЯЩИКИ В ИНВЕНТАРЕ (получены в разведке/наградах)
+           ============================================================ */
+        .found-box-card { display: flex; align-items: center; gap: 12px; background: linear-gradient(155deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%), rgba(15,20,35,0.6); border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; padding: 10px 12px; margin-bottom: 10px; }
+        .found-box-icon { width: 52px; height: 52px; flex-shrink: 0; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 26px; background: radial-gradient(circle at 35% 30%, rgba(255,255,255,0.16), rgba(255,255,255,0.02) 70%), rgba(255,255,255,0.05); border: 1px solid var(--box-color, rgba(255,255,255,0.16)); box-shadow: 0 0 12px rgba(255,255,255,0.08); }
+        .found-box-info { flex: 1; min-width: 0; }
+        .found-box-title { font-size: 13px; font-weight: 800; color: #fff; overflow-wrap: break-word; word-break: normal; hyphens: none; }
+        .found-box-sub { font-size: 10.5px; color: var(--neon-green); font-weight: 700; margin-top: 2px; overflow-wrap: break-word; word-break: normal; hyphens: none; line-height: 1.35; }
+        .found-box-open-btn { flex-shrink: 0; background: linear-gradient(135deg, #39ff14, #1eb800); color: #062b00; border: none; border-radius: 10px; padding: 8px 14px; font-size: 11px; font-weight: 900; cursor: pointer; white-space: nowrap; }
+        .found-box-empty-hint { font-size: 11.5px; color: var(--text-muted); text-align: center; padding: 10px 6px; overflow-wrap: break-word; word-break: normal; }
          @keyframes enemyAppear{
 
 0%{
@@ -2012,7 +2129,7 @@ transform:scale(1);
         }
         .supply-info { flex: 1; min-width: 0; position: relative; z-index: 1; }
         .supply-name { font-size: 12.5px; font-weight: 800; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .supply-sub { font-size: 10px; font-weight: 600; color: var(--text-muted); margin-top: 2px; }
+        .supply-sub { font-size: 10px; font-weight: 600; color: var(--text-muted); margin-top: 2px; overflow-wrap: break-word; word-break: normal; hyphens: none; }
         .supply-qty {
             font-size: 10.5px;
             font-weight: 900;
@@ -3395,6 +3512,7 @@ padding-top:9vh;
         
         <div class="crate-scene">
             <div class="crate crate-tier-1" id="gacha-crate">
+                <div class="crate-halo"></div>
                 <div class="crate-glow" id="crate-glow"></div>
                 <div class="crate-inner-glow"></div>
 
@@ -3420,8 +3538,10 @@ padding-top:9vh;
                 <!-- Дисковый замок (Сейф Минори) -->
                 <div class="crate-dial"></div>
 
-                <!-- Самоцвет (Реликварий Пустоши) -->
+                <!-- Самоцветы (Реликварий Пустоши) -->
+                <div class="crate-gem-side left"><div class="crate-gem-side-shape"></div></div>
                 <div class="crate-gem"><div class="crate-gem-shape"></div></div>
+                <div class="crate-gem-side right"><div class="crate-gem-side-shape"></div></div>
 
                 <!-- Крышка с петлями -->
                 <div class="crate-lid">
@@ -3435,11 +3555,23 @@ padding-top:9vh;
         </div>
         
         <div class="reward-card" id="gacha-reward">
+            <div class="reward-counter" id="reward-counter" style="display:none;"></div>
             <div class="reward-icon" id="reward-icon"></div>
-            <div class="reward-title">Награда</div>
+            <div class="reward-title" id="reward-title">Награда</div>
             <div class="reward-name" id="reward-name"></div>
+            <div class="reward-summary-list" id="reward-summary-list" style="display:none;"></div>
             <button class="primary reward-button" id="gacha-close-btn" onclick="Core.closeGacha()">Принять</button>
         </div>
+    </div>
+
+    <div id="boxpick-overlay">
+        <div class="boxpick-head">
+            <div class="boxpick-title" id="boxpick-title">Выберите награду</div>
+            <div class="boxpick-sub" id="boxpick-sub">Три карточки — цвет и свечение намекают на редкость</div>
+        </div>
+        <div class="boxpick-row" id="boxpick-row"></div>
+        <div class="boxpick-hintline" id="boxpick-hintline"></div>
+        <button class="primary" id="boxpick-continue" onclick="Core.closeBoxPick()">Забрать награду</button>
     </div>
 
     <div id="bp-overlay">
@@ -3996,6 +4128,17 @@ padding-top:9vh;
                     </div>
                 </div>
                 <div class="admin-section">
+                    <div class="admin-section-title">Ящики (Запасы)</div>
+                    <div class="admin-row">
+                        <button class="admin-btn" onclick="Core.adminAddLootbox(0, 1)">+1 📦 Скрап-Ящик</button>
+                        <button class="admin-btn" onclick="Core.adminAddLootbox(0, 5)">+5 📦 Скрап-Ящик</button>
+                        <button class="admin-btn" onclick="Core.adminAddLootbox(1, 1)">+1 📦 Продуктовый ящик</button>
+                        <button class="admin-btn" onclick="Core.adminAddLootbox(1, 5)">+5 📦 Продуктовый ящик</button>
+                        <button class="admin-btn" onclick="Core.adminAddLootbox(2, 1)">+1 📦 Сейф Минори</button>
+                        <button class="admin-btn" onclick="Core.adminAddLootbox(2, 5)">+5 📦 Сейф Минори</button>
+                    </div>
+                </div>
+                <div class="admin-section">
                     <div class="admin-section-title">Состояние персонажа</div>
                     <div class="admin-row">
                         <button class="admin-btn" onclick="Core.adminFullRestore()">❤️ Полное восстановление ОЗ/⚡/сытости</button>
@@ -4157,6 +4300,8 @@ padding-top:9vh;
     </div>
 
     <div id="screen-inv" class="screen-overlay">
+        <div class="screen-title">🗃️ Запасы</div>
+        <div id="found-boxes-list"></div>
         <div class="screen-title">⚔️ Доступный Арсенал & Модернизация</div>
         <div id="weapon-list"></div>
         <div class="screen-title">🎣 Рыболовные Снасти</div>
@@ -5340,10 +5485,15 @@ padding-top:9vh;
             // Строит статичную (без тряски) уменьшенную копию того же тира ящика,
             // что показывается в анимации открытия — чтобы в магазине сразу было
             // видно, насколько ящик солиднее/дороже остальных.
-            crateThumb(tier, color) {
+            crateThumb(tier, color, skin) {
                 const t = tier || 1;
+                const skinClass = skin ? ` crate-skin-${skin}` : '';
+                const haloHtml = t === 5 ? '<div class="crate-halo"></div>' : '';
+                const sideGemsHtml = t === 5 ? '<div class="crate-gem-side left"><div class="crate-gem-side-shape"></div></div>' : '';
+                const sideGemsHtml2 = t === 5 ? '<div class="crate-gem-side right"><div class="crate-gem-side-shape"></div></div>' : '';
                 return `<div class="crate-thumb" style="--box-color:${color || '#00f0ff'}">
-                    <div class="crate crate-tier-${t}">
+                    <div class="crate crate-tier-${t}${skinClass}">
+                        ${haloHtml}
                         <div class="crate-crest"><svg viewBox="0 0 36 18" xmlns="http://www.w3.org/2000/svg"><path d="M2 17 L2 8 L9.5 13.5 L18 3 L26.5 13.5 L34 8 L34 17 Z" fill="#e8b23a" stroke="#3a2408" stroke-width="1.2"/><circle cx="18" cy="6" r="2.2" fill="#ff8a00"/></svg></div>
                         <div class="crate-body"></div>
                         <div class="crate-rivet r1"></div><div class="crate-rivet r2"></div>
@@ -5352,7 +5502,9 @@ padding-top:9vh;
                         <div class="crate-bands right"></div>
                         <div class="crate-lock">🔒</div>
                         <div class="crate-dial"></div>
+                        ${sideGemsHtml}
                         <div class="crate-gem"><div class="crate-gem-shape"></div></div>
+                        ${sideGemsHtml2}
                         <div class="crate-lid">
                             <div class="crate-hinge left"></div>
                             <div class="crate-hinge right"></div>
@@ -7401,11 +7553,34 @@ padding-top:9vh;
                 // в обычном магазине скинов не продаётся и не появляется на витрине.
                 { id: "owl", name: "Странник Сова", icon: "🦉", price: 0, accent: "#ffcf4d", desc: "Перьевая броня цвета ночной охоты — бурые перья, янтарные линзы-глаза и ушки-пучки на капюшоне. Награда 100 уровня Elite-дороги 1 сезона." }
             ],
+            // ===== ЯЩИКИ =====
+            // «Скрап-Ящик», «Продуктовый ящик» и «Сейф Минори» больше НЕ продаются в магазине —
+            // их можно только случайно найти во время разведки (см. Core.runExploreBoxFind()).
+            // Найденный ящик попадает в Инвентарь ("Запасы") и открывается там бесплатно
+            // через выбор одной из 3 карточек (см. Core.openBoxPick()). skin — визуальный вариант
+            // модели ящика (см. CSS .crate-skin-*), чтобы все три были оригинальными на вид.
+            // «Реликварий Пустоши» остался единственным платным ящиком (за ваучеры). base table —
+            // исходные 9 наград и их шансы НЕ менялись. extraTable — новые награды, добавленные
+            // поверх исходных (в т.ч. оружие и броня всей игры, кроме скинов/элит-пропуска), и
+            // используются функцией Core.getRelicFullTable(). Открытие теперь выдаёт от 1 до 10
+            // призов подряд — см. Core.openRelicAnimated()/Core.rollRelicDropCount().
             lootboxes: [
-                { name: "Скрап-Ящик", price: 15, color: "#00f0ff", tier: 1, maxVouchers: 1, table: [{ item: "Запчасти x4", chance: 0.679 }, { item: "🧬 Сыворотка ОЗ (+10 к Макс ОЗ)", chance: 0.291 }, { item: "Тяжелый Хлам x2", chance: 0.03 }] },
-                { name: "Продуктовый ящик", price: 20, color: "#39ff14", tier: 2, maxVouchers: 1, table: [{ item: "Сырое мясо x2", chance: 0.57 }, { item: "Жареное мясо крысы x1", chance: 0.38 }, { item: "Сырое мясо x4", chance: 0.05 }] },
-                { name: "Сейф Минори", price: 45, color: "#ffb703", tier: 3, maxVouchers: 2, table: [{ item: "🧬 Сыворотка ОЗ (+10 к Макс ОЗ)", chance: 0.29 }, { item: "🔋 Микро-батарея (+20 Энергии)", chance: 0.22 }, { item: "Сырое мясо x3", chance: 0.22 }, { item: "Тяжелый Хлам x3", chance: 0.10 }, { item: "🧰 Гаджет (случайное оружие)", chance: 0.06 }, { item: "⚡ Мегасила (случайное оружие)", chance: 0.02 }, { item: "Ядерная Батарея x1", chance: 0.08 }, { item: "Жетон Схрона x1", chance: 0.01 }] },
-                { name: "Реликварий Пустоши", price: 5, color: "#ffd700", currency: "vouchers", premium: true, tier: 4, maxVouchers: 2, table: [{ item: "🎫 Пустынный Премиум-пропуск", chance: 0.01 }, { item: "⚡ Мегасила (случайное оружие)", chance: 0.05 }, { item: "🧰 Гаджет (случайное оружие)", chance: 0.09 }, { item: "🧬 Сыворотка ОЗ (+10 к Макс ОЗ)", chance: 0.23 }, { item: "🔋 Микро-батарея (+20 Энергии)", chance: 0.22 }, { item: "Запчасти x15", chance: 0.15 }, { item: "Жетон Схрона x1", chance: 0.15 }, { item: "Ядерная Батарея x1", chance: 0.08 }, { item: "Жетон Схрона x2", chance: 0.02 } ] }
+                { name: "Скрап-Ящик", price: 15, color: "#00f0ff", tier: 1, skin: "scrap", maxVouchers: 1, table: [{ item: "Запчасти x4", chance: 0.679 }, { item: "🧬 Сыворотка ОЗ (+10 к Макс ОЗ)", chance: 0.291 }, { item: "Тяжелый Хлам x2", chance: 0.03 }] },
+                { name: "Продуктовый ящик", price: 20, color: "#39ff14", tier: 2, skin: "ration", maxVouchers: 1, table: [{ item: "Сырое мясо x2", chance: 0.57 }, { item: "Жареное мясо крысы x1", chance: 0.38 }, { item: "Сырое мясо x4", chance: 0.05 }] },
+                { name: "Сейф Минори", price: 45, color: "#ffb703", tier: 3, skin: "safe", maxVouchers: 2, table: [{ item: "🧬 Сыворотка ОЗ (+10 к Макс ОЗ)", chance: 0.29 }, { item: "🔋 Микро-батарея (+20 Энергии)", chance: 0.22 }, { item: "Сырое мясо x3", chance: 0.22 }, { item: "Тяжелый Хлам x3", chance: 0.10 }, { item: "🧰 Гаджет (случайное оружие)", chance: 0.06 }, { item: "⚡ Мегасила (случайное оружие)", chance: 0.02 }, { item: "Ядерная Батарея x1", chance: 0.08 }, { item: "Жетон Схрона x1", chance: 0.01 }] },
+                { name: "Реликварий Пустоши", price: 10, color: "#ffd700", currency: "vouchers", premium: true, tier: 5, maxVouchers: 2,
+                    table: [{ item: "🎫 Пустынный Премиум-пропуск", chance: 0.01 }, { item: "⚡ Мегасила (случайное оружие)", chance: 0.05 }, { item: "🧰 Гаджет (случайное оружие)", chance: 0.09 }, { item: "🧬 Сыворотка ОЗ (+10 к Макс ОЗ)", chance: 0.23 }, { item: "🔋 Микро-батарея (+20 Энергии)", chance: 0.22 }, { item: "Запчасти x15", chance: 0.15 }, { item: "Жетон Схрона x1", chance: 0.17 }, { item: "Ядерная Батарея x1", chance: 0.08 } ],
+                    extraTable: [
+                        { item: "🔫 Оружие (случайное по уровню)", chance: 0.15, special: "weapon" },
+                        { item: "🛡️ Комплект брони (случайный)", chance: 0.06, special: "armor" },
+                        { item: "💉 Мед-Пакет x3", chance: 0.12 },
+                        { item: "Тяжелый Хлам x5", chance: 0.10 },
+                        { item: "Ядерная Батарея x3", chance: 0.04 },
+                        { item: "💠 Жетон Схрона x5", chance: 0.03 },
+                        { item: "🏷️ Ваучеры x3", chance: 0.05 },
+                        { item: "🏷️ Ваучеры x8", chance: 0.015 }
+                    ]
+                }
             ],
             // ===== Трофейная Дорога: постоянная (не сезонная) шкала за победы в бою, 1 трофей за обычного врага, 15 за босса =====
             // Награда на КАЖДОМ этапе, кратном 50 (100 этапов, от 50 до 5000 трофеев). Ваучеры специально
@@ -9916,6 +10091,10 @@ padding-top:9vh;
                             this.runExploreLandmark();
                             this.p.exploreStreak = Math.min(15, streak + 1);
                             break;
+                        case 'boxFind':
+                            this.runExploreBoxFind();
+                            this.p.exploreStreak = Math.min(15, streak + 1);
+                            break;
                         case 'caravan':
                             this.runExploreCaravan();
                             this.p.exploreStreak = Math.min(15, streak + 1);
@@ -9971,7 +10150,8 @@ padding-top:9vh;
                     ambush: 5, // шанс засады снижен по прямому запросу
                     combat: 10,
                     elite: 3 / 14, // шанс элитного противника снижен ещё вдвое сверх прежнего по прямому запросу
-                    lake: lakeUnlocked ? 4 : 0
+                    lake: lakeUnlocked ? 4 : 0,
+                    boxFind: 0.6 // очень маленький шанс найти нетронутый обычный ящик (см. runExploreBoxFind)
                 };
                 if (!lakeUnlocked) w.empty += 4;
 
@@ -10136,6 +10316,21 @@ padding-top:9vh;
                     this.p.vouchers = (this.p.vouchers || 0) + 1;
                     this.log(`🗺️ Регион «${biomeName}» полностью исследован! Награда: +${bonusCaps} 🪙 и +1 🏷️ Ваучер.`, "system");
                 }
+            },
+
+            // Находка нетронутого обычного ящика (Скрап-Ящик / Продуктовый ящик / Сейф Минори).
+            // Шанс крайне мал (см. вес boxFind в rollExploreEvent). Ящик НЕ открывается сразу —
+            // он попадает в Инвентарь ("Запасы") и остаётся там, пока игрок сам не
+            // откроет его бесплатно (см. Core.openFreeBox/Core.openBoxPick).
+            runExploreBoxFind() {
+                const regularIdx = DB.lootboxes.map((b, i) => i).filter(i => !DB.lootboxes[i].premium);
+                const boxIdx = regularIdx[Math.floor(Math.random() * regularIdx.length)];
+                const box = DB.lootboxes[boxIdx];
+                if (!this.p.freeBoxes) this.p.freeBoxes = {};
+                this.p.freeBoxes[boxIdx] = (this.p.freeBoxes[boxIdx] || 0) + 1;
+                this.showExploreToast('🗃️', 'Тайник найден!', `«${box.name}» — открой бесплатно в Инвентаре`, box.color);
+                this.log(`🗃️ Находка! Обнаружен нетронутый «${box.name}» — он в Инвентаре (Запасы), откройте бесплатно в любое время.`, "loot");
+                Scene.findEffect('cache');
             },
 
             // Опасный участок местности — либо нарастает "хазард" биома (радиация/холод/токсины и т.п.),
@@ -11464,6 +11659,52 @@ startCombat(isBossFight = false) {
             },
 
             renderInventory() {
+                // ---- Запасы: обычные найденные ящики + Мед-Пакеты/Микро-батареи из ящиков ----
+                // Все три типа объединяет одно: это НЕ крафт-ресурсы, а заряды, которые лежат
+                // про запас и расходуются игроком вручную, когда он сам решит (см.
+                // Core.openFreeBox / Core.useMedpack / Core.useBattery).
+                const fbEl = document.getElementById('found-boxes-list');
+                if (fbEl) {
+                    let fbHtml = '';
+                    DB.lootboxes.forEach((box, idx) => {
+                        if (box.premium) return;
+                        let owned = this.getFreeBoxCount(idx);
+                        if (owned <= 0) return;
+                        fbHtml += `
+                        <div class="found-box-card" style="--box-color:${box.color}">
+                            ${Sprites.crateThumb(box.tier, box.color, box.skin)}
+                            <div class="found-box-info">
+                                <div class="found-box-title">${box.name}</div>
+                                <div class="found-box-sub">🎁 В запасе: ${owned}</div>
+                            </div>
+                            <button class="found-box-open-btn" onclick="Core.openFreeBox(${idx})">Открыть</button>
+                        </div>`;
+                    });
+                    if ((this.p.inv["Мед-Пакет"] || 0) > 0) {
+                        fbHtml += `
+                        <div class="found-box-card" style="--box-color:#39ff14">
+                            <div class="found-box-icon">💉</div>
+                            <div class="found-box-info">
+                                <div class="found-box-title">Мед-Пакет</div>
+                                <div class="found-box-sub">🎁 В запасе: ${this.p.inv["Мед-Пакет"]} · +20 ОЗ</div>
+                            </div>
+                            <button class="found-box-open-btn" onclick="Core.useMedpack()">Использовать</button>
+                        </div>`;
+                    }
+                    if ((this.p.inv["Микро-батарея"] || 0) > 0) {
+                        fbHtml += `
+                        <div class="found-box-card" style="--box-color:#00f0ff">
+                            <div class="found-box-icon">🔋</div>
+                            <div class="found-box-info">
+                                <div class="found-box-title">Микро-батарея</div>
+                                <div class="found-box-sub">🎁 В запасе: ${this.p.inv["Микро-батарея"]} · +20 Энергии</div>
+                            </div>
+                            <button class="found-box-open-btn" onclick="Core.useBattery()">Использовать</button>
+                        </div>`;
+                    }
+                    fbEl.innerHTML = fbHtml || `<div class="found-box-empty-hint">Пока пусто. Ящики, Мед-Пакеты и Микро-батареи можно найти во время 🚶 Разведки или в Реликварии Пустоши — они попадут прямо сюда.</div>`;
+                }
+
                 const wEl = document.getElementById('weapon-list'); let wHtml = '';
                 this.p.weaponsOwned.forEach(wId => {
                     let wpn = DB.weapons.find(w => w.id === wId);
@@ -11591,6 +11832,9 @@ startCombat(isBossFight = false) {
 
                 const rEl = document.getElementById('inv-list'); let rHtml = ''; let hasRes = false;
                 for (let k in this.p.inv) {
+                    // Мед-Пакет и Микро-батарея теперь показываются в разделе "Запасы" выше,
+                    // а не среди крафт-материалов — пропускаем их здесь, чтобы не дублировать.
+                    if (k === "Мед-Пакет" || k === "Микро-батарея") continue;
                     if (this.p.inv[k] > 0) {
                         hasRes = true;
                         rHtml += `
@@ -11605,6 +11849,30 @@ startCombat(isBossFight = false) {
                     }
                 }
                 rEl.innerHTML = hasRes ? rHtml : `<div class="supply-empty">📦 Ресурсов пока нет. Разведайте местность или разберите хлам.</div>`;
+            },
+
+            // Мед-Пакет из ящика: заряд лежит в Инвентаре, пока игрок сам не решит его
+            // применить (уважает тот же "потолок" ОЗ от радиации, что и еда/Прямые поставки).
+            useMedpack() {
+                if ((this.p.inv["Мед-Пакет"] || 0) <= 0) return;
+                Sound.play('loot');
+                this.p.inv["Мед-Пакет"]--;
+                let allowedMax = Math.max(5, this.p.maxHp - this.getHazard());
+                let heal = Math.min(20, Math.max(0, allowedMax - this.p.hp));
+                this.p.hp += heal;
+                this.log(heal > 0 ? `💉 Использован Мед-Пакет: +${heal} ОЗ.` : `💉 Использован Мед-Пакет, но ОЗ уже на потолке.`);
+                this.save(); this.updateUI(); this.renderInventory();
+            },
+
+            // Микро-батарея из ящика: тот же принцип — лежит в Инвентаре до ручного использования.
+            useBattery() {
+                if ((this.p.inv["Микро-батарея"] || 0) <= 0) return;
+                Sound.play('loot');
+                this.p.inv["Микро-батарея"]--;
+                let restore = Math.max(0, Math.min(20, this.p.maxEnergy - this.p.energy));
+                this.p.energy += restore;
+                this.log(restore > 0 ? `🔋 Использована Микро-батарея: +${restore} Энергии.` : `🔋 Использована Микро-батарея, но Энергия уже на потолке.`);
+                this.save(); this.updateUI(); this.renderInventory();
             },
 
             // ===================================================================
@@ -13566,49 +13834,32 @@ startCombat(isBossFight = false) {
                     </div>
                 `;
 
+                // В магазине теперь остался только «Реликварий Пустоши» — единственный платный
+                // ящик игры. Остальные (Скрап-Ящик, Продуктовый ящик, Сейф Минори) больше не
+                // продаются: их можно только найти во время разведки — см. Core.renderInventory()
+                // и раздел "Запасы" там же.
                 const el = document.getElementById('shop-list'); let shopHtml = '';
-                DB.lootboxes.forEach((box, idx) => {
-                    let isPremium = !!box.premium;
+                const premiumIdx = DB.lootboxes.findIndex(b => b.premium);
+                const box = DB.lootboxes[premiumIdx];
+                if (box) {
                     let currency = box.currency || 'caps';
                     let currencyIcon = currency === 'vouchers' ? '🏷️' : '🪙';
-                    if (isPremium) {
-                        // Реликварий Пустоши остаётся в прежнем, уникальном премиальном оформлении
-                        let owned = this.p.relicWasteland || 0;
-                        let ownedNote = owned > 0 ? `<div style="margin-top:5px; font-size:10.5px; font-weight:800; color:var(--neon-green);">🎁 Бесплатных в запасе: ${owned}</div>` : '';
-                        let freeOpenBtn = owned > 0 ? `<button class="direct-buy-btn" style="background: linear-gradient(135deg, #39ff14, #1eb800); color:#062b00; margin-top:6px; width:100%;" onclick="Core.openFreeRelic()">Открыть бесплатный (${owned})</button>` : '';
-                        shopHtml += `
-                        <div class="loot-card premium-box" style="--box-color: ${box.color}; flex-wrap: wrap;" onclick="Core.showLootInfo(${idx})">
-                            <div class="premium-ribbon">ЭКСКЛЮЗИВ</div>
-                            ${Sprites.crateThumb(box.tier, box.color)}
-                            <div class="loot-card-info">
-                                <div class="loot-card-title" style="color: ${box.color}">${box.name}</div>
-                                <div class="loot-card-sub">Древний тайник со шансом на крайне редкий приз... и щедрые ресурсы</div>
-                                ${ownedNote}
-                            </div>
-                            <button class="direct-buy-btn" style="background: linear-gradient(135deg, #ffb703, #ff6600); color:#fff; box-shadow: 0 6px 16px rgba(255,183,3,0.4), inset 0 1px 0 rgba(255,255,255,0.35);" onclick="event.stopPropagation(); Core.buyBox(${idx})">${box.price} ${currencyIcon}</button>
-                            ${freeOpenBtn ? freeOpenBtn.replace('onclick="', 'onclick="event.stopPropagation(); ') : ''}
-                        </div>`;
-                    } else {
-                        let owned = this.getFreeBoxCount(idx);
-                        let ownedNote = owned > 0 ? `<div style="margin-top:4px; font-size:10px; font-weight:800; color:var(--neon-green);">🎁 Бесплатных в запасе: ${owned}</div>` : '';
-                        let freeOpenBtn = owned > 0 ? `<button class="direct-buy-btn" style="background: linear-gradient(135deg, #39ff14, #1eb800); color:#062b00; margin-top:6px; width:100%;" onclick="event.stopPropagation(); Core.openFreeBox(${idx})">Открыть бесплатный (${owned})</button>` : '';
-                        shopHtml += `
-                        <div class="direct-card lootbox-card" style="--dc-color: ${box.color}; flex-direction: column; align-items: stretch; gap: 10px;" onclick="Core.showLootInfo(${idx})">
-                            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
-                                <div class="direct-card-left">
-                                    ${Sprites.crateThumb(box.tier, box.color)}
-                                    <div>
-                                        <div class="direct-card-title">${box.name}</div>
-                                        <div class="direct-card-sub">Ресурсы и расходники для похода и костра</div>
-                                    </div>
-                                </div>
-                                <button class="direct-buy-btn" onclick="event.stopPropagation(); Core.buyBox(${idx})">${box.price} ${currencyIcon}</button>
-                            </div>
+                    let owned = this.p.relicWasteland || 0;
+                    let ownedNote = owned > 0 ? `<div style="margin-top:5px; font-size:10.5px; font-weight:800; color:var(--neon-green);">🎁 Бесплатных в запасе: ${owned}</div>` : '';
+                    let freeOpenBtn = owned > 0 ? `<button class="direct-buy-btn" style="background: linear-gradient(135deg, #39ff14, #1eb800); color:#062b00; margin-top:6px; width:100%;" onclick="event.stopPropagation(); Core.openFreeRelic()">Открыть бесплатный (${owned})</button>` : '';
+                    shopHtml += `
+                    <div class="loot-card premium-box" style="--box-color: ${box.color}; flex-wrap: wrap;" onclick="Core.showLootInfo(${premiumIdx})">
+                        <div class="premium-ribbon">ЭКСКЛЮЗИВ</div>
+                        ${Sprites.crateThumb(box.tier, box.color, box.skin)}
+                        <div class="loot-card-info">
+                            <div class="loot-card-title" style="color: ${box.color}">${box.name}</div>
+                            <div class="loot-card-sub">Древний ковчег Пустоши — за одно открытие сразу НЕСКОЛЬКО призов (1–10), включая оружие и броню</div>
                             ${ownedNote}
-                            ${freeOpenBtn}
-                        </div>`;
-                    }
-                });
+                        </div>
+                        <button class="direct-buy-btn" style="background: linear-gradient(135deg, #ffb703, #ff6600); color:#fff; box-shadow: 0 6px 16px rgba(255,183,3,0.4), inset 0 1px 0 rgba(255,255,255,0.35);" onclick="event.stopPropagation(); Core.buyBox(${premiumIdx})">${box.price} ${currencyIcon}</button>
+                        ${freeOpenBtn}
+                    </div>`;
+                }
                 el.innerHTML = shopHtml;
                 this.renderTokenVault();
                 this.renderMarketEntryLocks();
@@ -14496,6 +14747,17 @@ startCombat(isBossFight = false) {
                 this.log(`⚙ Панель разработчика: получено ${name} x${amount}.`, "loot");
                 this.save(); this.updateUI(); this.renderInventory();
             },
+            // Начисляет игроку N найденных ящиков (не премиальных — Реликварий Пустоши
+            // открывается за 🗝️ Реликвии, их можно выдать через adminAddCurrency('relic', ...)).
+            // Ящики попадают в "Запасы" (Арсенал → Запасы) и открываются вручную игроком.
+            adminAddLootbox(idx, amount) {
+                const box = DB.lootboxes[idx];
+                if (!box || box.premium) return;
+                this.p.freeBoxes = this.p.freeBoxes || {};
+                this.p.freeBoxes[idx] = (this.p.freeBoxes[idx] || 0) + amount;
+                this.log(`⚙ Панель разработчика: получено ${box.name} x${amount}.`, "loot");
+                this.save(); this.updateUI(); this.renderInventory();
+            },
             adminFullRestore() {
                 this.p.hp = this.p.maxHp; this.p.energy = this.p.maxEnergy; this.p.satiety = 100; this.p.rad = 0;
                 this.log('⚙ Панель разработчика: состояние персонажа полностью восстановлено.', "loot");
@@ -14700,38 +14962,42 @@ startCombat(isBossFight = false) {
                 const currencyIcon = currency === 'vouchers' ? '🏷️' : '🪙';
                 const priceText = box.premium ? `${box.price} ${currencyIcon}` : `${box.price} ${currencyIcon}`;
 
-                const table = (box.table || []).slice().sort((a, b) => b.chance - a.chance);
+                const fullTable = box.premium ? this.getRelicFullTable() : (box.table || []);
+                const totalWeight = fullTable.reduce((s, e) => s + e.chance, 0) || 1;
+                const table = fullTable.slice().sort((a, b) => b.chance - a.chance);
                 // Цвет строки по редкости: чем ниже шанс — тем "горячее" оттенок
-                const rowColor = (chance) => {
-                    if (chance < 0.03) return '#ff2adf';   // ультра-редкое — розовый неон
-                    if (chance < 0.08) return '#bf5af2';   // редкое — фиолетовый
-                    if (chance < 0.2) return '#ffb703';    // необычное — золото
+                const rowColor = (frac) => {
+                    if (frac < 0.03) return '#ff2adf';   // ультра-редкое — розовый неон
+                    if (frac < 0.08) return '#bf5af2';   // редкое — фиолетовый
+                    if (frac < 0.2) return '#ffb703';    // необычное — золото
                     return '#39ff14';                       // обычное — зелёный
                 };
-                const rarityLabel = (chance) => {
-                    if (chance < 0.03) return 'Крайне редко';
-                    if (chance < 0.08) return 'Редко';
-                    if (chance < 0.2) return 'Необычно';
+                const rarityLabel = (frac) => {
+                    if (frac < 0.03) return 'Крайне редко';
+                    if (frac < 0.08) return 'Редко';
+                    if (frac < 0.2) return 'Необычно';
                     return 'Часто';
                 };
 
                 const rowsHtml = table.map(entry => {
-                    const pct = (entry.chance * 100);
+                    const frac = entry.chance / totalWeight;
+                    const pct = frac * 100;
                     const pctText = pct < 1 ? pct.toFixed(2) : (pct < 10 ? pct.toFixed(1) : Math.round(pct));
-                    const rc = rowColor(entry.chance);
+                    const rc = rowColor(frac);
                     return `<div class="lootinfo-row" style="--row-color:${rc}; --row-color-30:${this.hexToRgba(rc, 0.3)}; --row-color-6:${this.hexToRgba(rc, 0.06)}; --row-color-60:${this.hexToRgba(rc, 0.6)}; --row-color-16:${this.hexToRgba(rc, 0.16)}; --row-color-40:${this.hexToRgba(rc, 0.4)};">
                         <div class="lootinfo-row-fill" style="width:${Math.max(pct, 2)}%;"></div>
                         <div class="lootinfo-row-top">
                             <div class="lootinfo-row-name">${entry.item}</div>
                             <div class="lootinfo-row-pct">${pctText}%</div>
                         </div>
-                        <div class="lootinfo-row-tag">${rarityLabel(entry.chance)}</div>
+                        <div class="lootinfo-row-tag">${rarityLabel(frac)}</div>
                     </div>`;
                 }).join('');
 
-                // Дополнительный (скрытый в основной таблице) шанс на бонусные ваучеры сверху основного приза
+                // Дополнительный (скрытый в основной таблице) шанс на бонусные ваучеры сверху основного приза —
+                // сохранён только для обычных ящиков; у Реликвария эту роль теперь играет extraTable.
                 let bonusRowHtml = '';
-                if (box.maxVouchers) {
+                if (box.maxVouchers && !box.premium) {
                     const bc = '#00e5ff';
                     const bonusLabel = box.maxVouchers > 1 ? `1–${box.maxVouchers}` : `${box.maxVouchers}`;
                     bonusRowHtml = `<div class="lootinfo-row" style="--row-color:${bc}; --row-color-30:${this.hexToRgba(bc, 0.3)}; --row-color-6:${this.hexToRgba(bc, 0.06)}; --row-color-60:${this.hexToRgba(bc, 0.6)}; --row-color-16:${this.hexToRgba(bc, 0.16)}; --row-color-40:${this.hexToRgba(bc, 0.4)};">
@@ -14744,18 +15010,25 @@ startCombat(isBossFight = false) {
                     </div>`;
                 }
 
+                let multiDropHtml = '';
+                if (box.premium) {
+                    multiDropHtml = `<div class="lootinfo-subtitle">За одно открытие — сразу НЕСКОЛЬКО призов</div>
+                        <div class="lootinfo-hint" style="margin-bottom:10px;">Реликварий Пустоши всегда выдаёт от 1 до 10 наград подряд (по очереди, одна за другой). Чем больше призов в связке — тем ниже шанс: получить все 10 сразу можно лишь с исчезающе малой вероятностью.</div>`;
+                }
+
                 document.getElementById('lootinfo-body').innerHTML = `
                     <div class="lootinfo-head">
-                        ${Sprites.crateThumb(box.tier, color)}
+                        ${Sprites.crateThumb(box.tier, color, box.skin)}
                         <div class="lootinfo-head-text">
                             <div class="lootinfo-head-name">${box.name}</div>
                             <div class="lootinfo-head-sub">Цена: ${priceText}</div>
                         </div>
                     </div>
-                    <div class="lootinfo-subtitle">Таблица дропа</div>
+                    ${multiDropHtml}
+                    <div class="lootinfo-subtitle">Таблица дропа${box.premium ? ' (шанс каждого отдельного приза)' : ''}</div>
                     ${rowsHtml}
                     ${bonusRowHtml}
-                    <div class="lootinfo-hint">Проценты — реальные шансы выпадения при открытии этого контейнера. Совпадение результатов не гарантировано при каждой попытке.</div>
+                    <div class="lootinfo-hint">Проценты — реальные шансы выпадения ${box.premium ? 'каждого отдельного приза' : 'при открытии этого контейнера'}. Совпадение результатов не гарантировано при каждой попытке.${box.premium ? ' Оружие и броня входят в таблицу, только пока доступны по уровню и не являются эксклюзивом текущего сезона Пропуска Пустоши; если выпавший предмет уже есть — начисляется компенсация.' : ''}</div>
                 `;
 
                 overlay.classList.add('active');
@@ -14764,45 +15037,150 @@ startCombat(isBossFight = false) {
                 document.getElementById('lootinfo-overlay').classList.remove('active');
             },
 
-            // Анимация открытия ящика (используется и платным магазином, и бесплатными наградами вроде ежедневного пайка)
+            // Диспетчер открытия: Реликварий Пустоши идёт по своей "каскадной" анимации
+            // (несколько призов подряд), обычные найденные ящики — через выбор из 3 карточек.
             openLootboxAnimated(box) {
-                const overlay = document.getElementById('gacha-overlay');
-                const crate = document.getElementById('gacha-crate');
-                const rewardEmerge = document.getElementById('reward-emerge');
-                const rewardCard = document.getElementById('gacha-reward');
-                const rewardIcon = document.getElementById('reward-icon');
-                const rName = document.getElementById('reward-name');
-                const burst = document.getElementById('gacha-burst');
-                const crateGlow = document.getElementById('crate-glow');
-                
-                // Установка тира (солидности) и цвета ящика
-                crate.className = 'crate crate-tier-' + (box.tier || 1);
-                crate.style.setProperty('--box-color', box.color);
-                rewardCard.style.setProperty('--reward-color', box.color);
-                
-                // Парсим цвет в RGB для градиента карточки
-                let rgb = box.color.match(/\w\w/g).map(x => parseInt(x, 16));
-                rewardCard.style.setProperty('--reward-color-r', rgb[0]);
-                rewardCard.style.setProperty('--reward-color-g', rgb[1]);
-                rewardCard.style.setProperty('--reward-color-b', rgb[2]);
-                
-                overlay.style.display = 'flex';
-                crate.classList.remove('opened');
-                rewardCard.style.display = 'none';
-                burst.classList.remove('active');
-                
-                // Выбираем награду
-                let chosen = "", chosenIcon = "📦"; let rand = Math.random(), accum = 0;
-                for (let i = 0; i < box.table.length; i++) { accum += box.table[i].chance; if (rand <= accum) { chosen = box.table[i].item; break; } }
-                
+                if (box.premium) { this.openRelicAnimated(box); return; }
+                this.openBoxPick(box);
+            },
+
+            // ================= РЕЛИКВАРИЙ ПУСТОШИ: множественный дроп (1–10 призов подряд) =================
+            // Веса количества призов за одно открытие. 10 — крайне редкий исход.
+            RELIC_COUNT_WEIGHTS: [ { n: 1, w: 40 }, { n: 2, w: 25 }, { n: 3, w: 15 }, { n: 4, w: 8 }, { n: 5, w: 5 }, { n: 6, w: 3 }, { n: 7, w: 2 }, { n: 8, w: 1.2 }, { n: 9, w: 0.6 }, { n: 10, w: 0.2 } ],
+            rollRelicDropCount() {
+                const total = this.RELIC_COUNT_WEIGHTS.reduce((s, e) => s + e.w, 0);
+                let r = Math.random() * total, acc = 0;
+                for (const e of this.RELIC_COUNT_WEIGHTS) { acc += e.w; if (r <= acc) return e.n; }
+                return 1;
+            },
+
+            // Полная таблица дропа Реликвария: исходные 9 наград (шансы не менялись) + новые
+            // награды поверх них, включая ЛЮБОЕ оружие и броню игры (кроме скинов/Элит-пропуска) —
+            // они появляются в пуле только когда доступны по уровню и не эксклюзив сезона.
+            getRelicFullTable() {
+                const box = DB.lootboxes.find(b => b.premium);
+                return (box.table || []).concat(box.extraTable || []);
+            },
+
+            TIER_WEIGHT: { "Обычное": 40, "Редкое": 25, "Эпическое": 20, "Легендарное": 10 },
+            VOUCHER_COMP_BY_TIER: { "Стартовое": 1, "Обычное": 2, "Редкое": 3, "Эпическое": 5, "Легендарное": 8 },
+
+            // Оружие/скин текущего сезона недоступно никаким другим способом, ПОКА идёт именно
+            // тот слот Пропуска Пустоши, где оно было анонсировано (общий случай isPlasmaSeasonExclusive()).
+            isWeaponSeasonLocked(wId) {
+                const { seasonDef, slotIndex } = this.getSeasonSlot();
+                const defIndex = SEASONS.findIndex(s => s.id === seasonDef.id);
+                return seasonDef.weaponId === wId && slotIndex === defIndex;
+            },
+
+            // Взвешенный выбор одного элемента массива по числовому полю weightKey (по умолчанию "chance").
+            rollWeightedEntry(list, weightKey) {
+                weightKey = weightKey || 'chance';
+                const total = list.reduce((s, e) => s + (e[weightKey] || 0), 0);
+                if (total <= 0) return list[0];
+                let r = Math.random() * total, acc = 0;
+                for (const e of list) { acc += (e[weightKey] || 0); if (r <= acc) return e; }
+                return list[list.length - 1];
+            },
+
+            // Раздаёт случайное ОРУЖИЕ, доступное по уровню и не эксклюзив сезона. Если игрок уже
+            // владеет выпавшим оружием — компенсация Жетонами Схрона (15% от нужных для него), а
+            // если у игрока уже СОБРАНО ВСЁ оружие игры — компенсация Ваучерами.
+            rollRelicWeapon() {
+                const eligible = DB.weapons.filter(w => {
+                    if (w.id === 'fists') return false;
+                    if (this.isWeaponSeasonLocked(w.id)) return false;
+                    const bp = DB.blueprints.find(b => b.targetId === w.id);
+                    const reqLvl = bp ? bp.reqLvl : 1;
+                    return this.p.lvl >= reqLvl;
+                });
+                if (eligible.length === 0) {
+                    let bonus = 5; this.p.vouchers += bonus;
+                    return { icon: '🏷️', name: `Оружие пока недоступно по уровню — компенсация: Ваучеры x${bonus}` };
+                }
+                const weighted = eligible.map(w => ({ w, weight: this.TIER_WEIGHT[w.tier] || 15 }));
+                const picked = this.rollWeightedEntry(weighted, 'weight').w;
+                if (this.p.weaponsOwned.includes(picked.id)) {
+                    const allOwned = DB.weapons.every(w => w.id === 'fists' || this.p.weaponsOwned.includes(w.id));
+                    if (allOwned) {
+                        const vouchers = this.VOUCHER_COMP_BY_TIER[picked.tier] || 2;
+                        this.p.vouchers += vouchers;
+                        return { icon: '🏷️', name: `«${picked.name}» уже есть (собрано всё оружие) — компенсация: Ваучеры x${vouchers}` };
+                    }
+                    const bp = DB.blueprints.find(b => b.targetId === picked.id);
+                    const tokenCost = (bp && bp.cost && bp.cost["Жетон Схрона"]) || 0;
+                    const tokens = Math.max(1, Math.ceil(tokenCost * 0.15));
+                    this.p.inv["Жетон Схрона"] = (this.p.inv["Жетон Схрона"] || 0) + tokens;
+                    return { icon: '💠', name: `«${picked.name}» уже есть — компенсация: Жетон Схрона x${tokens}` };
+                }
+                this.p.weaponsOwned.push(picked.id);
+                // Реальная модель оружия (SVG, та же, что и в Арсенале), а не эмодзи-иконка —
+                // iconIsModel сигнализирует местам вывода (см. showNextRelicReward), что icon
+                // нужно вставлять через innerHTML, а не как текст.
+                return { icon: Sprites.weapon(picked.id), iconIsModel: true, name: `Новое оружие: ${picked.name}!` };
+            },
+
+            // Раздаёт случайную БРОНЮ, доступную по уровню. Та же логика компенсации при дубликате:
+            // часть ресурсов от стоимости чертежа, либо Ваучеры — если собрана вся броня игры.
+            rollRelicArmor() {
+                const eligible = DB.armor.filter(a => {
+                    if (a.id === 'rags') return false;
+                    const bp = DB.armorBlueprints.find(b => b.targetId === a.id);
+                    const reqLvl = bp ? bp.reqLvl : 1;
+                    return this.p.lvl >= reqLvl;
+                });
+                if (eligible.length === 0) {
+                    let bonus = 3; this.p.vouchers += bonus;
+                    return { icon: '🏷️', name: `Броня пока недоступна по уровню — компенсация: Ваучеры x${bonus}` };
+                }
+                const weighted = eligible.map(a => ({ a, weight: this.TIER_WEIGHT[a.tier] || 15 }));
+                const picked = this.rollWeightedEntry(weighted, 'weight').a;
+                if (this.p.armorOwned.includes(picked.id)) {
+                    const allOwned = DB.armor.every(a => a.id === 'rags' || this.p.armorOwned.includes(a.id));
+                    if (allOwned) {
+                        const vouchers = this.VOUCHER_COMP_BY_TIER[picked.tier] || 2;
+                        this.p.vouchers += vouchers;
+                        return { icon: '🏷️', name: `«${picked.name}» уже есть (собрана вся броня) — компенсация: Ваучеры x${vouchers}` };
+                    }
+                    const bp = DB.armorBlueprints.find(b => b.targetId === picked.id);
+                    let compParts = [];
+                    if (bp) {
+                        Object.entries(bp.cost).forEach(([res, qty]) => {
+                            const comp = Math.max(1, Math.ceil(qty * 0.15));
+                            this.p.inv[res] = (this.p.inv[res] || 0) + comp;
+                            compParts.push(`${res} x${comp}`);
+                        });
+                    }
+                    return { icon: '🔩', name: `«${picked.name}» уже есть — компенсация: ${compParts.join(', ') || 'ресурсы'}` };
+                }
+                this.p.armorOwned.push(picked.id);
+                return { icon: picked.icon, name: `Новая броня: ${picked.name}!` };
+            },
+
+            // Разрешает один "предметный" элемент таблицы (не оружие/броня) — общая логика для
+            // Реликвария и обычных находимых ящиков. Мутирует состояние игрока.
+            resolveGenericRewardString(chosen) {
+                let chosenIcon = "📦";
                 if (chosen.includes("Премиум-пропуск")) {
                     if (!this.p.bpPremium) { this.p.bpPremium = true; chosenIcon = "🎫"; }
                     else { let bonus = 50; this.p.caps += bonus; chosen = `🪙 Крышки x${bonus} (Премиум уже активен)`; chosenIcon = "🪙"; }
                 }
-                else if (chosen.includes("🧬")) { this.p.maxHp += 10; this.p.hp = Math.min(this.p.maxHp, this.p.hp + 10); chosenIcon = "🧬"; } 
-                else if (chosen.includes("🔋")) { this.p.energy = Math.min(this.p.maxEnergy, this.p.energy + 20); chosenIcon = "🔋"; } 
+                else if (chosen.includes("Мед-Пакет")) {
+                    // Мед-Пакеты из ящиков больше НЕ используются автоматически — они уходят в
+                    // Инвентарь (Арсенал → Ресурсы) отдельными зарядами, и игрок сам решает,
+                    // когда их применить (см. Core.useMedpack()).
+                    let qty = parseInt(chosen.split(" x")[1]) || 1;
+                    this.p.inv["Мед-Пакет"] = (this.p.inv["Мед-Пакет"] || 0) + qty;
+                    chosenIcon = "💉";
+                }
+                else if (chosen.includes("🧬")) { this.p.maxHp += 10; this.p.hp = Math.min(this.p.maxHp, this.p.hp + 10); chosenIcon = "🧬"; }
+                else if (chosen.includes("🔋")) {
+                    // Микро-батареи из ящиков тоже уходят в Инвентарь, а не тратятся сразу
+                    // (см. Core.useBattery()) — та же логика, что и с Мед-Пакетами выше.
+                    this.p.inv["Микро-батарея"] = (this.p.inv["Микро-батарея"] || 0) + 1;
+                    chosenIcon = "🔋";
+                }
                 else if (chosen.includes("Жареное")) { this.p.food["Жареное мясо крысы"] = (this.p.food["Жареное мясо крысы"]||0) + 1; chosenIcon = "🍗"; }
-
                 else if (chosen.includes("Мегасила")) {
                     let g = this.grantRandomMegasila();
                     if (g) { chosen = `⚡ ${g.name}`; chosenIcon = g.icon; }
@@ -14813,42 +15191,335 @@ startCombat(isBossFight = false) {
                     if (g) { chosen = `🧰 ${g.name}`; chosenIcon = g.icon; }
                     else { let bonus = 3; this.p.vouchers += bonus; chosen = `🏷️ Ваучеры x${bonus} (нет оружия Ур.5 без гаджета)`; chosenIcon = "🏷️"; }
                 }
-                else { let clean = chosen.split(" x")[0], qty = parseInt(chosen.split(" x")[1]) || 1; this.p.inv[clean] = (this.p.inv[clean] || 0) + qty; chosenIcon = this.itemIcons[clean] || (clean.includes("мясо") ? "🥩" : "⚙️"); }
-                
-                // Шанс и количество бонусных ваучеров из ящика намеренно снижены, чтобы контейнеры
-                // не были основным источником премиум-валюты (было 15% шанс и до maxVouchers штук).
-                if(Math.random() < 0.05) {
-                    let count = Math.floor(Math.random() * box.maxVouchers) + 1;
-                    this.p.vouchers += count; chosen += ` + 🏷️ x${count}`;
+                else if (chosen.includes("Ваучер")) {
+                    let qty = parseInt(chosen.split(" x")[1]) || 1;
+                    this.p.vouchers += qty; chosenIcon = "🏷️";
                 }
-                
-                rewardEmerge.textContent = chosenIcon;
-                
-                // Фаза 1: трясём ящик 700ms
+                else { let clean = chosen.split(" x")[0], qty = parseInt(chosen.split(" x")[1]) || 1; this.p.inv[clean] = (this.p.inv[clean] || 0) + qty; chosenIcon = this.itemIcons[clean] || (clean.includes("мясо") ? "🥩" : "⚙️"); }
+                return { icon: chosenIcon, name: chosen };
+            },
+
+            // Версия БЕЗ побочных эффектов — только для визуального раскрытия НЕвыбранных карточек
+            // в интерфейсе "выбери одну из трёх" (см. pickBoxCard). Ничего не начисляет и не тратит.
+            previewGenericRewardString(chosen) {
+                let icon = "📦";
+                if (chosen.includes("Премиум-пропуск")) icon = "🎫";
+                else if (chosen.includes("Мед-Пакет")) icon = "💉";
+                else if (chosen.includes("🧬")) icon = "🧬";
+                else if (chosen.includes("🔋")) icon = "🔋";
+                else if (chosen.includes("Жареное")) icon = "🍗";
+                else if (chosen.includes("Мегасила")) icon = "⚡";
+                else if (chosen.includes("Гаджет")) icon = "🧰";
+                else if (chosen.includes("Ваучер")) icon = "🏷️";
+                else { let clean = chosen.split(" x")[0]; icon = this.itemIcons[clean] || (clean.includes("мясо") ? "🥩" : "⚙️"); }
+                return { icon, name: chosen };
+            },
+
+            // Разрешает ОДИН приз из полной таблицы Реликвария, включая спец-логику оружия/брони.
+            rollOneRelicReward() {
+                const table = this.getRelicFullTable();
+                const entry = this.rollWeightedEntry(table, 'chance');
+                if (entry.special === 'weapon') return this.rollRelicWeapon();
+                if (entry.special === 'armor') return this.rollRelicArmor();
+                return this.resolveGenericRewardString(entry.item);
+            },
+
+            // Открытие Реликвария Пустоши: сразу собираем от 1 до 10 призов в очередь,
+            // затем показываем их по одному (см. showNextRelicReward/advanceRelic).
+            openRelicAnimated(box) {
+                const count = this.rollRelicDropCount();
+                const queue = [];
+                for (let i = 0; i < count; i++) queue.push(this.rollOneRelicReward());
+                this._relicQueue = queue;
+                this._relicQueueIndex = 0;
+                this._relicQueueTotal = count;
+                this.playRelicIntro(box);
+            },
+
+            // Анимация ящика (тряска → открытие → вылет награды) — общая часть, запускается один
+            // раз на всё открытие Реликвария, дальше призы листаются без повторной тряски.
+            playRelicIntro(box) {
+                const overlay = document.getElementById('gacha-overlay');
+                const crate = document.getElementById('gacha-crate');
+                const rewardCard = document.getElementById('gacha-reward');
+                const burst = document.getElementById('gacha-burst');
+                const rewardEmerge = document.getElementById('reward-emerge');
+
+                crate.className = 'crate crate-tier-' + (box.tier || 5);
+                crate.style.setProperty('--box-color', box.color);
+                rewardCard.style.setProperty('--reward-color', box.color);
+                let rgb = box.color.match(/\w\w/g).map(x => parseInt(x, 16));
+                rewardCard.style.setProperty('--reward-color-r', rgb[0]);
+                rewardCard.style.setProperty('--reward-color-g', rgb[1]);
+                rewardCard.style.setProperty('--reward-color-b', rgb[2]);
+
+                overlay.style.display = 'flex';
+                crate.classList.remove('opened');
+                rewardCard.style.display = 'none';
+                burst.classList.remove('active');
+
+                // Важно: контент вылетающей награды (reward-emerge) выставляем ЗАРАНЕЕ, ДО того,
+                // как ящику добавится класс .opened — именно этот класс запускает CSS-анимацию
+                // "вылета" награды из ящика. Раньше текст/иконка выставлялись только внутри
+                // showNextRelicReward(), которая вызывалась через 900мс ПОСЛЕ старта анимации —
+                // из-за этого сперва вылетала иконка ещё от прошлого открытия (или была пустой),
+                // а уже почти в конце анимации подменялась на настоящую. Теперь первый приз
+                // очереди известен заранее (см. openRelicAnimated), поэтому проставляем его сюда.
+                const first = this._relicQueue[0];
+                if (first) {
+                    if (first.iconIsModel) rewardEmerge.innerHTML = first.icon;
+                    else rewardEmerge.textContent = first.icon;
+                } else {
+                    rewardEmerge.innerHTML = '';
+                }
+
                 crate.classList.add('opening');
                 Sound.play('crate');
-                
+
                 setTimeout(() => {
-                    // Фаза 2: открываем крышку, вспышка, награда вылезает
                     crate.classList.remove('opening');
                     crate.classList.add('opened');
                     burst.style.setProperty('--burst-color', box.color);
                     burst.classList.add('active');
                     Sound.play('loot');
-                    
-                    // Фаза 3: показываем карточку награды после вылезания награды
-                    setTimeout(() => {
-                        rewardIcon.textContent = chosenIcon;
-                        rName.innerText = chosen;
-                        rewardCard.style.display = 'block';
-                        this.log(`📦 Извлечено: ${chosen}`, "loot"); 
-                        this.save(); 
-                        this.updateUI();
-                    }, 900);
+
+                    setTimeout(() => { this.showNextRelicReward(); }, 900);
                 }, 700);
             },
 
+            // Показывает следующий приз из очереди Реликвария и настраивает кнопку
+            // ("Далее ▶" пока в очереди что-то осталось, "Забрать всё" — на последнем призе).
+            showNextRelicReward() {
+                const rewardCard = document.getElementById('gacha-reward');
+                const rewardIcon = document.getElementById('reward-icon');
+                const rName = document.getElementById('reward-name');
+                const rewardEmerge = document.getElementById('reward-emerge');
+                const counter = document.getElementById('reward-counter');
+                const closeBtn = document.getElementById('gacha-close-btn');
+
+                const r = this._relicQueue[this._relicQueueIndex];
+                // iconIsModel === true у наград-оружия: icon хранит готовую SVG-разметку реальной
+                // модели (см. Sprites.weapon), поэтому вставляем через innerHTML, а не textContent —
+                // иначе вместо картинки показался бы сырой текст с тегами.
+                if (r.iconIsModel) { rewardEmerge.innerHTML = r.icon; rewardIcon.innerHTML = r.icon; }
+                else { rewardEmerge.textContent = r.icon; rewardIcon.textContent = r.icon; }
+                rName.innerText = r.name;
+                rewardCard.style.display = 'block';
+
+                if (this._relicQueueTotal > 1) {
+                    counter.style.display = 'block';
+                    counter.textContent = `${this._relicQueueIndex + 1} / ${this._relicQueueTotal}`;
+                } else {
+                    counter.style.display = 'none';
+                }
+
+                const isLast = this._relicQueueIndex >= this._relicQueueTotal - 1;
+                closeBtn.textContent = isLast ? 'Забрать всё' : 'Далее ▶';
+                closeBtn.onclick = () => this.advanceRelic();
+
+                this.log(`🗝️ Реликварий Пустоши — приз ${this._relicQueueIndex + 1}/${this._relicQueueTotal}: ${r.name}`, "loot");
+                this.save();
+                this.updateUI();
+            },
+
+            // Тап по кнопке карточки награды Реликвария — переход к следующему призу очереди.
+            // Когда призы закончились: если их было больше одного, сначала показываем сводную
+            // карточку-итог (см. showRelicSummary), а не закрываем окно сразу.
+            advanceRelic() {
+                Sound.play('click');
+                this._relicQueueIndex++;
+                if (this._relicQueueIndex >= this._relicQueueTotal) {
+                    if (this._relicQueueTotal > 1) { this.showRelicSummary(); return; }
+                    this.closeGacha();
+                    this._relicQueue = null;
+                    document.getElementById('gacha-close-btn').onclick = () => this.closeGacha();
+                    return;
+                }
+                this.showNextRelicReward();
+            },
+
+            // Группирует все призы очереди Реликвария по названию (одинаковые названия —
+            // это фактически одинаковая награда, просто выпавшая несколько раз подряд).
+            buildRelicSummaryGroups() {
+                const map = new Map();
+                (this._relicQueue || []).forEach(r => {
+                    const existing = map.get(r.name);
+                    if (existing) existing.count++;
+                    else map.set(r.name, { icon: r.icon, iconIsModel: r.iconIsModel, name: r.name, count: 1 });
+                });
+                return Array.from(map.values());
+            },
+
+            // Сводная карточка "что выпало за всё открытие" — показывается ПОСЛЕ последнего
+            // приза Реликвария Пустоши, только если призов в связке было больше одного.
+            // Переиспользует ту же карточку gacha-reward, просто в другом режиме отображения.
+            showRelicSummary() {
+                const rewardCard = document.getElementById('gacha-reward');
+                const rewardIcon = document.getElementById('reward-icon');
+                const rTitle = document.getElementById('reward-title');
+                const rName = document.getElementById('reward-name');
+                const counter = document.getElementById('reward-counter');
+                const summaryList = document.getElementById('reward-summary-list');
+                const closeBtn = document.getElementById('gacha-close-btn');
+
+                counter.style.display = 'none';
+                rewardIcon.style.display = 'none';
+                rName.style.display = 'none';
+                rTitle.textContent = `🎉 Итог вскрытия: ${this._relicQueueTotal} наград`;
+
+                const groups = this.buildRelicSummaryGroups();
+                summaryList.innerHTML = groups.map(g => `
+                    <div class="reward-summary-row">
+                        <div class="reward-summary-icon">${g.icon}</div>
+                        <div class="reward-summary-name">${g.name}</div>
+                        ${g.count > 1 ? `<div class="reward-summary-count">×${g.count}</div>` : ''}
+                    </div>`).join('');
+                summaryList.style.display = 'flex';
+
+                closeBtn.textContent = 'Забрать всё';
+                closeBtn.onclick = () => this.finishRelicSummary();
+
+                rewardCard.style.display = 'block';
+                Sound.play('loot');
+                this.save();
+                this.updateUI();
+            },
+
+            // Закрывает сводную карточку и возвращает gacha-reward к обычному виду для
+            // следующего открытия (иначе итог остался бы висеть поверх обычной награды).
+            finishRelicSummary() {
+                Sound.play('click');
+                this.closeGacha();
+                this._relicQueue = null;
+                document.getElementById('reward-icon').style.display = '';
+                document.getElementById('reward-name').style.display = '';
+                document.getElementById('reward-title').textContent = 'Награда';
+                document.getElementById('reward-summary-list').style.display = 'none';
+                document.getElementById('gacha-close-btn').onclick = () => this.closeGacha();
+            },
+
             closeGacha() { document.getElementById('gacha-overlay').style.display = 'none'; },
+
+            // ================= ОБЫЧНЫЕ ЯЩИКИ: выбор одной из 3 карточек вслепую =================
+            // Находятся во время разведки (см. runExploreBoxFind), хранятся в инвентаре и
+            // открываются полностью бесплатно. Игрок видит 3 карточки-рубашки — цвет и свечение
+            // намекают на редкость возможной награды, — выбирает одну, получает её содержимое,
+            // а две оставшиеся раскрываются визуально (без начисления), просто чтобы показать,
+            // между чем был выбор.
+            openBoxPick(box) {
+                const rolls = [0, 1, 2].map(() => this.rollWeightedEntry(box.table, 'chance'));
+                let bonusVouchers = 0;
+                if (box.maxVouchers && Math.random() < 0.05) bonusVouchers = Math.floor(Math.random() * box.maxVouchers) + 1;
+
+                this._boxPick = { box, rolls, chosenSlot: null, bonusVouchers };
+
+                // Сперва — та же анимация открытия (тряска → крышка → вспышка), что и у
+                // Реликвария Пустоши, и только потом появляются 3 карточки на выбор —
+                // раньше они показывались сразу, без всякого открытия ящика.
+                this.playBoxOpenIntro(box, () => this.showBoxPickCards(box));
+            },
+
+            // Анимация открытия найденного контейнера — использует те же DOM-элементы
+            // (#gacha-overlay/#gacha-crate), что и playRelicIntro(), но без карточки
+            // награды: после тряски и открытия крышки сцена прячется и вызывается onDone(),
+            // которая показывает выбор из 3 карточек (см. showBoxPickCards).
+            playBoxOpenIntro(box, onDone) {
+                const overlay = document.getElementById('gacha-overlay');
+                const crate = document.getElementById('gacha-crate');
+                const rewardCard = document.getElementById('gacha-reward');
+                const burst = document.getElementById('gacha-burst');
+                const rewardEmerge = document.getElementById('reward-emerge');
+
+                crate.className = 'crate crate-tier-' + (box.tier || 1);
+                crate.style.setProperty('--box-color', box.color);
+
+                overlay.style.display = 'flex';
+                crate.classList.remove('opened');
+                rewardCard.style.display = 'none';
+                burst.classList.remove('active');
+                rewardEmerge.innerHTML = ''; // приз ещё не выбран — крейт открывается "вслепую"
+
+                crate.classList.add('opening');
+                Sound.play('crate');
+
+                setTimeout(() => {
+                    crate.classList.remove('opening');
+                    crate.classList.add('opened');
+                    burst.style.setProperty('--burst-color', box.color);
+                    burst.classList.add('active');
+                    Sound.play('loot');
+
+                    setTimeout(() => {
+                        overlay.style.display = 'none';
+                        crate.classList.remove('opened');
+                        burst.classList.remove('active');
+                        onDone();
+                    }, 650);
+                }, 700);
+            },
+
+            // Показывает 3 карточки-рубашки для выбора — вынесено из openBoxPick(), теперь
+            // запускается уже ПОСЛЕ анимации открытия ящика (см. playBoxOpenIntro выше).
+            showBoxPickCards(box) {
+                const { rolls } = this._boxPick;
+
+                const rowColor = (chance) => {
+                    if (chance < 0.05) return '#ff2adf';
+                    if (chance < 0.15) return '#bf5af2';
+                    if (chance < 0.35) return '#ffb703';
+                    return '#39ff14';
+                };
+
+                document.getElementById('boxpick-title').textContent = `${box.name}: выбери карточку`;
+                document.getElementById('boxpick-sub').textContent = 'Цвет и свечение карточки намекают на редкость награды';
+                document.getElementById('boxpick-hintline').textContent = '';
+                const rowEl = document.getElementById('boxpick-row');
+                rowEl.innerHTML = rolls.map((r, i) => `
+                    <div class="boxpick-card" id="boxpick-card-${i}" style="--hint-color:${rowColor(r.chance)};" onclick="Core.pickBoxCard(${i})">
+                        <div class="boxpick-hint-glow"></div>
+                        <div class="boxpick-face">
+                            <div class="boxpick-face-icon" id="boxpick-face-icon-${i}"></div>
+                            <div class="boxpick-face-name" id="boxpick-face-name-${i}"></div>
+                        </div>
+                    </div>`).join('');
+                document.getElementById('boxpick-continue').classList.remove('show');
+                document.getElementById('boxpick-overlay').classList.add('active');
+            },
+
+            pickBoxCard(i) {
+                if (!this._boxPick || this._boxPick.chosenSlot !== null) return;
+                Sound.play('loot');
+                this._boxPick.chosenSlot = i;
+                const { rolls, bonusVouchers } = this._boxPick;
+
+                let result = this.resolveGenericRewardString(rolls[i].item);
+                if (bonusVouchers > 0) { this.p.vouchers += bonusVouchers; result.name += ` + 🏷️ x${bonusVouchers}`; }
+
+                rolls.forEach((r, j) => {
+                    const cardEl = document.getElementById(`boxpick-card-${j}`);
+                    cardEl.classList.add('revealed');
+                    if (j === i) {
+                        cardEl.classList.add('chosen');
+                        document.getElementById(`boxpick-face-icon-${j}`).textContent = result.icon;
+                        document.getElementById(`boxpick-face-name-${j}`).textContent = result.name;
+                    } else {
+                        cardEl.classList.add('not-chosen');
+                        let preview = this.previewGenericRewardString(r.item);
+                        document.getElementById(`boxpick-face-icon-${j}`).textContent = preview.icon;
+                        document.getElementById(`boxpick-face-name-${j}`).textContent = preview.name;
+                    }
+                });
+
+                document.getElementById('boxpick-hintline').textContent = `Получено: ${result.name}`;
+                document.getElementById('boxpick-continue').classList.add('show');
+                this.log(`📦 ${this._boxPick.box.name}: выбрана карточка — ${result.name}`, "loot");
+                this.save(); this.updateUI(); this.renderInventory();
+            },
+
+            closeBoxPick() {
+                document.getElementById('boxpick-overlay').classList.remove('active');
+                this._boxPick = null;
+            },
 
             // Взвешенный случайный выбор награды из пула ежедневного пайка
             pickDailyReward() {
@@ -15186,7 +15857,7 @@ startCombat(isBossFight = false) {
                 }
             },
 
-            itemIcons: { "Запчасти": "⚙️", "Тяжелый Хлам": "🔩", "Ядерная Батарея": "☢️", "Сырое мясо": "🥩", "Жетон Схрона": "💠" },
+            itemIcons: { "Запчасти": "⚙️", "Тяжелый Хлам": "🔩", "Ядерная Батарея": "☢️", "Сырое мясо": "🥩", "Жетон Схрона": "💠", "Мед-Пакет": "💉", "Микро-батарея": "🔋" },
             rewardIcon(r) {
                 if(!r) return '➖';
                 if(r.type === 'item') return this.itemIcons[r.item] || '📦';
@@ -15217,7 +15888,7 @@ startCombat(isBossFight = false) {
                 if (!r) return `<span class="trophy-node-badge-icon">➖</span>`;
                 if (r.type === 'lootbox') {
                     const box = DB.lootboxes[r.boxIdx];
-                    if (box) return Sprites.crateThumb(box.tier, box.color);
+                    if (box) return Sprites.crateThumb(box.tier, box.color, box.skin);
                 }
                 if (r.type === 'wpn') {
                     const wpn = DB.weapons.find(w => w.id === r.wpnId);
