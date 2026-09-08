@@ -1884,6 +1884,12 @@ transform:scale(1);
         .mastery-howto .mh-ico { flex-shrink: 0; font-size: 13px; line-height: 1; opacity: 0.8; }
         .mastery-howto .mh-body { padding: 2px 2px 8px 21px; font-size: 10.5px; line-height: 1.45; color: var(--text-muted); }
 
+        /* Плашка-статус: засчитывается ли прогресс Мастерства в биоме, где сейчас находится игрок
+           (зависит от силы/редкости оружия — см. DB.masteryBiomeOffsetByTier). */
+        .mastery-biome-note { font-size: 10px; font-weight: 700; line-height: 1.4; border-radius: 8px; padding: 7px 9px; margin: 0 0 12px; border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.05); color: var(--text-muted); }
+        .mastery-biome-note.ok { border-color: rgba(57,255,20,0.4); background: rgba(57,255,20,0.08); color: #cdf7c2; }
+        .mastery-biome-note.bad { border-color: rgba(255,42,95,0.45); background: rgba(255,42,95,0.09); color: #ffc7d3; }
+
         .mastery-readout { margin-bottom: 14px; }
         .mastery-readout-top { display: flex; justify-content: space-between; align-items: baseline; font-size: 11.5px; font-weight: 800; color: #fff; margin-bottom: 7px; gap: 8px; }
         .mastery-readout-top span:last-child { color: var(--mastery-wpn-color); font-size: 11px; white-space: nowrap; font-family: monospace; }
@@ -6925,6 +6931,24 @@ padding-top:9vh;
             },
             // Бонус «Мастерства оружия» — активен, когда у активного оружия одновременно открыты гаджет И мегасила
             masteryBonusByTier: { "Стартовое": 0.05, "Обычное": 0.06, "Редкое": 0.08, "Эпическое": 0.10, "Легендарное": 0.12 },
+            // Ограничение прогресса Мастерства оружия по биому: чем выше редкость оружия, тем ближе
+            // к последнему открытому биому требуется находиться, чтобы прогресс засчитывался.
+            // Значение — величина отступа от maxBiomeReached: прогресс засчитывается при условии
+            // currentBiome >= maxBiomeReached - offset. Например, offset = 1 означает «текущий и
+            // один предыдущий биом», offset = Infinity — «без ограничений».
+            // Значения подобраны с учётом того, что в игре 11 обычных биомов (id 0–10): при
+            // прежних величинах (6 и 4 для «Обычного» и «Редкого») порог оставался равен нулю
+            // («Неоновые Руины») практически до самого конца игры, из-за чего ограничение
+            // фактически не действовало ни для одного оружия, кроме «Легендарного». Приведённые
+            // ниже значения обеспечивают заметную разницу между уровнями редкости уже на середине
+            // прохождения.
+            // Для «Стартового» оружия (Кулаки) ограничение отсутствует: прогресс засчитывается в
+            // любом биоме, включая «Неоновые Руины». Узлы проекта «Эхо Пустоши» (id биома 11 и
+            // выше) под это ограничение не подпадают: значение maxBiomeReached не увеличивается при
+            // посещении проекта (см. enterEchoProject/echoTeleport), поэтому currentBiome там всегда
+            // превышает порог для любого оружия, и прогресс засчитывается без исключений — это
+            // соответствует требованию, так как данные биомы являются наиболее сложными в игре.
+            masteryBiomeOffsetByTier: { "Стартовое": Infinity, "Обычное": 4, "Редкое": 3, "Эпическое": 2, "Легендарное": 1 },
             // Индивидуальный набор боевых способностей для каждого оружия (не более 4 на оружие)
             weaponAbilities: {
                 fists: [
@@ -10936,15 +10960,20 @@ startCombat(isBossFight = false) {
                 // Задания сезона/пропуска на убийства конкретным оружием или целым классом оружия —
                 // смотрим, чем игрок реально дерётся ПРЯМО СЕЙЧАС (активное оружие в момент победы).
                 let activeWpnDef = DB.weapons.find(w => w.id === this.p.activeWeapon);
+                // Переменная biomeOk ограничивает начисление прогресса заданий Пропуска Пустоши и
+                // проекта «Эхо Пустоши» (сохраняется без изменений). Прогресс Мастерства оружия
+                // использует отдельное условие — функцию masteryBiomeOk() внутри
+                // trackWeaponMastery(), зависящее от редкости конкретного оружия, — поэтому вызовы
+                // trackWeaponMastery ниже намеренно вынесены за пределы данного условия.
                 let biomeOk = this.p.currentBiome >= ((this.p.maxBiomeReached || 0) - 2);
                 if (biomeOk) {
                     this.triggerQuest(`kill_with_${this.p.activeWeapon}`);
                     if (activeWpnDef) this.triggerQuest(`kill_class_${activeWpnDef.class}`);
-                    this.trackWeaponMastery(this.p.activeWeapon, 'kills', 1);
                 }
+                this.trackWeaponMastery(this.p.activeWeapon, 'kills', 1);
                 // Мастерство: «на волоске» (победа с ≤20% ОЗ от максимума) и «крупная дичь»
                 // (побеждён более живучий из двух врагов биома) — не считаются в бою с боссом биома.
-                if (!this.combatState.isBoss && biomeOk) {
+                if (!this.combatState.isBoss) {
                     if (this.p.maxHp > 0 && (this.p.hp / this.p.maxHp) <= 0.2) this.trackWeaponMastery(this.p.activeWeapon, 'closecall', 1);
                     let curBiomeDef = DB.biomes[this.p.currentBiome];
                     if (curBiomeDef && curBiomeDef.enemies && curBiomeDef.enemies.length) {
@@ -10960,8 +10989,8 @@ startCombat(isBossFight = false) {
                         this.triggerQuest("kill_boss");
                         this.triggerQuest("kill_any");
                         this.echoTrack("boss", 1);
-                        this.trackWeaponMastery(this.p.activeWeapon, 'boss', 1);
                     }
+                    this.trackWeaponMastery(this.p.activeWeapon, 'boss', 1);
                 } else {
                     this.log(`🎉 Победа! Противник ${this.combatState.name} уничтожен. +${this.combatState.exp} XP.`, "combat-win");
                     if (biomeOk) {
@@ -10976,7 +11005,7 @@ startCombat(isBossFight = false) {
                         let tokenQty = 1 + Math.floor(Math.random() * 2);
                         this.p.inv["Жетон Схрона"] = (this.p.inv["Жетон Схрона"] || 0) + tokenQty;
                         this.log(`⚔️ Закалённый противник повержен! Бонус за элитную встречу: +${eliteCaps} 🪙 и 💠 Жетон Схрона x${tokenQty}.`, "loot");
-                        if (biomeOk) this.trackWeaponMastery(this.p.activeWeapon, 'elite', 1);
+                        this.trackWeaponMastery(this.p.activeWeapon, 'elite', 1);
                     }
                 }
                 this.checkMasteryToast(this.p.activeWeapon);
@@ -11580,13 +11609,52 @@ startCombat(isBossFight = false) {
 
             // ===================================================================
             // === Мастерство оружия ===
-            // Копит статистику по каждому оружию (урон/убийства/крит/особая метрика) и
-            // не сохраняет/не рендерит сама — этим занимаются вызывающие места и openMastery().
+            // Накапливает статистику по каждому оружию (урон, убийства, критические удары,
+            // особая метрика); сохранение и отображение выполняются вызывающим кодом и
+            // функцией openMastery().
             trackWeaponMastery(wId, statKey, amount) {
                 if (!wId || !amount) return;
                 if (!this.p.wpnMastery) this.p.wpnMastery = {};
                 if (!this.p.wpnMastery[wId]) this.p.wpnMastery[wId] = { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 };
+                // Прогресс засчитывается только в биомах, соответствующих силе данного оружия
+                // (см. DB.masteryBiomeOffsetByTier): это исключает возможность накопления
+                // Мастерства для мощного оружия в биомах низкого уровня. Проверка выполняется
+                // централизованно здесь, а не в местах вызова, чтобы одним правилом охватить как
+                // урон и критические удары (учитываются в процессе боя), так и убийства и особые
+                // метрики (учитываются при завершении боя).
+                if (!this.masteryBiomeOk(wId)) return;
                 this.p.wpnMastery[wId][statKey] = (this.p.wpnMastery[wId][statKey] || 0) + amount;
+            },
+
+            // Определяет, засчитывается ли прогресс Мастерства для оружия wId в текущем биоме.
+            // Чем выше редкость оружия, тем ближе к последнему открытому биому должен находиться
+            // игрок (см. комментарий у DB.masteryBiomeOffsetByTier). Отдельная обработка узлов
+            // проекта «Эхо Пустоши» (id биома 11 и выше) не требуется: значение maxBiomeReached не
+            // увеличивается при посещении проекта, поэтому currentBiome там всегда превышает порог
+            // для любого оружия, и прогресс засчитывается автоматически.
+            masteryBiomeOk(wId) {
+                let wpn = DB.weapons.find(w => w.id === wId);
+                let offset = DB.masteryBiomeOffsetByTier[(wpn && wpn.tier) || "Обычное"];
+                if (!isFinite(offset)) return true;
+                return this.p.currentBiome >= ((this.p.maxBiomeReached || 0) - offset);
+            },
+
+            // Формирует информационное сообщение для панели Мастерства: указывает, засчитывается
+            // ли прогресс в текущем биоме, и, если нет, — начиная с какого биома он засчитывается
+            // для данного оружия (требование зависит от редкости оружия).
+            masteryBiomeStatusHtml(wId) {
+                let wpn = DB.weapons.find(w => w.id === wId);
+                let offset = DB.masteryBiomeOffsetByTier[(wpn && wpn.tier) || "Обычное"];
+                let ok = this.masteryBiomeOk(wId);
+                if (!isFinite(offset)) {
+                    return `<div class="mastery-biome-note ok">🌍 Прогресс Мастерства для данного оружия засчитывается в любом биоме, включая «Неоновые Руины».</div>`;
+                }
+                let minIdx = Math.max(0, (this.p.maxBiomeReached || 0) - offset);
+                let minBiome = DB.biomes[minIdx];
+                let label = minBiome ? minBiome.name : `биом ${minIdx + 1}`;
+                return ok
+                    ? `<div class="mastery-biome-note ok">✅ Прогресс засчитывается: текущий биом соответствует требованию для данного оружия (не ниже «${label}»).</div>`
+                    : `<div class="mastery-biome-note bad">⚠️ Прогресс не засчитывается в текущем биоме. Для данного оружия требуется биом не ниже «${label}».</div>`;
             },
 
             // Лёгкое уведомление в журнал, когда после боя стал доступен новый этап Мастерства
@@ -11706,7 +11774,8 @@ startCombat(isBossFight = false) {
                 let maxTarget = cat.tiers[cat.tiers.length - 1].target;
                 let howtoText = this.masteryHowto[cat.statKey] || 'Используйте это оружие в бою, чтобы продвигать прогресс этой вкладки.';
 
-                let html = `<details class="mastery-howto"><summary><span class="mh-ico">📡</span>Как прокачать</summary><div class="mh-body">${howtoText}</div></details>`;
+                let html = this.masteryBiomeStatusHtml(wId);
+                html += `<details class="mastery-howto"><summary><span class="mh-ico">📡</span>Как прокачать</summary><div class="mh-body">${howtoText}</div></details>`;
 
                 html += `<div class="mastery-readout">
                     <div class="mastery-readout-top"><span>${cat.icon} ${cat.label}</span><span>${value.toLocaleString('ru-RU')} / ${maxTarget.toLocaleString('ru-RU')}</span></div>
