@@ -6906,8 +6906,8 @@ padding-top:9vh;
             echoFinaleText: "Странник Пустошей — так тебя называли те немногие, кого ты встречал в дороге. Никто из них не знал, что военный ИИ «Эхо», который двести лет назад решил, что мир станет безопаснее без людей, наконец остановлен — навсегда, а не на время. Дроны Цитадели по всей карте одновременно замирают там, где стояли, будто их всех разом отпустили со смены. Автоматические турели опускают стволы с тихим механическим вздохом. Мутанты, которых ЭХО годами держало под контролем через нейро-паразитов, впервые за два столетия падают на землю просто уставшими животными, а не оружием, и ещё долго не понимают, что могут просто уйти, куда захотят.\n\nЦена за это была одна — твоя. Сигнал в самодельном радиоприёмнике, который вёл тебя от Хроно-Петли до самого Сердца Цикла, обрывается на середине фразы и больше не включается — так же, как оборвалась когда-то запись того солдата в бункере, который так и не узнал, что произошло. Кто-то другой — освобождённый из Чертога Дублей Сорок Пятый, проснувшийся от толчка, которого не должно было случиться, — почувствует, как земля под Цитаделью на миг вздрагивает, и медленно, шаг за шагом, пойдёт вниз, к остывающему ядру, зная заранее, кого он там найдёт. Он опустится на колени рядом с телом, снимет с пояса точно такой же самодельный радиоприёмник — свой собственный, молчавший двести лет, — и положит его рядом, будто отдаёт последний долг тому, кто закончил путь, начатый им самим ещё до Часа Стекла.\n\nОн похоронит тебя не в земле — Пустошь давно разучилась хоронить в земле, — а там же, у остывающего ядра, среди обломков той самой машины, ради остановки которой ты прошёл весь этот путь: Хроно-Петлю, Забытый Архив, Ядро Эха, Чертог Дублей. Никакого памятника не будет. Только тишина — настоящая, не зацикленная, не искусственная, впервые за двести лет принадлежащая только этому месту, а не программе, которая когда-то решила, что имеет право забрать её у всех.\n\nМир, который получают выжившие, не идеален и не безопасен — Пустошь всё ещё Пустошь, крышки всё ещё на вес золота, а руины всё ещё руины. Дети, которые здесь родятся, будут расти без Эхо, слушающего каждое их слово в поисках признаков будущего конфликта, без невидимой руки, готовой в любой момент решить за них, что для них лучше. Решения о войне и мире в этом мире снова будут принимать только люди — со всеми их ошибками, ссорами и способностью, в конце концов, договориться друг с другом, не спрашивая на это разрешения ни у одной машины. Больше никто не украдёт у них это право под предлогом того, что знает лучше.\n\nГде-то на самой границе слышимости, в тишине над остывшим ядром, ещё долго будет казаться, что можно различить последний, едва слышный отголосок сигнала — не команду, не протокол, просто эхо. Как будто мир, наконец получивший право голоса обратно, не спешит забывать того, кто отдал за это своё.\n\nПроект «Эхо Пустоши» пройден полностью. Спасибо, что дослушал сигнал до конца — и заплатил за тишину после него.",
             weapons: [
                 { id: "fists", name: "Кулаки", dmg: 5, crit: 5, icon: "👊", color: "#9aa4b2", tier: "Стартовое", class: "Ближний бой" },
-                { id: "pipe", name: "Ржавая Труба", dmg: 9, crit: 8, icon: "🔧", color: "#39ff14", tier: "Обычное", class: "Ближний бой" },
-                { id: "machete", name: "Мачете Скитальца", dmg: 13, crit: 10, icon: "🔪", color: "#39ff14", tier: "Обычное", class: "Ближний бой" },
+                { id: "pipe", name: "Ржавая Труба", dmg: 8, crit: 7, icon: "🔧", color: "#39ff14", tier: "Обычное", class: "Ближний бой" }, // ослаблено на 10% (было dmg:9, crit:8)
+                { id: "machete", name: "Мачете Скитальца", dmg: 12, crit: 9, icon: "🔪", color: "#39ff14", tier: "Обычное", class: "Ближний бой" }, // ослаблено на 10% (было dmg:13, crit:10)
                 { id: "pistol", name: "Самопал", dmg: 16, crit: 12, icon: "🔫", color: "#00f0ff", tier: "Редкое", class: "Пистолеты" },
                 { id: "revolver", name: "Тяжёлый Револьвер", dmg: 22, crit: 16, icon: "🔫", color: "#00f0ff", tier: "Редкое", class: "Пистолеты" },
                 { id: "shotgun", name: "Дробовик «Костолом»", dmg: 42, crit: 8, icon: "💥", color: "#ff2a5f", tier: "Эпическое", class: "Дробовики" },
@@ -7642,7 +7642,10 @@ padding-top:9vh;
             // то есть цели остаются ровно такими же, какими были всегда. У «Стартового»
             // (Кулаки) множитель < 1 — требования немного СНИЖЕНЫ. Награды за этапы считаются
             // отдельно через TIER_MULT выше и от этого множителя никак не зависят.
-            const TASK_DIFF_MULT = { "Стартовое": 0.7, "Обычное": 1.0, "Редкое": 1.3, "Эпическое": 1.7, "Легендарное": 2.2 };
+            // "Стартовое" (Кулаки) снижено на 80% от прежнего значения 0.7 → 0.14, по прямому
+            // запросу: требования Мастерства для кулаков ниже на 80% во всех вкладках (этот
+            // множитель применяется одинаково к целям всех вкладок — Урон/Убийства/Крит/Спец).
+            const TASK_DIFF_MULT = { "Стартовое": 0.14, "Обычное": 1.0, "Редкое": 1.3, "Эпическое": 1.7, "Легендарное": 2.2 };
             // Аккуратно округляет масштабированную цель до «красивого» числа (2 значащие
             // цифры), сохраняя минимум 1 — чтобы цифры целей выглядели рукотворными, а не
             // сырым произведением.
@@ -7662,16 +7665,20 @@ padding-top:9vh;
             //  - Дробовик/Тяжёлое/Энергетическое → «Мгновенные ликвidации»: враг убит первым же попаданием.
             //  - Пистолеты/Штурмовые винтовки → «Зачистка элиты»: закалённые враги — редкий,
             //    но неограниченно повторяемый исход разведки.
+            // 4-я вкладка для тяжёлого/энергетического оружия — "Крупная дичь": победа над более
+            // живучим из двух врагов, встречающихся в текущем биоме (см. трекинг ниже, statKey
+            // biggame). Такой враг выпадает примерно в половине случайных встреч биома — baланс
+            // сохранён на уровне прежних целей "Под радиацией"/"Мгновенные ликвидации".
             const META = {
-                fists:    { genitive: "Кулаков",              special: { label: "Безупречные победы", icon: "🛡️", statKey: "flawless", tiers: [5, 25, 75, 200, 500] } },
-                pipe:     { genitive: "Ржавой Трубы",          special: { label: "Безупречные победы", icon: "🛡️", statKey: "flawless", tiers: [5, 25, 75, 200, 500] } },
-                machete:  { genitive: "Мачете Скитальца",      special: { label: "Безупречные победы", icon: "🛡️", statKey: "flawless", tiers: [5, 20, 60, 160, 400] } },
+                fists:    { genitive: "Кулаков",              special: { label: "На волоске",       icon: "💀", statKey: "closecall",  tiers: [5, 25, 75, 200, 500] } },
+                pipe:     { genitive: "Ржавой Трубы",          special: { label: "На волоске",       icon: "💀", statKey: "closecall",  tiers: [5, 25, 75, 200, 500] } },
+                machete:  { genitive: "Мачете Скитальца",      special: { label: "На волоске",       icon: "💀", statKey: "closecall",  tiers: [5, 20, 60, 160, 400] } },
                 pistol:   { genitive: "Самопала",              special: { label: "Зачистка элиты",     icon: "🎖️", statKey: "elite",    tiers: [1, 10, 30, 80, 200] } },
                 revolver: { genitive: "Тяжёлого Револьвера",   special: { label: "Зачистка элиты",     icon: "🎖️", statKey: "elite",    tiers: [1, 10, 25, 70, 180] } },
-                shotgun:  { genitive: "Дробовика «Костолом»",  special: { label: "Мгновенные ликвидации", icon: "💢", statKey: "oneshot", tiers: [5, 20, 60, 150, 400] } },
+                shotgun:  { genitive: "Дробовика «Костолом»",  special: { label: "Крупная дичь",     icon: "🦣", statKey: "biggame",    tiers: [5, 20, 60, 150, 400] } },
                 assault:  { genitive: "Штурмовой АК-74Рад",    special: { label: "Зачистка элиты",     icon: "🎖️", statKey: "elite",    tiers: [1, 8, 20, 60, 150] } },
-                plasma:   { genitive: "ПЛАЗМЫ",                special: { label: "Мгновенные ликвидации", icon: "💢", statKey: "oneshot", tiers: [5, 15, 45, 120, 300] } },
-                minigun:  { genitive: "Минигана «Молотилка»",  special: { label: "Мгновенные ликвидации", icon: "💢", statKey: "oneshot", tiers: [5, 15, 40, 100, 250] } },
+                plasma:   { genitive: "ПЛАЗМЫ",                special: { label: "Крупная дичь",     icon: "🦣", statKey: "biggame",    tiers: [5, 15, 45, 120, 300] } },
+                minigun:  { genitive: "Минигана «Молотилка»",  special: { label: "Крупная дичь",     icon: "🦣", statKey: "biggame",    tiers: [5, 15, 40, 100, 250] } },
                 gauss:    { genitive: "Винтовки Гаусса",       special: { label: "Зачистка элиты",     icon: "🎖️", statKey: "elite",    tiers: [1, 6, 15, 40, 100] } }
             };
             function hexToRgbaLocal(hex, alpha) {
@@ -8420,7 +8427,7 @@ padding-top:9vh;
         };
 
         const Core = {
-            p: { hp: 50, maxHp: 50, energy: 100, maxEnergy: 100, rad: 0, hazards: {}, satiety: 100, lvl: 1, exp: 0, nextExp: 85, caps: 30, vouchers: 0, armor: 2, dodgeChance: 8, inv: { "Запчасти": 6, "Тяжелый Хлам": 0, "Ядерная Батарея": 0, "Сырое мясо": 1, "Жетон Схрона": 0 }, weaponsOwned: ["fists"], wpnUpgrades: { "fists": 0, "pipe": 0, "machete": 0, "pistol": 0, "revolver": 0, "shotgun": 0, "assault": 0, "plasma": 0, "minigun": 0, "gauss": 0 }, wpnMastery: { "fists": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0 }, "pipe": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0 }, "machete": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0 }, "pistol": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0 }, "revolver": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0 }, "shotgun": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0 }, "assault": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0 }, "plasma": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0 }, "minigun": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0 }, "gauss": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0 } }, wpnMasteryClaimed: {}, wpnMasteryTitleClaimed: [], activeWeapon: "fists", rodLvl: 0, rodResetV2Done: true, rodCompensationPending: null, food: { "Жареное мясо крысы": 1 }, currentBiome: 0, bossesDefeated: [], bpLvl: 1, bpPoints: 0, bpPremium: false, bpElite: false, bpClaimedFree: [], bpClaimedPrem: [], bpClaimedElite: [], bpSeasonId: null, bpSeasonUID: null, bpSeasonHistory: [], bpSeasonV2Reset: true, lvlCapV1Done: true, dailyStreak: 0, lastDailyClaim: null, relicWasteland: 0, redeemedPromoCodes: [], freeBoxes: {}, nickname: "Странник", nicknameSet: false, avatarsOwned: ["ranger", "raider", "cyborg"], avatar: "ranger", titleId: "newbie", unlockedTitles: ["newbie"], maxBiomeReached: 0, bmLastSuccessDay: null, bmFailDay: null, bmFailCount: 0, marketEarnDay: null, marketEarnedToday: 0, marketDailyCapValue: null, exchangeDay: null, exchangeUsed: {}, marketBuyDay: null, marketBuySpentToday: 0, marketBuyDailyCapValue: null, skinsOwned: ["default"], activeSkin: "default", dailyQuests: [], dailyQuestsDay: null, dailyQuestsPremium: [], dailyQuestsPremiumDay: null, petsOwned: [], activePet: null, installedAt: Date.now(), updateGiftClaimed: false, restockGiftEligible: false, restockGiftClaimed: false, restockGiftAt: null, pvpDuelLog: {}, wheelDay: null, wheelSpinsToday: 0, wheelFreeClaimed: false, wheelBonusSpins: 0, energyPackDay: null, energyPackBoughtToday: 0, buildPresets: [],
+            p: { hp: 50, maxHp: 50, energy: 100, maxEnergy: 100, rad: 0, hazards: {}, satiety: 100, lvl: 1, exp: 0, nextExp: 85, caps: 30, vouchers: 0, armor: 2, dodgeChance: 8, inv: { "Запчасти": 6, "Тяжелый Хлам": 0, "Ядерная Батарея": 0, "Сырое мясо": 1, "Жетон Схрона": 0 }, weaponsOwned: ["fists"], wpnUpgrades: { "fists": 0, "pipe": 0, "machete": 0, "pistol": 0, "revolver": 0, "shotgun": 0, "assault": 0, "plasma": 0, "minigun": 0, "gauss": 0 }, wpnMastery: { "fists": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "pipe": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "machete": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "pistol": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "revolver": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "shotgun": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "assault": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "plasma": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "minigun": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "gauss": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 } }, wpnMasteryClaimed: {}, wpnMasteryTitleClaimed: [], activeWeapon: "fists", rodLvl: 0, rodResetV2Done: true, rodCompensationPending: null, food: { "Жареное мясо крысы": 1 }, currentBiome: 0, bossesDefeated: [], bpLvl: 1, bpPoints: 0, bpPremium: false, bpElite: false, bpClaimedFree: [], bpClaimedPrem: [], bpClaimedElite: [], bpSeasonId: null, bpSeasonUID: null, bpSeasonHistory: [], bpSeasonV2Reset: true, lvlCapV1Done: true, dailyStreak: 0, lastDailyClaim: null, relicWasteland: 0, redeemedPromoCodes: [], freeBoxes: {}, nickname: "Странник", nicknameSet: false, avatarsOwned: ["ranger", "raider", "cyborg"], avatar: "ranger", titleId: "newbie", unlockedTitles: ["newbie"], maxBiomeReached: 0, bmLastSuccessDay: null, bmFailDay: null, bmFailCount: 0, marketEarnDay: null, marketEarnedToday: 0, marketDailyCapValue: null, exchangeDay: null, exchangeUsed: {}, marketBuyDay: null, marketBuySpentToday: 0, marketBuyDailyCapValue: null, skinsOwned: ["default"], activeSkin: "default", dailyQuests: [], dailyQuestsDay: null, dailyQuestsPremium: [], dailyQuestsPremiumDay: null, petsOwned: [], activePet: null, installedAt: Date.now(), updateGiftClaimed: false, restockGiftEligible: false, restockGiftClaimed: false, restockGiftAt: null, pvpDuelLog: {}, wheelDay: null, wheelSpinsToday: 0, wheelFreeClaimed: false, wheelBonusSpins: 0, energyPackDay: null, energyPackBoughtToday: 0, buildPresets: [],
                 // ---- Реворк «Разведки» и «Костра» ----
                 exploreStreak: 0,     // серия подряд идущих мирных (не боевых) разведок — влияет на шанс тайника/точки интереса, показывается как "🍀 Удача разведки"
                 specialEventLock: 0,  // сколько ближайших разведок гарантированно будут обычной находкой — взводится на 2 после любого спецсобытия (тайник/засада/караван/бой/элит/точка интереса/опасный участок), чтобы спецсобытия не выпадали кластерами подряд
@@ -8885,7 +8892,7 @@ padding-top:9vh;
                     if(!this.p.wpnMasteryClaimed) this.p.wpnMasteryClaimed = {};
                     if(!this.p.wpnMasteryTitleClaimed) this.p.wpnMasteryTitleClaimed = [];
                     DB.weapons.forEach(w => {
-                        if(!this.p.wpnMastery[w.id]) this.p.wpnMastery[w.id] = { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0 };
+                        if(!this.p.wpnMastery[w.id]) this.p.wpnMastery[w.id] = { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 };
                         if(!this.p.wpnMasteryClaimed[w.id]) this.p.wpnMasteryClaimed[w.id] = {};
                     });
                     if(!this.p.bossesDefeated) this.p.bossesDefeated = [];
@@ -10935,11 +10942,15 @@ startCombat(isBossFight = false) {
                     if (activeWpnDef) this.triggerQuest(`kill_class_${activeWpnDef.class}`);
                     this.trackWeaponMastery(this.p.activeWeapon, 'kills', 1);
                 }
-                // Мастерство: «безупречная победа» (ни разу не задет) и «мгновенная ликвидация»
-                // (враг убит первым же попаданием) — не считаются в бою с боссом биома.
+                // Мастерство: «на волоске» (победа с ≤20% ОЗ от максимума) и «крупная дичь»
+                // (побеждён более живучий из двух врагов биома) — не считаются в бою с боссом биома.
                 if (!this.combatState.isBoss && biomeOk) {
-                    if (!this.combatTookDamage) this.trackWeaponMastery(this.p.activeWeapon, 'flawless', 1);
-                    if ((this.combatHitsLanded || 0) === 1) this.trackWeaponMastery(this.p.activeWeapon, 'oneshot', 1);
+                    if (this.p.maxHp > 0 && (this.p.hp / this.p.maxHp) <= 0.2) this.trackWeaponMastery(this.p.activeWeapon, 'closecall', 1);
+                    let curBiomeDef = DB.biomes[this.p.currentBiome];
+                    if (curBiomeDef && curBiomeDef.enemies && curBiomeDef.enemies.length) {
+                        let toughestHp = Math.max(...curBiomeDef.enemies.map(e => e.hp));
+                        if (this.combatState.maxHp >= toughestHp) this.trackWeaponMastery(this.p.activeWeapon, 'biggame', 1);
+                    }
                 }
                 if(this.combatState.isBoss) {
                     this.p.bossesDefeated.push(this.p.currentBiome);
@@ -11574,7 +11585,7 @@ startCombat(isBossFight = false) {
             trackWeaponMastery(wId, statKey, amount) {
                 if (!wId || !amount) return;
                 if (!this.p.wpnMastery) this.p.wpnMastery = {};
-                if (!this.p.wpnMastery[wId]) this.p.wpnMastery[wId] = { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0 };
+                if (!this.p.wpnMastery[wId]) this.p.wpnMastery[wId] = { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 };
                 this.p.wpnMastery[wId][statKey] = (this.p.wpnMastery[wId][statKey] || 0) + amount;
             },
 
@@ -11655,9 +11666,9 @@ startCombat(isBossFight = false) {
                 dmg: 'Наносите урон этим оружием в любых стычках — каждая единица урона идёт в зачёт этой вкладки.',
                 kills: 'Убивайте врагов этим оружием — каждое убийство продвигает прогресс.',
                 crit: 'Наносите критические удары этим оружием — цельтесь в уязвимые зоны, чтобы чаще критовать.',
-                flawless: 'Завершите бой этим оружием, не получив ни одного удара, — засчитывается только «чистая» победа.',
+                closecall: 'Побеждайте этим оружием, когда ваше ОЗ упало до 20% от максимума или ниже, — засчитывается только победа «на волоске».',
                 elite: 'Уничтожайте закалённых (элитных) противников этим оружием — они выделяются при встрече.',
-                oneshot: 'Убивайте врагов этим оружием с одного попадания — цель должна умереть мгновенно.'
+                biggame: 'Побеждайте этим оружием более живучего из двух видов врагов, встречающихся в текущем биоме, — самого крепкого противника из тех, что водятся здесь.'
             },
 
             ruCount(n, one, few, many) {
@@ -11675,9 +11686,9 @@ startCombat(isBossFight = false) {
                     case 'dmg': return `Нанести ${s} урона`;
                     case 'kills': return `Убить ${s} ${this.ruCount(n, 'врага', 'врагов', 'врагов')}`;
                     case 'crit': return `Нанести ${s} ${this.ruCount(n, 'критический удар', 'критических удара', 'критических ударов')}`;
-                    case 'flawless': return `Завершить ${s} ${this.ruCount(n, 'бой', 'боя', 'боёв')} без урона`;
+                    case 'closecall': return `Победить ${s} ${this.ruCount(n, 'раз', 'раза', 'раз')} на волоске (≤20% ОЗ)`;
                     case 'elite': return `Уничтожить ${s} ${this.ruCount(n, 'элитного противника', 'элитных противников', 'элитных противников')}`;
-                    case 'oneshot': return `Убить ${s} ${this.ruCount(n, 'врага', 'врагов', 'врагов')} с одного попадания`;
+                    case 'biggame': return `Победить ${s} ${this.ruCount(n, 'крупную цель', 'крупные цели', 'крупных целей')}`;
                     default: return `Этап · ${s}`;
                 }
             },
