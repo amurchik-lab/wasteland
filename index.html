@@ -6658,12 +6658,14 @@ padding-top:9vh;
         // заканчивается, следующий сезон стартует автоматически, без кнопок и обновления игры —
         // см. Core.getSeasonSlot(). Якорь ниже совпадает со стартом Сезона 1 (01.09 → 08.09 и т.д.).
         // ☢️ Точка отсчёта сезона сдвинута на сегодня (3 сентября 2026, 00:00 UTC) — таймер снова
-        // стартует с полных 8 дней, как и должно быть при запуске 1 сезона с ПЛАЗМОЙ на 50 уровне.
+        // стартует с полных 8 дней, как и было при запуске 1 сезона.
         const BP_SEASON_ANCHOR = Date.UTC(2026, 8, 3, 0, 0, 0);
-        // ☢️ Сезон 1 ("Совы не дремлют") продлён до 8 дней специально под эксклюзивную выдачу ПЛАЗМЫ
-        // на 50 уровне Premium-дороги (см. SEASONS ниже, weaponId: "plasma"). Пока идёт именно ЭТОТ
-        // (первый) слот сезона — оружие получить больше никак нельзя (см. isPlasmaSeasonExclusive()).
-        // После окончания слота 0 плазма автоматически появляется в обычном крафте (см. DB.blueprints).
+        // ☢️ ПЛАЗМА БОЛЬШЕ НЕ ЭКСКЛЮЗИВ СЕЗОНА: сезонное ограничение снято полностью и насовсем
+        // (см. SEASONS ниже — weaponId сезона 1 теперь null вместо "plasma", и
+        // Core.restorePlasmaFullUnlockVictims() возвращает оружие тем, у кого его когда-либо
+        // отбирали из-за старого ограничения). ПЛАЗМА — теперь самое обычное оружие: доступна в
+        // обычном крафте всем по уровню, выпадает из Реликвария Пустоши, продаётся на Чёрном
+        // рынке — наравне с остальными видами оружия, без каких-либо сезонных условий.
         const BP_SEASON_DURATION_MS = 8 * 24 * 60 * 60 * 1000;
 
         // Чтобы добавить новый сезон в будущем — просто дописать объект в конец этого массива,
@@ -6674,7 +6676,7 @@ padding-top:9vh;
                 title: "Совы не дремлют",
                 icon: "🦉",
                 subtitle: "Ночная разведка Пустоши",
-                weaponId: "plasma", // ☢️ ПЛАЗМА — эксклюзив Premium-дороги 1 сезона (50 уровень), 8 дней
+                weaponId: null, // ☢️ ПЛАЗМА была эксклюзивом Premium-дороги 1 сезона — ограничение снято, теперь обычное оружие
                 skinId: "owl",  // 🦉 «Странник Сова» — эксклюзив Elite-дороги 1 сезона (100 уровень)
                 freeTitleId: "titleBpOwl", // 🦉 Титул «Сова» — награда 100 уровня БЕСПЛАТНОЙ дороги 1 сезона
                 theme: { key: "season_1" }
@@ -7311,9 +7313,9 @@ padding-top:9vh;
                 { id: "craft_revolver", name: "Тяжёлый Револьвер", reqLvl: 9, cost: { "Жетон Схрона": 56, "Запчасти": 5, "Тяжелый Хлам": 1 }, type: "weapon", targetId: "revolver" },
                 { id: "craft_shotgun", name: "Дробовик «Костолом»", reqLvl: 26, cost: { "Жетон Схрона": 100, "Запчасти": 15, "Тяжелый Хлам": 4, "Ядерная Батарея": 1 }, type: "weapon", targetId: "shotgun" },
                 { id: "craft_assault", name: "Штурмовая АК-74Рад", reqLvl: 30, cost: { "Жетон Схрона": 128, "Запчасти": 20, "Тяжелый Хлам": 6, "Ядерная Батарея": 1 }, type: "weapon", targetId: "assault" },
-                // ☢️ ПЛАЗМА: во время 1 сезона Пропуска Пустоши доступна ТОЛЬКО через Premium-дорогу (50 ур.).
-                // После окончания сезона появляется в обычном крафте — стоимость жетонов такая же, как у
-                // остальных Эпических видов оружия (Дробовик/Штурмовая винтовка), см. Core.isPlasmaSeasonExclusive().
+                // ☢️ ПЛАЗМА: сезонное ограничение снято полностью — доступна в обычном крафте всем
+                // игрокам по уровню, наравне с остальными Эпическими видами оружия (Дробовик/Штурмовая
+                // винтовка), без каких-либо условий Пропуска Пустоши (см. SEASONS выше, weaponId: null).
                 { id: "craft_plasma", name: "ПЛАЗМА", reqLvl: 32, cost: { "Жетон Схрона": 114, "Запчасти": 19, "Тяжелый Хлам": 5, "Ядерная Батарея": 1 }, type: "weapon", targetId: "plasma" },
                 { id: "craft_minigun", name: "Миниган «Молотилка»", reqLvl: 50, cost: { "Жетон Схрона": 220, "Запчасти": 47, "Тяжелый Хлам": 12, "Ядерная Батарея": 3 }, type: "weapon", targetId: "minigun" },
                 { id: "craft_gauss", name: "Винтовка Гаусса", reqLvl: 65, cost: { "Жетон Схрона": 260, "Запчасти": 50, "Тяжелый Хлам": 13, "Ядерная Батарея": 3 }, type: "weapon", targetId: "gauss" },
@@ -8221,6 +8223,7 @@ padding-top:9vh;
                 Core.checkBpSeasonRollover();
                 Core.fixSeasonWeaponExploit();
                 Core.restorePlasmaExploitFixVictims();
+                Core.restorePlasmaFullUnlockVictims();
                 Core.save();
             },
 
@@ -8807,7 +8810,7 @@ padding-top:9vh;
         };
 
         const Core = {
-            p: { hp: 50, maxHp: 50, energy: 100, maxEnergy: 100, rad: 0, hazards: {}, satiety: 100, lvl: 1, exp: 0, nextExp: 85, caps: 30, vouchers: 0, armor: 2, dodgeChance: 8, inv: { "Запчасти": 6, "Тяжелый Хлам": 0, "Ядерная Батарея": 0, "Сырое мясо": 1, "Жетон Схрона": 0 }, weaponsOwned: ["fists"], wpnUpgrades: { "fists": 0, "pipe": 0, "machete": 0, "pistol": 0, "revolver": 0, "shotgun": 0, "assault": 0, "plasma": 0, "minigun": 0, "gauss": 0, "sniper": 0 }, wpnMastery: { "fists": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "pipe": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "machete": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "pistol": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "revolver": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "shotgun": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "assault": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "plasma": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "minigun": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "gauss": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "sniper": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 } }, wpnMasteryClaimed: {}, wpnMasteryTitleClaimed: [], activeWeapon: "fists", rodLvl: 0, rodResetV2Done: true, rodCompensationPending: null, food: { "Жареное мясо крысы": 1 }, currentBiome: 0, bossesDefeated: [], bossCooldowns: {}, bpLvl: 1, bpPoints: 0, bpPremium: false, bpElite: false, bpClaimedFree: [], bpClaimedPrem: [], bpClaimedElite: [], bpSeasonId: null, bpSeasonUID: null, bpSeasonHistory: [], bpSeasonV2Reset: true, plasmaRestoreV1Done: true, adminForcedSeason: null, lvlCapV1Done: true, dailyStreak: 0, lastDailyClaim: null, relicWasteland: 0, redeemedPromoCodes: [], freeBoxes: {}, nickname: "Странник", nicknameSet: false, avatarsOwned: ["ranger", "raider", "cyborg"], avatar: "ranger", titleId: "newbie", unlockedTitles: ["newbie"], maxBiomeReached: 0, bmLastSuccessDay: null, bmFailDay: null, bmFailCount: 0, marketEarnDay: null, marketEarnedToday: 0, marketDailyCapValue: null, exchangeDay: null, exchangeUsed: {}, marketBuyDay: null, marketBuySpentToday: 0, marketBuyDailyCapValue: null, skinsOwned: ["default"], activeSkin: "default", dailyQuests: [], dailyQuestsDay: null, dailyQuestsPremium: [], dailyQuestsPremiumDay: null, petsOwned: [], activePet: null, installedAt: Date.now(), updateGiftClaimed: false, restockGiftEligible: false, restockGiftClaimed: false, restockGiftAt: null, pvpDuelLog: {}, wheelDay: null, wheelSpinsToday: 0, wheelFreeClaimed: false, wheelBonusSpins: 0, energyPackDay: null, energyPackBoughtToday: 0, buildPresets: [],
+            p: { hp: 50, maxHp: 50, energy: 100, maxEnergy: 100, rad: 0, hazards: {}, satiety: 100, lvl: 1, exp: 0, nextExp: 85, caps: 30, vouchers: 0, armor: 2, dodgeChance: 8, inv: { "Запчасти": 6, "Тяжелый Хлам": 0, "Ядерная Батарея": 0, "Сырое мясо": 1, "Жетон Схрона": 0 }, weaponsOwned: ["fists"], wpnUpgrades: { "fists": 0, "pipe": 0, "machete": 0, "pistol": 0, "revolver": 0, "shotgun": 0, "assault": 0, "plasma": 0, "minigun": 0, "gauss": 0, "sniper": 0 }, wpnMastery: { "fists": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "pipe": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "machete": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "pistol": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "revolver": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "shotgun": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "assault": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "plasma": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "minigun": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "gauss": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "sniper": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 } }, wpnMasteryClaimed: {}, wpnMasteryTitleClaimed: [], activeWeapon: "fists", rodLvl: 0, rodResetV2Done: true, rodCompensationPending: null, food: { "Жареное мясо крысы": 1 }, currentBiome: 0, bossesDefeated: [], bossCooldowns: {}, bpLvl: 1, bpPoints: 0, bpPremium: false, bpElite: false, bpClaimedFree: [], bpClaimedPrem: [], bpClaimedElite: [], bpSeasonId: null, bpSeasonUID: null, bpSeasonHistory: [], bpSeasonV2Reset: true, plasmaRestoreV1Done: true, plasmaFullUnlockV1Done: true, adminForcedSeason: null, lvlCapV1Done: true, dailyStreak: 0, lastDailyClaim: null, relicWasteland: 0, redeemedPromoCodes: [], freeBoxes: {}, nickname: "Странник", nicknameSet: false, avatarsOwned: ["ranger", "raider", "cyborg"], avatar: "ranger", titleId: "newbie", unlockedTitles: ["newbie"], maxBiomeReached: 0, bmLastSuccessDay: null, bmFailDay: null, bmFailCount: 0, marketEarnDay: null, marketEarnedToday: 0, marketDailyCapValue: null, exchangeDay: null, exchangeUsed: {}, marketBuyDay: null, marketBuySpentToday: 0, marketBuyDailyCapValue: null, skinsOwned: ["default"], activeSkin: "default", dailyQuests: [], dailyQuestsDay: null, dailyQuestsPremium: [], dailyQuestsPremiumDay: null, petsOwned: [], activePet: null, installedAt: Date.now(), updateGiftClaimed: false, restockGiftEligible: false, restockGiftClaimed: false, restockGiftAt: null, pvpDuelLog: {}, wheelDay: null, wheelSpinsToday: 0, wheelFreeClaimed: false, wheelBonusSpins: 0, energyPackDay: null, energyPackBoughtToday: 0, buildPresets: [],
                 // ---- Реворк «Разведки» и «Костра» ----
                 exploreStreak: 0,     // серия подряд идущих мирных (не боевых) разведок — влияет на шанс тайника/точки интереса, показывается как "🍀 Удача разведки"
                 specialEventLock: 0,  // сколько ближайших разведок гарантированно будут обычной находкой — взводится на 2 после любого спецсобытия (тайник/засада/караван/бой/элит/точка интереса/опасный участок), чтобы спецсобытия не выпадали кластерами подряд
@@ -9452,6 +9455,7 @@ padding-top:9vh;
                     this.checkBpSeasonRollover();
                     this.fixSeasonWeaponExploit();
                     this.restorePlasmaExploitFixVictims();
+                    this.restorePlasmaFullUnlockVictims();
                     this.applyOfflineProgress();
                 } else {
                     this.lastTick = Date.now();
@@ -12526,7 +12530,7 @@ startCombat(isBossFight = false) {
                 } else {
                     DB.blueprints.forEach(bp => {
                         // ☢️🎯 Пока идёт слот сезона, анонсировавшего это оружие как эксклюзив Premium-дороги —
-                        // крафт скрыт. isWeaponSeasonLocked() — общий случай isPlasmaSeasonExclusive(),
+                        // крафт скрыт. isWeaponSeasonLocked() — общий механизм сезонных эксклюзивов,
                         // работает для оружия ЛЮБОГО сезона (Плазма 1 сезона, «Воздушка» 2 сезона и т.д.).
                         if (this.isWeaponSeasonLocked(bp.targetId) && !this.p.weaponsOwned.includes(bp.targetId)) {
                             let wpnData = DB.weapons.find(w => w.id === bp.targetId);
@@ -15474,6 +15478,25 @@ startCombat(isBossFight = false) {
                 this.log("☢️ «ПЛАЗМА» возвращена: она была ошибочно изъята багом сброса Пропуска Пустоши, хотя честно принадлежала вам ещё до появления сезонной системы.", "system");
             },
 
+            // ☢️ ОДНОРАЗОВАЯ МИГРАЦИЯ: сезонное ограничение на ПЛАЗМУ снято полностью и насовсем
+            // (сезон-владелец в SEASONS теперь weaponId: null, см. выше) — оружие больше никогда
+            // не будет изыматься fixSeasonWeaponExploit(). Тем, у кого ПЛАЗМА была изъята любой из
+            // прошлых итераций этой проверки, возвращаем её здесь — по тем же неопровержимым следам
+            // владения (уровень прокачки/боевая статистика), что и в restorePlasmaExploitFixVictims()
+            // выше, независимо от того, срабатывала ли уже та миграция. Флаг не даёт сработать
+            // повторно и не трогает игроков, которые ПЛАЗМОЙ никогда не владели.
+            restorePlasmaFullUnlockVictims() {
+                if (this.p.plasmaFullUnlockV1Done) return;
+                this.p.plasmaFullUnlockV1Done = true;
+                if (!this.p.weaponsOwned || this.p.weaponsOwned.includes('plasma')) return;
+                const upLvl = (this.p.wpnUpgrades && this.p.wpnUpgrades['plasma']) || 0;
+                const mastery = (this.p.wpnMastery && this.p.wpnMastery['plasma']) || {};
+                const hadEvidence = upLvl > 0 || Object.values(mastery).some(v => v > 0);
+                if (!hadEvidence) return;
+                this.p.weaponsOwned.push('plasma');
+                this.log("☢️ «ПЛАЗМА» возвращена: сезонное ограничение на неё снято полностью, оружие снова ваше — как и любое другое.", "system");
+            },
+
             // Взвешенный выбор одного элемента массива по числовому полю weightKey (по умолчанию "chance").
             rollWeightedEntry(list, weightKey) {
                 weightKey = weightKey || 'chance';
@@ -16049,13 +16072,6 @@ startCombat(isBossFight = false) {
                 return { slotIndex, seasonDef, seasonUID: `slot_${slotIndex}`, startMs, endMs: startMs + BP_SEASON_DURATION_MS };
             },
             bpRewards() { return DB.getBpRewards(this.getSeasonSlot().seasonDef); },
-
-            // ☢️ Пока идёт САМЫЙ ПЕРВЫЙ 8-дневный слот Пропуска Пустоши (slotIndex === 0) — ПЛАЗМА
-            // доступна ИСКЛЮЧИТЕЛЬНО через Premium-дорогу 1 сезона (50 уровень) и не может быть
-            // скрафчена обычным способом. Как только слот 0 заканчивается — навсегда открывается крафт.
-            isPlasmaSeasonExclusive() {
-                return this.getSeasonSlot().slotIndex === 0;
-            },
 
             // Проверяет, не сменился ли сезон с момента последнего захода. Если да — прошлый
             // прогресс уходит в архив (bpSeasonHistory), а уровень/очки/претензии обнуляются.
