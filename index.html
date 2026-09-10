@@ -8220,6 +8220,7 @@ padding-top:9vh;
                 // ДО того, как сюда пришли облачные данные, и второй раз сам по себе не сработает.
                 Core.checkBpSeasonRollover();
                 Core.fixSeasonWeaponExploit();
+                Core.restorePlasmaExploitFixVictims();
                 Core.save();
             },
 
@@ -8806,7 +8807,7 @@ padding-top:9vh;
         };
 
         const Core = {
-            p: { hp: 50, maxHp: 50, energy: 100, maxEnergy: 100, rad: 0, hazards: {}, satiety: 100, lvl: 1, exp: 0, nextExp: 85, caps: 30, vouchers: 0, armor: 2, dodgeChance: 8, inv: { "Запчасти": 6, "Тяжелый Хлам": 0, "Ядерная Батарея": 0, "Сырое мясо": 1, "Жетон Схрона": 0 }, weaponsOwned: ["fists"], wpnUpgrades: { "fists": 0, "pipe": 0, "machete": 0, "pistol": 0, "revolver": 0, "shotgun": 0, "assault": 0, "plasma": 0, "minigun": 0, "gauss": 0, "sniper": 0 }, wpnMastery: { "fists": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "pipe": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "machete": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "pistol": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "revolver": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "shotgun": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "assault": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "plasma": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "minigun": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "gauss": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "sniper": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 } }, wpnMasteryClaimed: {}, wpnMasteryTitleClaimed: [], activeWeapon: "fists", rodLvl: 0, rodResetV2Done: true, rodCompensationPending: null, food: { "Жареное мясо крысы": 1 }, currentBiome: 0, bossesDefeated: [], bpLvl: 1, bpPoints: 0, bpPremium: false, bpElite: false, bpClaimedFree: [], bpClaimedPrem: [], bpClaimedElite: [], bpSeasonId: null, bpSeasonUID: null, bpSeasonHistory: [], bpSeasonV2Reset: true, adminForcedSeason: null, lvlCapV1Done: true, dailyStreak: 0, lastDailyClaim: null, relicWasteland: 0, redeemedPromoCodes: [], freeBoxes: {}, nickname: "Странник", nicknameSet: false, avatarsOwned: ["ranger", "raider", "cyborg"], avatar: "ranger", titleId: "newbie", unlockedTitles: ["newbie"], maxBiomeReached: 0, bmLastSuccessDay: null, bmFailDay: null, bmFailCount: 0, marketEarnDay: null, marketEarnedToday: 0, marketDailyCapValue: null, exchangeDay: null, exchangeUsed: {}, marketBuyDay: null, marketBuySpentToday: 0, marketBuyDailyCapValue: null, skinsOwned: ["default"], activeSkin: "default", dailyQuests: [], dailyQuestsDay: null, dailyQuestsPremium: [], dailyQuestsPremiumDay: null, petsOwned: [], activePet: null, installedAt: Date.now(), updateGiftClaimed: false, restockGiftEligible: false, restockGiftClaimed: false, restockGiftAt: null, pvpDuelLog: {}, wheelDay: null, wheelSpinsToday: 0, wheelFreeClaimed: false, wheelBonusSpins: 0, energyPackDay: null, energyPackBoughtToday: 0, buildPresets: [],
+            p: { hp: 50, maxHp: 50, energy: 100, maxEnergy: 100, rad: 0, hazards: {}, satiety: 100, lvl: 1, exp: 0, nextExp: 85, caps: 30, vouchers: 0, armor: 2, dodgeChance: 8, inv: { "Запчасти": 6, "Тяжелый Хлам": 0, "Ядерная Батарея": 0, "Сырое мясо": 1, "Жетон Схрона": 0 }, weaponsOwned: ["fists"], wpnUpgrades: { "fists": 0, "pipe": 0, "machete": 0, "pistol": 0, "revolver": 0, "shotgun": 0, "assault": 0, "plasma": 0, "minigun": 0, "gauss": 0, "sniper": 0 }, wpnMastery: { "fists": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "pipe": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "machete": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "pistol": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "revolver": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "shotgun": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "assault": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "plasma": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "minigun": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "gauss": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "sniper": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 } }, wpnMasteryClaimed: {}, wpnMasteryTitleClaimed: [], activeWeapon: "fists", rodLvl: 0, rodResetV2Done: true, rodCompensationPending: null, food: { "Жареное мясо крысы": 1 }, currentBiome: 0, bossesDefeated: [], bpLvl: 1, bpPoints: 0, bpPremium: false, bpElite: false, bpClaimedFree: [], bpClaimedPrem: [], bpClaimedElite: [], bpSeasonId: null, bpSeasonUID: null, bpSeasonHistory: [], bpSeasonV2Reset: true, plasmaRestoreV1Done: true, adminForcedSeason: null, lvlCapV1Done: true, dailyStreak: 0, lastDailyClaim: null, relicWasteland: 0, redeemedPromoCodes: [], freeBoxes: {}, nickname: "Странник", nicknameSet: false, avatarsOwned: ["ranger", "raider", "cyborg"], avatar: "ranger", titleId: "newbie", unlockedTitles: ["newbie"], maxBiomeReached: 0, bmLastSuccessDay: null, bmFailDay: null, bmFailCount: 0, marketEarnDay: null, marketEarnedToday: 0, marketDailyCapValue: null, exchangeDay: null, exchangeUsed: {}, marketBuyDay: null, marketBuySpentToday: 0, marketBuyDailyCapValue: null, skinsOwned: ["default"], activeSkin: "default", dailyQuests: [], dailyQuestsDay: null, dailyQuestsPremium: [], dailyQuestsPremiumDay: null, petsOwned: [], activePet: null, installedAt: Date.now(), updateGiftClaimed: false, restockGiftEligible: false, restockGiftClaimed: false, restockGiftAt: null, pvpDuelLog: {}, wheelDay: null, wheelSpinsToday: 0, wheelFreeClaimed: false, wheelBonusSpins: 0, energyPackDay: null, energyPackBoughtToday: 0, buildPresets: [],
                 // ---- Реворк «Разведки» и «Костра» ----
                 exploreStreak: 0,     // серия подряд идущих мирных (не боевых) разведок — влияет на шанс тайника/точки интереса, показывается как "🍀 Удача разведки"
                 specialEventLock: 0,  // сколько ближайших разведок гарантированно будут обычной находкой — взводится на 2 после любого спецсобытия (тайник/засада/караван/бой/элит/точка интереса/опасный участок), чтобы спецсобытия не выпадали кластерами подряд
@@ -9449,6 +9450,7 @@ padding-top:9vh;
                     }
                     this.checkBpSeasonRollover();
                     this.fixSeasonWeaponExploit();
+                    this.restorePlasmaExploitFixVictims();
                     this.applyOfflineProgress();
                 } else {
                     this.lastTick = Date.now();
@@ -15384,6 +15386,32 @@ startCombat(isBossFight = false) {
                     const wpnData = DB.weapons.find(w => w.id === wId);
                     this.log(`⚠️ «${wpnData ? wpnData.name : wId}» изъято: это оружие — эксклюзив Premium-дороги сезона «${season.title}» и было получено до того, как этот сезон честно пройден. Оно снова станет доступно всем обычным способом, когда сезон «${season.title}» закончится.`, "system");
                 });
+            },
+
+            // ☢️ ОДНОРАЗОВАЯ КОМПЕНСАЦИЯ ПОБОЧНОГО БАГА fixSeasonWeaponExploit() ВЫШЕ: миграция на
+            // 100-уровневую сезонную систему (см. bpSeasonV2Reset в Core.load()/hydrateFromRow())
+            // обнуляла bpClaimedPrem и bpSeasonId у всех старых сохранений, чтобы никто не получил
+            // новые награды пропуска "бесплатно". Но fixSeasonWeaponExploit() судит о законности
+            // владения ПЛАЗМОЙ именно по bpClaimedPrem/bpSeasonId — из-за обнуления он переставал
+            // видеть, что игрок получил ПЛАЗМУ ЕЩЁ ДО появления сезонной системы, и ошибочно отбирал
+            // честно заработанное оружие у ветеранов.
+            // Доказательством того, что оружие раньше действительно было у игрока, служат следы
+            // реального использования — уровень прокачки (wpnUpgrades.plasma) или боевая статистика
+            // (wpnMastery.plasma: убийства/урон/криты и т.д.). Ни то, ни другое fixSeasonWeaponExploit()
+            // не трогает и не обнуляет, так что эти следы надёжно переживают отъём оружия и однозначно
+            // доказывают прежнее владение. Если такие следы есть, а самой Плазмы в weaponsOwned нет —
+            // возвращаем её. Флаг не даёт сработать повторно, если игрок больше не имеет права
+            // на Плазму (например, регистрируется впервые уже после этого фикса).
+            restorePlasmaExploitFixVictims() {
+                if (this.p.plasmaRestoreV1Done) return;
+                this.p.plasmaRestoreV1Done = true;
+                if (!this.p.weaponsOwned || this.p.weaponsOwned.includes('plasma')) return;
+                const upLvl = (this.p.wpnUpgrades && this.p.wpnUpgrades['plasma']) || 0;
+                const mastery = (this.p.wpnMastery && this.p.wpnMastery['plasma']) || {};
+                const hadEvidence = upLvl > 0 || Object.values(mastery).some(v => v > 0);
+                if (!hadEvidence) return;
+                this.p.weaponsOwned.push('plasma');
+                this.log("☢️ «ПЛАЗМА» возвращена: она была ошибочно изъята багом сброса Пропуска Пустоши, хотя честно принадлежала вам ещё до появления сезонной системы.", "system");
             },
 
             // Взвешенный выбор одного элемента массива по числовому полю weightKey (по умолчанию "chance").
