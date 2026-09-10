@@ -84,6 +84,7 @@
         body.perf-mode .daily-flame,
         body.perf-mode .daily-mystery-icon,
         body.perf-mode .daily-day.current,
+        body.perf-mode .echo-chapter-replay-btn,
         body.perf-mode .skin-discount-banner { animation: none !important; }
         body.perf-mode * { filter: none !important; }
 
@@ -630,7 +631,12 @@ transform:scale(1);
         /* ===== Панель заданий текущей главы — компактная, лёгкий акцент цвета главы, без давления на глаза ===== */
         .echo-chapter-panel { position: relative; padding: 13px 13px; border-radius: 16px; background: linear-gradient(165deg, rgba(20,25,40,0.85), rgba(8,10,18,0.92)); border: 1px solid var(--map-color, rgba(143,217,255,0.2)); box-shadow: 0 4px 16px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05), 0 0 10px var(--map-glow, transparent); margin-bottom: 10px; transition: border-color 0.4s ease, box-shadow 0.4s ease; }
         .echo-chapter-head { display: flex; align-items: center; gap: 9px; margin-bottom: 11px; }
-        .echo-chapter-icon-badge { width: 34px; height: 34px; flex-shrink: 0; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 16px; background: rgba(255,255,255,0.05); border: 1px solid var(--map-color, rgba(255,255,255,0.18)); box-shadow: inset 0 1px 0 rgba(255,255,255,0.16); }
+        .echo-chapter-icon-badge { position: relative; width: 34px; height: 34px; flex-shrink: 0; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 16px; background: rgba(255,255,255,0.05); border: 1px solid var(--map-color, rgba(255,255,255,0.18)); box-shadow: inset 0 1px 0 rgba(255,255,255,0.16); }
+        /* Эмблема "!" на логотипе главы — позволяет в любой момент заново прочитать сюжет главы,
+           если игрок случайно закрыл рассказ раньше, чем прочитал его (см. Core.replayEchoChapterStory). */
+        .echo-chapter-replay-btn { position: absolute; top: -6px; right: -6px; width: 18px; height: 18px; padding: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; line-height: 1; color: #2a1400; background: linear-gradient(145deg, #ffdd80, #ff8a00); border: 2px solid rgba(8,10,18,0.9); box-shadow: 0 0 8px rgba(255,180,60,0.7), 0 2px 6px rgba(0,0,0,0.4); cursor: pointer; z-index: 2; animation: echoReplayGlow 2s ease-in-out infinite; }
+        .echo-chapter-replay-btn:active { transform: scale(0.88); }
+        @keyframes echoReplayGlow { 0%, 100% { box-shadow: 0 0 6px rgba(255,180,60,0.55), 0 2px 6px rgba(0,0,0,0.4); } 50% { box-shadow: 0 0 13px rgba(255,180,60,0.95), 0 2px 6px rgba(0,0,0,0.4); } }
         .echo-chapter-titles { flex: 1; min-width: 0; }
         .echo-chapter-name { font-size: 12.5px; font-weight: 900; color: #fff; line-height: 1.25; }
         .echo-chapter-sub { font-size: 9px; color: var(--map-color, #8fd9ff); font-weight: 700; margin-top: 1px; }
@@ -1669,6 +1675,12 @@ transform:scale(1);
             box-shadow: 0 0 50px rgba(255,90,60,0.35), 0 12px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.12);
         }
         .bp-container[data-season="season_2"]::before { background: radial-gradient(circle at top right, rgba(255,140,90,0.20), transparent 60%); }
+        .bp-container[data-season="season_3"], .bp-collapsed-bar[data-season="season_3"] {
+            background: linear-gradient(135deg, rgba(255,170,60,0.30) 0%, rgba(45,25,5,0.16) 100%), var(--glass-bg-strong);
+            border-color: rgba(255,190,110,0.55);
+            box-shadow: 0 0 50px rgba(255,170,60,0.35), 0 12px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.12);
+        }
+        .bp-container[data-season="season_3"]::before { background: radial-gradient(circle at top right, rgba(255,190,110,0.20), transparent 60%); }
 
         .bp-claim-btn { 
             padding: 10px 16px; 
@@ -2595,16 +2607,16 @@ transform:scale(1);
         body.perf-mode .title-card-tag.title-tag-special,
         body.perf-mode .profile-title-badge.title-special,
         body.perf-mode .profile-title-badge.title-special::after { animation: none !important; }
-        .avatar-pick-btn { position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; aspect-ratio: 1; border-radius:16px; background: var(--glass-bg); border:2px solid rgba(255,255,255,0.16); cursor:pointer; transition: all 0.15s ease; padding:10px 6px 8px; }
-        .avatar-pick-icon { width:64%; aspect-ratio:1; border-radius:50%; overflow:hidden; border:2px solid rgba(255,255,255,0.2); box-shadow: 0 0 0 3px rgba(255,255,255,0.05); flex-shrink:0; }
+        .avatar-pick-btn { position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; aspect-ratio: 0.82; border-radius:14px; background: var(--glass-bg); border:2px solid rgba(255,255,255,0.16); cursor:pointer; transition: all 0.15s ease; padding:6px 3px 5px; }
+        .avatar-pick-icon { width:58%; aspect-ratio:1; border-radius:50%; overflow:hidden; border:2px solid rgba(255,255,255,0.2); box-shadow: 0 0 0 3px rgba(255,255,255,0.05); flex-shrink:0; }
         .avatar-pick-icon svg { width:100%; height:100%; display:block; }
-        .avatar-pick-label { font-size:9px; font-weight:800; color: var(--text-muted); text-align:center; line-height:1.2; }
+        .avatar-pick-label { font-size:7.6px; font-weight:800; color: var(--text-muted); text-align:center; line-height:1.15; }
         .avatar-pick-btn.active { border-color: var(--avatar-color, var(--neon-blue)); background: rgba(255,255,255,0.1); box-shadow: 0 0 14px var(--avatar-color, var(--neon-blue)); }
         .avatar-pick-btn.locked { cursor: default; opacity: 0.62; }
-        .avatar-pick-btn.locked .avatar-pick-tag { color: var(--text-muted); font-size: 7px; line-height: 1.25; white-space: normal; }
+        .avatar-pick-btn.locked .avatar-pick-tag { color: var(--text-muted); font-size: 6.2px; line-height: 1.2; white-space: normal; }
         .avatar-pick-btn.active .avatar-pick-icon { border-color: var(--avatar-color, var(--neon-blue)); box-shadow: 0 0 10px var(--avatar-color, var(--neon-blue)); }
         .avatar-pick-btn.active .avatar-pick-label { color: var(--avatar-color, var(--neon-blue)); }
-        .avatar-pick-tag { font-size:7.5px; font-weight:900; letter-spacing:0.3px; color: var(--avatar-color, var(--neon-blue)); }
+        .avatar-pick-tag { font-size:6.8px; font-weight:900; letter-spacing:0.2px; color: var(--avatar-color, var(--neon-blue)); }
 
 
         .loot-card { display: flex; align-items: center; gap: 12px; background: var(--glass-bg); backdrop-filter: blur(var(--glass-blur)); border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow-soft); border-radius: 18px; padding: 12px; margin-bottom: 10px; position: relative; overflow: hidden; }
@@ -4149,6 +4161,19 @@ padding-top:9vh;
                     </div>
                 </div>
                 <div class="admin-section">
+                    <div class="admin-section-title">Пропуск Пустоши · Сезон</div>
+                    <div class="admin-row">
+                        <button class="admin-btn" onclick="Core.adminSetSeason(null)">⏱️ Авто (по времени)</button>
+                        <button class="admin-btn" onclick="Core.adminSetSeason('season_1')">🦉 Сезон 1: Совы не дремлют</button>
+                        <button class="admin-btn" onclick="Core.adminSetSeason('season_2')">🐈 Сезон 2: Кошки в опасности</button>
+                        <button class="admin-btn" onclick="Core.adminSetSeason('season_3')">🐕 Сезон 3: Собаки атакуют!</button>
+                    </div>
+                    <div class="admin-row" style="margin-top:7px;">
+                        <input type="number" id="admin-bplvl-input" class="admin-input" placeholder="Уровень Пропуска (1-100)" min="1" max="100">
+                        <button class="admin-btn" onclick="Core.adminSetBpLevel()">Установить</button>
+                    </div>
+                </div>
+                <div class="admin-section">
                     <div class="admin-section-title">Разблокировки</div>
                     <div class="admin-row">
                         <button class="admin-btn" onclick="Core.adminUnlockAll()">🔓 Выдать всё оружие, макс. удочку и титулы</button>
@@ -4530,10 +4555,10 @@ padding-top:9vh;
         </div>
     </div>
 
-    <div id="avatar-picker-overlay" style="position:fixed; inset:0; background:rgba(6,8,12,0.82); backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%); z-index:6300; display:none; flex-direction:column; justify-content:center; align-items:center; padding:20px;">
-        <div class="tut-card" style="max-width:360px; padding:20px;">
-            <h3 style="color: var(--neon-blue); margin-bottom: 12px;">🖼️ Выберите аватар</h3>
-            <div id="avatar-picker-grid" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin-bottom:16px; max-height: 45vh; overflow-y:auto;"></div>
+    <div id="avatar-picker-overlay" style="position:fixed; inset:0; background:rgba(6,8,12,0.86); backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%); z-index:6300; display:none; flex-direction:column; justify-content:center; align-items:center; padding:12px;">
+        <div class="tut-card" style="max-width:400px; padding:14px 12px;">
+            <h3 style="color: var(--neon-blue); margin-bottom: 9px; font-size:15px;">🖼️ Выберите аватар</h3>
+            <div id="avatar-picker-grid" style="display:grid; grid-template-columns:repeat(4, 1fr); gap:6px; margin-bottom:12px;"></div>
             <button class="primary" style="width:100%;" onclick="Core.closeAvatarPicker()">Готово</button>
         </div>
     </div>
@@ -4953,6 +4978,16 @@ padding-top:9vh;
                     lens: ['#fff6d8', '#ffcf4d', '#a8650a'], skin: ['#e8c39a', '#b98f66'],
                     scarf: '#a8501c', belt: '#2a1e10', buckle: '#ffcf4d', emblem: '#e8b23a',
                     glove: '#3a2c16', hood: '#4a3820'
+                },
+                // 🐈 «Кошко-Странник» — эксклюзив 2 сезона Пропуска Пустоши: пятнистая
+                // серо-дымчатая шёрстка, розовая подкладка ушей и подушечек лап, светящиеся
+                // янтарно-зелёные кошачьи глаза.
+                cat: {
+                    jacket: ['#d4dae3', '#98a1b0', '#565e6c'], jacketStroke: 'rgba(255,255,255,0.55)',
+                    leg: ['#98a1b0', '#4b515c'], boot: ['#4b515c', '#22262c'], sole: '#ff9ecb',
+                    lens: ['#eaffd8', '#8dff5c', '#2f6b1a'], skin: ['#f0c297', '#c69f72'],
+                    scarf: '#f3f5f8', belt: '#3a3f47', buckle: '#8dff5c', emblem: '#ff9ecb',
+                    glove: '#4b515c', hood: '#7d8593'
                 }
             },
             player(skinId) {
@@ -5064,6 +5099,54 @@ padding-top:9vh;
                                 <path d="M39 38 l3 -2.4 l3 2.4 l-3 2.2 Z"/>
                                 <path d="M23 44 l3 -2.4 l3 2.4 l-3 2.2 Z"/>
                                 <path d="M35 47.5 l3 -2.4 l3 2.4 l-3 2.2 Z"/>
+                             </g>`;
+                } else if (skinId === 'cat') {
+                    // Кошко-Странник: треугольные ушки с розовой подкладкой на капюшоне,
+                    // миндалевидные светящиеся глаза с вертикальным зрачком, розовый носик,
+                    // тонкие усы на щеках, лапка-нашивка на груди и пушистый полосатый хвост,
+                    // обвивающий бедро сбоку.
+                    scarfBlock = `
+                        <path class="scarf" d="M20 24 Q26.5 30 24.5 37.5 Q20.5 33.5 17.5 32 Q18.5 27.5 20 24 Z" fill="${p.scarf}" opacity="0.55"/>
+                        <path class="scarf" d="M44 24 Q37.5 30 39.5 37.5 Q43.5 33.5 46.5 32 Q45.5 27.5 44 24 Z" fill="${p.scarf}" opacity="0.55"/>`;
+                    neckBlock = `<path d="M24 24.5 Q32 30 40 24.5 L38 29.5 Q32 33.5 26 29.5 Z" fill="${p.hood}"/>`;
+                    headgearBlock = `
+                        <path d="M20 9 Q32 -2 44 9 L44 14.5 Q32 6.5 20 14.5 Z" fill="${p.hood}"/>
+                        <path class="ear-twitch" d="M22 9.3 Q18.5 -1.5 24.8 -5 Q28.5 1.5 27.3 8.7 Z" fill="${p.hood}"/>
+                        <path class="ear-twitch" d="M22.9 7.3 Q21 0 24.8 -1.8 Q27 2.5 26.2 6.8 Z" fill="#ffc7dd"/>
+                        <path class="ear-twitch" d="M42 9.3 Q45.5 -1.5 39.2 -5 Q35.5 1.5 36.7 8.7 Z" fill="${p.hood}"/>
+                        <path class="ear-twitch" d="M41.1 7.3 Q43 0 39.2 -1.8 Q37 2.5 37.8 6.8 Z" fill="#ffc7dd"/>`;
+                    lensBlock = `
+                        <ellipse cx="27" cy="13.7" rx="3.6" ry="4.3" fill="url(#pLens-${id})" opacity="0.95" transform="rotate(-10 27 13.7)"/>
+                        <ellipse cx="37" cy="13.7" rx="3.6" ry="4.3" fill="url(#pLens-${id})" opacity="0.95" transform="rotate(10 37 13.7)"/>
+                        <ellipse class="eye-glow" cx="27" cy="13.9" rx="0.9" ry="3.3" fill="#0c1a06" transform="rotate(-10 27 13.9)"/>
+                        <ellipse class="eye-glow" cx="37" cy="13.9" rx="0.9" ry="3.3" fill="#0c1a06" transform="rotate(10 37 13.9)"/>`;
+                    mouthBlock = `
+                        <path d="M32 19.2 L30.4 20.9 L33.6 20.9 Z" fill="#ff9ecb"/>
+                        <path d="M32 20.9 Q29.8 23.1 27 21.9" stroke="#3a2c1c" stroke-width="0.9" fill="none" opacity="0.55"/>
+                        <path d="M32 20.9 Q34.2 23.1 37 21.9" stroke="#3a2c1c" stroke-width="0.9" fill="none" opacity="0.55"/>
+                        <g stroke="#fff" stroke-width="0.7" opacity="0.8" stroke-linecap="round">
+                            <path d="M23.5 19.8 L16 18.3"/><path d="M23.5 21.4 L16 21.6"/><path d="M23.5 23 L16.3 25.6"/>
+                            <path d="M40.5 19.8 L48 18.3"/><path d="M40.5 21.4 L48 21.6"/><path d="M40.5 23 L47.7 25.6"/>
+                        </g>`;
+                    emblemBlock = `
+                        <g fill="${p.emblem}" opacity="0.85">
+                            <ellipse cx="23" cy="34" rx="2.1" ry="1.7"/>
+                            <ellipse cx="19.8" cy="31.6" rx="1" ry="1.3"/>
+                            <ellipse cx="22.4" cy="30" rx="1" ry="1.3"/>
+                            <ellipse cx="25.6" cy="30.4" rx="1" ry="1.3"/>
+                            <ellipse cx="26.8" cy="32.6" rx="1" ry="1.3"/>
+                        </g>`;
+                    accessoryBlock = `
+                        <path class="scarf" d="M46 43 Q59 45.5 60 35.5 Q61 26 53.5 22.5 Q60 29 58 37.5 Q56 45 46 45.5 Z" fill="${p.hood}" opacity="0.92"/>
+                        <path d="M53.5 22.5 Q49.5 21 47 23" stroke="${p.hood}" stroke-width="2.6" fill="none" stroke-linecap="round" opacity="0.9"/>
+                        <g opacity="0.4" stroke="${p.jacket[2]}" stroke-width="1.4" stroke-linecap="round">
+                            <path d="M55 27 L58.5 26.3"/><path d="M56 32 L59.5 31.7"/><path d="M55.5 38 L59 38.3"/>
+                        </g>`;
+                    extra = `<g opacity="0.5" fill="${p.jacket[2]}">
+                                <ellipse cx="21" cy="30" rx="2.3" ry="1.5"/>
+                                <ellipse cx="43" cy="34" rx="2" ry="1.3"/>
+                                <ellipse cx="25" cy="43" rx="2.4" ry="1.6"/>
+                                <ellipse cx="37" cy="48" rx="2" ry="1.3"/>
                              </g>`;
                 } else {
                     // Стандартный комплект — базовая экипировка Странника Пустошей.
@@ -5461,6 +5544,27 @@ padding-top:9vh;
                         <circle cx="33" cy="31.2" r="4.6" fill="none" stroke="#ffb703" stroke-width="1.6" class="eye-glow"/>
                         <path d="M13 34.5 L17.5 47 L24 47 L20.5 34.5 Z" fill="#232a1c" stroke="#12160e" stroke-width="0.8"/>
                         <circle cx="50" cy="31.2" r="2" fill="#ffe9a8"/>
+                    </g>
+                </svg>`,
+                // 🎯 «Воздушка» — длинноствольная снайперская винтовка с оптическим прицелом
+                // и сошками; светящаяся линза прицела — та же деталь, что и во всплывающей
+                // подсказке способности «Затаить дыхание».
+                sniper: (id) => `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="wSniperBody-${id}" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#5c5c66"/><stop offset="100%" stop-color="#232329"/>
+                        </linearGradient>
+                    </defs>
+                    <g transform="rotate(-28 32 32)">
+                        <path d="M7 33 L18 29 L18 38 L7 40 Z" fill="#232329" stroke="#12120e" stroke-width="0.8"/>
+                        <rect x="16" y="30.5" width="38" height="5" rx="2.2" fill="url(#wSniperBody-${id})" stroke="#ffb703" stroke-width="1.1"/>
+                        <rect x="30" y="22" width="16" height="5.5" rx="2.4" fill="#3a3a42" stroke="#ffb703" stroke-width="1"/>
+                        <circle cx="43" cy="24.7" r="2" fill="none" stroke="#ffe9a8" stroke-width="1.2"/>
+                        <circle cx="43" cy="24.7" r="0.9" fill="#ffe9a8" class="eye-glow"/>
+                        <rect x="33" y="27.5" width="2.4" height="3.2" fill="#3a3a42"/>
+                        <path d="M22 35.5 L20 43" stroke="#232329" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M27 35.5 L25.5 42" stroke="#232329" stroke-width="2" stroke-linecap="round"/>
+                        <circle cx="52" cy="33" r="1.7" fill="#12120e"/>
                     </g>
                 </svg>`
             },
@@ -6572,6 +6676,7 @@ padding-top:9vh;
                 subtitle: "Ночная разведка Пустоши",
                 weaponId: "plasma", // ☢️ ПЛАЗМА — эксклюзив Premium-дороги 1 сезона (50 уровень), 8 дней
                 skinId: "owl",  // 🦉 «Странник Сова» — эксклюзив Elite-дороги 1 сезона (100 уровень)
+                freeTitleId: "titleBpOwl", // 🦉 Титул «Сова» — награда 100 уровня БЕСПЛАТНОЙ дороги 1 сезона
                 theme: { key: "season_1" }
             },
             {
@@ -6579,9 +6684,20 @@ padding-top:9vh;
                 title: "Кошки в опасности",
                 icon: "🐈",
                 subtitle: "Мутировавшие звери на тропах",
-                weaponId: null, // TODO
-                skinId: null,   // TODO
+                weaponId: "sniper", // 🎯 «Воздушка» — эксклюзив Premium-дороги 2 сезона (50 уровень)
+                skinId: "cat",  // 🐈 «Кошко-Странник» — эксклюзив Elite-дороги 2 сезона (100 уровень)
+                freeTitleId: "titleBpFurryCat", // 🐾 Титул «Фурри Котик» — награда 100 уровня БЕСПЛАТНОЙ дороги 2 сезона
                 theme: { key: "season_2" }
+            },
+            {
+                id: "season_3",
+                title: "Собаки атакуют!",
+                icon: "🐕",
+                subtitle: "Стаи мутантов рыщут по руинам",
+                weaponId: null, // TODO: оружие 3 сезона пока не определено
+                skinId: null,   // TODO: скин 3 сезона пока не определён
+                freeTitleId: "titleBpFurryDog", // 🐾 Титул «Фурри Пёсик» — награда 100 уровня БЕСПЛАТНОЙ дороги 3 сезона
+                theme: { key: "season_3" }
             }
         ];
 
@@ -6702,8 +6818,13 @@ padding-top:9vh;
             // Обычная Premium-награда финального этапа — эксклюзивный скин сезона теперь
             // выдаётся отдельно как Elite-награда этого же уровня (см. блок ниже).
             list[99].prem = { name: "🏷️ Ваучеры x15", type: "voucher", qty: 15 };
-            // Бесплатная дорога 100 уровня: не золото и не что-то "особое" — просто синий титул «Сова».
-            list[99].free = { name: "🦉 Титул «Сова»", type: "title", titleId: "titleBpOwl" };
+            // Бесплатная дорога 100 уровня: не золото и не что-то "особое" — фирменный титул именно
+            // ЭТОГО сезона (см. season.freeTitleId — тот же принцип, что и у weaponId/skinId выше:
+            // 1 сезон → «Сова», 2 сезон → «Фурри Котик» и т.д.).
+            let seasonFreeTitleDef = season.freeTitleId ? DB.titles.find(t => t.id === season.freeTitleId) : null;
+            list[99].free = seasonFreeTitleDef
+                ? { name: `${seasonFreeTitleDef.icon} Титул «${seasonFreeTitleDef.name}»`, type: "title", titleId: seasonFreeTitleDef.id }
+                : { name: "🎫 Титул сезона (скоро)", type: "title", titleId: null };
 
             // ===== Жетоны Схрона в премиум-дороге: 10 штук по 1 шт., раскиданы равномерно
             // по всей длине пропуска (не задевают уже занятые "круглые" этапы с уникальным контентом) =====
@@ -7072,7 +7193,12 @@ padding-top:9vh;
                 { id: "assault", name: "Штурмовая АК-74Рад", dmg: 38, crit: 18, icon: "🎯", color: "#ff2a5f", tier: "Эпическое", class: "Штурмовые винтовки" },
                 { id: "plasma", name: "ПЛАЗМА", dmg: 35, crit: 15, icon: "☢️", color: "#ff2a5f", tier: "Эпическое", class: "Энергетическое" },
                 { id: "minigun", name: "Миниган «Молотилка»", dmg: 95, crit: 12, icon: "🌀", color: "#ffb703", tier: "Легендарное", class: "Тяжёлое оружие" },
-                { id: "gauss", name: "Винтовка Гаусса", dmg: 62, crit: 18, icon: "⚡", color: "#ffb703", tier: "Легендарное", class: "Энергетическое" }
+                { id: "gauss", name: "Винтовка Гаусса", dmg: 62, crit: 18, icon: "⚡", color: "#ffb703", tier: "Легендарное", class: "Энергетическое" },
+                // 🎯 «Воздушка» — эксклюзив 2 сезона Пропуска Пустоши (50 уровень Premium/Elite),
+                // выдаётся тем же механизмом, что и Плазма в 1 сезоне (см. SEASONS/generateBpRewards).
+                // Первое оружие с механикой «заряда через ход» — см. weaponAbilities.sniper и
+                // Core.playerAimed / Core.executeAttack().
+                { id: "sniper", name: "Воздушка", dmg: 70, crit: 30, icon: "🎯", color: "#ffb703", tier: "Легендарное", class: "Снайперские винтовки" }
             ],
             // ===== Слабости/сопротивления архетипов врагов к классам оружия (весь Босс/Обычный намеренно нейтральны) =====
             classMatchups: {
@@ -7161,6 +7287,17 @@ padding-top:9vh;
                     { key: "gauss_fast", label: "⚡ Заряженный выстрел", cd: 3, dmgMult: 0.9, critZero: true, cls: "primary" },
                     { key: "gauss_rail", label: "💥 Рельсовый залп", cd: 6, dmgMult: 1.4, critBonus: 20, stunChance: 0.4, cls: "primary", sty: "background: var(--grad-gold); color:#000;" },
                     { key: "gauss_pierce", label: "🎯 Пробивающий выстрел", cd: 4, dmgMult: 1.15, critBonus: 30, cls: "primary", sty: "background: var(--grad-blue);" }
+                ],
+                // ===== ВОЗДУШКА: первая в игре механика «заряда через ход» (см. Core.playerAimed).
+                // «Затаить дыхание» (aimCharge: true) не наносит урон и не блокирует — враг в этот
+                // ход бьёт как обычно, — но взводит гарантированный крит + бонус урона на СЛЕДУЮЩУЮ
+                // способность этого боя (любую, не только "Воздушки" — логика в executeAttack()
+                // универсальна и не завязана на id оружия). =====
+                sniper: [
+                    { key: "sniper_fast", label: "⚡ Быстрый выстрел", cd: 2, dmgMult: 0.85, critZero: true, cls: "primary" },
+                    { key: "sniper_focus", label: "🎯 Затаить дыхание", cd: 3, dmgMult: 0, aimCharge: true, cls: "success", sty: "background: var(--grad-blue);" },
+                    { key: "sniper_precise", label: "🎯 Точный залп", cd: 4, dmgMult: 1.15, critBonus: 30, cls: "primary", sty: "background: var(--grad-blue);" },
+                    { key: "sniper_heavy", label: "💥 Убойный выстрел", cd: 5, dmgMult: 1.3, critBonus: 20, stunChance: 0.3, cls: "primary", sty: "background: var(--grad-gold); color:#000;" }
                 ]
             },
             // ===== Разблокировка оружия теперь завязана в первую очередь на "Жетоны Схрона" —
@@ -7179,7 +7316,11 @@ padding-top:9vh;
                 // остальных Эпических видов оружия (Дробовик/Штурмовая винтовка), см. Core.isPlasmaSeasonExclusive().
                 { id: "craft_plasma", name: "ПЛАЗМА", reqLvl: 32, cost: { "Жетон Схрона": 114, "Запчасти": 19, "Тяжелый Хлам": 5, "Ядерная Батарея": 1 }, type: "weapon", targetId: "plasma" },
                 { id: "craft_minigun", name: "Миниган «Молотилка»", reqLvl: 50, cost: { "Жетон Схрона": 220, "Запчасти": 47, "Тяжелый Хлам": 12, "Ядерная Батарея": 3 }, type: "weapon", targetId: "minigun" },
-                { id: "craft_gauss", name: "Винтовка Гаусса", reqLvl: 65, cost: { "Жетон Схрона": 260, "Запчасти": 50, "Тяжелый Хлам": 13, "Ядерная Батарея": 3 }, type: "weapon", targetId: "gauss" }
+                { id: "craft_gauss", name: "Винтовка Гаусса", reqLvl: 65, cost: { "Жетон Схрона": 260, "Запчасти": 50, "Тяжелый Хлам": 13, "Ядерная Батарея": 3 }, type: "weapon", targetId: "gauss" },
+                // 🎯 «Воздушка»: во время 2 сезона Пропуска Пустоши доступна ТОЛЬКО через Premium-дорогу
+                // (50 ур.) — тот же принцип, что у Плазмы в 1 сезоне (см. Core.isWeaponSeasonLocked()).
+                // После окончания сезона появляется в обычном крафте.
+                { id: "craft_sniper", name: "Воздушка", reqLvl: 78, cost: { "Жетон Схрона": 300, "Запчасти": 55, "Тяжелый Хлам": 15, "Ядерная Батарея": 3 }, type: "weapon", targetId: "sniper" }
             ],
             // ===== Перки Билда: 3 ветки прокачки, по очку за уровень персонажа =====
             perks: [
@@ -7247,7 +7388,8 @@ padding-top:9vh;
                 { weaponId: "assault", name: "Шквальный огонь", icon: "🔥", desc: "Магазин уходит в цель одной длинной очередью.", stats: "x2.8 урона", type: "strike", dmgMult: 2.8, cost: 4 },
                 { weaponId: "plasma", name: "Перегрузка ядра", icon: "☢️", desc: "Ядро идёт вразнос, жар плавит броню изнутри — но сам разряд оставляет ствол раскалённым добела.", stats: "x3.0 урона · Гарантированный крит · +35 перегрева", type: "strike", dmgMult: 3.0, guaranteedCrit: true, heatGain: 35, cost: 4 },
                 { weaponId: "minigun", name: "Шквал свинца", icon: "🌀", desc: "Ствол раскручен до предела, свинец льётся сплошной стеной.", stats: "x3.6 урона · Гарантированное оглушение", type: "strike", dmgMult: 3.6, guaranteedStun: true, cost: 5 },
-                { weaponId: "gauss", name: "Пробивной заряд", icon: "⚡", desc: "Заряд прошивает броню насквозь, будто её и не было.", stats: "x3.2 урона в обход брони · Гарантированный крит", type: "strike", dmgMult: 3.2, guaranteedCrit: true, ignoreArmor: true, cost: 5 }
+                { weaponId: "gauss", name: "Пробивной заряд", icon: "⚡", desc: "Заряд прошивает броню насквозь, будто её и не было.", stats: "x3.2 урона в обход брони · Гарантированный крит", type: "strike", dmgMult: 3.2, guaranteedCrit: true, ignoreArmor: true, cost: 5 },
+                { weaponId: "sniper", name: "Смертельный выдох", icon: "🎯", desc: "Спокойный вдох, толчок сердца — и пуля уже нашла цель ещё до того, как палец потянул спуск.", stats: "x3.4 урона · Гарантированный крит · Частично игнорирует броню", type: "strike", dmgMult: 3.4, guaranteedCrit: true, armorPenPct: 0.5, cost: 5 }
             ],
             // ===== Мегасилы: пассивный бонус оружия, разблокируется на 10 (максимальном) уровне прокачки конкретного оружия =====
             // Действует автоматически, пока это оружие экипировано — активировать отдельно не нужно
@@ -7261,7 +7403,8 @@ padding-top:9vh;
                 { weaponId: "assault", name: "Стабилизированная очередь", icon: "🎯", desc: "Гасители отдачи держат ствол на линии огня даже в длинной очереди.", stats: "+12% урона · +6% шанс крита", effect: { dmgMult: 0.12, crit: 6 }, cost: 5 },
                 { weaponId: "plasma", name: "Резонансный контур", icon: "🌌", desc: "Контур стабилизирует плазменное ядро, позволяя безопаснее использовать высокие уровни перегрева — разряд бьёт точно в уязвимость.", stats: "+25% крит-урона", effect: { critDmgMult: 0.25 }, cost: 5 },
                 { weaponId: "minigun", name: "Раскрученный ротор", icon: "🌀", desc: "Ротор больше не сбавляет обороты — шквал не ослабевает ни на миг.", stats: "+20% урона оружием", effect: { dmgMult: 0.20 }, cost: 6 },
-                { weaponId: "gauss", name: "Магнитный ускоритель", icon: "🧲", desc: "Катушки разогнаны до предела — снаряд проходит цель, не заметив.", stats: "+20% крит-урона (дальний бой) · +6% шанс крита", effect: { rangedCritDmgMult: 0.20, crit: 6 }, cost: 6 }
+                { weaponId: "gauss", name: "Магнитный ускоритель", icon: "🧲", desc: "Катушки разогнаны до предела — снаряд проходит цель, не заметив.", stats: "+20% крит-урона (дальний бой) · +6% шанс крита", effect: { rangedCritDmgMult: 0.20, crit: 6 }, cost: 6 },
+                { weaponId: "sniper", name: "Стальные нервы", icon: "🧊", desc: "Пульс замедляется сам собой в момент выстрела — рука не дрогнет даже под огнём.", stats: "+18% крит-урона (дальний бой) · +8% шанс крита", effect: { rangedCritDmgMult: 0.18, crit: 8 }, cost: 6 }
             ],
             // ---- Питомцы: раскрываются с 30 уровня, крафтятся из редких ресурсов одновременно ----
             pets: [
@@ -7347,7 +7490,7 @@ padding-top:9vh;
             // ===== Чёрный рынок (оружие, ядерные батареи; цену назначает игрок) =====
             blackMarket: {
                 voucherRate: 20, // условная оценка: 1 ваучер ≈ 20 крышек
-                weapons: { pipe: 50, machete: 80, pistol: 110, revolver: 150, shotgun: 260, assault: 240, plasma: 220, minigun: 480, gauss: 450 },
+                weapons: { pipe: 50, machete: 80, pistol: 110, revolver: 150, shotgun: 260, assault: 240, plasma: 220, minigun: 480, gauss: 450, sniper: 460 },
                 batteryUnit: 25
             },
             avatars: [
@@ -7496,6 +7639,35 @@ padding-top:9vh;
                         <path d="M18 66 C20 76 32 86 42 88 L38 74 C30 72 24 68 18 60 Z" fill="#a8814e"/>
                         <path d="M82 66 C80 76 68 86 58 88 L62 74 C70 72 76 68 82 60 Z" fill="#a8814e"/>
                     </svg>`
+                },
+                {
+                    // 🐈 Портретная аватарка «Кошко-Странник» — открывается вместе со скином "cat"
+                    // (награда 100 уровня Elite-дороги 2 сезона). Треугольные ушки с розовой
+                    // подкладкой, светящиеся миндалевидные глаза с вертикальным зрачком, розовый
+                    // нос, усы и пушистые бакенбарды — крупным планом, в полном кошачьем стиле.
+                    id: "cat", name: "Кошко-Странник", accent: "#8dff5c", requiresSkin: "cat",
+                    svg: `<svg viewBox="0 0 100 100" width="100" height="100" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="100" height="100" fill="#131a15"/>
+                        <path d="M23 33 Q13 6 4 2 Q22 0 31 21 Z" fill="#98a1b0"/>
+                        <path d="M26 27 Q19 8 12 6 Q22 6 27 19 Z" fill="#ffc7dd"/>
+                        <path d="M77 33 Q87 6 96 2 Q78 0 69 21 Z" fill="#98a1b0"/>
+                        <path d="M74 27 Q81 8 88 6 Q78 6 73 19 Z" fill="#ffc7dd"/>
+                        <ellipse cx="50" cy="62" rx="21" ry="23" fill="#c9d0da"/>
+                        <path d="M16 46 C16 16 84 16 84 46 C84 32 67 22 50 22 C33 22 16 32 16 46 Z" fill="#98a1b0"/>
+                        <circle cx="38" cy="51" r="12" fill="#eaffd8" stroke="#2f6b1a" stroke-width="2"/>
+                        <circle cx="62" cy="51" r="12" fill="#eaffd8" stroke="#2f6b1a" stroke-width="2"/>
+                        <ellipse cx="38" cy="51" rx="2.6" ry="8.5" fill="#0c1a06"/>
+                        <ellipse cx="62" cy="51" rx="2.6" ry="8.5" fill="#0c1a06"/>
+                        <path d="M46 62 L50 69 L54 62 Z" fill="#ff9ecb"/>
+                        <path d="M50 69 Q46 76 39 73.5" stroke="#3a2c1c" stroke-width="1.6" fill="none" opacity="0.6"/>
+                        <path d="M50 69 Q54 76 61 73.5" stroke="#3a2c1c" stroke-width="1.6" fill="none" opacity="0.6"/>
+                        <g stroke="#fff" stroke-width="1.4" opacity="0.85" stroke-linecap="round">
+                            <path d="M29 64 L7 60"/><path d="M29 68 L7 70"/><path d="M29 72 L8 78"/>
+                            <path d="M71 64 L93 60"/><path d="M71 68 L93 70"/><path d="M71 72 L92 78"/>
+                        </g>
+                        <path d="M13 78 C17 90 33 96 43 92 L37 79 C27 79 19 79 13 69 Z" fill="#8b93a1"/>
+                        <path d="M87 78 C83 90 67 96 57 92 L63 79 C73 79 81 79 87 69 Z" fill="#8b93a1"/>
+                    </svg>`
                 }
             ],
             // Система титулов: разблокируются автоматически по достижениям и навсегда остаются в профиле игрока
@@ -7516,7 +7688,9 @@ padding-top:9vh;
                 { id: "streak30", icon: "🏅", name: "Легенда Снабжения", desc: "Получайте ежедневный паёк 30 дней подряд.", check: p => (p.dailyStreak || 0) >= 30 },
                 { id: "capsMagnate", icon: "🪙", name: "Крышечный Магнат", desc: "Накопите 1000 крышек одновременно.", check: p => (p.caps || 0) >= 1000 },
                 { id: "bpMaster", icon: "🎫", name: "Хозяин Пропуска Пустоши", desc: "Достигните 100 уровня Пропуска Пустоши.", check: p => (p.bpLvl || 0) >= 100 },
-                { id: "titleBpOwl", icon: "🦉", name: "Сова", desc: "Награда 100 уровня бесплатной дороги Пропуска Пустоши.", check: p => false, titleColor: "#4aa8ff" },
+                { id: "titleBpOwl", icon: "🦉", name: "Сова", desc: "Награда 100 уровня бесплатной дороги Пропуска Пустоши (1 сезон).", check: p => false, titleColor: "#4aa8ff" },
+                { id: "titleBpFurryCat", icon: "🐾", name: "Фурри Котик", desc: "Награда 100 уровня бесплатной дороги Пропуска Пустоши (2 сезон).", check: p => false, titleColor: "#8dff5c" },
+                { id: "titleBpFurryDog", icon: "🐾", name: "Фурри Пёсик", desc: "Награда 100 уровня бесплатной дороги Пропуска Пустоши (3 сезон).", check: p => false, titleColor: "#ffb347" },
                 { id: "trophyChampion", icon: "🏆", name: "Чемпион Трофейной Дороги", desc: "Наберите 1000 трофеев.", check: p => (p.trophies || 0) >= 1000 },
                 { id: "trophyLegend", icon: "👑", name: "Легенда Трофейной Дороги", desc: "Пройдите Трофейную Дорогу полностью — наберите 5000 трофеев.", check: p => (p.trophies || 0) >= 5000 },
                 // Проверяется не локально (check всегда false), а отдельно через Core.checkTopRankTitle(),
@@ -7551,7 +7725,11 @@ padding-top:9vh;
                 { id: "grime", name: "Грязный Странник", icon: "🦠", price: 20, accent: "#8a9a4e", desc: "Заляпанная болотной тиной куртка. Выглядит так себе, зато почти задаром." },
                 // ☢️ Эксклюзив 1 сезона Пропуска Пустоши (100 уровень Elite). Не входит в SKIN_ROTATION_COMBOS —
                 // в обычном магазине скинов не продаётся и не появляется на витрине.
-                { id: "owl", name: "Странник Сова", icon: "🦉", price: 0, accent: "#ffcf4d", desc: "Перьевая броня цвета ночной охоты — бурые перья, янтарные линзы-глаза и ушки-пучки на капюшоне. Награда 100 уровня Elite-дороги 1 сезона." }
+                { id: "owl", name: "Странник Сова", icon: "🦉", price: 0, accent: "#ffcf4d", desc: "Перьевая броня цвета ночной охоты — бурые перья, янтарные линзы-глаза и ушки-пучки на капюшоне. Награда 100 уровня Elite-дороги 1 сезона." },
+                // 🐈 Эксклюзив 2 сезона Пропуска Пустоши (100 уровень Elite). Пока не наступит этот
+                // сезон — получить скин никак нельзя: не входит в SKIN_ROTATION_COMBOS, не продаётся
+                // в магазине и не выпадает из ящиков (см. DB.skins / SEASONS / getSeasonSlot()).
+                { id: "cat", name: "Кошко-Странник", icon: "🐈", price: 0, accent: "#8dff5c", desc: "Полный кошачий облик разведчика Пустоши — дымчато-серая шёрстка, треугольные ушки с розовой подкладкой, светящиеся янтарно-зелёные глаза и пушистый полосатый хвост. Награда 100 уровня Elite-дороги 2 сезона." }
             ],
             // ===== ЯЩИКИ =====
             // «Скрап-Ящик», «Продуктовый ящик» и «Сейф Минори» больше НЕ продаются в магазине —
@@ -7878,7 +8056,8 @@ padding-top:9vh;
                 assault:  { genitive: "Штурмовой АК-74Рад",    special: { label: "Зачистка элиты",     icon: "🎖️", statKey: "elite",    tiers: [1, 8, 20, 60, 150] } },
                 plasma:   { genitive: "ПЛАЗМЫ",                special: { label: "Крупная дичь",     icon: "🦣", statKey: "biggame",    tiers: [5, 15, 45, 120, 300] } },
                 minigun:  { genitive: "Минигана «Молотилка»",  special: { label: "Крупная дичь",     icon: "🦣", statKey: "biggame",    tiers: [5, 15, 40, 100, 250] } },
-                gauss:    { genitive: "Винтовки Гаусса",       special: { label: "Зачистка элиты",     icon: "🎖️", statKey: "elite",    tiers: [1, 6, 15, 40, 100] } }
+                gauss:    { genitive: "Винтовки Гаусса",       special: { label: "Зачистка элиты",     icon: "🎖️", statKey: "elite",    tiers: [1, 6, 15, 40, 100] } },
+                sniper:   { genitive: "Воздушки",              special: { label: "Зачистка элиты",     icon: "🎖️", statKey: "elite",    tiers: [1, 6, 15, 40, 100] } }
             };
             function hexToRgbaLocal(hex, alpha) {
                 let h = (hex || "#bf5af2").replace('#', '');
@@ -8626,7 +8805,7 @@ padding-top:9vh;
         };
 
         const Core = {
-            p: { hp: 50, maxHp: 50, energy: 100, maxEnergy: 100, rad: 0, hazards: {}, satiety: 100, lvl: 1, exp: 0, nextExp: 85, caps: 30, vouchers: 0, armor: 2, dodgeChance: 8, inv: { "Запчасти": 6, "Тяжелый Хлам": 0, "Ядерная Батарея": 0, "Сырое мясо": 1, "Жетон Схрона": 0 }, weaponsOwned: ["fists"], wpnUpgrades: { "fists": 0, "pipe": 0, "machete": 0, "pistol": 0, "revolver": 0, "shotgun": 0, "assault": 0, "plasma": 0, "minigun": 0, "gauss": 0 }, wpnMastery: { "fists": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "pipe": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "machete": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "pistol": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "revolver": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "shotgun": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "assault": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "plasma": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "minigun": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "gauss": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 } }, wpnMasteryClaimed: {}, wpnMasteryTitleClaimed: [], activeWeapon: "fists", rodLvl: 0, rodResetV2Done: true, rodCompensationPending: null, food: { "Жареное мясо крысы": 1 }, currentBiome: 0, bossesDefeated: [], bpLvl: 1, bpPoints: 0, bpPremium: false, bpElite: false, bpClaimedFree: [], bpClaimedPrem: [], bpClaimedElite: [], bpSeasonId: null, bpSeasonUID: null, bpSeasonHistory: [], bpSeasonV2Reset: true, lvlCapV1Done: true, dailyStreak: 0, lastDailyClaim: null, relicWasteland: 0, redeemedPromoCodes: [], freeBoxes: {}, nickname: "Странник", nicknameSet: false, avatarsOwned: ["ranger", "raider", "cyborg"], avatar: "ranger", titleId: "newbie", unlockedTitles: ["newbie"], maxBiomeReached: 0, bmLastSuccessDay: null, bmFailDay: null, bmFailCount: 0, marketEarnDay: null, marketEarnedToday: 0, marketDailyCapValue: null, exchangeDay: null, exchangeUsed: {}, marketBuyDay: null, marketBuySpentToday: 0, marketBuyDailyCapValue: null, skinsOwned: ["default"], activeSkin: "default", dailyQuests: [], dailyQuestsDay: null, dailyQuestsPremium: [], dailyQuestsPremiumDay: null, petsOwned: [], activePet: null, installedAt: Date.now(), updateGiftClaimed: false, restockGiftEligible: false, restockGiftClaimed: false, restockGiftAt: null, pvpDuelLog: {}, wheelDay: null, wheelSpinsToday: 0, wheelFreeClaimed: false, wheelBonusSpins: 0, energyPackDay: null, energyPackBoughtToday: 0, buildPresets: [],
+            p: { hp: 50, maxHp: 50, energy: 100, maxEnergy: 100, rad: 0, hazards: {}, satiety: 100, lvl: 1, exp: 0, nextExp: 85, caps: 30, vouchers: 0, armor: 2, dodgeChance: 8, inv: { "Запчасти": 6, "Тяжелый Хлам": 0, "Ядерная Батарея": 0, "Сырое мясо": 1, "Жетон Схрона": 0 }, weaponsOwned: ["fists"], wpnUpgrades: { "fists": 0, "pipe": 0, "machete": 0, "pistol": 0, "revolver": 0, "shotgun": 0, "assault": 0, "plasma": 0, "minigun": 0, "gauss": 0, "sniper": 0 }, wpnMastery: { "fists": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "pipe": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "machete": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "pistol": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "revolver": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "shotgun": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "assault": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "plasma": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "minigun": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "gauss": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "sniper": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 } }, wpnMasteryClaimed: {}, wpnMasteryTitleClaimed: [], activeWeapon: "fists", rodLvl: 0, rodResetV2Done: true, rodCompensationPending: null, food: { "Жареное мясо крысы": 1 }, currentBiome: 0, bossesDefeated: [], bpLvl: 1, bpPoints: 0, bpPremium: false, bpElite: false, bpClaimedFree: [], bpClaimedPrem: [], bpClaimedElite: [], bpSeasonId: null, bpSeasonUID: null, bpSeasonHistory: [], bpSeasonV2Reset: true, adminForcedSeason: null, lvlCapV1Done: true, dailyStreak: 0, lastDailyClaim: null, relicWasteland: 0, redeemedPromoCodes: [], freeBoxes: {}, nickname: "Странник", nicknameSet: false, avatarsOwned: ["ranger", "raider", "cyborg"], avatar: "ranger", titleId: "newbie", unlockedTitles: ["newbie"], maxBiomeReached: 0, bmLastSuccessDay: null, bmFailDay: null, bmFailCount: 0, marketEarnDay: null, marketEarnedToday: 0, marketDailyCapValue: null, exchangeDay: null, exchangeUsed: {}, marketBuyDay: null, marketBuySpentToday: 0, marketBuyDailyCapValue: null, skinsOwned: ["default"], activeSkin: "default", dailyQuests: [], dailyQuestsDay: null, dailyQuestsPremium: [], dailyQuestsPremiumDay: null, petsOwned: [], activePet: null, installedAt: Date.now(), updateGiftClaimed: false, restockGiftEligible: false, restockGiftClaimed: false, restockGiftAt: null, pvpDuelLog: {}, wheelDay: null, wheelSpinsToday: 0, wheelFreeClaimed: false, wheelBonusSpins: 0, energyPackDay: null, energyPackBoughtToday: 0, buildPresets: [],
                 // ---- Реворк «Разведки» и «Костра» ----
                 exploreStreak: 0,     // серия подряд идущих мирных (не боевых) разведок — влияет на шанс тайника/точки интереса, показывается как "🍀 Удача разведки"
                 specialEventLock: 0,  // сколько ближайших разведок гарантированно будут обычной находкой — взводится на 2 после любого спецсобытия (тайник/засада/караван/бой/элит/точка интереса/опасный участок), чтобы спецсобытия не выпадали кластерами подряд
@@ -9083,7 +9262,7 @@ padding-top:9vh;
                         parsed.q.forEach(sq => savedById[sq.id] = sq);
                         this.quests = defaultQuests.map(dq => savedById[dq.id] ? savedById[dq.id] : dq);
                     }
-                    if(!this.p.wpnUpgrades) this.p.wpnUpgrades = { "fists": 0, "pipe": 0, "machete": 0, "pistol": 0, "revolver": 0, "shotgun": 0, "assault": 0, "plasma": 0, "minigun": 0, "gauss": 0 };
+                    if(!this.p.wpnUpgrades) this.p.wpnUpgrades = { "fists": 0, "pipe": 0, "machete": 0, "pistol": 0, "revolver": 0, "shotgun": 0, "assault": 0, "plasma": 0, "minigun": 0, "gauss": 0, "sniper": 0 };
                     DB.weapons.forEach(w => { if(this.p.wpnUpgrades[w.id] === undefined) this.p.wpnUpgrades[w.id] = 0; });
                     // ---- Мастерство оружия: статистика по каждому виду оружия (урон/убийства/крит/особое)
                     // и список уже забранных этапов по каждой вкладке + список выданных финальных титулов.
@@ -10833,6 +11012,10 @@ beginCombat(){
     // на каждый новый бой и проверяются в processVictory().
     this.combatTookDamage = false;
     this.combatHitsLanded = 0;
+    // 🎯 «Затаить дыхание» — универсальный баф «заряда через ход»: способность с aimCharge:true
+    // не наносит урон, а взводит этот флаг; следующая ЛЮБАЯ способность в этом бою получает
+    // гарантированный крит и +75% урона (см. executeAttack()). Сбрасывается на каждый новый бой.
+    this.playerAimed = false;
     this.renderCombatAbilities();
     this.startCooldownTicker();
     Scene.showEnemy(this.combatState);
@@ -10903,6 +11086,19 @@ startCombat(isBossFight = false) {
                 let ability = this.getActiveWeaponAbilities().find(a => a.key === attackType);
                 if (!ability) return;
 
+                // 🎯 «Затаить дыхание»: универсальный баф «заряда через ход» — не завязан на id
+                // оружия, срабатывает на ЛЮБОЙ следующей способности этого боя (кроме самой
+                // способности прицеливания, чтобы она не проглатывала сама себя). Клонируем
+                // объект способности, а не мутируем его — иначе баф "прилип" бы к ней навсегда.
+                if (this.playerAimed && !ability.aimCharge) {
+                    ability = Object.assign({}, ability, {
+                        guaranteedCrit: true,
+                        dmgMult: (ability.dmgMult !== undefined ? ability.dmgMult : 1) + 0.75
+                    });
+                    this.playerAimed = false;
+                    this.log("🎯 Задержанное дыхание сработало — выстрел ложится точно в цель!", "system");
+                }
+
                 let isPlasma = this.p.activeWeapon === 'plasma';
                 // ☢️ КРИТИЧЕСКИЙ ПЕРЕГРЕВ (90-100): мощные плазменные атаки временно заблокированы —
                 // перегрев спадает сам со временем (см. decayPlasmaHeatTick), нужно переждать или
@@ -10966,6 +11162,11 @@ startCombat(isBossFight = false) {
                 if (ability.critBonus) {
                     playerCrit += ability.critBonus;
                 }
+                // 🎯 Гарантированный крит — универсальный флаг (не завязан на конкретное оружие):
+                // ставится либо самой способностью, либо бафом «Затаить дыхание» выше.
+                if (ability.guaranteedCrit) {
+                    isPlayerCrit = true;
+                }
                 if (ability.stunChance && Math.random() < ability.stunChance) {
                     this.combatState.stunned = true;
                     this.log("💥 Оглушение! Враг пропускает следующий ход.", "system");
@@ -10980,6 +11181,14 @@ startCombat(isBossFight = false) {
                     playerBlock = true;
                     calculatedDmg = 0;
                     this.log(ability.blockLog || "🛡️ Вы ушли в глухую оборону, готовясь поглотить урон.");
+                }
+                // 🎯 «Затаить дыхание»: способность не наносит урон и не является блоком — враг в этот
+                // ход бьёт свободно, как при любой другой не-блокирующей способности (playerBlock
+                // остаётся false). Взводит this.playerAimed — баф сработает на следующей способности.
+                if (ability.aimCharge) {
+                    this.playerAimed = true;
+                    calculatedDmg = 0;
+                    this.log(ability.aimChargeLog || "🎯 Вы затаили дыхание, ловя идеальный момент для следующего выстрела.");
                 }
 
                 if (calculatedDmg > 0) {
@@ -11109,7 +11318,10 @@ startCombat(isBossFight = false) {
                     let matchupMult = this.getClassMatchupMult(this.combatState.class, currentWpn.class);
                     let dmg = Math.round(currentWpn.dmg * (1 + upLvl * 0.25) * gadget.dmgMult * (1 + build.dmgMult) * matchupMult);
                     if (gadget.guaranteedCrit) dmg = Math.round(dmg * (1.75 + build.critDmgMult));
-                    let netDmg = gadget.ignoreArmor ? dmg : Math.max(1, dmg - this.combatState.armor);
+                    // 🛡️‍💥 Частичное игнорирование брони (armorPenPct) — тот же приём, что и у обычных
+                    // способностей в executeAttack(); ignoreArmor остаётся полным игнором брони (как у Гаусса).
+                    let gadgetEffArmor = gadget.ignoreArmor ? 0 : (gadget.armorPenPct ? this.combatState.armor * (1 - gadget.armorPenPct) : this.combatState.armor);
+                    let netDmg = Math.max(1, Math.round(dmg - gadgetEffArmor));
                     this.combatState.hp = Math.max(0, this.combatState.hp - netDmg);
                     this.echoTrack("damage", netDmg);
                     this.trackWeaponMastery(wId, 'dmg', netDmg);
@@ -11584,6 +11796,27 @@ startCombat(isBossFight = false) {
                 let cb = this._echoStoryOnClose;
                 this._echoStoryOnClose = null;
                 if (cb) cb();
+            },
+
+            // Эмблема "!" на логотипе главы проекта «Эхо Пустоши» — позволяет в любой момент заново
+            // прочитать сюжет уже открытой главы, если игрок случайно пропустил его (закрыл рассказ,
+            // не дочитав). Ничего не меняет в прогрессе (storySeenIntro и т.д.) и никуда не переносит
+            // игрока по закрытию — это просто повторное чтение уже виденной истории. Если глава уже
+            // пройдена, показываем вступление и итог главы вместе, одной цельной историей.
+            replayEchoChapterStory(biomeId) {
+                Sound.play('click');
+                let biome = DB.biomes[biomeId];
+                if (!biome || !biome.isEcho) return;
+                let idx = biome.echoIdx;
+                let prog = this.p.echo && Array.isArray(this.p.echo.progress) ? this.p.echo.progress[idx] : null;
+                if (!prog) return;
+                let text = biome.storyIntro;
+                let arts = [biome.art];
+                if (prog.completed) {
+                    text += "\n\n— · —\n\n" + biome.storyOutro;
+                    arts.push(biome.artOutro);
+                }
+                this.showEchoStory(text, biome.name, biome.subtitle, null, arts);
             },
 
             // Финальные титры игры: краткое резюме сюжета + авторы проекта. Показываются один раз,
@@ -12233,9 +12466,12 @@ startCombat(isBossFight = false) {
                     </div>`;
                 } else {
                     DB.blueprints.forEach(bp => {
-                        // ☢️ Во время 1 сезона Пропуска Пустоши плазма крафтится только через Premium-дорогу
-                        if (bp.targetId === 'plasma' && this.isPlasmaSeasonExclusive() && !this.p.weaponsOwned.includes('plasma')) {
-                            let wpnData = DB.weapons.find(w => w.id === 'plasma');
+                        // ☢️🎯 Пока идёт слот сезона, анонсировавшего это оружие как эксклюзив Premium-дороги —
+                        // крафт скрыт. isWeaponSeasonLocked() — общий случай isPlasmaSeasonExclusive(),
+                        // работает для оружия ЛЮБОГО сезона (Плазма 1 сезона, «Воздушка» 2 сезона и т.д.).
+                        if (this.isWeaponSeasonLocked(bp.targetId) && !this.p.weaponsOwned.includes(bp.targetId)) {
+                            let wpnData = DB.weapons.find(w => w.id === bp.targetId);
+                            let lockedSeasonTitle = this.getSeasonSlot().seasonDef.title;
                             el.innerHTML += `<div class="schem-entry" style="opacity:0.55;">
                                 <div class="schem-entry-header">
                                     <span style="display:flex; align-items:center; gap:8px; min-width:0;">
@@ -12243,7 +12479,7 @@ startCombat(isBossFight = false) {
                                         <span>${bp.name} <span style="font-size:9px; color:var(--text-muted); text-transform:uppercase;">(${wpnData.class})</span></span>
                                     </span>
                                 </div>
-                                <div class="schem-res bad">🎫 Эксклюзив Premium-дороги 1 сезона (50 ур.) — обычный крафт откроется после окончания сезона.</div>
+                                <div class="schem-res bad">🎫 Эксклюзив Premium-дороги сезона «${lockedSeasonTitle}» (50 ур.) — обычный крафт откроется после окончания сезона.</div>
                                 <button class="schem-craft-btn" disabled>🔒 Недоступно</button>
                             </div>`;
                             return;
@@ -12300,8 +12536,10 @@ startCombat(isBossFight = false) {
 
             craftWeapon(id) {
                 let bp = DB.blueprints.find(b => b.id === id);
-                if(bp.targetId === 'plasma' && this.isPlasmaSeasonExclusive() && !this.p.weaponsOwned.includes('plasma')) {
-                    return alert("ПЛАЗМА пока доступна только через Premium-дорогу 1 сезона Пропуска Пустоши!");
+                if(this.isWeaponSeasonLocked(bp.targetId) && !this.p.weaponsOwned.includes(bp.targetId)) {
+                    let wpnData = DB.weapons.find(w => w.id === bp.targetId);
+                    let lockedSeasonTitle = this.getSeasonSlot().seasonDef.title;
+                    return alert(`${wpnData.name} пока доступно только через Premium-дорогу сезона «${lockedSeasonTitle}»!`);
                 }
                 for(let [res, count] of Object.entries(bp.cost)) { if((this.p.inv[res]||0) < count) return alert("Мало компонентов!"); }
                 if(this.p.weaponsOwned.includes(bp.targetId)) return alert("Уже создано!");
@@ -13648,7 +13886,7 @@ startCombat(isBossFight = false) {
 
                     mHtml += `<div class="echo-chapter-panel">
                         <div class="echo-chapter-head">
-                            <div class="echo-chapter-icon-badge">${vNameParts[0]}</div>
+                            <div class="echo-chapter-icon-badge">${vNameParts[0]}<button type="button" class="echo-chapter-replay-btn" onclick="event.stopPropagation(); Core.replayEchoChapterStory(${viewBiome.id})" title="Перечитать сюжет главы">❗</button></div>
                             <div class="echo-chapter-titles">
                                 <div class="echo-chapter-name">${vNameParts.slice(1).join(' ')}</div>
                                 <div class="echo-chapter-sub">${viewBiome.subtitle || ''}</div>
@@ -14894,6 +15132,31 @@ startCombat(isBossFight = false) {
                 this.generateDailyQuests();
                 this.save(); this.updateUI(); this.renderBp();
             },
+            // Принудительно закрепляет конкретный сезон Пропуска Пустоши (или возвращает
+            // автоматический расчёт по времени, если seasonId === null/"auto") — см. getSeasonSlot().
+            // Смена сезона — это смена seasonUID, поэтому checkBpSeasonRollover() отработает как
+            // при обычной смене слота: прошлый прогресс уйдёт в историю, а пропуск текущего
+            // (выбранного) сезона начнётся с 1 уровня, готовый к тестированию его наград.
+            adminSetSeason(seasonId) {
+                this.p.adminForcedSeason = seasonId || null;
+                this.checkBpSeasonRollover();
+                this.applyBpSeasonTheme();
+                const label = seasonId ? (SEASONS.find(s => s.id === seasonId) || {}).title || seasonId : null;
+                this.log(label ? `⚙ Панель разработчика: сезон Пропуска Пустоши принудительно установлен на «${label}».` : '⚙ Панель разработчика: сезон Пропуска Пустоши возвращён в автоматический режим (по времени).', "loot");
+                this.save(); this.updateUI(); this.renderBp();
+            },
+            // Быстро выставляет уровень Пропуска Пустоши ТЕКУЩЕГО (в т.ч. принудительно
+            // выбранного через adminSetSeason()) сезона — удобно, чтобы сразу увидеть награду
+            // 100 уровня Elite-дороги, не проходя весь пропуск заново.
+            adminSetBpLevel() {
+                let val = parseInt(document.getElementById('admin-bplvl-input').value);
+                if (!val || val < 1) return;
+                val = Math.min(100, val);
+                this.p.bpLvl = val;
+                this.p.bpPoints = 0;
+                this.log(`⚙ Панель разработчика: уровень Пропуска Пустоши установлен на ${val}.`, "loot");
+                this.save(); this.updateUI(); this.renderBp();
+            },
             adminResetPlayer() {
                 if (!confirm('Полностью сбросить весь прогресс? Это действие необратимо.')) return;
 
@@ -15628,6 +15891,18 @@ startCombat(isBossFight = false) {
             // ещё не напасено вперёд, слот просто повторяет последний добавленный сезон, пока не
             // будет дописан новый в массив SEASONS (тогда переключение произойдёт само).
             getSeasonSlot() {
+                // ⚙ Панель разработчика может принудительно закрепить конкретный сезон (см.
+                // adminSetSeason()) — тогда реальное время игнорируется и всегда возвращается
+                // выбранный сезон, с собственным seasonUID (чтобы смена сезона в панели корректно
+                // запускала checkBpSeasonRollover() и сбрасывала прогресс пропуска, как при обычной
+                // смене слота). Если override снят ("Авто") — расчёт идёт как обычно, по времени.
+                if (this.p && this.p.adminForcedSeason) {
+                    const forcedIndex = SEASONS.findIndex(s => s.id === this.p.adminForcedSeason);
+                    if (forcedIndex !== -1) {
+                        const seasonDef = SEASONS[forcedIndex];
+                        return { slotIndex: forcedIndex, seasonDef, seasonUID: `admin_${seasonDef.id}`, startMs: Date.now(), endMs: Date.now() + BP_SEASON_DURATION_MS, forced: true };
+                    }
+                }
                 let elapsed = Date.now() - BP_SEASON_ANCHOR;
                 let slotIndex = elapsed < 0 ? 0 : Math.floor(elapsed / BP_SEASON_DURATION_MS);
                 let defIndex = Math.min(slotIndex, SEASONS.length - 1);
