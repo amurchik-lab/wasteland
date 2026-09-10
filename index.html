@@ -8219,6 +8219,7 @@ padding-top:9vh;
                 // потому что обычный переход сезона (Core.loop() / Core.load()) уже отработал
                 // ДО того, как сюда пришли облачные данные, и второй раз сам по себе не сработает.
                 Core.checkBpSeasonRollover();
+                Core.fixSeasonWeaponExploit();
                 Core.save();
             },
 
@@ -9447,6 +9448,7 @@ padding-top:9vh;
                         this.log("📜 Задания сезона Пропуска Пустоши обновлены и сброшены — старый прогресс/отметки «выполнено» очищены.", "system");
                     }
                     this.checkBpSeasonRollover();
+                    this.fixSeasonWeaponExploit();
                     this.applyOfflineProgress();
                 } else {
                     this.lastTick = Date.now();
@@ -12471,7 +12473,7 @@ startCombat(isBossFight = false) {
                         // работает для оружия ЛЮБОГО сезона (Плазма 1 сезона, «Воздушка» 2 сезона и т.д.).
                         if (this.isWeaponSeasonLocked(bp.targetId) && !this.p.weaponsOwned.includes(bp.targetId)) {
                             let wpnData = DB.weapons.find(w => w.id === bp.targetId);
-                            let lockedSeasonTitle = this.getSeasonSlot().seasonDef.title;
+                            let lockedSeasonTitle = (this.getWeaponOwnerSeason(bp.targetId) || this.getSeasonSlot().seasonDef).title;
                             el.innerHTML += `<div class="schem-entry" style="opacity:0.55;">
                                 <div class="schem-entry-header">
                                     <span style="display:flex; align-items:center; gap:8px; min-width:0;">
@@ -12538,7 +12540,7 @@ startCombat(isBossFight = false) {
                 let bp = DB.blueprints.find(b => b.id === id);
                 if(this.isWeaponSeasonLocked(bp.targetId) && !this.p.weaponsOwned.includes(bp.targetId)) {
                     let wpnData = DB.weapons.find(w => w.id === bp.targetId);
-                    let lockedSeasonTitle = this.getSeasonSlot().seasonDef.title;
+                    let lockedSeasonTitle = (this.getWeaponOwnerSeason(bp.targetId) || this.getSeasonSlot().seasonDef).title;
                     return alert(`${wpnData.name} пока доступно только через Premium-дорогу сезона «${lockedSeasonTitle}»!`);
                 }
                 for(let [res, count] of Object.entries(bp.cost)) { if((this.p.inv[res]||0) < count) return alert("Мало компонентов!"); }
@@ -14759,6 +14761,19 @@ startCombat(isBossFight = false) {
                 let list = [];
                 this.p.weaponsOwned.forEach(id => {
                     if (id === 'fists' || id === this.p.activeWeapon) return;
+                    // ☢️ ДОБАВКА К БАГФИКСУ ЭКСПЛОЙТА С ОРУЖИЕМ СЕЗОНА: пока оружие заблокировано
+                    // (isWeaponSeasonLocked — см. выше), его нельзя выставить на Чёрный рынок вообще.
+                    // Раньше fixSeasonWeaponExploit() отбирал нелегитимно полученное оружие только
+                    // при следующей загрузке сохранения — то есть у игрока было окно между "получил
+                    // из Реликвария" и "зашёл в игру в следующий раз", в которое он мог успеть слить
+                    // оружие на Чёрном рынке за крышки/ваучеры, и конфискация оружия при следующем
+                    // входе эту уже полученную валюту не отбирала. Теперь лазейка закрыта на будущее:
+                    // получить оружие раньше срока (из ящика) уже нельзя (rollRelicWeapon фильтрует
+                    // через isWeaponSeasonLocked), а значит и продать его в таком состоянии тоже
+                    // будет некому — проверка стоит и на легитимных обладателей тоже, на случай если
+                    // игрок получит награду 50 уровня Premium и попробует сразу слить её, пока
+                    // сезон-владелец ещё не закончился.
+                    if (this.isWeaponSeasonLocked(id)) return;
                     let price = DB.blackMarket.weapons[id]; if (!price) return;
                     let wpn = DB.weapons.find(w => w.id === id);
                     list.push({ key: 'weapon_' + id, kind: 'weapon', id, name: wpn.name, icon: wpn.icon, color: wpn.color, basePrice: price, maxQty: 1 });
@@ -15328,12 +15343,47 @@ startCombat(isBossFight = false) {
             TIER_WEIGHT: { "Обычное": 40, "Редкое": 25, "Эпическое": 20, "Легендарное": 10 },
             VOUCHER_COMP_BY_TIER: { "Стартовое": 1, "Обычное": 2, "Редкое": 3, "Эпическое": 5, "Легендарное": 8 },
 
-            // Оружие/скин текущего сезона недоступно никаким другим способом, ПОКА идёт именно
-            // тот слот Пропуска Пустоши, где оно было анонсировано (общий случай isPlasmaSeasonExclusive()).
+            // Оружие сезона недоступно никаким другим способом (крафт/ящики), ПОКА не закончился
+            // слот Пропуска Пустоши, где оно анонсировано как эксклюзив Premium-дороги — причём
+            // это касается и ещё НЕ наступившего сезона, а не только активного прямо сейчас.
+            // ☢️ БАГФИКС: раньше здесь сравнивался владелец оружия только с ТЕКУЩИМ активным
+            // сезоном (seasonDef.weaponId === wId && slotIndex === defIndex), из-за чего оружие
+            // будущего сезона (например, Воздушка — эксклюзив 2 сезона) вообще не проверялось,
+            // пока идёт 1 сезон, и свободно выпадало из Реликвария Пустоши. Теперь ищем сезон-
+            // владелец этого оружия по всему массиву SEASONS и держим блокировку, пока текущий
+            // слот не станет СТРОГО больше индекса этого сезона (т.е. блокировка снимается только
+            // после того, как сезон-владелец полностью закончился).
+            getWeaponOwnerSeason(wId) {
+                return SEASONS.find(s => s.weaponId === wId) || null;
+            },
             isWeaponSeasonLocked(wId) {
-                const { seasonDef, slotIndex } = this.getSeasonSlot();
-                const defIndex = SEASONS.findIndex(s => s.id === seasonDef.id);
-                return seasonDef.weaponId === wId && slotIndex === defIndex;
+                const owner = this.getWeaponOwnerSeason(wId);
+                if (!owner) return false;
+                const ownerIndex = SEASONS.indexOf(owner);
+                const { slotIndex } = this.getSeasonSlot();
+                return slotIndex <= ownerIndex;
+            },
+            // ☢️ ОДНОРАЗОВОЕ (при каждом заходе) ИСПРАВЛЕНИЕ ПОСЛЕДСТВИЙ БАГА ВЫШЕ: отбирает
+            // сезонное оружие у тех, кто получил его раньше срока (из Реликвария) — то есть у
+            // всех, кроме тех, кто ЧЕСТНО забрал его как награду 50 уровня Premium-дороги ИМЕННО
+            // того сезона, где оно анонсировано, и именно пока этот сезон ещё идёт. Как только
+            // сезон-владелец оружия официально закончится — ограничение снимается само, и уже
+            // никого оружие не лишает (см. isWeaponSeasonLocked выше).
+            fixSeasonWeaponExploit() {
+                if (!this.p.weaponsOwned) return;
+                const { slotIndex } = this.getSeasonSlot();
+                SEASONS.forEach((season, ownerIndex) => {
+                    const wId = season.weaponId;
+                    if (!wId || !this.p.weaponsOwned.includes(wId)) return;
+                    if (slotIndex > ownerIndex) return; // сезон-владелец уже закончился — не трогаем
+                    const legit = slotIndex === ownerIndex && this.p.bpSeasonId === season.id && this.p.bpPremium &&
+                        Array.isArray(this.p.bpClaimedPrem) && this.p.bpClaimedPrem.includes(49);
+                    if (legit) return;
+                    this.p.weaponsOwned = this.p.weaponsOwned.filter(w => w !== wId);
+                    if (this.p.activeWeapon === wId) this.p.activeWeapon = 'fists';
+                    const wpnData = DB.weapons.find(w => w.id === wId);
+                    this.log(`⚠️ «${wpnData ? wpnData.name : wId}» изъято: это оружие — эксклюзив Premium-дороги сезона «${season.title}» и было получено до того, как этот сезон честно пройден. Оно снова станет доступно всем обычным способом, когда сезон «${season.title}» закончится.`, "system");
+                });
             },
 
             // Взвешенный выбор одного элемента массива по числовому полю weightKey (по умолчанию "chance").
