@@ -1051,6 +1051,390 @@ transform:scale(1);
         .token-bundle-buy:active { transform: scale(0.95); }
         .token-bundle-buy:disabled { opacity: 0.45; box-shadow: none; }
 
+        /* ===== Ежедневные Акции: обновляются раз в сутки. Обычные и супер — за крышки, мега — за ваучеры =====
+           Дизайн-идея: каждая карточка — рационная расписка барахольщика. Сверху — что
+           получаешь, снизу — что отдаёшь, между ними — линия отрыва с заклёпками по
+           краям, как на приваренной с одного листа железа панели терминала. Единая
+           конструкция (.deal-ticket-goods / .deal-ticket-tear / .deal-ticket-pay)
+           переиспользуется для мега-, супер- и обычных акций — только меняется масштаб,
+           поэтому вся вкладка выглядит как один продуманный набор, а не разнобой. */
+        @keyframes dealsGlowDrift { 0%,100% { transform: translate(-6%,-4%) rotate(0deg); } 50% { transform: translate(6%,4%) rotate(6deg); } }
+        @keyframes dealsHeadPulse { 0%,100% { box-shadow: 0 0 12px rgba(255,183,3,0.45); } 50% { box-shadow: 0 0 20px rgba(255,183,3,0.75); } }
+        @keyframes dealsLiveBlink { 0%,100% { opacity: 1; } 50% { opacity: 0.25; } }
+        .deals-panel {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(150deg, rgba(255,183,3,0.07) 0%, rgba(0,240,255,0.04) 55%, rgba(8,6,14,0.95) 100%), var(--glass-bg);
+            border: 1px solid rgba(255,183,3,0.28);
+            border-radius: 20px;
+            padding: 14px 14px 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.07), inset 0 -1px 0 rgba(0,0,0,0.35);
+        }
+        .deals-panel-glow {
+            position: absolute; top: -40%; left: -20%; width: 140%; height: 180%; pointer-events: none; z-index: 0;
+            background: radial-gradient(circle at 30% 20%, rgba(255,183,3,0.14), transparent 55%), radial-gradient(circle at 80% 70%, rgba(191,90,242,0.12), transparent 55%);
+            animation: dealsGlowDrift 14s ease-in-out infinite;
+        }
+        .deals-head { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-bottom: 12px; margin-bottom: 13px; border-bottom: 1px dashed rgba(255,183,3,0.26); }
+        .deals-head-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+        .deals-head-icon {
+            width: 36px; height: 36px; min-width: 36px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 18px;
+            background: radial-gradient(circle at 33% 28%, rgba(255,226,150,0.95), rgba(255,183,3,0.22) 68%), rgba(8,10,16,0.5);
+            border: 1.5px solid var(--neon-gold);
+            animation: dealsHeadPulse 2.6s ease-in-out infinite;
+        }
+        .deals-head-title { font-size: 13.5px; font-weight: 900; color: #fff; letter-spacing: 0.2px; }
+        .deals-head-timer { font-family: 'Consolas', monospace; font-size: 10px; font-weight: 700; color: var(--text-muted); margin-top: 3px; white-space: nowrap; display: flex; align-items: center; gap: 5px; }
+        .deals-head-timer::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--neon-green); box-shadow: 0 0 6px var(--neon-green); animation: dealsLiveBlink 1.6s ease-in-out infinite; }
+        .deals-grid-label { position: relative; z-index: 1; display: flex; align-items: center; gap: 8px; font-size: 10.5px; font-weight: 800; color: var(--text-muted); letter-spacing: 0.3px; margin: 3px 1px 9px; }
+        .deals-grid-label::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(255,255,255,0.16), transparent); }
+        .deals-refresh-btn {
+            position: relative; z-index: 1; flex-shrink: 0; display: flex; align-items: center; gap: 5px;
+            background: linear-gradient(145deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.02) 100%), rgba(8,10,16,0.55);
+            border: 1.5px solid rgba(255,183,3,0.45); border-radius: 999px;
+            padding: 7px 12px; font-weight: 800; font-size: 11px; color: #ffd979;
+            font-family: 'Consolas', monospace;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.15);
+            white-space: nowrap;
+        }
+        .deals-refresh-btn:disabled { opacity: 0.4; box-shadow: none; }
+        .deals-refresh-btn:active { transform: scale(0.95); }
+
+        /* ===== Цепь Поставок: разовая цепочка акций в Магазине, сразу под баннером Пропуска
+           Пустоши. Вертикальный степпер — звенья идут строго по порядку, текущее звено
+           подсвечено и активно, пройденные отмечены галочкой, будущие показаны затемнённо
+           с замком. Отдельная от Ежедневных Акций цветовая тема (изумрудно-бирюзовая —
+           "сигнальная цепь"), чтобы визуально не путаться с обычными акциями. */
+        .chain-deal-panel {
+            position: relative; overflow: hidden;
+            background: linear-gradient(150deg, rgba(57,255,20,0.07) 0%, rgba(0,240,255,0.05) 55%, rgba(8,6,14,0.95) 100%), var(--glass-bg);
+            border: 1px solid rgba(57,255,20,0.28);
+            border-radius: 20px;
+            padding: 14px 14px 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.07);
+        }
+        .chain-deal-head { display: flex; align-items: center; gap: 10px; padding-bottom: 12px; margin-bottom: 4px; border-bottom: 1px dashed rgba(57,255,20,0.28); }
+        .chain-deal-head-icon {
+            width: 36px; height: 36px; min-width: 36px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 18px;
+            background: radial-gradient(circle at 33% 28%, rgba(160,255,140,0.9), rgba(57,255,20,0.22) 68%), rgba(8,10,16,0.5);
+            border: 1.5px solid var(--neon-green);
+            box-shadow: 0 0 12px rgba(57,255,20,0.5);
+        }
+        .chain-deal-title { font-size: 13.5px; font-weight: 900; color: #fff; letter-spacing: 0.2px; }
+        .chain-deal-sub { font-size: 10px; font-weight: 700; color: var(--text-muted); margin-top: 3px; }
+        .chain-deal-done .chain-deal-head { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
+
+        /* Каждое звено — полноценный блок-карточка (в духе .deal-card / .mega-deal-card из
+           Ежедневных Акций), а не узкая строка. Блоки идут друг под другом сверху вниз,
+           между ними — вертикальный соединитель со стрелкой, подчёркивающий, что цепочка
+           двигается вниз по порядку. */
+        .chain-deal-nodes { display: flex; flex-direction: column; }
+        .chain-node {
+            position: relative; z-index: 1; overflow: hidden;
+            display: flex; flex-direction: column; gap: 10px;
+            border-radius: 18px; padding: 13px;
+            background: linear-gradient(155deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 55%, rgba(10,8,16,0.94) 100%), var(--glass-bg);
+            border: 1.5px solid rgba(255,255,255,0.16);
+            box-shadow: var(--glass-shadow-soft);
+        }
+        .chain-node.locked { opacity: 0.55; }
+        @keyframes chainNodePulse { 0%,100% { box-shadow: 0 0 10px rgba(0,240,255,0.5); } 50% { box-shadow: 0 0 18px rgba(0,240,255,0.85); } }
+        .chain-node.active {
+            border-color: var(--neon-blue);
+            background: linear-gradient(155deg, rgba(0,240,255,0.18) 0%, rgba(0,114,255,0.08) 55%, rgba(10,8,16,0.94) 100%), var(--glass-bg);
+            box-shadow: 0 0 0 1px rgba(0,240,255,0.18), 0 10px 26px rgba(0,240,255,0.28), var(--glass-shadow-soft);
+        }
+        .chain-node.done {
+            border-color: rgba(57,255,20,0.5);
+            background: linear-gradient(155deg, rgba(57,255,20,0.14) 0%, rgba(10,8,16,0.94) 60%), var(--glass-bg);
+            box-shadow: 0 6px 18px rgba(57,255,20,0.18), var(--glass-shadow-soft);
+        }
+        .chain-node-top { display: flex; align-items: center; gap: 12px; }
+        .chain-node-info { flex: 1; min-width: 0; }
+        .chain-node-step { font-size: 9.5px; font-weight: 900; letter-spacing: 0.4px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 2px; }
+        .chain-node.active .chain-node-step { color: var(--neon-blue); }
+        .chain-node.done .chain-node-step { color: var(--neon-green); }
+        .chain-node-name { font-size: 12.5px; font-weight: 800; color: #fff; line-height: 1.3; }
+        .chain-node-price { font-family: 'Consolas', monospace; font-size: 11.5px; font-weight: 800; color: #ffd979; }
+        .chain-node-price.free { color: var(--neon-green); font-family: system-ui, sans-serif; }
+        .chain-node-bottom { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .chain-node-btn {
+            flex-shrink: 0; border: none; border-radius: 999px;
+            padding: 9px 18px; font-weight: 900; font-size: 12px; font-family: 'Consolas', monospace;
+            color: #3a2400; background: var(--grad-gold);
+            box-shadow: 0 4px 12px rgba(255,183,3,0.32), inset 0 1px 0 rgba(255,255,255,0.35);
+        }
+        .chain-node-btn.gift { color: #062b00; background: linear-gradient(135deg, #39ff14, #1ea62e); box-shadow: 0 4px 12px rgba(57,255,20,0.35), inset 0 1px 0 rgba(255,255,255,0.35); }
+        .chain-node-btn:disabled { opacity: 0.4; box-shadow: none; }
+        .chain-node-btn:active { transform: scale(0.95); }
+
+        /* Визуальные плашки наград звеньев (вместо плоских кружков-эмодзи) — та же идея,
+           что и на Трофейной Дороге: настоящие спрайты ящиков/скинов/оружия, если есть. */
+        .chain-node-badge { flex-shrink: 0; width: 50px; height: 50px; border-radius: 14px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; background: linear-gradient(160deg, rgba(57,255,20,0.16), rgba(255,255,255,0.02)); border: 1.5px solid rgba(255,255,255,0.18); box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 2px 8px rgba(0,0,0,0.3); }
+        .chain-node-badge-icon { font-size: 21px; line-height: 1; color: var(--text-muted); }
+        .chain-node-badge .crate-thumb { width: 50px; height: 50px; }
+        .chain-node-badge > svg { width: 34px; height: 34px; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.5)); }
+        .chain-node-skin-visual { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
+        .chain-node-skin-visual svg { width: 86%; height: 86%; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.5)); }
+        .chain-node.active .chain-node-badge { border-color: var(--neon-blue); box-shadow: 0 0 14px rgba(0,240,255,0.45), inset 0 1px 0 rgba(255,255,255,0.15); animation: chainNodePulse 2.2s ease-in-out infinite; }
+        .chain-node.done .chain-node-badge { border-color: rgba(57,255,20,0.55); box-shadow: 0 0 10px rgba(57,255,20,0.3), inset 0 1px 0 rgba(255,255,255,0.1); }
+        .chain-node.locked .chain-node-badge { opacity: 0.6; }
+        .chain-node-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+        .chain-node-chips .chain-chip { background: rgba(57,255,20,0.12); border-color: rgba(57,255,20,0.45); color: #baffa8; }
+
+        /* Полученное звено: показываем настоящую иконку/спрайт награды (слегка приглушённо),
+           а поверх — маленькую галочку-бейдж в углу, вместо того чтобы прятать её за плоским ✓. */
+        .chain-node-badge-visual { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; opacity: 0.65; filter: saturate(0.75); }
+        .chain-node-badge-check {
+            position: absolute; right: -3px; bottom: -3px; width: 20px; height: 20px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; color: #062b00;
+            background: linear-gradient(145deg, #39ff14, #1ea62e);
+            border: 2px solid rgba(10,8,16,0.9);
+            box-shadow: 0 0 8px rgba(57,255,20,0.6);
+        }
+        /* Плашка "получено" на месте цены/кнопки у пройденного звена */
+        .chain-node-claimed-tag {
+            margin-left: auto; display: inline-flex; align-items: center; gap: 5px;
+            font-size: 10.5px; font-weight: 900; letter-spacing: 0.2px; color: #baffa8;
+            background: rgba(57,255,20,0.12); border: 1px solid rgba(57,255,20,0.4);
+            border-radius: 999px; padding: 5px 12px;
+        }
+
+        /* Короткий "пульс" карточки в момент получения награды — играет один раз, сразу
+           после клика по кнопке "Купить"/"Забрать" (см. chainDealAction/_chainDealJustClaimedIdx). */
+        @keyframes chainNodeClaimPop {
+            0% { transform: scale(1); }
+            35% { transform: scale(1.035); box-shadow: 0 0 0 1px rgba(57,255,20,0.35), 0 0 34px rgba(57,255,20,0.55); }
+            100% { transform: scale(1); }
+        }
+        .chain-node.just-claimed { animation: chainNodeClaimPop 0.65s cubic-bezier(.22,1.4,.4,1); }
+        @keyframes chainNodeBadgeCheckPop { 0% { transform: scale(0); } 60% { transform: scale(1.25); } 100% { transform: scale(1); } }
+        .chain-node.just-claimed .chain-node-badge-check { animation: chainNodeBadgeCheckPop 0.4s 0.15s cubic-bezier(.34,1.8,.6,1) both; }
+
+        /* Соединитель между блоками-звеньями — вертикальная пунктирная линия со стрелкой
+           вниз, показывающая направление движения по цепочке. */
+        .chain-node-connector { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 4px 0; }
+        .chain-node-connector-line { width: 2px; height: 16px; background: repeating-linear-gradient(to bottom, rgba(255,255,255,0.25) 0, rgba(255,255,255,0.25) 4px, transparent 4px, transparent 8px); }
+        .chain-node-connector.done .chain-node-connector-line { background: linear-gradient(to bottom, #39ff14, rgba(57,255,20,0.3)); }
+        .chain-node-connector-arrow { font-size: 10px; line-height: 1; color: rgba(255,255,255,0.35); margin-top: -2px; }
+        .chain-node-connector.done .chain-node-connector-arrow { color: var(--neon-green); }
+        .chain-deal-expired-note { position: relative; z-index: 1; margin-top: 4px; padding: 10px 12px; border-radius: 14px; background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.22); color: var(--text-muted); font-size: 10.5px; font-weight: 700; text-align: center; }
+
+        /* Мегаакция — единственная позиция за ваучеры, самая заметная карточка блока (классический стиль) */
+        .mega-deal-card, .super-deal-card {
+            position: relative; overflow: hidden; z-index: 1;
+            display: flex; flex-direction: column; gap: 9px;
+            border-radius: 18px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+        .mega-deal-card {
+            --deal-accent: var(--neon-purple);
+            background: linear-gradient(155deg, rgba(191,90,242,0.26) 0%, rgba(255,215,0,0.12) 55%, rgba(10,8,16,0.94) 100%), var(--glass-bg);
+            border: 1.5px solid rgba(191,90,242,0.6);
+            box-shadow: 0 0 0 1px rgba(255,215,0,0.2), 0 10px 26px rgba(191,90,242,0.35), var(--glass-shadow-soft);
+        }
+        .super-deal-card {
+            --deal-accent: var(--neon-red);
+            background: linear-gradient(155deg, rgba(255,42,95,0.22) 0%, rgba(255,183,3,0.10) 55%, rgba(10,8,16,0.94) 100%), var(--glass-bg);
+            border: 1.5px solid rgba(255,42,95,0.55);
+            box-shadow: 0 0 0 1px rgba(255,183,3,0.15), 0 10px 24px rgba(255,42,95,0.25), var(--glass-shadow-soft);
+        }
+        .mega-deal-fx {
+            content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+            background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.2) 48%, transparent 66%);
+            background-size: 220% 100%; background-position: 120% 0;
+            animation: premiumShimmer 3.4s ease-in-out infinite;
+        }
+        .deal-kicker {
+            position: relative; z-index: 1; align-self: flex-start;
+            display: inline-flex; align-items: center; gap: 4px;
+            font-size: 9.5px; font-weight: 900; letter-spacing: 0.5px; color: #fff;
+            padding: 3px 10px; border-radius: 999px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+        }
+        .kicker-mega { background: var(--grad-purple); }
+        .kicker-super { background: linear-gradient(90deg, #ff2a5f, #ff6a00); }
+        .mega-deal-main, .super-deal-main { position: relative; z-index: 1; display: flex; align-items: center; gap: 12px; min-width: 0; cursor: pointer; }
+        .mega-deal-main:active, .super-deal-main:active { opacity: 0.85; }
+        .mega-deal-icon, .super-deal-icon {
+            width: 50px; height: 50px; min-width: 50px; border-radius: 14px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center; font-size: 25px;
+            background: linear-gradient(145deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.02) 100%), rgba(8,10,16,0.5);
+        }
+        .mega-deal-icon { border: 2px solid var(--neon-purple); box-shadow: 0 0 20px rgba(191,90,242,0.6), inset 0 0 8px rgba(255,255,255,0.14); }
+        .super-deal-icon { border: 2px solid var(--neon-red); box-shadow: 0 0 20px rgba(255,42,95,0.55), inset 0 0 8px rgba(255,255,255,0.12); }
+        .mega-deal-info, .super-deal-info { flex: 1; min-width: 0; }
+        .mega-deal-title, .super-deal-title { display: block; }
+        .mega-deal-sub, .super-deal-sub { font-size: 10px; color: var(--text-muted); margin-top: 3px; line-height: 1.4; }
+        /* Награды показываются не голым текстом, а отдельными выделенными "чипами" — значок
+           в кружке + название в своей капсуле. При переносе строка ломается только между
+           чипами целиком, а не посреди слова, поэтому список наград всегда выглядит опрятно. */
+        .deal-reward-chips { display: flex; flex-wrap: wrap; gap: 5px; max-width: 100%; }
+        .deal-reward-chip {
+            display: inline-flex; align-items: center; gap: 5px; max-width: 100%; box-sizing: border-box;
+            background: color-mix(in srgb, var(--deal-accent, var(--neon-gold)) 20%, rgba(255,255,255,0.05));
+            border: 1px solid color-mix(in srgb, var(--deal-accent, var(--neon-gold)) 48%, rgba(255,255,255,0.16));
+            border-radius: 999px;
+            padding: 3px 10px 3px 3px;
+        }
+        .drc-icon {
+            width: 18px; height: 18px; min-width: 18px; border-radius: 50%; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center; font-size: 11px;
+            background: color-mix(in srgb, var(--deal-accent, var(--neon-gold)) 45%, transparent);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
+        }
+        .drc-name { font-size: 10px; font-weight: 800; color: #fff; white-space: normal; word-break: break-word; line-height: 1.25; }
+        .mega-deal-card .deal-reward-chips, .super-deal-card .deal-reward-chips { justify-content: flex-start; }
+        .mega-deal-card .drc-icon, .super-deal-card .drc-icon { width: 22px; height: 22px; min-width: 22px; font-size: 13px; }
+        .mega-deal-card .drc-name, .super-deal-card .drc-name { font-size: 11.5px; }
+        .deal-card .deal-reward-chips { justify-content: center; }
+        .deal-buy-row { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 8px; }
+        .deal-price-block { display: flex; align-items: baseline; justify-content: center; gap: 6px; flex-wrap: wrap; min-height: 15px; font-family: 'Consolas', monospace; }
+        .deal-price-old { font-size: 10.5px; font-weight: 700; color: var(--text-muted); text-decoration: line-through; opacity: 0.85; white-space: nowrap; }
+        .deal-badge-discount { display: inline-block; white-space: nowrap; font-family: system-ui, sans-serif; background: linear-gradient(135deg, #39ff14, #1ea62e); color: #06210a; font-size: 10px; font-weight: 900; padding: 2px 7px; border-radius: 999px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.4); }
+        .deal-badge-discount.super { background: linear-gradient(135deg, #ffe15c, #ff9d00); color: #3a1e00; }
+        .deal-badge-discount.mega { background: linear-gradient(135deg, #ffe9a8, #da22ff); color: #2a0033; }
+        .mega-deal-buy, .super-deal-buy {
+            position: relative; z-index: 1; width: 100%; white-space: nowrap;
+            display: flex; align-items: center; justify-content: center; gap: 5px;
+            border: none; border-radius: 999px; font-family: 'Consolas', monospace;
+            padding: 10px 16px; font-weight: 900; font-size: 13px; color: #fff;
+        }
+        .mega-deal-buy { background: var(--grad-purple); box-shadow: 0 6px 16px rgba(145,20,255,0.45), inset 0 1px 0 rgba(255,255,255,0.3); }
+        .super-deal-buy { background: linear-gradient(135deg, #ff2a5f, #ff6a00); box-shadow: 0 6px 16px rgba(255,42,95,0.4), inset 0 1px 0 rgba(255,255,255,0.3); }
+        .mega-deal-buy:disabled, .super-deal-buy:disabled { opacity: 0.4; box-shadow: none; }
+        .super-deal-buy:active, .mega-deal-buy:active { transform: scale(0.95); }
+
+        /* Обычные ежедневные акции — компактная сетка 2 колонки. Билетный каркас (иконка/название
+           сверху, линия отрыва, цена/кнопка снизу), но теперь карточки в одном ряду ВСЕГДА одной
+           высоты (grid растягивает .deal-card, а верхняя зона доращивает себя flex:1) — поэтому
+           нижние блоки с ценой у соседних карточек всегда стоят строго на одном уровне. */
+        .deal-ticket { position: relative; z-index: 1; overflow: visible; display: flex; flex-direction: column; margin-bottom: 10px; }
+        .deal-ticket-goods { position: relative; z-index: 1; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 7px; border-radius: 16px 16px 0 0; }
+        .deal-ticket-goods:active { opacity: 0.85; }
+        .deal-ticket-tear { position: relative; z-index: 2; height: 0; margin: 0 14px; border-top: 2px dashed color-mix(in srgb, var(--deal-accent, var(--neon-gold)) 50%, rgba(255,255,255,0.22)); }
+        .deal-ticket-tear::before, .deal-ticket-tear::after {
+            content: ''; position: absolute; top: 50%; width: 8px; height: 8px; border-radius: 50%; transform: translateY(-50%);
+            background: radial-gradient(circle at 34% 30%, #fff, var(--deal-accent, var(--neon-gold)) 78%);
+            box-shadow: 0 0 6px color-mix(in srgb, var(--deal-accent, var(--neon-gold)) 65%, transparent);
+        }
+        .deal-ticket-tear::before { left: -15px; }
+        .deal-ticket-tear::after { right: -15px; }
+        .deal-ticket-pay { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 7px; background: rgba(0,0,0,0.18); border-radius: 0 0 16px 16px; padding: 10px 12px 12px; }
+        .deal-ticket-tag { position: relative; z-index: 1; align-self: center; display: inline-flex; align-items: center; gap: 4px; font-size: 8.5px; font-weight: 900; letter-spacing: 0.4px; color: #fff; padding: 2px 8px; border-radius: 999px; box-shadow: 0 3px 8px rgba(0,0,0,0.4); }
+        .tag-rare { background: color-mix(in srgb, var(--deal-accent) 72%, #000 8%); }
+        .deal-ticket-icon {
+            position: relative; z-index: 1;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+            background: radial-gradient(circle at 32% 28%, color-mix(in srgb, var(--deal-accent) 55%, #fff 18%), color-mix(in srgb, var(--deal-accent) 20%, transparent) 72%);
+            border: 1.5px solid color-mix(in srgb, var(--deal-accent) 65%, transparent);
+            box-shadow: 0 0 16px color-mix(in srgb, var(--deal-accent) 45%, transparent), inset 0 1px 0 rgba(255,255,255,0.22);
+        }
+        .deal-ticket-name { position: relative; z-index: 1; font-weight: 800; color: #fff; }
+        .deal-price-row { display: flex; align-items: baseline; justify-content: center; gap: 7px; flex-wrap: wrap; font-family: 'Consolas', monospace; font-variant-numeric: tabular-nums; min-height: 15px; }
+        .deal-ticket-buy { width: 100%; display: flex; align-items: center; justify-content: center; gap: 5px; border: none; border-radius: 999px; font-family: 'Consolas', monospace; font-weight: 900; letter-spacing: 0.2px; }
+        .deal-ticket-buy:disabled { opacity: 0.4; box-shadow: none; }
+        .deal-ticket-buy:active { transform: scale(0.95); }
+        .deal-ticket-buy.bought { background: rgba(255,255,255,0.08); color: var(--text-muted); box-shadow: none; }
+
+        .deals-grid { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 10px 8px; align-items: stretch; }
+        .deal-card { --deal-accent: #00c8ff; }
+        .deal-card.deal-ticket { height: 100%; }
+        .deal-card .deal-ticket-goods {
+            flex: 1;
+            background: linear-gradient(160deg, color-mix(in srgb, var(--deal-accent) 16%, transparent) 0%, rgba(255,255,255,0.02) 45%, rgba(10,8,18,0.88) 100%), rgba(10,8,18,0.8);
+            border: 1px solid color-mix(in srgb, var(--deal-accent) 42%, rgba(255,255,255,0.14));
+            border-bottom: none;
+            padding: 13px 8px 12px;
+        }
+        .deal-card .deal-ticket-goods::before {
+            content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+            background: radial-gradient(circle at 30% 0%, color-mix(in srgb, var(--deal-accent) 22%, transparent), transparent 60%);
+        }
+        .deal-card .deal-ticket-pay { border: 1px solid color-mix(in srgb, var(--deal-accent) 42%, rgba(255,255,255,0.14)); border-top: none; }
+        .deal-card .deal-ticket-icon { width: 36px; height: 36px; font-size: 18px; position: relative; z-index: 1; }
+        .deal-card .deal-ticket-name { font-size: 10.5px; line-height: 1.3; position: relative; z-index: 1; }
+        .deal-card .deal-ticket-buy { padding: 8px 6px; font-size: 11px; background: var(--grad-gold); color: #3a2400; box-shadow: 0 4px 12px rgba(255,183,3,0.32), inset 0 1px 0 rgba(255,255,255,0.35); }
+        .deal-card .deal-price-old { font-size: 10.5px; font-weight: 700; color: var(--text-muted); text-decoration: line-through; opacity: 0.8; white-space: nowrap; }
+        .deal-card .deal-badge-discount { display: inline-block; white-space: nowrap; font-family: system-ui, sans-serif; background: linear-gradient(135deg, #39ff14, #1ea62e); color: #06210a; font-size: 10px; font-weight: 900; padding: 2px 7px; border-radius: 999px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.4); }
+
+        /* ===== Окно с описанием акции — открывается тапом по карточке (не по кнопке покупки) ===== */
+        #dealinfo-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: rgba(6,6,12,0.82); z-index: 5950; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 16px; backdrop-filter: blur(8px); }
+        #dealinfo-overlay.active { display: flex; }
+        #dealinfo-overlay .schem-container { border-color: var(--dealinfo-color, var(--neon-gold)); box-shadow: 0 0 34px var(--dealinfo-glow, rgba(255,183,3,0.3)), inset 0 0 22px var(--dealinfo-glow, rgba(255,183,3,0.08)); }
+        #dealinfo-overlay .schem-title { color: var(--dealinfo-color, var(--neon-gold)); }
+        #dealinfo-overlay .schem-close-btn { background: var(--dealinfo-color-15, rgba(255,183,3,0.15)); border-color: var(--dealinfo-color, var(--neon-gold)); color: var(--dealinfo-color, var(--neon-gold)); }
+        .dealinfo-head { display: flex; align-items: center; gap: 13px; padding-bottom: 14px; margin-bottom: 14px; border-bottom: 1px dashed var(--dealinfo-color-35, rgba(255,183,3,0.35)); }
+        .dealinfo-head-icon { width: 50px; height: 50px; min-width: 50px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 25px; background: var(--dealinfo-color-15, rgba(255,183,3,0.15)); border: 1.5px solid var(--dealinfo-color, var(--neon-gold)); box-shadow: 0 0 16px var(--dealinfo-glow, rgba(255,183,3,0.25)); }
+        .dealinfo-head-name { font-weight: 900; font-size: 15px; color: #fff; line-height: 1.3; }
+        .dealinfo-head-sub { font-size: 11px; color: var(--text-muted); margin-top: 4px; line-height: 1.4; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .dealinfo-desc { font-size: 11.5px; color: #e6e6e6; line-height: 1.6; margin-bottom: 16px; padding: 10px 12px; border-radius: 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); text-wrap: pretty; }
+        .dealinfo-subtitle { font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); margin: 2px 0 9px 0; }
+        .dealinfo-item-row { display: flex; align-items: center; gap: 10px; padding: 9px 11px; margin-bottom: 6px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); }
+        .dealinfo-item-icon { font-size: 17px; width: 30px; height: 30px; min-width: 30px; display: flex; align-items: center; justify-content: center; border-radius: 9px; background: var(--dealinfo-color-15, rgba(255,183,3,0.15)); }
+        .dealinfo-item-name { font-size: 11.5px; font-weight: 700; color: #fff; flex: 1; text-align: left; }
+
+        /* ===== Простая анимация получения награды при покупке акции (БЕЗ ящика) =====
+           Раньше переиспользовала анимацию сундука Реликвария (тряска/открытие ящика),
+           теперь — отдельная лёгкая карточка: вспышка + галочка + список полученных
+           предметов с лёгким каскадным появлением. Полностью независима от #gacha-overlay. */
+        #deal-reward-overlay { position: fixed; inset: 0; z-index: 6000; display: none; align-items: center; justify-content: center; padding: 20px; background: rgba(4,5,9,0.82); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+        #deal-reward-overlay.active { display: flex; }
+        .dr-card {
+            position: relative; width: 100%; max-width: 320px; border-radius: 24px; padding: 26px 20px 20px; text-align: center; overflow: hidden;
+            background: linear-gradient(160deg, var(--dr-color-15, rgba(255,183,3,0.15)) 0%, rgba(10,8,16,0.96) 62%), var(--panel-bg);
+            border: 1.5px solid var(--dr-color, var(--neon-gold));
+            box-shadow: 0 0 40px var(--dr-glow, rgba(255,183,3,0.35)), 0 20px 50px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1);
+            transform: scale(0.7); opacity: 0;
+        }
+        #deal-reward-overlay.active .dr-card { animation: drCardPop 0.45s cubic-bezier(.22,1.4,.4,1) forwards; }
+        @keyframes drCardPop { 0% { transform: scale(0.6); opacity: 0; } 60% { transform: scale(1.04); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+        .dr-burst {
+            position: absolute; top: -34%; left: 50%; width: 240px; height: 240px; margin-left: -120px; pointer-events: none; z-index: 0;
+            background: radial-gradient(circle, var(--dr-glow, rgba(255,183,3,0.5)) 0%, transparent 70%);
+            opacity: 0;
+        }
+        #deal-reward-overlay.active .dr-burst { animation: drBurst 0.7s ease-out forwards; }
+        @keyframes drBurst { 0% { opacity: 0; transform: scale(0.3); } 40% { opacity: 0.9; } 100% { opacity: 0; transform: scale(1.6); } }
+        .dr-check {
+            position: relative; z-index: 1; width: 52px; height: 52px; margin: 0 auto 12px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 25px; font-weight: 900; color: #06210a;
+            background: linear-gradient(145deg, var(--dr-color, var(--neon-gold)), rgba(255,255,255,0.6));
+            box-shadow: 0 0 24px var(--dr-glow, rgba(255,183,3,0.5));
+            transform: scale(0);
+        }
+        #deal-reward-overlay.active .dr-check { animation: drCheckPop 0.4s 0.15s cubic-bezier(.34,1.8,.6,1) forwards; }
+        @keyframes drCheckPop { to { transform: scale(1); } }
+        .dr-title { position: relative; z-index: 1; font-size: 14.5px; font-weight: 900; color: #fff; margin-bottom: 14px; line-height: 1.35; text-wrap: balance; }
+        .dr-items { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 7px; margin-bottom: 16px; max-height: 38vh; overflow-y: auto; }
+        .dr-item {
+            display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 12px;
+            background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+            opacity: 0; transform: translateY(8px);
+        }
+        #deal-reward-overlay.active .dr-item { animation: drItemIn 0.35s ease-out forwards; }
+        @keyframes drItemIn { to { opacity: 1; transform: translateY(0); } }
+        .dr-item-icon { font-size: 19px; width: 30px; text-align: center; flex-shrink: 0; }
+        .dr-item-name { font-size: 12px; font-weight: 700; color: #fff; text-align: left; flex: 1; }
+        .dr-claim-btn {
+            position: relative; z-index: 1; width: 100%; border: none; border-radius: 999px; padding: 12px;
+            font-weight: 900; font-size: 13.5px; color: #3a2400;
+            background: linear-gradient(145deg, var(--dr-color, var(--neon-gold)), #fff2c4);
+            box-shadow: 0 6px 18px var(--dr-glow, rgba(255,183,3,0.4)), inset 0 1px 0 rgba(255,255,255,0.5);
+        }
+        .dr-claim-btn:active { transform: scale(0.96); }
+        body.perf-mode .dr-burst { display: none; }
+
+        /* Слабые устройства: отключаем мерцание/пульсацию, оставляя саму механику акций рабочей */
+        body.perf-mode .mega-deal-fx,
+        body.perf-mode .deals-panel-glow,
+        body.perf-mode .deals-head-icon { animation: none !important; }
+
         .bp-container { 
             background: linear-gradient(135deg, rgba(191,90,242,0.25) 0%, rgba(191,90,242,0.10) 100%), var(--glass-bg-strong); 
             backdrop-filter: blur(var(--glass-blur)) saturate(200%); 
@@ -1378,6 +1762,13 @@ transform:scale(1);
         #trophy-overlay .schem-container { border-color: var(--neon-gold); box-shadow: 0 0 34px rgba(255,183,3,0.32), inset 0 0 22px rgba(255,183,3,0.08); background: linear-gradient(160deg, rgba(32,22,4,0.94), rgba(10,7,2,0.97)); }
         #trophy-overlay .schem-title { color: var(--neon-gold); text-shadow: 0 0 12px rgba(255,183,3,0.5); }
         #trophy-overlay .schem-close-btn { background: rgba(255,183,3,0.15); border-color: var(--neon-gold); color: var(--neon-gold); }
+
+        /* ===== Отдельное подменю "Цепь Поставок" (см. #chaindeal-overlay) — та же
+           изумрудно-бирюзовая тема, что и у самой панели цепочки в Магазине. */
+        #chaindeal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: radial-gradient(circle at 50% 18%, rgba(57,255,20,0.12), rgba(4,14,10,0.92) 65%); z-index: 5900; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 16px; backdrop-filter: blur(6px); }
+        #chaindeal-overlay .schem-container { border-color: #39ff14; box-shadow: 0 0 34px rgba(57,255,20,0.3), inset 0 0 22px rgba(57,255,20,0.08); background: linear-gradient(160deg, rgba(6,26,10,0.94), rgba(4,10,8,0.97)); }
+        #chaindeal-overlay .schem-title { color: #39ff14; text-shadow: 0 0 12px rgba(57,255,20,0.5); }
+        #chaindeal-overlay .schem-close-btn { background: rgba(57,255,20,0.15); border-color: #39ff14; color: #39ff14; }
         .trophy-progress-bar { background: linear-gradient(135deg, rgba(255,183,3,0.16), rgba(255,103,0,0.06)); border: 1px solid rgba(255,183,3,0.4); border-radius: 14px; padding: 12px 14px; margin-bottom: 14px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 4px 14px rgba(0,0,0,0.3); }
         .trophy-progress-top { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 800; color: #fff; margin-bottom: 8px; gap: 8px; }
         .trophy-progress-outer { height: 10px; border-radius: 6px; background: rgba(255,255,255,0.08); overflow: hidden; position: relative; box-shadow: inset 0 1px 3px rgba(0,0,0,0.4); }
@@ -2738,6 +3129,32 @@ transform:scale(1);
         .skin-collapsed-discount-flag { display: none; position: relative; z-index: 1; font-size: 9.5px; font-weight: 900; color: #fff; background: linear-gradient(135deg, #ff2a5f, #ff6600); padding: 4px 8px; border-radius: 7px; white-space: nowrap; box-shadow: 0 0 10px rgba(255,42,95,0.5); }
         .skin-collapsed-discount-flag.active { display: inline-block; }
 
+        /* ===== Вход в отдельное подменю "Цепь Поставок" — та же изумрудно-бирюзовая тема,
+           что и раньше у встроенной панели, но теперь это компактная плашка, открывающая
+           полноэкранное подменю (см. #chaindeal-overlay), как у Пропуска Пустоши/Скинов. */
+        .chaindeal-collapsed-bar {
+            position: relative; min-height: 64px;
+            background: linear-gradient(135deg, rgba(57,255,20,0.18) 0%, rgba(0,240,255,0.12) 55%, rgba(57,255,20,0.10) 100%), var(--glass-bg-strong);
+            backdrop-filter: blur(var(--glass-blur)) saturate(200%);
+            -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(200%);
+            border: 1.5px solid rgba(57,255,20,0.5);
+            border-radius: 20px;
+            padding: 12px 16px;
+            margin-bottom: 10px;
+            display: flex; align-items: center; gap: 12px;
+            box-shadow: 0 0 26px rgba(57,255,20,0.2), 0 8px 24px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.14);
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .chaindeal-collapsed-bar:active { transform: scale(0.98); }
+        .chaindeal-collapsed-bar:hover { box-shadow: 0 0 40px rgba(57,255,20,0.32), 0 8px 24px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.14); }
+        .chaindeal-collapsed-bar.done { border-color: rgba(255,255,255,0.25); box-shadow: 0 8px 20px rgba(0,0,0,0.4); }
+        .chaindeal-collapsed-icon { position: relative; width: 42px; height: 42px; flex-shrink: 0; border-radius: 14px; background: radial-gradient(circle, rgba(57,255,20,0.35), rgba(0,240,255,0.08)); border: 1.5px solid rgba(255,255,255,0.35); display: flex; align-items: center; justify-content: center; font-size: 21px; box-shadow: 0 0 16px rgba(57,255,20,0.4), inset 0 1px 0 rgba(255,255,255,0.25); z-index: 1; }
+        .chaindeal-collapsed-text { flex: 1; min-width: 0; position: relative; z-index: 1; display: flex; flex-direction: column; justify-content: center; gap: 3px; }
+        .chaindeal-collapsed-title { display: inline-block; line-height: 1.3; color: #39ff14; text-shadow: 0 1px 3px rgba(0,0,0,0.55); font-weight: 900; font-size: 13px; letter-spacing: 0.3px; }
+        .chaindeal-collapsed-sub { font-size: 10px; color: var(--text-muted); font-weight: 700; margin-top: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.3; }
+        .chaindeal-collapsed-level { background: rgba(57,255,20,0.16); color: #baffa8; }
+
         /* ===== Полноэкранное меню скинов ===== */
         #skin-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: rgba(4,6,10,0.7); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); z-index: 7000; display: none; justify-content: center; align-items: center; padding: 16px; }
         #skin-overlay.active { display: flex; }
@@ -3640,6 +4057,16 @@ padding-top:9vh;
         </div>
     </div>
 
+    <div id="chaindeal-overlay">
+        <div class="schem-container">
+            <div class="schem-header">
+                <div class="schem-title">🔗 Цепь Поставок</div>
+                <button class="schem-close-btn" onclick="Core.closeChainDeal()"><svg class="mini-ico" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5.2 5.2l9.6 9.6M14.8 5.2L5.2 14.8" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg> Закрыть</button>
+            </div>
+            <div class="schem-body" id="chaindeal-body"></div>
+        </div>
+    </div>
+
     <div id="mastery-overlay">
         <div class="mastery-panel" id="mastery-panel">
             <button class="mastery-close-btn" onclick="Core.closeMastery()"><svg class="mini-ico" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5.2 5.2l9.6 9.6M14.8 5.2L5.2 14.8" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg></button>
@@ -4003,6 +4430,26 @@ padding-top:9vh;
                 <button class="schem-close-btn" id="lootinfo-close-btn" onclick="Core.closeLootInfo()"><svg class="mini-ico" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5.2 5.2l9.6 9.6M14.8 5.2L5.2 14.8" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg> Закрыть</button>
             </div>
             <div class="schem-body" id="lootinfo-body"></div>
+        </div>
+    </div>
+
+    <div id="dealinfo-overlay">
+        <div class="schem-container">
+            <div class="schem-header">
+                <div class="schem-title">🛒 О товаре</div>
+                <button class="schem-close-btn" id="dealinfo-close-btn" onclick="Core.closeDealInfo()"><svg class="mini-ico" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5.2 5.2l9.6 9.6M14.8 5.2L5.2 14.8" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg> Закрыть</button>
+            </div>
+            <div class="schem-body" id="dealinfo-body"></div>
+        </div>
+    </div>
+
+    <div id="deal-reward-overlay">
+        <div class="dr-card">
+            <div class="dr-burst"></div>
+            <div class="dr-check">✓</div>
+            <div class="dr-title" id="deal-reward-title">Покупка успешна!</div>
+            <div class="dr-items" id="deal-reward-items"></div>
+            <button class="dr-claim-btn" onclick="Core.closeDealReward()">Забрать</button>
         </div>
     </div>
 
@@ -4430,6 +4877,17 @@ padding-top:9vh;
                 <span class="bp-collapsed-arrow">›</span>
             </div>
         </div>
+        <div class="chaindeal-collapsed-bar" id="chaindeal-collapsed-bar" onclick="Core.openChainDeal()">
+            <div class="chaindeal-collapsed-icon" id="chaindeal-collapsed-icon">🔗</div>
+            <div class="chaindeal-collapsed-text">
+                <span class="chaindeal-collapsed-title">ЦЕПЬ ПОСТАВОК</span>
+                <div class="chaindeal-collapsed-sub" id="chaindeal-collapsed-sub">Разовая цепочка наград</div>
+            </div>
+            <div class="bp-collapsed-right">
+                <span class="bp-collapsed-level chaindeal-collapsed-level" id="chaindeal-collapsed-level">1/6</span>
+                <span class="bp-collapsed-arrow" style="color: #39ff14;">›</span>
+            </div>
+        </div>
         <div class="market-entry-row">
             <button class="market-entry-btn market-entry-normal" id="market-entry-btn" onclick="Core.openMarket()">
                 <div class="market-entry-icon-badge">🏛️</div>
@@ -4489,6 +4947,7 @@ padding-top:9vh;
             <button id="daily-btn" class="daily-claim-btn" onclick="Core.claimDaily()">Открыть паёк</button>
             <div id="daily-timer" class="timer-badge" style="display:none; text-align:center;"></div>
         </div>
+        <div id="daily-deals-container"></div>
         <div class="screen-title" style="margin-top: 12px;">🏪 Прямые Поставки Медсредств</div>
         <div id="direct-shop-list"></div>
         <div class="screen-title" style="margin-top: 12px;">💠 Жетоны Схрона</div>
@@ -8224,6 +8683,7 @@ padding-top:9vh;
                 Core.fixSeasonWeaponExploit();
                 Core.restorePlasmaExploitFixVictims();
                 Core.restorePlasmaFullUnlockVictims();
+                Core.restoreSeasonWeaponOffByOneVictims();
                 Core.save();
             },
 
@@ -8810,7 +9270,7 @@ padding-top:9vh;
         };
 
         const Core = {
-            p: { hp: 50, maxHp: 50, energy: 100, maxEnergy: 100, rad: 0, hazards: {}, satiety: 100, lvl: 1, exp: 0, nextExp: 85, caps: 30, vouchers: 0, armor: 2, dodgeChance: 8, inv: { "Запчасти": 6, "Тяжелый Хлам": 0, "Ядерная Батарея": 0, "Сырое мясо": 1, "Жетон Схрона": 0 }, weaponsOwned: ["fists"], wpnUpgrades: { "fists": 0, "pipe": 0, "machete": 0, "pistol": 0, "revolver": 0, "shotgun": 0, "assault": 0, "plasma": 0, "minigun": 0, "gauss": 0, "sniper": 0 }, wpnMastery: { "fists": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "pipe": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "machete": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "pistol": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "revolver": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "shotgun": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "assault": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "plasma": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "minigun": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "gauss": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "sniper": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 } }, wpnMasteryClaimed: {}, wpnMasteryTitleClaimed: [], activeWeapon: "fists", rodLvl: 0, rodResetV2Done: true, rodCompensationPending: null, food: { "Жареное мясо крысы": 1 }, currentBiome: 0, bossesDefeated: [], bossCooldowns: {}, bpLvl: 1, bpPoints: 0, bpPremium: false, bpElite: false, bpClaimedFree: [], bpClaimedPrem: [], bpClaimedElite: [], bpSeasonId: null, bpSeasonUID: null, bpSeasonHistory: [], bpSeasonV2Reset: true, plasmaRestoreV1Done: true, plasmaFullUnlockV1Done: true, adminForcedSeason: null, lvlCapV1Done: true, dailyStreak: 0, lastDailyClaim: null, relicWasteland: 0, redeemedPromoCodes: [], freeBoxes: {}, nickname: "Странник", nicknameSet: false, avatarsOwned: ["ranger", "raider", "cyborg"], avatar: "ranger", titleId: "newbie", unlockedTitles: ["newbie"], maxBiomeReached: 0, bmLastSuccessDay: null, bmFailDay: null, bmFailCount: 0, marketEarnDay: null, marketEarnedToday: 0, marketDailyCapValue: null, exchangeDay: null, exchangeUsed: {}, marketBuyDay: null, marketBuySpentToday: 0, marketBuyDailyCapValue: null, skinsOwned: ["default"], activeSkin: "default", dailyQuests: [], dailyQuestsDay: null, dailyQuestsPremium: [], dailyQuestsPremiumDay: null, petsOwned: [], activePet: null, installedAt: Date.now(), updateGiftClaimed: false, restockGiftEligible: false, restockGiftClaimed: false, restockGiftAt: null, pvpDuelLog: {}, wheelDay: null, wheelSpinsToday: 0, wheelFreeClaimed: false, wheelBonusSpins: 0, energyPackDay: null, energyPackBoughtToday: 0, buildPresets: [],
+            p: { hp: 50, maxHp: 50, energy: 100, maxEnergy: 100, rad: 0, hazards: {}, satiety: 100, lvl: 1, exp: 0, nextExp: 85, caps: 30, vouchers: 0, armor: 2, dodgeChance: 8, inv: { "Запчасти": 6, "Тяжелый Хлам": 0, "Ядерная Батарея": 0, "Сырое мясо": 1, "Жетон Схрона": 0 }, weaponsOwned: ["fists"], wpnUpgrades: { "fists": 0, "pipe": 0, "machete": 0, "pistol": 0, "revolver": 0, "shotgun": 0, "assault": 0, "plasma": 0, "minigun": 0, "gauss": 0, "sniper": 0 }, wpnMastery: { "fists": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "pipe": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "machete": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "pistol": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "revolver": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "shotgun": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "assault": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "plasma": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "minigun": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "gauss": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "sniper": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 } }, wpnMasteryClaimed: {}, wpnMasteryTitleClaimed: [], activeWeapon: "fists", rodLvl: 0, rodResetV2Done: true, rodCompensationPending: null, food: { "Жареное мясо крысы": 1 }, currentBiome: 0, bossesDefeated: [], bossCooldowns: {}, bpLvl: 1, bpPoints: 0, bpPremium: false, bpElite: false, bpClaimedFree: [], bpClaimedPrem: [], bpClaimedElite: [], bpSeasonId: null, bpSeasonUID: null, bpSeasonHistory: [], bpSeasonV2Reset: true, plasmaRestoreV1Done: true, plasmaFullUnlockV1Done: true, seasonWpnOffByOneFixV1Done: true, adminForcedSeason: null, lvlCapV1Done: true, dailyStreak: 0, lastDailyClaim: null, relicWasteland: 0, redeemedPromoCodes: [], freeBoxes: {}, nickname: "Странник", nicknameSet: false, avatarsOwned: ["ranger", "raider", "cyborg"], avatar: "ranger", titleId: "newbie", unlockedTitles: ["newbie"], maxBiomeReached: 0, bmLastSuccessDay: null, bmFailDay: null, bmFailCount: 0, marketEarnDay: null, marketEarnedToday: 0, marketDailyCapValue: null, exchangeDay: null, exchangeUsed: {}, marketBuyDay: null, marketBuySpentToday: 0, marketBuyDailyCapValue: null, skinsOwned: ["default"], activeSkin: "default", dailyQuests: [], dailyQuestsDay: null, dailyQuestsPremium: [], dailyQuestsPremiumDay: null, petsOwned: [], activePet: null, installedAt: Date.now(), updateGiftClaimed: false, restockGiftEligible: false, restockGiftClaimed: false, restockGiftAt: null, pvpDuelLog: {}, wheelDay: null, wheelSpinsToday: 0, wheelFreeClaimed: false, wheelBonusSpins: 0, energyPackDay: null, energyPackBoughtToday: 0, buildPresets: [], chainDealStep: 0, chainDealSkinId: null, chainDealStartAt: null,
                 // ---- Реворк «Разведки» и «Костра» ----
                 exploreStreak: 0,     // серия подряд идущих мирных (не боевых) разведок — влияет на шанс тайника/точки интереса, показывается как "🍀 Удача разведки"
                 specialEventLock: 0,  // сколько ближайших разведок гарантированно будут обычной находкой — взводится на 2 после любого спецсобытия (тайник/засада/караван/бой/элит/точка интереса/опасный участок), чтобы спецсобытия не выпадали кластерами подряд
@@ -9396,6 +9856,15 @@ padding-top:9vh;
                     if(!this.p.bpClaimedElite) this.p.bpClaimedElite = [];
                     if(this.p.bpSeasonId === undefined) this.p.bpSeasonId = null;
                     if(this.p.bpSeasonUID === undefined) this.p.bpSeasonUID = null;
+                    // "Цепь Поставок" — новая одноразовая цепочка акций в магазине (см.
+                    // Core.CHAIN_DEAL_STEPS/initChainDeal/renderChainDeal). У старых сохранений
+                    // этих полей ещё нет — создаём в начальном состоянии (шаг 0, скин ещё не выбран).
+                    if(this.p.chainDealStep === undefined) this.p.chainDealStep = 0;
+                    if(this.p.chainDealSkinId === undefined) this.p.chainDealSkinId = null;
+                    // Цепь Поставок временная: с версии с таймером у старых сохранений, где цепь
+                    // уже была начата (chainDealSkinId уже выбран), отсчёт стартует "с нуля" при
+                    // первом же заходе после обновления — это разовая уступка на переходный период.
+                    if(this.p.chainDealStartAt === undefined) this.p.chainDealStartAt = this.p.chainDealSkinId ? Date.now() : null;
                     if(!this.p.bpSeasonHistory) this.p.bpSeasonHistory = [];
                     // ☢️ ОДНОРАЗОВАЯ МИГРАЦИЯ НА НОВУЮ 100-УРОВНЕВУЮ СЕЗОННУЮ СИСТЕМУ ПРОПУСКА.
                     // Новая система переиспользует старые поля (bpPremium/bpLvl/bpClaimedFree/
@@ -9456,6 +9925,7 @@ padding-top:9vh;
                     this.fixSeasonWeaponExploit();
                     this.restorePlasmaExploitFixVictims();
                     this.restorePlasmaFullUnlockVictims();
+                    this.restoreSeasonWeaponOffByOneVictims();
                     this.applyOfflineProgress();
                 } else {
                     this.lastTick = Date.now();
@@ -14100,6 +14570,626 @@ startCombat(isBossFight = false) {
                 el.innerHTML = mHtml;
             },
 
+            // ================= ЕЖЕДНЕВНЫЕ АКЦИИ =================
+            // Пул обычных акций (за крышки). Каждый день случайно выбираются 10 штук,
+            // количество и цена (со случайной скидкой от "полной" стоимости) пересчитываются заново.
+            // Ничего из категории "оружие" сюда сознательно не входит, как и обмен ваучеров
+            // на крышки/крышек на ваучеры — только реальные ресурсы, расходники и наборы.
+            DAILY_DEAL_POOL: [
+                { id: 'd_parts',    icon: '⚙️', name: 'Запчасти',            accent: '#00c8ff', tier: 'common', desc: 'Крепкие детали для верстака.', unitVal: 4,   qtyMin: 10, qtyMax: 22, build: (q) => ({ type: 'item', item: 'Запчасти', qty: q }) },
+                { id: 'd_heavy',    icon: '🔩', name: 'Тяжёлый Хлам',        accent: '#00c8ff', tier: 'common', desc: 'Пригодится для тяжёлого крафта.', unitVal: 9,   qtyMin: 6,  qtyMax: 14, build: (q) => ({ type: 'item', item: 'Тяжелый Хлам', qty: q }) },
+                { id: 'd_meat',     icon: '🥩', name: 'Сырое мясо',          accent: '#39ff14', tier: 'common', desc: 'Свежая добыча прямиком с разведки.', unitVal: 6, qtyMin: 6, qtyMax: 12, build: (q) => ({ type: 'item', item: 'Сырое мясо', qty: q }) },
+                { id: 'd_battery',  icon: '☢️', name: 'Ядерная Батарея',     accent: '#ffb703', tier: 'common', desc: 'Заряд для самых прожорливых устройств.', unitVal: 30, qtyMin: 2, qtyMax: 5, build: (q) => ({ type: 'item', item: 'Ядерная Батарея', qty: q }) },
+                { id: 'd_microbat', icon: '🔋', name: 'Батарейный Блок',     accent: '#00c8ff', tier: 'common', desc: 'В инвентаре: +20 энергии по кнопке. Столько же стоит разовая покупка в Прямых Поставках.', unitVal: 45, qtyMin: 2, qtyMax: 4, build: (q) => ({ type: 'item', item: 'Микро-батарея', qty: q }) },
+                { id: 'd_medkit',   icon: '💉', name: 'Мед-Пакет',           accent: '#39ff14', tier: 'common', desc: 'В инвентаре: +20 ОЗ по кнопке. Столько же стоит разовая покупка в Прямых Поставках.', unitVal: 50, qtyMin: 2, qtyMax: 4, build: (q) => ({ type: 'item', item: 'Мед-Пакет', qty: q }) },
+                { id: 'd_food',     icon: '🍖', name: 'Мясной паёк',         accent: '#39ff14', tier: 'common', desc: 'Сытный ужин прямо у костра.', unitVal: 8, qtyMin: 2, qtyMax: 4, build: (q) => ({ type: 'food', food: 'Жареное мясо крысы', qty: q }) },
+                { id: 'd_token',    icon: '💠', name: 'Жетон Схрона',        accent: '#bf5af2', tier: 'rare',   desc: 'Ключ к премиум-контейнерам. Столько же стоит 1 штука в Схроне Пустоши.', unitVal: 150, qtyMin: 1, qtyMax: 3, build: (q) => ({ type: 'item', item: 'Жетон Схрона', qty: q }) },
+                { id: 'd_heal',     icon: '❤️‍🩹', name: 'Полевой ремонт',   accent: '#39ff14', tier: 'rare',   desc: 'Мгновенно поднимет на ноги в бою — 100% ОЗ.', unitVal: 90, qtyMin: 1, qtyMax: 1, build: () => ({ type: 'full_heal' }) },
+                { id: 'd_maxhp',    icon: '🧬', name: 'Эксп. Сыворотка',     accent: '#bf5af2', tier: 'rare',   desc: 'Навсегда увеличивает запас здоровья на 20.', unitVal: 300, qtyMin: 1, qtyMax: 1, build: () => ({ type: 'maxhp' }) },
+                { id: 'd_combo1',   icon: '🧰', name: 'Набор Скрапера',      accent: '#ffb703', tier: 'rare',   desc: 'Запчасти и Тяжёлый Хлам одним лотом.', unitVal: 119, qtyMin: 1, qtyMax: 1, build: () => ([{ type: 'item', item: 'Запчасти', qty: 14 }, { type: 'item', item: 'Тяжелый Хлам', qty: 7 }]) },
+                { id: 'd_combo2',   icon: '🎒', name: 'НЗ Разведчика',       accent: '#ffb703', tier: 'rare',   desc: 'Полное восстановление ОЗ + заряд энергии.', unitVal: 158, qtyMin: 1, qtyMax: 1, build: () => ([{ type: 'full_heal' }, { type: 'energy_pack' }]) },
+                { id: 'd_combo3',   icon: '🥩', name: 'Паёк Охотника',       accent: '#39ff14', tier: 'common', desc: 'Мясо и жаркое про запас.', unitVal: 52, qtyMin: 1, qtyMax: 1, build: () => ([{ type: 'item', item: 'Сырое мясо', qty: 6 }, { type: 'food', food: 'Жареное мясо крысы', qty: 2 }]) },
+                { id: 'd_combo4',   icon: '🛠️', name: 'Ремкомплект Механика', accent: '#00c8ff', tier: 'rare', desc: 'Крупная партия деталей одним лотом.', unitVal: 208, qtyMin: 1, qtyMax: 1, build: () => ([{ type: 'item', item: 'Запчасти', qty: 25 }, { type: 'item', item: 'Тяжелый Хлам', qty: 12 }]) },
+                { id: 'd_combo5',   icon: '💰', name: 'Схрон Барахольщика',  accent: '#bf5af2', tier: 'rare',   desc: 'Жетон Схрона и лом одним мешком.', unitVal: 280, qtyMin: 1, qtyMax: 1, build: () => ([{ type: 'item', item: 'Жетон Схрона', qty: 1 }, { type: 'item', item: 'Тяжелый Хлам', qty: 10 }, { type: 'item', item: 'Запчасти', qty: 10 }]) }
+            ],
+            // Отображаемые названия для внутренних ключей предметов, которые в остальной игре
+            // подписаны иначе (сам предмет и его эффект не меняются — только текст в акциях).
+            DEAL_ITEM_DISPLAY_NAMES: { "Микро-батарея": "Батарейный Блок" },
+            // Пул СУПЕР-акций: появляется не каждый день (шанс), цена сильно ниже рыночной,
+            // но и награда всего одна штука/эффект — очень выгодно, но по чуть-чуть.
+            SUPER_DEAL_POOL: [
+                { id: 's_token',   icon: '💠', name: 'Жетон Схрона за бесценок',        accent: '#bf5af2', refVal: 150, priceMin: 20, priceMax: 35, build: () => ({ type: 'item', item: 'Жетон Схрона', qty: 1 }) },
+                { id: 's_battery', icon: '☢️', name: 'Ядерная Батарея по дешёвке',      accent: '#ffb703', refVal: 30,  priceMin: 4,  priceMax: 9,  build: () => ({ type: 'item', item: 'Ядерная Батарея', qty: 1 }) },
+                { id: 's_maxhp',   icon: '🧬', name: 'Сыворотка по акции',              accent: '#bf5af2', refVal: 300, priceMin: 40, priceMax: 60, build: () => ({ type: 'maxhp' }) },
+                { id: 's_medkit',  icon: '💉', name: 'Мед-Пакет почти даром',           accent: '#39ff14', refVal: 50,  priceMin: 6,  priceMax: 12, build: () => ({ type: 'item', item: 'Мед-Пакет', qty: 1 }) },
+                { id: 's_microbat',icon: '🔋', name: 'Батарейный Блок за гроши',        accent: '#00c8ff', refVal: 45,  priceMin: 6,  priceMax: 11, build: () => ({ type: 'item', item: 'Микро-батарея', qty: 1 }) },
+                { id: 's_heal',    icon: '❤️‍🩹', name: 'Экстренный ремонт по бросовой цене', accent: '#39ff14', refVal: 90, priceMin: 10, priceMax: 18, build: () => ({ type: 'full_heal' }) }
+            ],
+            // Пул МЕГА-акций: присутствует всегда, продаётся только за ваучеры — то самое
+            // "очень хорошее", ради чего стоит копить премиум-валюту. Цена честная, а не
+            // символическая, и в награде НЕТ ни крышек, ни ваучеров — только реальные блага.
+            MEGA_DEAL_POOL: [
+                { id: 'm_supplies', icon: '📦', name: 'Мега-Поставка Пустоши', desc: 'Огромная партия ресурсов — закроет крафт на неделю вперёд.', refCapValue: 810, priceMin: 23, priceMax: 27, build: () => ([{ type: 'item', item: 'Запчасти', qty: 60 }, { type: 'item', item: 'Тяжелый Хлам', qty: 30 }, { type: 'item', item: 'Ядерная Батарея', qty: 10 }]) },
+                { id: 'm_tokens',   icon: '💠', name: 'Ковчег Жетонов Схрона', desc: '20 Жетонов Схрона одним лотом — доступ к премиум-контейнерам надолго вперёд.', refCapValue: 1700, priceMin: 34, priceMax: 42, build: () => ([{ type: 'item', item: 'Жетон Схрона', qty: 20 }]) },
+                { id: 'm_recovery', icon: '🧬', name: 'Капсула Полного Восстановления', desc: 'Полное ОЗ, +20 к макс. ОЗ навсегда и полный заряд энергии одним нажатием.', refCapValue: 458, priceMin: 14, priceMax: 17, build: () => ([{ type: 'full_heal' }, { type: 'maxhp' }, { type: 'energy_pack' }]) },
+                { id: 'm_grand',    icon: '🎒', name: 'Ковчег Скитальца', desc: 'Огромный сборный лот: жетоны, батареи и медикаменты — всё и сразу.', refCapValue: 2120, priceMin: 48, priceMax: 58, build: () => ([{ type: 'item', item: 'Жетон Схрона', qty: 10 }, { type: 'item', item: 'Ядерная Батарея', qty: 8 }, { type: 'item', item: 'Мед-Пакет', qty: 4 }, { type: 'item', item: 'Микро-батарея', qty: 4 }]) }
+            ],
+            SUPER_DEAL_CHANCE: 0.45,
+            DEAL_VOUCHER_RATE: 20, // для расчёта % экономии мегаакции в пересчёте на крышки
+            DAILY_DEALS_SCHEMA: 6, // бампается при изменении структуры/баланса акций, чтобы старые сохранённые акции пересчитались
+
+            // ===== ЦЕПЬ ПОСТАВОК: разовая цепочка из 6 звеньев, показывается в Магазине сразу
+            // под баннером Пропуска Пустоши (см. #chain-deal-container). Звенья открываются
+            // строго по порядку — следующее звено недоступно, пока не пройдено предыдущее.
+            // Платные звенья покупаются за КРЫШКИ (не ваучеры) — по account.chainDealStep
+            // отслеживается прогресс (0 = ничего не пройдено, 6 = цепь пройдена целиком).
+            // Звено 'skin' особое: сам скин и его цена определяются на лету (см.
+            // getChainDealSkinPrice/initChainDeal) — он должен быть скином, которого у игрока
+            // ещё нет, и не эксклюзивом Пропуска Пустоши (owl/cat).
+            // Звено 4 раньше выдавало случайный гаджет — заменено на набор ресурсов Мастерской
+            // (сразу несколько предметов; см. chainStepRewards/renderChainDealOverlay — там
+            // умеют разворачивать reward-массив в несколько строк с иконками).
+            CHAIN_DEAL_STEPS: [
+                { id: 'skin', paid: true },
+                { id: 'gift1', paid: false, reward: { name: "📦 Сейф Минори", type: "lootbox", boxIdx: 2 } },
+                { id: 'vouchers', paid: true, price: 125, reward: { name: "🏷️ Ваучеры x5", type: "voucher", qty: 5 } },
+                { id: 'gift2', paid: false, reward: [
+                    { name: "⚙️ Запчасти x30", type: "item", item: "Запчасти", qty: 30 },
+                    { name: "☢️ Ядерная Батарея x1", type: "item", item: "Ядерная Батарея", qty: 1 }
+                ] },
+                { id: 'tokens', paid: true, price: 2250, reward: { name: "💠 Жетон Схрона x15", type: "item", item: "Жетон Схрона", qty: 15 } },
+                { id: 'relics', paid: false, reward: { name: "🗝️ Реликварий Пустоши x2", type: "relic_wasteland", qty: 2 } }
+            ],
+            // Цена скина в звене 1 — переводим обычную ваучерную цену в крышки по курсу
+            // DEAL_VOUCHER_RATE и добавляем наценку x1.5: путь "без ваучеров" удобнее, но не дешевле.
+            getChainDealSkinPrice(skin) {
+                return Math.round(skin.price * this.DEAL_VOUCHER_RATE * 1.5);
+            },
+            // Цепь Поставок — временная акция: с момента старта (chainDealStartAt) у игрока есть
+            // ровно столько времени, чтобы пройти всю цепочку. Не путать с DAILY_DEALS_SCHEMA —
+            // здесь таймер общий на всю цепь, а не на отдельное звено.
+            CHAIN_DEAL_DURATION_MS: 3 * 24 * 60 * 60 * 1000, // 3 дня
+            // Возвращает true, если время на прохождение цепи вышло, а сама цепь ещё не пройдена
+            // целиком. Уже полученные звенья остаются у игрока — сгорает только возможность
+            // получить оставшиеся.
+            isChainDealExpired() {
+                const total = this.CHAIN_DEAL_STEPS.length;
+                if ((this.p.chainDealStep || 0) >= total) return false;
+                if (!this.p.chainDealStartAt) return false;
+                return (Date.now() - this.p.chainDealStartAt) >= this.CHAIN_DEAL_DURATION_MS;
+            },
+            chainDealMsRemaining() {
+                if (!this.p.chainDealStartAt) return this.CHAIN_DEAL_DURATION_MS;
+                return Math.max(0, this.p.chainDealStartAt + this.CHAIN_DEAL_DURATION_MS - Date.now());
+            },
+            // Формат "дни:часы" для таймера временной акции — в отличие от formatHMS (часы:мин:сек,
+            // удобно для суточных таймеров), для многодневного окна нагляднее считать целыми днями.
+            formatDaysHours(ms) {
+                const totalMinutes = Math.max(0, Math.ceil(ms / 60000));
+                const totalHours = Math.floor(totalMinutes / 60);
+                const d = Math.floor(totalHours / 24);
+                const h = totalHours % 24;
+                return `${d}д ${h}ч`;
+            },
+            // Выбирает (один раз и навсегда) скин для звена 1 из тех, что ещё не у игрока,
+            // исключая эксклюзивы Пропуска Пустоши. Если подходящих скинов не осталось —
+            // звено 1 автоматически засчитывается с компенсацией ваучерами (тот же принцип,
+            // что и у rewardDispatcher для уже полученных скинов/титулов). Здесь же стартует
+            // таймер всей цепи — ровно с момента, когда игрок впервые её увидел.
+            initChainDeal() {
+                if (this.p.chainDealSkinId) return;
+                if (!this.p.chainDealStartAt) this.p.chainDealStartAt = Date.now();
+                const pool = DB.skins.filter(s => s.id !== 'default' && s.id !== 'owl' && s.id !== 'cat' && !this.p.skinsOwned.includes(s.id));
+                if (pool.length) {
+                    this.p.chainDealSkinId = pool[Math.floor(Math.random() * pool.length)].id;
+                } else {
+                    this.p.chainDealSkinId = 'NONE';
+                    if ((this.p.chainDealStep || 0) === 0) {
+                        this.p.chainDealStep = 1;
+                        let bonus = 40; this.p.vouchers += bonus;
+                        this.log(`🔗 Цепь Поставок: все обычные скины уже у вас есть — начислено 🏷️ x${bonus} вместо первого звена цепи.`, "loot");
+                    }
+                }
+                this.save();
+            },
+            // Выполняет звено цепи idx: списывает крышки (если звено платное) и выдаёт награду.
+            // Доступно только для ТЕКУЩЕГО открытого звена — все остальные строго по порядку.
+            chainDealAction(idx) {
+                this.initChainDeal();
+                if ((this.p.chainDealStep || 0) !== idx) return;
+                if (this.isChainDealExpired()) { alert('Время Цепи Поставок истекло — акция была временной.'); this.renderChainDeal(); return; }
+                const step = this.CHAIN_DEAL_STEPS[idx];
+                if (step.id === 'skin') {
+                    if (this.p.chainDealSkinId === 'NONE') return; // уже засчитано автоматически в initChainDeal()
+                    const skin = DB.skins.find(s => s.id === this.p.chainDealSkinId);
+                    if (!skin) return;
+                    const price = this.getChainDealSkinPrice(skin);
+                    if (this.p.caps < price) { alert(`Недостаточно крышек! Нужно: ${price} 🪙`); return; }
+                    this.p.caps -= price;
+                    this.rewardDispatcher({ name: skin.name, type: "skin", skinId: skin.id }, "Цепь Поставок");
+                } else {
+                    if (step.paid) {
+                        if (this.p.caps < step.price) { alert(`Недостаточно крышек! Нужно: ${step.price} 🪙`); return; }
+                        this.p.caps -= step.price;
+                    }
+                    // reward может быть как одиночным объектом, так и массивом (набор ресурсов) —
+                    // разворачиваем в любом случае в список и выдаём по очереди.
+                    (Array.isArray(step.reward) ? step.reward : [step.reward]).forEach(r => this.rewardDispatcher(r, "Цепь Поставок"));
+                }
+                // Анимация получения награды (карточка-вспышка + галочка + список призов) и
+                // короткий "пульс" самого звена в списке — отмечаем индекс, renderChainDealOverlay
+                // навесит анимационный класс один раз и сразу же его сбросит.
+                this.playChainDealRewardAnim(step);
+                this._chainDealJustClaimedIdx = idx;
+                this.p.chainDealStep = idx + 1;
+                this.save(); this.updateUI(); this.renderChainDeal();
+            },
+            // Возвращает награду(ы) звена idx как массив (унифицирует одиночные и составные reward'ы,
+            // а также спецслучай звена 'skin', чей приз определяется динамически).
+            chainStepRewards(step) {
+                if (step.id === 'skin') {
+                    const skin = this.p.chainDealSkinId && this.p.chainDealSkinId !== 'NONE' ? DB.skins.find(sk => sk.id === this.p.chainDealSkinId) : null;
+                    return [skin ? { name: skin.name, type: "skin", skinId: skin.id } : { name: "Эксклюзивный скин", type: "skin" }];
+                }
+                return Array.isArray(step.reward) ? step.reward : [step.reward];
+            },
+            // Анимация получения награды за звено — переиспользует общий оверлей #deal-reward-overlay
+            // (вспышка + галочка + каскадный список предметов), но в фирменной изумрудной палитре
+            // Цепи Поставок и с rewardIcon/formatRewardName — они умеют показывать все типы наград,
+            // которые встречаются в цепи (предметы, ваучеры, ящики, реликварии, скины).
+            playChainDealRewardAnim(step) {
+                const rewards = this.chainStepRewards(step);
+                const color = '#39ff14';
+                const overlay = document.getElementById('deal-reward-overlay');
+                overlay.style.setProperty('--dr-color', color);
+                overlay.style.setProperty('--dr-color-15', this.hexToRgba(color, 0.15));
+                overlay.style.setProperty('--dr-glow', this.hexToRgba(color, 0.4));
+
+                document.getElementById('deal-reward-title').textContent = rewards.length > 1
+                    ? '🔗 Звено Цепи Поставок получено!'
+                    : `🔗 Получено: ${this.formatRewardName(rewards[0])}`;
+                document.getElementById('deal-reward-items').innerHTML = rewards.map((r, i) => `
+                    <div class="dr-item" style="animation-delay:${0.25 + i * 0.08}s">
+                        <div class="dr-item-icon">${this.rewardIcon(r)}</div>
+                        <div class="dr-item-name">${this.formatRewardName(r)}</div>
+                    </div>`).join('');
+
+                // Сброс и повторный запуск класса .active — чтобы CSS-анимации проигрывались
+                // заново при получении нескольких звеньев подряд без перезагрузки страницы.
+                overlay.classList.remove('active');
+                void overlay.offsetWidth;
+                overlay.classList.add('active');
+                Sound.play('loot');
+            },
+            // "Цепь Поставок" теперь живёт как отдельное подменю Магазина (см. #chaindeal-overlay),
+            // а не встроенной панелью на главном экране. renderChainDeal обновляет и плашку-вход
+            // в Магазине, и содержимое самого подменю (если оно уже открыто — обновится на лету
+            // сразу после покупки/получения звена).
+            renderChainDeal() {
+                this.initChainDeal();
+                this.renderChainDealBar();
+                this.renderChainDealOverlay();
+            },
+            // Компактная плашка-вход в Магазине, открывающая подменю "Цепь Поставок". Акция
+            // временная: как только срок истёк, а цепь не пройдена целиком — плашка целиком
+            // пропадает из Магазина (не просто блокируется), а открытое подменю закрывается.
+            renderChainDealBar() {
+                const bar = document.getElementById('chaindeal-collapsed-bar');
+                if (!bar) return;
+                const total = this.CHAIN_DEAL_STEPS.length;
+                const curStep = this.p.chainDealStep || 0;
+                const expired = this.isChainDealExpired();
+                if (expired) {
+                    bar.style.display = 'none';
+                    const overlay = document.getElementById('chaindeal-overlay');
+                    if (overlay && overlay.style.display !== 'none') this.closeChainDeal();
+                    return;
+                }
+                bar.style.display = '';
+                const iconEl = document.getElementById('chaindeal-collapsed-icon');
+                const subEl = document.getElementById('chaindeal-collapsed-sub');
+                const levelEl = document.getElementById('chaindeal-collapsed-level');
+                const done = curStep >= total;
+                bar.classList.toggle('done', done);
+                if (iconEl) iconEl.textContent = done ? '✅' : '🔗';
+                if (subEl) subEl.textContent = done ? 'Все звенья получены — спасибо!' : `Звено ${curStep + 1} из ${total} · осталось ${this.formatDaysHours(this.chainDealMsRemaining())}`;
+                if (levelEl) levelEl.textContent = done ? 'ГОТОВО' : `${curStep + 1}/${total}`;
+            },
+            // Полное содержимое подменю "Цепь Поставок" — вертикальный степпер звеньев,
+            // у каждого звена собственная визуальная плашка награды (та же логика, что и на
+            // Трофейной Дороге — настоящие спрайты ящиков/скинов/оружия вместо плоских эмодзи,
+            // см. trophyRewardVisual). Составные звенья (несколько ресурсов сразу) показывают
+            // все предметы отдельными чипами под названием.
+            renderChainDealOverlay() {
+                const el = document.getElementById('chaindeal-body');
+                if (!el) return;
+                const steps = this.CHAIN_DEAL_STEPS;
+                const total = steps.length;
+                const curStep = this.p.chainDealStep || 0;
+
+                if (curStep >= total) {
+                    el.innerHTML = `<div class="chain-deal-panel chain-deal-done">
+                        <div class="chain-deal-head">
+                            <div class="chain-deal-head-icon">🔗</div>
+                            <div>
+                                <div class="chain-deal-title">Цепь Поставок пройдена</div>
+                                <div class="chain-deal-sub">Все звенья получены — спасибо, что дошли до конца!</div>
+                            </div>
+                        </div>
+                    </div>`;
+                    return;
+                }
+
+                const expired = this.isChainDealExpired();
+                const justClaimedIdx = this._chainDealJustClaimedIdx;
+                this._chainDealJustClaimedIdx = -1; // одноразовая пометка — используется и сбрасывается за один рендер
+
+                const nodesHtml = steps.map((s, i) => {
+                    let state = i < curStep ? 'done' : (i === curStep ? 'active' : 'locked');
+                    if (expired && state === 'active') state = 'locked';
+                    const rewards = this.chainStepRewards(s);
+                    const mainReward = rewards[0];
+                    let price;
+                    if (s.id === 'skin') {
+                        const skin = this.p.chainDealSkinId && this.p.chainDealSkinId !== 'NONE' ? DB.skins.find(sk => sk.id === this.p.chainDealSkinId) : null;
+                        price = skin ? this.getChainDealSkinPrice(skin) : 0;
+                    } else {
+                        price = s.price || 0;
+                    }
+                    // У полученного звена показываем настоящую иконку/спрайт награды (приглушённо),
+                    // а не голую галочку — так видно, что именно забрано, плюс галочка-бейдж поверх.
+                    const badgeInner = state === 'done' ? `<div class="chain-node-badge-visual">${this.trophyRewardVisual(mainReward)}</div><div class="chain-node-badge-check">✓</div>`
+                        : (state === 'locked' ? '<span class="chain-node-badge-icon">🔒</span>' : this.trophyRewardVisual(mainReward));
+                    const priceHtml = state === 'done' ? '' : (s.paid
+                        ? `<div class="chain-node-price">${price} 🪙</div>`
+                        : `<div class="chain-node-price free">Бесплатно</div>`);
+                    const btnHtml = (state === 'active' && !expired)
+                        ? (s.paid
+                            ? `<button class="chain-node-btn" ${this.p.caps < price ? 'disabled' : ''} onclick="Core.chainDealAction(${i})">Купить</button>`
+                            : `<button class="chain-node-btn gift" onclick="Core.chainDealAction(${i})">Забрать</button>`)
+                        : (state === 'done' ? `<div class="chain-node-claimed-tag">✓ Получено</div>` : '');
+                    const nameHtml = rewards.length > 1 ? 'Набор ресурсов Мастерской' : this.formatRewardName(mainReward);
+                    const chipsHtml = rewards.length > 1
+                        ? `<div class="chain-node-chips">${rewards.map(r => `<span class="mastery-reward-chip chain-chip"><span class="mrc-ico">${this.rewardIcon(r)}</span>${this.formatRewardName(r)}</span>`).join('')}</div>`
+                        : '';
+                    const connectorHtml = i < total - 1
+                        ? `<div class="chain-node-connector ${state === 'done' ? 'done' : ''}">
+                               <div class="chain-node-connector-line"></div>
+                               <div class="chain-node-connector-arrow">▼</div>
+                           </div>`
+                        : '';
+                    const claimPopClass = (i === justClaimedIdx) ? ' just-claimed' : '';
+                    return `
+                    <div class="chain-node ${state}${claimPopClass}">
+                        <div class="chain-node-top">
+                            <div class="chain-node-badge">${badgeInner}</div>
+                            <div class="chain-node-info">
+                                <div class="chain-node-step">Звено ${i + 1} из ${total}</div>
+                                <div class="chain-node-name">${nameHtml}</div>
+                            </div>
+                        </div>
+                        ${chipsHtml}
+                        <div class="chain-node-bottom">
+                            ${priceHtml}
+                            ${btnHtml}
+                        </div>
+                    </div>${connectorHtml}`;
+                }).join('');
+
+                const subText = expired
+                    ? 'Время вышло — оставшиеся звенья больше недоступны'
+                    : `Разовая цепочка наград · Звено ${curStep + 1} из ${total} · осталось ${this.formatDaysHours(this.chainDealMsRemaining())}`;
+                const expiredNoteHtml = expired
+                    ? `<div class="chain-deal-expired-note">⌛ Цепь Поставок была временной акцией — срок на прохождение вышел. Уже полученные звенья остаются у вас.</div>`
+                    : '';
+
+                el.innerHTML = `
+                <div class="chain-deal-panel">
+                    <div class="chain-deal-head">
+                        <div class="chain-deal-head-icon">🔗</div>
+                        <div>
+                            <div class="chain-deal-title">Цепь Поставок</div>
+                            <div class="chain-deal-sub">${subText}</div>
+                        </div>
+                    </div>
+                    <div class="chain-deal-nodes">${nodesHtml}</div>
+                    ${expiredNoteHtml}
+                </div>`;
+            },
+            openChainDeal() {
+                Sound.play('click'); this.renderChainDealOverlay(); document.getElementById('chaindeal-overlay').style.display = 'flex';
+            },
+            closeChainDeal() { document.getElementById('chaindeal-overlay').style.display = 'none'; },
+            DEALS_REFRESH_BASE_PRICE: 150,
+            DEALS_REFRESH_MULT: 1.5, // каждое следующее обновление за день дороже на 50%
+            // Скидка на акцию: от 0% (скидки может не быть вообще) до 99% (почти нереальная удача).
+            // Сильный перекос к небольшим значениям — произведение трёх случайных чисел вместо
+            // одного, поэтому "рядовые" скидки скромные (единицы-десятки %), а что-то около
+            // 90%+ выпадает исключительно редко, как настоящий джекпот.
+            // minPct задаёт нижнюю гарантированную границу (мега/супер всегда ≥15%, обычные — без гарантии).
+            rollDealDiscountPct(minPct = 0) {
+                if (minPct <= 0 && Math.random() < 0.08) return 0; // иногда акция вообще без скидки
+                const skew = Math.random() * Math.random() * Math.random();
+                const pct = Math.round(minPct + skew * (99 - minPct));
+                return Math.max(minPct, Math.min(99, pct));
+            },
+            rollDailyDeals() {
+                const pool = this.DAILY_DEAL_POOL.slice();
+                for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1));[pool[i], pool[j]] = [pool[j], pool[i]]; }
+                const picked = pool.slice(0, Math.min(10, pool.length));
+                const regular = picked.map(tpl => {
+                    const qty = tpl.qtyMin === tpl.qtyMax ? tpl.qtyMin : (tpl.qtyMin + Math.floor(Math.random() * (tpl.qtyMax - tpl.qtyMin + 1)));
+                    const discountPct = this.rollDealDiscountPct(0);
+                    const originalPrice = Math.max(1, Math.round(tpl.unitVal * qty));
+                    const price = Math.max(1, Math.round(originalPrice * (1 - discountPct / 100)));
+                    return { id: tpl.id, icon: tpl.icon, name: tpl.name, desc: tpl.desc, accent: tpl.accent, tier: tpl.tier, qty, price, originalPrice, discountPct, rewardData: tpl.build(qty) };
+                });
+
+                let superDeal = null;
+                if (Math.random() < this.SUPER_DEAL_CHANCE) {
+                    const sTpl = this.SUPER_DEAL_POOL[Math.floor(Math.random() * this.SUPER_DEAL_POOL.length)];
+                    const discountPct = this.rollDealDiscountPct(15);
+                    const price = Math.max(1, Math.round(sTpl.refVal * (1 - discountPct / 100)));
+                    superDeal = { id: sTpl.id, icon: sTpl.icon, name: sTpl.name, accent: sTpl.accent, price, originalPrice: sTpl.refVal, discountPct, rewardData: sTpl.build() };
+                }
+
+                const mTpl = this.MEGA_DEAL_POOL[Math.floor(Math.random() * this.MEGA_DEAL_POOL.length)];
+                const mDiscountPct = this.rollDealDiscountPct(15);
+                const megaOriginalPrice = Math.max(1, Math.round(mTpl.refCapValue / this.DEAL_VOUCHER_RATE));
+                const mPrice = Math.max(1, Math.round(megaOriginalPrice * (1 - mDiscountPct / 100)));
+                const megaDeal = { id: mTpl.id, icon: mTpl.icon, name: mTpl.name, desc: mTpl.desc, price: mPrice, originalPrice: megaOriginalPrice, discountPct: mDiscountPct, rewardData: mTpl.build() };
+
+                return { regular, superDeal, megaDeal };
+            },
+            ensureDailyDeals() {
+                const todayStr = new Date().toDateString();
+                if (this.p.dailyDealsDay === todayStr && this.p.dailyDealsSchema === this.DAILY_DEALS_SCHEMA && Array.isArray(this.p.dailyDealsRegular)) return;
+
+                const rolled = this.rollDailyDeals();
+                this.p.dailyDealsDay = todayStr;
+                this.p.dailyDealsSchema = this.DAILY_DEALS_SCHEMA;
+                this.p.dailyDealsRegular = rolled.regular;
+                this.p.dailyDealsSuper = rolled.superDeal;
+                this.p.dailyDealsMega = rolled.megaDeal;
+                this.p.dailyDealsBought = {};
+                this.p.dailyDealsRefreshCount = 0;
+                this.save();
+            },
+            getDealsRefreshPrice() {
+                return Math.round(this.DEALS_REFRESH_BASE_PRICE * Math.pow(this.DEALS_REFRESH_MULT, this.p.dailyDealsRefreshCount || 0));
+            },
+            refreshDailyDeals() {
+                this.ensureDailyDeals();
+                const price = this.getDealsRefreshPrice();
+                if (this.p.caps < price) { alert("Мало крышек!"); return; }
+                if (!confirm(`Обновить ассортимент акций за ${price} 🪙?\nСледующее обновление в этот день будет дороже на 50%.`)) return;
+                this.p.caps -= price;
+                const rolled = this.rollDailyDeals();
+                this.p.dailyDealsRegular = rolled.regular;
+                this.p.dailyDealsSuper = rolled.superDeal;
+                this.p.dailyDealsMega = rolled.megaDeal;
+                this.p.dailyDealsBought = {};
+                this.p.dailyDealsRefreshCount = (this.p.dailyDealsRefreshCount || 0) + 1;
+                this.log(`🔄 Ассортимент акций обновлён за ${price} 🪙`, "loot");
+                Sound.play('click');
+                this.save(); this.updateUI(); this.renderDailyDeals();
+            },
+            dealRewardLabel(rewardData) {
+                const arr = Array.isArray(rewardData) ? rewardData : [rewardData];
+                return arr.map(r => {
+                    if (r.type === 'item') { const dn = this.DEAL_ITEM_DISPLAY_NAMES[r.item] || r.item; return `${this.itemIcons[r.item] || '📦'} ${dn} x${r.qty}`; }
+                    if (r.type === 'food') return `🍗 ${r.food} x${r.qty}`;
+                    if (r.type === 'full_heal') return `❤️‍🩹 Полное восстановление ОЗ`;
+                    if (r.type === 'energy_pack') return `🔋 +30 Энергии`;
+                    if (r.type === 'maxhp') return `🧬 +20 к макс. ОЗ`;
+                    return '🎁';
+                }).join(' · ');
+            },
+            // Рендерит награды акции как отдельные выделенные "чипы" (значок + название в своей
+            // капсуле), а не одной строкой текста — каждая награда сразу видна отдельно и красиво
+            // переносится на новую строку целиком, не разрывая слова посередине.
+            dealRewardChipsHtml(rewardData) {
+                const entries = this.dealRewardEntries(rewardData);
+                return `<div class="deal-reward-chips">${entries.map(e => `
+                    <span class="deal-reward-chip"><span class="drc-icon">${e.icon}</span><span class="drc-name">${e.name}</span></span>`).join('')}</div>`;
+            },
+            // Разбивает reward-данные акции на отдельные записи {icon, name} — используется и
+            // карточками (просто имя предмета, без промо-названия/описания лота), и анимацией
+            // выпадения награды при покупке (см. playDealRewardAnim).
+            dealRewardEntries(rewardData) {
+                const arr = Array.isArray(rewardData) ? rewardData : [rewardData];
+                return arr.map(r => {
+                    if (r.type === 'item') { const dn = this.DEAL_ITEM_DISPLAY_NAMES[r.item] || r.item; return { icon: this.itemIcons[r.item] || '📦', name: `${dn} x${r.qty}` }; }
+                    if (r.type === 'food') return { icon: '🍗', name: `${r.food} x${r.qty}` };
+                    if (r.type === 'full_heal') return { icon: '❤️‍🩹', name: 'Полное восстановление ОЗ' };
+                    if (r.type === 'energy_pack') return { icon: '🔋', name: '+30 Энергии' };
+                    if (r.type === 'maxhp') return { icon: '🧬', name: '+20 к макс. ОЗ' };
+                    return { icon: '🎁', name: 'Награда' };
+                });
+            },
+            // Окно с полным описанием акции (промо-название + текст) — открывается тапом по
+            // карточке (не по кнопке покупки). Список самих предметов дублируется здесь же.
+            showDealInfo(kind, id) {
+                this.ensureDailyDeals();
+                let deal, priceIcon;
+                if (kind === 'regular') { deal = (this.p.dailyDealsRegular || []).find(d => d.id === id); priceIcon = '🪙'; }
+                else if (kind === 'super') { deal = this.p.dailyDealsSuper; priceIcon = '🪙'; }
+                else { deal = this.p.dailyDealsMega; priceIcon = '🏷️'; }
+                if (!deal) return;
+                Sound.play('click');
+
+                const color = deal.accent || '#ffb703';
+                const overlay = document.getElementById('dealinfo-overlay');
+                overlay.style.setProperty('--dealinfo-color', color);
+                overlay.style.setProperty('--dealinfo-color-15', this.hexToRgba(color, 0.15));
+                overlay.style.setProperty('--dealinfo-color-35', this.hexToRgba(color, 0.35));
+                overlay.style.setProperty('--dealinfo-glow', this.hexToRgba(color, 0.3));
+
+                const entries = this.dealRewardEntries(deal.rewardData);
+                const itemsHtml = entries.map(e => `
+                    <div class="dealinfo-item-row">
+                        <div class="dealinfo-item-icon">${e.icon}</div>
+                        <div class="dealinfo-item-name">${e.name}</div>
+                    </div>`).join('');
+
+                document.getElementById('dealinfo-body').innerHTML = `
+                    <div class="dealinfo-head">
+                        <div class="dealinfo-head-icon">${deal.icon}</div>
+                        <div class="dealinfo-head-text">
+                            <div class="dealinfo-head-name">${deal.name}</div>
+                            <div class="dealinfo-head-sub">Цена: ${deal.price} ${priceIcon}${deal.discountPct > 0 ? ` · скидка ${deal.discountPct}%` : ''}</div>
+                        </div>
+                    </div>
+                    ${deal.desc ? `<div class="dealinfo-desc">${deal.desc}</div>` : ''}
+                    <div class="dealinfo-subtitle">В комплекте</div>
+                    ${itemsHtml}
+                `;
+                overlay.classList.add('active');
+            },
+            closeDealInfo() {
+                document.getElementById('dealinfo-overlay').classList.remove('active');
+            },
+            // Анимация получения награды при покупке акции — простая карточка со вспышкой,
+            // галочкой и списком полученных предметов (без ящика/сундука).
+            playDealRewardAnim(deal) {
+                const entries = this.dealRewardEntries(deal.rewardData);
+                const color = deal.accent || '#ffb703';
+                const overlay = document.getElementById('deal-reward-overlay');
+                overlay.style.setProperty('--dr-color', color);
+                overlay.style.setProperty('--dr-color-15', this.hexToRgba(color, 0.15));
+                overlay.style.setProperty('--dr-glow', this.hexToRgba(color, 0.4));
+
+                document.getElementById('deal-reward-title').textContent = `Куплено: ${deal.name}`;
+                document.getElementById('deal-reward-items').innerHTML = entries.map((e, i) => `
+                    <div class="dr-item" style="animation-delay:${0.25 + i * 0.08}s">
+                        <div class="dr-item-icon">${e.icon}</div>
+                        <div class="dr-item-name">${e.name}</div>
+                    </div>`).join('');
+
+                // Сброс и повторный запуск класса .active — чтобы CSS-анимации проигрывались
+                // заново при покупке нескольких акций подряд без перезагрузки страницы.
+                overlay.classList.remove('active');
+                void overlay.offsetWidth;
+                overlay.classList.add('active');
+                Sound.play('loot');
+            },
+            closeDealReward() {
+                document.getElementById('deal-reward-overlay').classList.remove('active');
+            },
+            buyDailyDeal(kind, id) {
+                this.ensureDailyDeals();
+                if (!this.p.dailyDealsBought) this.p.dailyDealsBought = {};
+                if (this.p.dailyDealsBought[id]) return;
+                let deal, currency;
+                if (kind === 'regular') { deal = (this.p.dailyDealsRegular || []).find(d => d.id === id); currency = 'caps'; }
+                else if (kind === 'super') { deal = this.p.dailyDealsSuper; currency = 'caps'; }
+                else { deal = this.p.dailyDealsMega; currency = 'vouchers'; }
+                if (!deal) return;
+                if (this.p[currency] < deal.price) { alert(currency === 'vouchers' ? "Мало ваучеров!" : "Мало крышек!"); return; }
+                this.p[currency] -= deal.price;
+                this.p.dailyDealsBought[id] = true;
+                const rewards = Array.isArray(deal.rewardData) ? deal.rewardData : [deal.rewardData];
+                rewards.forEach(r => this.rewardDispatcher(r, `Акция «${deal.name}»`));
+                this.log(`🛒 Акция «${deal.name}» приобретена!`, "loot");
+                this.save(); this.updateUI(); this.renderDailyDeals();
+                this.playDealRewardAnim(deal);
+            },
+            renderDailyDeals() {
+                const el = document.getElementById('daily-deals-container');
+                if (!el) return;
+                this.ensureDailyDeals();
+                if (!this.p.dailyDealsBought) this.p.dailyDealsBought = {};
+
+                const now = new Date();
+                const nextMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
+                const remMs = Math.max(0, nextMidnight - now);
+                const h = Math.floor(remMs / 3600000), m = Math.floor((remMs % 3600000) / 60000);
+                const timerTxt = `⏳ Обновление через ${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+                const refreshPrice = this.getDealsRefreshPrice();
+                const canRefresh = this.p.caps >= refreshPrice;
+
+                let html = `
+                <div class="deals-panel">
+                    <div class="deals-panel-glow"></div>
+                    <div class="deals-head">
+                        <div class="deals-head-left">
+                            <div class="deals-head-icon">🔥</div>
+                            <div>
+                                <div class="deals-head-title">Ежедневные Акции</div>
+                                <div class="deals-head-timer">${timerTxt}</div>
+                            </div>
+                        </div>
+                        <button class="deals-refresh-btn" ${canRefresh ? '' : 'disabled'} onclick="Core.refreshDailyDeals()" title="Обновить ассортимент акций досрочно">🔄 ${refreshPrice} 🪙</button>
+                    </div>`;
+
+                const mega = this.p.dailyDealsMega;
+                if (mega) {
+                    const bought = !!this.p.dailyDealsBought[mega.id];
+                    const canAfford = this.p.vouchers >= mega.price;
+                    html += `
+                    <div class="mega-deal-card">
+                        <div class="mega-deal-fx"></div>
+                        <div class="deal-kicker kicker-mega">💠 МЕГААКЦИЯ</div>
+                        <div class="mega-deal-main" onclick="Core.showDealInfo('mega','${mega.id}')">
+                            <div class="mega-deal-info">
+                                <div class="mega-deal-title">${this.dealRewardChipsHtml(mega.rewardData)}</div>
+                            </div>
+                        </div>
+                        <div class="deal-buy-row">
+                            <div class="deal-price-block">
+                                ${mega.discountPct > 0 ? `<span class="deal-price-old">${mega.originalPrice} 🏷️</span><span class="deal-badge-discount mega">-${mega.discountPct}%</span>` : ''}
+                            </div>
+                            <button class="mega-deal-buy ${bought ? 'bought' : ''}" ${bought || !canAfford ? 'disabled' : ''} onclick="event.stopPropagation(); Core.buyDailyDeal('mega','${mega.id}')">${bought ? 'Куплено' : `${mega.price} 🏷️`}</button>
+                        </div>
+                    </div>`;
+                }
+
+                const superDeal = this.p.dailyDealsSuper;
+                if (superDeal) {
+                    const bought = !!this.p.dailyDealsBought[superDeal.id];
+                    const canAfford = this.p.caps >= superDeal.price;
+                    html += `
+                    <div class="super-deal-card">
+                        <div class="deal-kicker kicker-super">⚡ СУПЕР АКЦИЯ</div>
+                        <div class="super-deal-main" onclick="Core.showDealInfo('super','${superDeal.id}')">
+                            <div class="super-deal-info">
+                                <div class="super-deal-title">${this.dealRewardChipsHtml(superDeal.rewardData)}</div>
+                                <div class="super-deal-sub">только 1 штука в руки</div>
+                            </div>
+                        </div>
+                        <div class="deal-buy-row">
+                            <div class="deal-price-block">
+                                ${superDeal.discountPct > 0 ? `<span class="deal-price-old">${superDeal.originalPrice} 🪙</span><span class="deal-badge-discount super">-${superDeal.discountPct}%</span>` : ''}
+                            </div>
+                            <button class="super-deal-buy ${bought ? 'bought' : ''}" ${bought || !canAfford ? 'disabled' : ''} onclick="event.stopPropagation(); Core.buyDailyDeal('super','${superDeal.id}')">${bought ? 'Куплено' : `${superDeal.price} 🪙`}</button>
+                        </div>
+                    </div>`;
+                }
+
+                const regular = this.p.dailyDealsRegular || [];
+                html += `<div class="deals-grid-label">🎁 Обычные акции</div><div class="deals-grid">`;
+                regular.forEach(d => {
+                    const bought = !!this.p.dailyDealsBought[d.id];
+                    const canAfford = this.p.caps >= d.price;
+                    html += `
+                    <div class="deal-card deal-ticket" style="--deal-accent:${d.accent || '#00c8ff'};">
+                        <div class="deal-ticket-goods" onclick="Core.showDealInfo('regular','${d.id}')">
+                            ${d.tier === 'rare' ? '<span class="deal-ticket-tag tag-rare">★ редкая</span>' : ''}
+                            <div class="deal-ticket-name">${this.dealRewardChipsHtml(d.rewardData)}</div>
+                        </div>
+                        <div class="deal-ticket-tear"></div>
+                        <div class="deal-ticket-pay">
+                            <div class="deal-price-row">
+                                ${d.discountPct > 0 ? `<span class="deal-price-old">${d.originalPrice} 🪙</span><span class="deal-badge-discount">-${d.discountPct}%</span>` : ''}
+                            </div>
+                            <button class="deal-ticket-buy ${bought ? 'bought' : ''}" ${bought || !canAfford ? 'disabled' : ''} onclick="event.stopPropagation(); Core.buyDailyDeal('regular','${d.id}')">${bought ? '✓' : `${d.price} 🪙`}</button>
+                        </div>
+                    </div>`;
+                });
+                html += `</div></div>`;
+                el.innerHTML = html;
+            },
+
             renderShop() {
                 this.wheelResetIfNewDay();
                 const wSub = document.getElementById('wheel-entry-sub');
@@ -14167,6 +15257,8 @@ startCombat(isBossFight = false) {
                     </div>`;
                 }
                 el.innerHTML = shopHtml;
+                this.renderDailyDeals();
+                this.renderChainDeal();
                 this.renderTokenVault();
                 this.renderMarketEntryLocks();
                 this.renderSkinShop();
@@ -15442,13 +16534,45 @@ startCombat(isBossFight = false) {
                     const wId = season.weaponId;
                     if (!wId || !this.p.weaponsOwned.includes(wId)) return;
                     if (slotIndex > ownerIndex) return; // сезон-владелец уже закончился — не трогаем
+                    // ☢️ БАГФИКС: здесь стояла проверка .includes(49) — индекс элемента в массиве
+                    // наград, а не номер уровня. Но bpClaimedPrem/claimBpReward() везде хранят
+                    // именно НОМЕР УРОВНЯ (50 — награда 50 уровня, см. claimBpReward/premClaimed
+                    // выше), а не индекс (49). Из-за этой опечатки условие НИКОГДА не выполнялось,
+                    // и функция отбирала оружие сезона у абсолютно всех — включая честных
+                    // покупателей Premium/Elite сразу после того, как они его забрали (см.
+                    // restoreSeasonWeaponOffByOneVictims() ниже — компенсация пострадавшим).
                     const legit = slotIndex === ownerIndex && this.p.bpSeasonId === season.id && this.p.bpPremium &&
-                        Array.isArray(this.p.bpClaimedPrem) && this.p.bpClaimedPrem.includes(49);
+                        Array.isArray(this.p.bpClaimedPrem) && this.p.bpClaimedPrem.includes(50);
                     if (legit) return;
                     this.p.weaponsOwned = this.p.weaponsOwned.filter(w => w !== wId);
                     if (this.p.activeWeapon === wId) this.p.activeWeapon = 'fists';
                     const wpnData = DB.weapons.find(w => w.id === wId);
                     this.log(`⚠️ «${wpnData ? wpnData.name : wId}» изъято: это оружие — эксклюзив Premium-дороги сезона «${season.title}» и было получено до того, как этот сезон честно пройден. Оно снова станет доступно всем обычным способом, когда сезон «${season.title}» закончится.`, "system");
+                });
+            },
+
+            // ☢️ ОДНОРАЗОВАЯ КОМПЕНСАЦИЯ БАГА ВЫШЕ (fixSeasonWeaponExploit сравнивал с 49 вместо
+            // 50): у всех, кто честно купил Premium/Elite, дошёл до 50 уровня и нажал «Взять» —
+            // оружие сезона тут же стиралось на следующей же проверке. Доказательство честного
+            // получения — то же самое, на которое опирается сама fixSeasonWeaponExploit(): номер
+            // уровня 50 всё ещё лежит в bpClaimedPrem (claimBpReward() отмечает уровень получённым
+            // и НЕ снимает эту отметку при изъятии оружия — см. fixSeasonWeaponExploit() выше, она
+            // трогает только weaponsOwned/activeWeapon). Если такая отметка есть, а оружия сезона в
+            // арсенале сейчас нет — оно было отобрано ошибочно, возвращаем. Флаг не даёт сработать
+            // повторно.
+            restoreSeasonWeaponOffByOneVictims() {
+                if (this.p.seasonWpnOffByOneFixV1Done) return;
+                this.p.seasonWpnOffByOneFixV1Done = true;
+                if (!this.p.weaponsOwned) return;
+                SEASONS.forEach(season => {
+                    const wId = season.weaponId;
+                    if (!wId || this.p.weaponsOwned.includes(wId)) return;
+                    const legitClaim = this.p.bpSeasonId === season.id &&
+                        Array.isArray(this.p.bpClaimedPrem) && this.p.bpClaimedPrem.includes(50);
+                    if (!legitClaim) return;
+                    this.p.weaponsOwned.push(wId);
+                    const wpnData = DB.weapons.find(w => w.id === wId);
+                    this.log(`🎯 «${wpnData ? wpnData.name : wId}» возвращена в арсенал: она была ошибочно изъята багом проверки Пропуска Пустоши сразу после честного получения на 50 уровне Premium-дороги. Приносим извинения за неудобства!`, "system");
                 });
             },
 
@@ -16322,6 +17446,12 @@ startCombat(isBossFight = false) {
                 if (r.type === 'wpn') {
                     const wpn = DB.weapons.find(w => w.id === r.wpnId);
                     return Sprites.weapon(r.wpnId) || `<span class="trophy-node-badge-icon">${wpn ? wpn.icon : '🔫'}</span>`;
+                }
+                // Скин-награда (используется в "Цепи Поставок") — показываем настоящую модель
+                // скина, как в Гардеробе, а не плоский эмодзи.
+                if (r.type === 'skin' && r.skinId) {
+                    const skin = DB.skins.find(s => s.id === r.skinId);
+                    if (skin) return `<span class="chain-node-skin-visual">${Sprites.player(skin.id)}</span>`;
                 }
                 return `<span class="trophy-node-badge-icon">${this.rewardIcon(r)}</span>`;
             },
