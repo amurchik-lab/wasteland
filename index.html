@@ -10061,12 +10061,12 @@ padding-top:9vh;
                 });
             },
 
-            // Активация промокода на сервере — источник истины теперь Postgres, а не localStorage
-            redeemPromo(code, maxUses) {
+            // Активация промокода на сервере — источник истины теперь Postgres, а не localStorage.
+            // Лимит использований (max_uses) теперь хранится в таблице promo_codes на сервере,
+            // а не приходит параметром от клиента — иначе его можно было обойти прямым вызовом RPC.
+            redeemPromo(code) {
                 if (!this.ready) return Promise.resolve({ ok: false, reason: 'offline' });
-                // Infinity не сериализуется в JSON (становится null) — подменяем на максимум int4 в Postgres
-                const safeMaxUses = (maxUses === Infinity || maxUses === undefined) ? 2147483647 : maxUses;
-                return this.client.rpc('redeem_promo', { p_code: code, p_max_uses: safeMaxUses })
+                return this.client.rpc('redeem_promo', { p_code: code })
                     .then(({ data, error }) => {
                         if (error) return { ok: false, reason: error.message };
                         return data;
@@ -10906,7 +10906,7 @@ padding-top:9vh;
 
                 if (Cloud.ready) {
                     // Облако подключено — лимит и повтор проверяются на сервере (честно, на всех устройствах сразу)
-                    Cloud.redeemPromo(promo.code, promo.maxUses).then(result => {
+                    Cloud.redeemPromo(promo.code).then(result => {
                         if (!result.ok) {
                             Sound.play('click');
                             let msg = result.reason === 'already_redeemed' ? '⚠️ Этот промокод уже активирован на вашем аккаунте'
