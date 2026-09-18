@@ -9484,34 +9484,40 @@ padding-top:9vh;
                     { id: "rare", name: "Редкий", color: "#39ff14", upgradeChance: 0.60,
                         countWeights: [ { n: 1, w: 90 }, { n: 2, w: 10 } ],
                         table: [
-                            { item: "Крышки x6", chance: 0.28 },
-                            { item: "Запчасти x4", chance: 0.20 },
-                            { item: "Тяжелый Хлам x2", chance: 0.16 },
-                            { item: "🏷️ Ваучеры x1", chance: 0.14 },
-                            { item: "💉 Мед-Пакет x1", chance: 0.12 },
-                            { item: "🔋 Микро-батарея x1", chance: 0.10 }
+                            { item: "Крышки x6", chance: 0.24 },
+                            { item: "Запчасти x4", chance: 0.18 },
+                            { item: "Тяжелый Хлам x2", chance: 0.14 },
+                            { item: "Сырое мясо x2", chance: 0.10 },
+                            { item: "🏷️ Ваучеры x1", chance: 0.12 },
+                            { item: "💉 Мед-Пакет x1", chance: 0.10 },
+                            { item: "🔋 Микро-батарея x1", chance: 0.08 },
+                            { item: "Ядерная Батарея x1", chance: 0.04 }
                         ] },
                     { id: "superrare", name: "Супер Редкий", color: "#00c8ff", upgradeChance: 0.40,
                         countWeights: [ { n: 1, w: 70 }, { n: 2, w: 25 }, { n: 3, w: 5 } ],
                         table: [
-                            { item: "Крышки x10", chance: 0.24 },
-                            { item: "🏷️ Ваучеры x1", chance: 0.18 },
-                            { item: "Ядерная Батарея x1", chance: 0.14 },
-                            { item: "💉 Мед-Пакет x1", chance: 0.12 },
-                            { item: "🧬 Сыворотка ОЗ (+10 к Макс ОЗ)", chance: 0.10 },
-                            { item: "Жетон Схрона x1", chance: 0.12 },
-                            { item: "🧰 Гаджет (случайное оружие)", chance: 0.10 }
+                            { item: "Крышки x10", chance: 0.20 },
+                            { item: "🏷️ Ваучеры x1", chance: 0.16 },
+                            { item: "Ядерная Батарея x1", chance: 0.12 },
+                            { item: "💉 Мед-Пакет x1", chance: 0.10 },
+                            { item: "🧬 Сыворотка ОЗ (+10 к Макс ОЗ)", chance: 0.09 },
+                            { item: "Жетон Схрона x1", chance: 0.10 },
+                            { item: "🧰 Гаджет (случайное оружие)", chance: 0.09 },
+                            { item: "Тяжелый Хлам x5", chance: 0.08 },
+                            { item: "Сырое мясо x4", chance: 0.06 }
                         ] },
                     { id: "epic", name: "Эпический", color: "#bf5af2", upgradeChance: 0.24,
                         countWeights: [ { n: 1, w: 65 }, { n: 2, w: 30 }, { n: 3, w: 5 } ],
                         table: [
-                            { item: "Крышки x10", chance: 0.20 },
-                            { item: "🏷️ Ваучеры x1", chance: 0.18 },
-                            { item: "Жетон Схрона x1", chance: 0.15 },
-                            { item: "🧰 Гаджет (случайное оружие)", chance: 0.16 },
-                            { item: "🧬 Сыворотка ОЗ (+10 к Макс ОЗ)", chance: 0.11 },
-                            { item: "⚡ Мегасила (случайное оружие)", chance: 0.10 },
-                            { item: "🔫 Оружие (случайное по уровню)", chance: 0.10, special: "weapon" }
+                            { item: "Крышки x10", chance: 0.16 },
+                            { item: "🏷️ Ваучеры x1", chance: 0.14 },
+                            { item: "Жетон Схрона x1", chance: 0.12 },
+                            { item: "🧰 Гаджет (случайное оружие)", chance: 0.14 },
+                            { item: "🧬 Сыворотка ОЗ (+10 к Макс ОЗ)", chance: 0.09 },
+                            { item: "⚡ Мегасила (случайное оружие)", chance: 0.09 },
+                            { item: "🔫 Оружие (случайное по уровню)", chance: 0.10, special: "weapon" },
+                            { item: "🛡️ Комплект брони (случайный)", chance: 0.08, special: "armor" },
+                            { item: "Ядерная Батарея x2", chance: 0.08 }
                         ] },
                     { id: "mythic", name: "Мифический", color: "#ff2a5f", upgradeChance: 0.12,
                         countWeights: [ { n: 2, w: 55 }, { n: 3, w: 35 }, { n: 4, w: 10 } ],
@@ -14190,19 +14196,19 @@ startCombat(isBossFight = false) {
 
             equipWeapon(wpnId) { Sound.play('click'); this.p.activeWeapon = wpnId; this.log(`⚔️ Экипировано: ${DB.weapons.find(w => w.id === wpnId).name}`); this.plasmaHeat = 0; this.plasmaHeatLastTick = Date.now(); if(this.combatState) { this.abilityCooldowns = {}; this.lastAttackType = null; this.sameAttackStreak = 0; this.renderCombatAbilities(); } this.updatePlasmaHeatUI(); this.save(); this.updateUI(); },
             
-            // Стоимость Жетонов Схрона для финального апгрейда (9 -> 10 силы), по редкости оружия.
+            // Стоимость Жетонов Схрона за апгрейд, по редкости оружия (масштабируется по уровню силы).
             TOKEN_COST_BY_TIER: { "Стартовое": 5, "Обычное": 10, "Редкое": 20, "Эпическое": 35, "Легендарное": 50 },
             upgradeWeapon(wpnId, cost, tokenCost) {
                 tokenCost = tokenCost || 0;
                 let curUpLvl = this.p.wpnUpgrades[wpnId] || 0;
                 if (curUpLvl >= 10) return alert("Оружие уже достигло максимального уровня модернизации (10)!");
                 if ((this.p.inv["Запчасти"] || 0) < cost) return alert("Недостаточно запчастей для улучшения ствола!");
-                if (tokenCost > 0 && (this.p.inv["Жетон Схрона"] || 0) < tokenCost) return alert(`Для финального апгрейда (10 силы) не хватает Жетонов Схрона! Нужно: ${tokenCost}.`);
+                if (tokenCost > 0 && (this.p.inv["Жетон Схрона"] || 0) < tokenCost) return alert(`Для апгрейда не хватает Жетонов Схрона! Нужно: ${tokenCost}.`);
                 this.p.inv["Запчасти"] -= cost;
                 if (tokenCost > 0) this.p.inv["Жетон Схрона"] -= tokenCost;
                 this.p.wpnUpgrades[wpnId] = (this.p.wpnUpgrades[wpnId] || 0) + 1;
                 Sound.play('craftUpgrade');
-                this.log(tokenCost > 0 ? `🔺 Запчасти и ${tokenCost} 💠 Жетонов Схрона потрачены. Оружие доведено до максимальной силы!` : `🔺 Запчасти распределены. Оружие модернизировано!`);
+                this.log(tokenCost > 0 ? `🔺 Запчасти и ${tokenCost} 💠 Жетонов Схрона потрачены. Оружие модернизировано!` : `🔺 Запчасти распределены. Оружие модернизировано!`);
                 this.save(); this.updateUI();
             },
 
@@ -14312,11 +14318,10 @@ startCombat(isBossFight = false) {
                     let isMaxed = upLvl >= maxUpLvl;
                     // Стоимость апгрейда в запчастях увеличена в 4 раза для всех уровней силы.
                     let upgradeCost = (upLvl + 1) * 5 * 4;
-                    // Финальный апгрейд до 10 силы дополнительно требует Жетоны Схрона —
-                    // количество зависит от редкости оружия (см. TOKEN_COST_BY_TIER).
+                    // Каждый апгрейд силы дополнительно требует Жетоны Схрона — количество растёт
+                    // с уровнем силы и зависит от редкости оружия (см. TOKEN_COST_BY_TIER).
                     let nextUpLvl = upLvl + 1;
-                    let isFinalUpgrade = nextUpLvl >= maxUpLvl;
-                    let upgradeTokenCost = isFinalUpgrade ? (this.TOKEN_COST_BY_TIER[wpn.tier] || 0) : 0;
+                    let upgradeTokenCost = Math.max(1, Math.ceil((this.TOKEN_COST_BY_TIER[wpn.tier] || 0) * nextUpLvl / maxUpLvl));
                     let pipTotal = maxUpLvl;
                     let pipFilled = Math.min(upLvl, pipTotal);
                     let pipsHtml = Array.from({length: pipTotal}, (_, i) => `<div class="weapon-pip ${i < pipFilled ? 'filled' : ''}"></div>`).join('');
@@ -18856,13 +18861,13 @@ startCombat(isBossFight = false) {
                     if (allOwned) {
                         const vouchers = this.VOUCHER_COMP_BY_TIER[picked.tier] || 2;
                         this.p.vouchers += vouchers;
-                        return { icon: '🏷️', name: `«${picked.name}» уже есть (собрано всё оружие) — компенсация: Ваучеры x${vouchers}` };
+                        return { icon: '🏷️', name: `Ваучеры x${vouchers}` };
                     }
                     const bp = DB.blueprints.find(b => b.targetId === picked.id);
                     const tokenCost = (bp && bp.cost && bp.cost["Жетон Схрона"]) || 0;
                     const tokens = Math.max(1, Math.ceil(tokenCost * 0.15));
                     this.p.inv["Жетон Схрона"] = (this.p.inv["Жетон Схрона"] || 0) + tokens;
-                    return { icon: '💠', name: `«${picked.name}» уже есть — компенсация: Жетон Схрона x${tokens}` };
+                    return { icon: '💠', name: `Жетон Схрона x${tokens}` };
                 }
                 this.p.weaponsOwned.push(picked.id);
                 // Реальная модель оружия (SVG, та же, что и в Арсенале), а не эмодзи-иконка —
@@ -18891,7 +18896,7 @@ startCombat(isBossFight = false) {
                     if (allOwned) {
                         const vouchers = this.VOUCHER_COMP_BY_TIER[picked.tier] || 2;
                         this.p.vouchers += vouchers;
-                        return { icon: '🏷️', name: `«${picked.name}» уже есть (собрана вся броня) — компенсация: Ваучеры x${vouchers}` };
+                        return { icon: '🏷️', name: `Ваучеры x${vouchers}` };
                     }
                     const bp = DB.armorBlueprints.find(b => b.targetId === picked.id);
                     let compParts = [];
@@ -18902,7 +18907,7 @@ startCombat(isBossFight = false) {
                             compParts.push(`${res} x${comp}`);
                         });
                     }
-                    return { icon: '🔩', name: `«${picked.name}» уже есть — компенсация: ${compParts.join(', ') || 'ресурсы'}` };
+                    return { icon: '🔩', name: `${compParts.join(', ') || 'Ресурсы'}` };
                 }
                 this.p.armorOwned.push(picked.id);
                 return { icon: picked.icon, name: `Новая броня: ${picked.name}!` };
