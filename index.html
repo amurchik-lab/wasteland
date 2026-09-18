@@ -551,6 +551,129 @@
         .crate.starcrate-rolling { animation: crateShakeIntense 0.09s infinite !important; }
         .found-box-card.starcrate-card { cursor: pointer; border: 1px solid color-mix(in srgb, var(--box-color) 45%, transparent); box-shadow: 0 0 16px color-mix(in srgb, var(--box-color) 28%, transparent); transition: transform 0.15s ease; }
         .found-box-card.starcrate-card:active { transform: scale(0.985); }
+
+        /* ============================================================
+           🌟 МУТАЦИОННЫЙ ЯЩИК — расширенные анимации (префикс scfx-).
+           Экран улучшения (#starcrate-overlay) и открытие (#gacha-overlay.scfx-on): два слоя
+           эффектов внутри оверлея — .back (лучи, искры, свет под ящиком) и .front (вспышки,
+           кольца, частицы поверх ящика). Слои строятся из JS (см. Core.scfx*), pointer-events
+           отключены, так что на нажатия кнопок они не влияют.
+           ============================================================ */
+        #starcrate-overlay.active { animation: scfxOverlayIn 0.35s ease-out; }
+        @keyframes scfxOverlayIn { from { opacity: 0; } to { opacity: 1; } }
+        #starcrate-overlay .crate-scene { position: relative; z-index: 3; animation: scfxFloat 3.4s ease-in-out infinite; }
+        #gacha-overlay.scfx-on .crate-scene { position: relative; z-index: 3; }
+        #starcrate-overlay .starcrate-tier-name, #starcrate-overlay .starcrate-chance-line, #starcrate-overlay .starcrate-btn-row { position: relative; z-index: 3; }
+        #gacha-overlay.scfx-on .reward-card { z-index: 4; }
+        @keyframes scfxFloat { 0%, 100% { translate: 0 0; } 50% { translate: 0 -8px; } }
+
+        .scfx-layer { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+        .scfx-layer.back { z-index: 1; }
+        .scfx-layer.front { z-index: 5; }
+        body.perf-mode .scfx-layer { display: none !important; }
+        body.perf-mode #starcrate-overlay .crate-scene { animation: none !important; }
+
+        /* --- Подложка: вращающиеся лучи света, мягкое свечение «пола» и всплывающие искры --- */
+        .scfx-rays { position: absolute; left: var(--cx, 50%); top: var(--cy, 50%); width: 110vmax; height: 110vmax; margin: -55vmax 0 0 -55vmax; border-radius: 50%;
+            background: repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--scfx-color, #fff) 62%, transparent) 0deg 5deg, transparent 5deg 15deg);
+            -webkit-mask-image: radial-gradient(circle closest-side, #000 0%, rgba(0,0,0,0.55) 32%, transparent 100%);
+            mask-image: radial-gradient(circle closest-side, #000 0%, rgba(0,0,0,0.55) 32%, transparent 100%);
+            opacity: var(--scfx-ray-op, 0.5); animation: scfxSpin 26s linear infinite; will-change: transform; transition: left 0.45s ease, top 0.45s ease, opacity 0.35s; }
+        .scfx-rays.b { background: repeating-conic-gradient(from 7deg, color-mix(in srgb, var(--scfx-color, #fff) 48%, transparent) 0deg 3deg, transparent 3deg 22deg); opacity: calc(var(--scfx-ray-op, 0.5) * 0.8); animation: scfxSpin 38s linear infinite reverse; }
+        @keyframes scfxSpin { to { transform: rotate(360deg); } }
+        @keyframes scfxHue { to { filter: hue-rotate(360deg); } }
+        .scfx-layer.scfx-ultra .scfx-rays { animation: scfxSpin 26s linear infinite, scfxHue 6s linear infinite; }
+        .scfx-layer.scfx-ultra .scfx-rays.b { animation: scfxSpin 38s linear infinite reverse, scfxHue 6s linear infinite; }
+        /* Зарядка: лучи «набирают силу» (масштаб — отдельным свойством scale, чтобы не сбивать вращение) */
+        .scfx-layer.scfx-charging .scfx-rays { animation: scfxSpin 26s linear infinite, scfxRayCharge 1.25s ease-in forwards; }
+        .scfx-layer.scfx-charging .scfx-rays.b { animation: scfxSpin 38s linear infinite reverse, scfxRayCharge 1.25s ease-in forwards; }
+        .scfx-layer.scfx-ultra.scfx-charging .scfx-rays { animation: scfxSpin 26s linear infinite, scfxHue 6s linear infinite, scfxRayCharge 1.25s ease-in forwards; }
+        .scfx-layer.scfx-ultra.scfx-charging .scfx-rays.b { animation: scfxSpin 38s linear infinite reverse, scfxHue 6s linear infinite, scfxRayCharge 1.25s ease-in forwards; }
+        @keyframes scfxRayCharge { from { scale: 1; } to { scale: 1.4; opacity: 1; } }
+        /* Вспышка при открытии: лучи резко разлетаются и возвращаются к обычной яркости */
+        .scfx-layer.scfx-boom .scfx-rays { animation: scfxSpin 26s linear infinite, scfxRayBoom 1.5s ease-out; }
+        .scfx-layer.scfx-boom .scfx-rays.b { animation: scfxSpin 38s linear infinite reverse, scfxRayBoom 1.5s ease-out; }
+        .scfx-layer.scfx-ultra.scfx-boom .scfx-rays { animation: scfxSpin 26s linear infinite, scfxHue 6s linear infinite, scfxRayBoom 1.5s ease-out; }
+        .scfx-layer.scfx-ultra.scfx-boom .scfx-rays.b { animation: scfxSpin 38s linear infinite reverse, scfxHue 6s linear infinite, scfxRayBoom 1.5s ease-out; }
+        @keyframes scfxRayBoom { 0% { scale: 0.55; opacity: 0; } 18% { scale: 1.6; opacity: 1; } 100% { scale: 1; } }
+        .scfx-layer.scfx-dim .scfx-rays, .scfx-layer.scfx-dim .scfx-floor { opacity: 0 !important; }
+        .scfx-floor { position: absolute; left: var(--cx, 50%); top: calc(var(--cy, 50%) + 46px); width: 230px; height: 50px; margin-left: -115px; border-radius: 50%;
+            background: radial-gradient(ellipse closest-side, color-mix(in srgb, var(--scfx-color, #fff) 78%, transparent) 0%, transparent 100%);
+            animation: scfxFloor 3.4s ease-in-out infinite; transition: left 0.45s ease, top 0.45s ease; }
+        .scfx-layer.scfx-ultra .scfx-floor { animation: scfxFloor 3.4s ease-in-out infinite, scfxHue 6s linear infinite; }
+        @keyframes scfxFloor { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(0.8); opacity: 0.5; } }
+        .scfx-spark { position: absolute; left: calc(var(--cx, 50%) + var(--ox, 0px)); top: calc(var(--cy, 50%) + var(--oy, 0px)); width: var(--s, 4px); height: var(--s, 4px); border-radius: 50%; background: var(--c, #fff); box-shadow: 0 0 calc(var(--s, 4px) * 3) var(--c, #fff); opacity: 0; animation: scfxRise var(--d, 4s) linear var(--dl, 0s) infinite; }
+        @keyframes scfxRise { 0% { opacity: 0; transform: translate(0, 0) scale(0.4); } 15% { opacity: 0.95; } 70% { opacity: 0.7; } 100% { opacity: 0; transform: translate(var(--dx, 0px), -230px) scale(1); } }
+
+        /* --- Частицы, кольца, вспышки (одноразовые, удаляются из DOM по таймеру) --- */
+        .scfx-p { position: absolute; left: var(--x); top: var(--y); width: var(--s, 6px); height: var(--s, 6px); margin: calc(var(--s, 6px) / -2) 0 0 calc(var(--s, 6px) / -2); border-radius: 50%; background: var(--c, #fff); box-shadow: 0 0 10px var(--c, #fff); opacity: 0; animation: scfxFly var(--d, 0.9s) cubic-bezier(0.12, 0.75, 0.3, 1) var(--dl, 0s) forwards; }
+        @keyframes scfxFly { 0% { opacity: 1; transform: translate(0, 0) scale(1) rotate(0deg); } 70% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--tx, 0px), var(--ty, 0px)) scale(0.25) rotate(var(--rot, 0deg)); } }
+        .scfx-p.star { border-radius: 0; box-shadow: none; clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); }
+        .scfx-p.in { animation: scfxIn var(--d, 0.5s) cubic-bezier(0.5, 0, 0.9, 0.6) var(--dl, 0s) forwards; }
+        @keyframes scfxIn { 0% { opacity: 0; transform: translate(var(--sx, 0px), var(--sy, 0px)) scale(0.5); } 25% { opacity: 1; } 100% { opacity: 0; transform: translate(0, 0) scale(1.3); } }
+        .scfx-p.conf { border-radius: 1px; height: calc(var(--s, 6px) * 1.8); box-shadow: none; animation: scfxConfetti var(--d, 1.4s) linear var(--dl, 0s) forwards; }
+        @keyframes scfxConfetti {
+            0% { opacity: 1; transform: translate(0, 0) rotate(0deg); animation-timing-function: cubic-bezier(0.2, 0.7, 0.4, 1); }
+            35% { opacity: 1; transform: translate(calc(var(--tx, 0px) * 0.55), var(--uy, -120px)) rotate(calc(var(--rot, 0deg) * 0.4)); animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.6); }
+            100% { opacity: 0; transform: translate(var(--tx, 0px), var(--ty, 200px)) rotate(var(--rot, 0deg)); }
+        }
+        .scfx-p.rain { animation-name: scfxRain; animation-timing-function: linear; }
+        @keyframes scfxRain { 0% { opacity: 1; transform: translate(0, 0) rotate(0deg); } 50% { transform: translate(calc(var(--tx, 0px) * -0.5), calc(var(--ty, 800px) * 0.5)) rotate(calc(var(--rot, 0deg) * 0.5)); } 88% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--tx, 0px), var(--ty, 800px)) rotate(var(--rot, 0deg)); } }
+        .scfx-ring { position: absolute; left: var(--x); top: var(--y); width: 20px; height: 20px; margin: -10px 0 0 -10px; border-radius: 50%; border: 3px solid var(--c, #fff); box-shadow: 0 0 18px var(--c, #fff), inset 0 0 14px var(--c, #fff); opacity: 0; animation: scfxRing var(--d, 0.9s) cubic-bezier(0.1, 0.6, 0.3, 1) var(--dl, 0s) forwards; }
+        @keyframes scfxRing { 0% { opacity: 0.95; transform: scale(0.4); border-width: 5px; } 100% { opacity: 0; transform: scale(var(--sc, 18)); border-width: 1px; } }
+        .scfx-ring.in { animation-name: scfxRingIn; animation-timing-function: cubic-bezier(0.4, 0, 0.9, 0.7); }
+        @keyframes scfxRingIn { 0% { opacity: 0; transform: scale(var(--sc, 8)); } 25% { opacity: 0.85; } 100% { opacity: 0; transform: scale(0.5); } }
+        .scfx-flash { position: absolute; inset: 0; opacity: 0; background: radial-gradient(circle at var(--x) var(--y), rgba(255,255,255,0.95) 0%, var(--c, #fff) 28%, transparent 72%); animation: scfxFlash var(--d, 0.8s) ease-out forwards; }
+        @keyframes scfxFlash { 0% { opacity: 0; } 12% { opacity: var(--op, 0.9); } 100% { opacity: 0; } }
+        .scfx-chargeglow { position: absolute; left: var(--x); top: var(--y); width: 170px; height: 170px; margin: -85px 0 0 -85px; border-radius: 50%; background: radial-gradient(circle, #fff 0%, var(--c, #fff) 26%, transparent 68%); mix-blend-mode: screen; opacity: 0; animation: scfxChargeGlow var(--d, 1.2s) ease-in forwards; }
+        @keyframes scfxChargeGlow { 0% { opacity: 0; transform: scale(0.4); } 70% { opacity: 0.7; transform: scale(1.25); } 100% { opacity: 0.9; transform: scale(1.7); } }
+        .scfx-pillar { position: absolute; left: var(--x); top: 0; height: var(--y); width: 110px; margin-left: -55px; background: linear-gradient(to top, color-mix(in srgb, var(--c, #fff) 80%, #fff) 0%, color-mix(in srgb, var(--c, #fff) 42%, transparent) 55%, transparent 100%); filter: blur(6px); transform-origin: 50% 100%; opacity: 0; animation: scfxPillar 1.1s ease-out forwards; }
+        @keyframes scfxPillar { 0% { opacity: 0; transform: scaleX(0.1) scaleY(0.2); } 20% { opacity: 0.95; transform: scaleX(1) scaleY(1); } 100% { opacity: 0; transform: scaleX(1.7) scaleY(1); } }
+        .scfx-text { position: absolute; left: var(--x); top: var(--y); font-size: 20px; font-weight: 900; letter-spacing: 1px; white-space: nowrap; color: var(--c, #fff); text-shadow: 0 0 14px var(--c, #fff), 0 2px 6px rgba(0,0,0,0.8); opacity: 0; animation: scfxText 1.4s ease-out forwards; }
+        @keyframes scfxText { 0% { opacity: 0; transform: translate(-50%, 20px) scale(0.6); } 18% { opacity: 1; transform: translate(-50%, -4px) scale(1.2); } 30% { transform: translate(-50%, 0) scale(1); } 80% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -46px) scale(1); } }
+        .scfx-crack { position: absolute; left: var(--x); top: var(--y); width: 150px; height: 140px; margin: -70px 0 0 -75px; }
+        .scfx-crack svg { width: 100%; height: 100%; overflow: visible; }
+        .scfx-crack path { fill: none; stroke: #fff; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 6px var(--c, #fff)); stroke-dasharray: 160; stroke-dashoffset: 160; animation: scfxCrack 0.3s ease-out forwards, scfxCrackFade 0.45s ease-in 0.55s forwards; }
+        @keyframes scfxCrack { to { stroke-dashoffset: 0; } }
+        @keyframes scfxCrackFade { to { opacity: 0; } }
+
+        /* --- Тряска сцены, зарядка ящика, подпись редкости и звёзды --- */
+        #starcrate-overlay .crate-scene.scfx-shake { animation: scfxFloat 3.4s ease-in-out infinite, scfxShake 0.55s ease-out; }
+        #gacha-overlay .crate-scene.scfx-shake { animation: scfxShake 0.55s ease-out; }
+        @keyframes scfxShake {
+            0%, 100% { transform: translate(0, 0); }
+            12% { transform: translate(calc(var(--shk, 6px) * -1), calc(var(--shk, 6px) * 0.5)); }
+            26% { transform: translate(var(--shk, 6px), calc(var(--shk, 6px) * -0.6)); }
+            40% { transform: translate(calc(var(--shk, 6px) * -0.7), calc(var(--shk, 6px) * -0.4)); }
+            54% { transform: translate(calc(var(--shk, 6px) * 0.6), calc(var(--shk, 6px) * 0.5)); }
+            70% { transform: translate(calc(var(--shk, 6px) * -0.3), 0); }
+            85% { transform: translate(calc(var(--shk, 6px) * 0.2), 0); }
+        }
+        .crate.scfx-charging { animation: scfxCharge var(--ct, 1.25s) cubic-bezier(0.5, 0, 0.8, 0.6) forwards !important; }
+        @keyframes scfxCharge {
+            0% { transform: rotateZ(0deg) scale(1); }
+            14% { transform: rotateZ(-3deg) scale(1.02); }
+            28% { transform: rotateZ(4deg) scale(1.04); }
+            42% { transform: rotateZ(-6deg) scale(1.07); }
+            56% { transform: rotateZ(7deg) scale(1.10); }
+            70% { transform: rotateZ(-9deg) scale(1.13); }
+            84% { transform: rotateZ(10deg) scale(1.16); }
+            100% { transform: rotateZ(0deg) scale(1.22); }
+        }
+        .starcrate-tier-name { animation: scfxNameGlow 2.4s ease-in-out infinite; }
+        @keyframes scfxNameGlow { 0%, 100% { text-shadow: 0 0 10px currentColor; } 50% { text-shadow: 0 0 24px currentColor, 0 0 40px currentColor; } }
+        .starcrate-tier-name.scfx-name-pop { animation: scfxNamePop 0.75s cubic-bezier(0.2, 1.4, 0.4, 1), scfxNameGlow 2.4s ease-in-out 0.75s infinite; }
+        @keyframes scfxNamePop { 0% { transform: scale(0.3); opacity: 0; letter-spacing: 8px; filter: blur(6px); } 60% { transform: scale(1.25); opacity: 1; filter: blur(0); } 100% { transform: scale(1); letter-spacing: 0; } }
+        .starcrate-stars-top.scfx-stars-pop { animation: scfxStarsPop 0.7s cubic-bezier(0.2, 1.4, 0.4, 1); }
+        .starcrate-stars-top.sst-ultra.scfx-stars-pop { animation: scfxStarsPop 0.7s cubic-bezier(0.2, 1.4, 0.4, 1), starTopHueShift 3s linear infinite; }
+        @keyframes scfxStarsPop { 0% { transform: translateX(-50%) scale(0.4); opacity: 0; } 55% { transform: translateX(-50%) scale(1.4); opacity: 1; } 100% { transform: translateX(-50%) scale(1); } }
+
+        /* --- Карточка награды: свечение цвета редкости, блик, парящая иконка --- */
+        #gacha-overlay.scfx-on .reward-card { border-color: color-mix(in srgb, var(--reward-color, #fff) 65%, #fff 8%); box-shadow: 0 0 34px color-mix(in srgb, var(--reward-color, #fff) 42%, transparent), 0 0 80px color-mix(in srgb, var(--reward-color, #fff) 22%, transparent), inset 0 1px 0 rgba(255,255,255,0.2); }
+        #gacha-overlay.scfx-on .reward-card::after { content: ''; position: absolute; inset: 0; border-radius: 22px; pointer-events: none; background: linear-gradient(105deg, transparent 38%, rgba(255,255,255,0.2) 50%, transparent 62%); background-size: 260% 100%; background-position: 160% 0; animation: scfxSheen 3s ease-in-out 0.7s infinite; }
+        @keyframes scfxSheen { 0% { background-position: 160% 0; } 55%, 100% { background-position: -60% 0; } }
+        #gacha-overlay.scfx-on .reward-icon { animation: rewardIconBounce 0.6s cubic-bezier(0.25, 1.5, 0.4, 1), scfxIconFloat 2.6s ease-in-out 0.6s infinite; filter: drop-shadow(0 0 14px var(--reward-color, #fff)) drop-shadow(0 4px 8px rgba(0,0,0,0.5)); }
+        @keyframes scfxIconFloat { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-6px) scale(1.05); } }
         .boxpick-head { text-align: center; margin-bottom: 22px; }
         .boxpick-title { font-size: 15px; font-weight: 900; color: #fff; margin-bottom: 4px; }
         .boxpick-sub { font-size: 12px; color: var(--text-muted); }
@@ -8448,6 +8571,23 @@ padding-top:9vh;
                     ? { name: `🦋 Питомец сезона: «${seasonPetDef.name}»`, type: "season_pet", petId: seasonPetId }
                     : { name: "🐾 Новый Питомец Сезона (скоро)", type: "season_pet", petId: null }
             ];
+            // 🐕 3 сезон: награды Доп. Пропуска усилены примерно на +20% (округление до целого),
+            // а дешёвая награда 5 этапа («Тяжелый Хлам x20») заменена на 🏷️ 80 ваучеров.
+            // 10 этап (питомец сезона) не трогаем — он остаётся из defs выше.
+            if (season.id === "season_3") {
+                const s3 = [
+                    { name: "🪙 Крышки x300", type: "caps", qty: 300 },                                    // было 250
+                    { name: "💠 Жетон Схрона x25", type: "item", item: "Жетон Схрона", qty: 25 },         // было 10
+                    { name: "☢️ Ядерная Батарея x7", type: "item", item: "Ядерная Батарея", qty: 7 },     // было 6
+                    { name: "🧬 Сыворотка ОЗ x5", type: "maxhp", qty: 5 },                                 // было 3
+                    { name: "🏷️ Ваучеры x80", type: "voucher", qty: 80 },                                 // было «Тяжелый Хлам x20»
+                    { name: "🪙 Крышки x500", type: "caps", qty: 500 },                                    // было 450
+                    { name: "💠 Жетон Схрона x30", type: "item", item: "Жетон Схрона", qty: 30 },         // было 16
+                    { name: "💉 Мед-Пакет x12", type: "hp_pack", qty: 12 },                                // было 10
+                    { name: "🗝️ Реликварий Пустоши x2", type: "relic_wasteland", qty: 2 }                  // 2 × 1.2 = 2.4 → 2
+                ];
+                s3.forEach((r, i) => { defs[i] = r; });
+            }
             return defs.map((reward, i) => ({ lvl: i + 1, reward }));
         };
 
@@ -19129,6 +19269,8 @@ startCombat(isBossFight = false) {
                 this.log(`🗝️ Реликварий Пустоши — приз ${this._relicQueueIndex + 1}/${this._relicQueueTotal}: ${r.name}`, "loot");
                 this.save();
                 this.updateUI();
+                // 🌟 Мутационный ящик: «выскакивание» карточки и вспышка звёзд на каждом призе
+                this.scfxRewardPop(this._relicQueueIndex > 0);
             },
 
             // Тап по кнопке карточки награды Реликвария — переход к следующему призу очереди.
@@ -19175,6 +19317,7 @@ startCombat(isBossFight = false) {
                 rewardIcon.style.display = 'none';
                 rName.style.display = 'none';
                 rTitle.textContent = `🎉 Итог вскрытия: ${this._relicQueueTotal} наград`;
+                this.scfxSummaryPop(); // 🌟 Мутационный ящик: праздничный дождь конфетти
 
                 const groups = this.buildRelicSummaryGroups();
                 summaryList.innerHTML = groups.map(g => `
@@ -19214,6 +19357,15 @@ startCombat(isBossFight = false) {
             closeGacha() {
                 const gachaOverlay = document.getElementById('gacha-overlay');
                 gachaOverlay.style.display = 'none';
+                if (this._scfxActive) {
+                    // Открытие Мутационного ящика закончено — убираем слои эффектов и служебные классы
+                    this._scfxActive = false;
+                    gachaOverlay.classList.remove('scfx-on');
+                    this.scfxClear(gachaOverlay);
+                    const rc = document.getElementById('gacha-reward'); if (rc) rc.style.animation = '';
+                    const ri = document.getElementById('reward-icon'); if (ri) ri.style.animation = '';
+                    const crateEl = document.getElementById('gacha-crate'); if (crateEl) crateEl.classList.remove('scfx-charging');
+                }
                 const starsTopEl = document.getElementById('gacha-stars-top');
                 if (starsTopEl) { starsTopEl.textContent = ''; starsTopEl.classList.remove('sst-ultra', 'sst-hidden'); }
                 if (this._openingStarCrateIdx !== null && this._openingStarCrateIdx !== undefined) {
@@ -19359,6 +19511,244 @@ startCombat(isBossFight = false) {
             // раньше делила один и тот же силуэт с Легендарным (оба указывали на Тир 5).
             STAR_VISUAL_TIER: [1, 2, 3, 4, 5, 6],
 
+            // ================= 🌟 МУТАЦИОННЫЙ ЯЩИК: расширенные анимации (префикс scfx) =================
+            // Чисто визуальный слой: шансы улучшения, таблицы призов и очередь наград (см. tapStarCrate /
+            // openStarCrateInstance / showNextRelicReward) он не трогает. Эффекты рисуются в двух слоях
+            // внутри оверлея: .scfx-layer.back (лучи света, искры, свечение под ящиком) и
+            // .scfx-layer.front (вспышки, кольца, частицы поверх ящика). Чем выше редкость ящика (lvl 0..5) —
+            // тем больше частиц, ярче лучи и сильнее тряска. Ультра — радужные частицы и лучи.
+            // В режиме слабых устройств (body.perf-mode) слои не создаются вообще.
+            _scfxRainbow: ['#ff2a5f', '#ffb703', '#39ff14', '#00f0ff', '#bf5af2', '#ffffff'],
+            scfxEnabled() { return !document.body.classList.contains('perf-mode'); },
+            scfxR(a, b) { return a + Math.random() * (b - a); },
+            // Цвет одной частицы: у Ультра — случайный из радуги, у остальных — цвет редкости (иногда белый)
+            scfxPickColor(color, lvl) {
+                if (lvl >= 5) return this._scfxRainbow[Math.floor(Math.random() * this._scfxRainbow.length)];
+                return Math.random() < 0.3 ? '#ffffff' : color;
+            },
+            scfxLayer(overlay, kind) {
+                let el = Array.from(overlay.children).find(c => c.classList && c.classList.contains('scfx-layer') && c.classList.contains(kind));
+                if (!el) {
+                    el = document.createElement('div');
+                    el.className = 'scfx-layer ' + kind;
+                    if (kind === 'back') overlay.insertBefore(el, overlay.firstChild); else overlay.appendChild(el);
+                }
+                return el;
+            },
+            // Полная очистка эффектов оверлея (при закрытии экрана / перед новым запуском)
+            scfxClear(overlay) {
+                if (!overlay) return;
+                Array.from(overlay.children).forEach(c => {
+                    if (c.classList && c.classList.contains('scfx-layer')) { c.innerHTML = ''; c.classList.remove('scfx-charging', 'scfx-dim', 'scfx-boom', 'scfx-ultra'); }
+                });
+                const scene = overlay.querySelector('.crate-scene');
+                if (scene) scene.classList.remove('scfx-shake');
+            },
+            // Центр ящика в координатах оверлея (в px)
+            scfxCenter(overlay, crateEl) {
+                const o = overlay.getBoundingClientRect(), c = crateEl.getBoundingClientRect();
+                return { x: c.left - o.left + c.width / 2, y: c.top - o.top + c.height / 2 };
+            },
+            scfxSetCenter(back, c, color, lvl) {
+                back.style.setProperty('--cx', c.x + 'px');
+                back.style.setProperty('--cy', c.y + 'px');
+                if (color) back.style.setProperty('--scfx-color', color);
+                if (lvl !== undefined) {
+                    back.style.setProperty('--scfx-ray-op', (0.3 + lvl * 0.09).toFixed(2));
+                    back.classList.toggle('scfx-ultra', lvl >= 5);
+                }
+            },
+            // Создаёт элемент эффекта в слое; ttl — через сколько мс убрать его из DOM
+            scfxAdd(layer, cls, vars, ttl) {
+                const el = document.createElement('div');
+                el.className = cls;
+                if (vars) Object.keys(vars).forEach(k => el.style.setProperty(k, vars[k]));
+                layer.appendChild(el);
+                if (ttl) setTimeout(() => { if (el.parentNode) el.parentNode.removeChild(el); }, ttl);
+                return el;
+            },
+            // Перезапуск CSS-анимации «выскакивания» у надписи/звёзд
+            scfxPopStars(el) {
+                if (!el || !this.scfxEnabled()) return;
+                el.classList.remove('scfx-stars-pop'); void el.offsetWidth; el.classList.add('scfx-stars-pop');
+            },
+            // Тряска сцены с ящиком (px — амплитуда)
+            scfxShake(overlay, px) {
+                if (!this.scfxEnabled()) return;
+                const scene = overlay.querySelector('.crate-scene');
+                if (!scene) return;
+                scene.style.setProperty('--shk', px + 'px');
+                scene.classList.remove('scfx-shake'); void scene.offsetWidth; scene.classList.add('scfx-shake');
+                setTimeout(() => scene.classList.remove('scfx-shake'), 650);
+            },
+
+            // Постоянная «подложка» за ящиком: два слоя вращающихся лучей, свечение пола и парящие искры.
+            // Количество искр и яркость лучей растут вместе с редкостью.
+            scfxAmbient(overlay, crateEl, lvl, color) {
+                const back = this.scfxLayer(overlay, 'back');
+                back.innerHTML = '';
+                back.classList.remove('scfx-charging', 'scfx-dim', 'scfx-boom');
+                if (!this.scfxEnabled()) return;
+                this.scfxSetCenter(back, this.scfxCenter(overlay, crateEl), color, lvl);
+                this.scfxAdd(back, 'scfx-rays');
+                this.scfxAdd(back, 'scfx-rays b');
+                this.scfxAdd(back, 'scfx-floor');
+                const n = 8 + lvl * 4;
+                for (let i = 0; i < n; i++) {
+                    const d = this.scfxR(2.8, 5.2);
+                    this.scfxAdd(back, 'scfx-spark', {
+                        '--ox': this.scfxR(-125, 125) + 'px', '--oy': this.scfxR(10, 85) + 'px',
+                        '--s': this.scfxR(2, 5.5) + 'px', '--dx': this.scfxR(-36, 36) + 'px',
+                        '--c': this.scfxPickColor(color, lvl), '--d': d + 's', '--dl': (-this.scfxR(0, d)) + 's'
+                    });
+                }
+            },
+
+            // Зарядка перед результатом: свечение растёт, к ящику стягиваются искры, сужаются кольца, лучи набирают силу
+            scfxCharge(overlay, crateEl, lvl, color, ms) {
+                if (!this.scfxEnabled()) return;
+                const c = this.scfxCenter(overlay, crateEl);
+                const front = this.scfxLayer(overlay, 'front');
+                this.scfxLayer(overlay, 'back').classList.add('scfx-charging');
+                const base = { '--x': c.x + 'px', '--y': c.y + 'px' };
+                this.scfxAdd(front, 'scfx-chargeglow', Object.assign({ '--c': color, '--d': ms + 'ms' }, base), ms + 300);
+                const n = 16 + lvl * 3;
+                for (let i = 0; i < n; i++) {
+                    const a = Math.random() * Math.PI * 2, dist = this.scfxR(120, 200);
+                    const d = this.scfxR(380, 620), dl = this.scfxR(0, Math.max(0, ms - d - 80));
+                    this.scfxAdd(front, 'scfx-p in', Object.assign({
+                        '--sx': Math.cos(a) * dist + 'px', '--sy': Math.sin(a) * dist + 'px',
+                        '--s': this.scfxR(3, 6.5) + 'px', '--c': this.scfxPickColor(color, lvl),
+                        '--d': d + 'ms', '--dl': dl + 'ms'
+                    }, base), dl + d + 150);
+                }
+                [0.04, 0.38, 0.7].forEach(f => {
+                    this.scfxAdd(front, 'scfx-ring in', Object.assign({ '--c': color, '--d': '560ms', '--dl': Math.round(ms * f) + 'ms', '--sc': '8' }, base), ms * f + 750);
+                });
+            },
+            scfxChargeEnd(overlay) { this.scfxLayer(overlay, 'back').classList.remove('scfx-charging'); },
+
+            // Разлёт частиц из точки c: часть — звёздочки, часть — светящиеся точки
+            scfxRadial(front, c, count, color, lvl, minD, maxD, dur) {
+                for (let i = 0; i < count; i++) {
+                    const a = (i / count) * Math.PI * 2 + this.scfxR(-0.15, 0.15), dist = this.scfxR(minD, maxD);
+                    const star = Math.random() < 0.45, d = this.scfxR(dur[0], dur[1]);
+                    this.scfxAdd(front, 'scfx-p' + (star ? ' star' : ''), {
+                        '--x': c.x + 'px', '--y': c.y + 'px',
+                        '--tx': Math.cos(a) * dist + 'px', '--ty': Math.sin(a) * dist + 'px', '--rot': this.scfxR(-260, 260) + 'deg',
+                        '--s': (star ? this.scfxR(9, 17) : this.scfxR(3, 8)) + 'px', '--c': this.scfxPickColor(color, lvl),
+                        '--d': d + 'ms', '--dl': this.scfxR(0, 90) + 'ms'
+                    }, d + 250);
+                }
+            },
+            // Конфетти: подбрасывается вверх из точки c и падает вниз
+            scfxConfettiBurst(front, c, count, color, lvl) {
+                for (let i = 0; i < count; i++) {
+                    const d = this.scfxR(1100, 1900);
+                    this.scfxAdd(front, 'scfx-p conf', {
+                        '--x': c.x + 'px', '--y': c.y + 'px', '--tx': this.scfxR(-170, 170) + 'px',
+                        '--uy': -this.scfxR(90, 230) + 'px', '--ty': this.scfxR(60, 260) + 'px', '--rot': this.scfxR(-540, 540) + 'deg',
+                        '--s': this.scfxR(5, 9) + 'px', '--c': this.scfxPickColor(color, lvl), '--d': d + 'ms', '--dl': this.scfxR(0, 150) + 'ms'
+                    }, d + 300);
+                }
+            },
+            // Конфетти-дождь сверху на весь экран (для высоких редкостей)
+            scfxConfettiRain(front, count, color, lvl) {
+                const W = front.clientWidth || window.innerWidth, H = front.clientHeight || window.innerHeight;
+                for (let i = 0; i < count; i++) {
+                    const d = this.scfxR(1900, 3300), dl = this.scfxR(0, 900);
+                    this.scfxAdd(front, 'scfx-p conf rain', {
+                        '--x': this.scfxR(0, W) + 'px', '--y': '-14px', '--tx': this.scfxR(-70, 70) + 'px', '--ty': (H + 40) + 'px',
+                        '--rot': this.scfxR(-720, 720) + 'deg', '--s': this.scfxR(5, 9) + 'px', '--c': this.scfxPickColor(color, lvl),
+                        '--d': d + 'ms', '--dl': dl + 'ms'
+                    }, d + dl + 300);
+                }
+            },
+
+            // ✨ Успешное улучшение редкости: вспышка, ударные кольца, звёзды, столб света (Эпический и выше), подпись
+            scfxUpgradeBurst(overlay, crateEl, lvl, color) {
+                if (!this.scfxEnabled()) return;
+                const c = this.scfxCenter(overlay, crateEl), front = this.scfxLayer(overlay, 'front');
+                const base = { '--x': c.x + 'px', '--y': c.y + 'px', '--c': color };
+                this.scfxAdd(front, 'scfx-flash', Object.assign({ '--d': '800ms', '--op': '0.9' }, base), 900);
+                this.scfxAdd(front, 'scfx-ring', Object.assign({ '--d': '900ms', '--sc': '20' }, base), 1000);
+                this.scfxAdd(front, 'scfx-ring', Object.assign({ '--d': '1000ms', '--dl': '140ms', '--sc': '28' }, base), 1200);
+                this.scfxRadial(front, c, 24 + lvl * 5, color, lvl, 90, 230, [700, 1200]);
+                if (lvl >= 3) this.scfxAdd(front, 'scfx-pillar', base, 1300);
+                const txt = this.scfxAdd(front, 'scfx-text', { '--x': c.x + 'px', '--y': (c.y - 118) + 'px', '--c': color }, 1500);
+                txt.textContent = '⬆ УЛУЧШЕНО!';
+                this.scfxShake(overlay, 4 + lvl * 1.5);
+            },
+            // 💥 Неудача: ящик трескается, красноватая вспышка, обломки, лучи гаснут
+            scfxFailBurst(overlay, crateEl, lvl, color) {
+                if (!this.scfxEnabled()) return;
+                const c = this.scfxCenter(overlay, crateEl), front = this.scfxLayer(overlay, 'front');
+                const base = { '--x': c.x + 'px', '--y': c.y + 'px', '--c': color };
+                this.scfxLayer(overlay, 'back').classList.add('scfx-dim');
+                const crack = this.scfxAdd(front, 'scfx-crack', base, 1200);
+                crack.innerHTML = '<svg viewBox="0 0 150 140" xmlns="http://www.w3.org/2000/svg"><path d="M75 4 L66 30 L84 46 L62 70 L86 92 L70 118 L78 136"/><path d="M84 46 L112 54 L120 78"/><path d="M62 70 L36 80 L28 106"/></svg>';
+                this.scfxAdd(front, 'scfx-flash', { '--x': c.x + 'px', '--y': c.y + 'px', '--c': '#ffffff', '--d': '520ms', '--op': '0.55', '--dl': '300ms' }, 900);
+                this.scfxAdd(front, 'scfx-flash', { '--x': c.x + 'px', '--y': c.y + 'px', '--c': '#ff2a5f', '--d': '800ms', '--op': '0.4', '--dl': '300ms' }, 1200);
+                this.scfxAdd(front, 'scfx-ring', { '--x': c.x + 'px', '--y': c.y + 'px', '--c': '#ff6b6b', '--d': '800ms', '--dl': '300ms', '--sc': '15' }, 1200);
+                for (let i = 0; i < 18; i++) {
+                    const d = this.scfxR(800, 1300);
+                    this.scfxAdd(front, 'scfx-p conf', {
+                        '--x': c.x + this.scfxR(-45, 45) + 'px', '--y': c.y + this.scfxR(-40, 30) + 'px', '--tx': this.scfxR(-120, 120) + 'px',
+                        '--uy': -this.scfxR(30, 110) + 'px', '--ty': this.scfxR(120, 260) + 'px', '--rot': this.scfxR(-480, 480) + 'deg',
+                        '--s': this.scfxR(4, 8) + 'px', '--c': Math.random() < 0.5 ? color : '#6b7280', '--d': d + 'ms', '--dl': (300 + this.scfxR(0, 120)) + 'ms'
+                    }, d + 500);
+                }
+                const txt = this.scfxAdd(front, 'scfx-text', { '--x': c.x + 'px', '--y': (c.y - 118) + 'px', '--c': '#ff8a8a', '--dl': '250ms' }, 1700);
+                txt.style.animationDelay = '250ms';
+                txt.textContent = '💥 Не повезло…';
+                setTimeout(() => this.scfxShake(overlay, 9), 300);
+            },
+            // 🎁 Открытие ящика: ударная волна, столб света, взрыв звёзд, конфетти (масштаб зависит от редкости)
+            scfxOpenBurst(overlay, crateEl, lvl, color) {
+                if (!this.scfxEnabled()) return;
+                const c = this.scfxCenter(overlay, crateEl), front = this.scfxLayer(overlay, 'front'), back = this.scfxLayer(overlay, 'back');
+                const base = { '--x': c.x + 'px', '--y': c.y + 'px', '--c': color };
+                back.classList.remove('scfx-charging');
+                back.classList.remove('scfx-boom'); void back.offsetWidth; back.classList.add('scfx-boom');
+                this.scfxAdd(front, 'scfx-flash', Object.assign({ '--d': '900ms', '--op': (0.7 + lvl * 0.05).toFixed(2) }, base), 1000);
+                const ringCols = lvl >= 5 ? ['#ff2a5f', '#00f0ff', '#bf5af2'] : [color, color, color];
+                [['950ms', '0ms', '18'], ['1050ms', '120ms', '26'], ['1150ms', '260ms', '34']].forEach((r, i) => {
+                    this.scfxAdd(front, 'scfx-ring', { '--x': c.x + 'px', '--y': c.y + 'px', '--c': ringCols[i], '--d': r[0], '--dl': r[1], '--sc': r[2] }, 1500);
+                });
+                if (lvl >= 2) this.scfxAdd(front, 'scfx-pillar', base, 1300);
+                this.scfxRadial(front, c, 30 + lvl * 8, color, lvl, 110, 260 + lvl * 30, [800, 1400]);
+                if (lvl >= 1) this.scfxConfettiBurst(front, c, 10 + lvl * 6, color, lvl);
+                if (lvl >= 2) this.scfxConfettiRain(front, Math.min(54, 14 + lvl * 8), color, lvl);
+                this.scfxShake(overlay, 6 + lvl * 2.5);
+            },
+            // Появление очередной награды в карусели: карточка «выскакивает» заново, вокруг иконки — вспышка звёзд.
+            // restart=true для всех призов кроме первого (первая карточка и так анимируется при показе).
+            scfxRewardPop(restart) {
+                if (!this._scfxActive || !this.scfxEnabled()) return;
+                const overlay = document.getElementById('gacha-overlay'), card = document.getElementById('gacha-reward');
+                const icon = document.getElementById('reward-icon'), crate = document.getElementById('gacha-crate');
+                if (!overlay || !card || !icon || !crate) return;
+                if (restart) {
+                    card.style.animation = 'none'; icon.style.animation = 'none';
+                    void card.offsetWidth;
+                    card.style.animation = ''; icon.style.animation = '';
+                }
+                const color = this._scfxColor || '#ffffff', lvl = this._scfxLvl || 0;
+                // Карточка сдвигает ящик вверх — плавно переносим лучи и свечение на его новое место
+                this.scfxSetCenter(this.scfxLayer(overlay, 'back'), this.scfxCenter(overlay, crate));
+                const front = this.scfxLayer(overlay, 'front'), o = overlay.getBoundingClientRect(), r = icon.getBoundingClientRect();
+                const p = { x: r.left - o.left + r.width / 2, y: r.top - o.top + r.height / 2 };
+                this.scfxAdd(front, 'scfx-ring', { '--x': p.x + 'px', '--y': p.y + 'px', '--c': color, '--d': '800ms', '--sc': '9' }, 900);
+                this.scfxRadial(front, p, 12 + lvl * 2, color, lvl, 50, 130, [600, 1000]);
+            },
+            // Итоговая карточка (несколько призов): праздничный дождь конфетти
+            scfxSummaryPop() {
+                if (!this._scfxActive || !this.scfxEnabled()) return;
+                const overlay = document.getElementById('gacha-overlay');
+                if (!overlay) return;
+                this.scfxConfettiRain(this.scfxLayer(overlay, 'front'), 30, this._scfxColor || '#ffffff', this._scfxLvl || 0);
+            },
+
             // Открывает экран конкретного ящика игрока (idx — позиция в p.starCrates) и
             // настраивает превью-модель/подписи под его текущую редкость.
             // Строит строку из звёзд ★ под текущий уровень редкости (0..5 → 1..6 звёзд), которая
@@ -19373,21 +19763,24 @@ startCombat(isBossFight = false) {
                 const visualTier = this.STAR_VISUAL_TIER[lvl] || 5;
                 this._starCrateModalIdx = idx;
 
+                const overlayEl = document.getElementById('starcrate-overlay');
                 const crate = document.getElementById('starcrate-preview-crate');
                 crate.className = 'crate crate-tier-' + visualTier + ' crate-skin-star star-lvl-' + lvl;
                 crate.style.setProperty('--box-color', tierDef.color);
                 crate.classList.remove('starcrate-rolling');
-                document.getElementById('starcrate-overlay').style.setProperty('--box-color', tierDef.color);
+                overlayEl.style.setProperty('--box-color', tierDef.color);
 
                 const starsTop = document.getElementById('starcrate-stars-top');
                 if (starsTop) {
                     starsTop.textContent = this.starGlyphs(lvl);
                     starsTop.classList.toggle('sst-ultra', lvl >= DB.starCrate.tiers.length - 1);
+                    this.scfxPopStars(starsTop); // звёзды «выскакивают» при каждом показе/повышении редкости
                 }
 
                 const nameEl = document.getElementById('starcrate-tier-name');
                 nameEl.textContent = tierDef.name;
                 nameEl.style.color = tierDef.color;
+                if (this.scfxEnabled()) { nameEl.classList.remove('scfx-name-pop'); void nameEl.offsetWidth; nameEl.classList.add('scfx-name-pop'); }
 
                 const isMax = lvl >= DB.starCrate.tiers.length - 1;
                 const actionBtn = document.getElementById('starcrate-action-btn');
@@ -19399,12 +19792,16 @@ startCombat(isBossFight = false) {
                     document.getElementById('starcrate-chance-line').textContent = '🎲 При нажатии есть шанс улучшить редкость.';
                 }
 
-                document.getElementById('starcrate-overlay').classList.add('active');
+                overlayEl.classList.add('active');
+                // 🌟 Подложка за ящиком: вращающиеся лучи, свечение пола и парящие искры цвета редкости
+                this.scfxAmbient(overlayEl, crate, lvl, tierDef.color);
             },
             closeStarCrateOverlay() {
-                document.getElementById('starcrate-overlay').classList.remove('active');
+                const overlayEl = document.getElementById('starcrate-overlay');
+                overlayEl.classList.remove('active');
+                this.scfxClear(overlayEl);
                 const starsTop = document.getElementById('starcrate-stars-top');
-                if (starsTop) { starsTop.textContent = ''; starsTop.classList.remove('sst-ultra'); }
+                if (starsTop) { starsTop.textContent = ''; starsTop.classList.remove('sst-ultra', 'scfx-stars-pop'); }
                 this._starCrateModalIdx = null;
             },
 
@@ -19421,14 +19818,24 @@ startCombat(isBossFight = false) {
                 if (isMax) { this.openStarCrateInstance(idx); return; }
 
                 Sound.play('click');
+                const overlayEl = document.getElementById('starcrate-overlay');
                 const previewCrate = document.getElementById('starcrate-preview-crate');
                 const actionBtn = document.getElementById('starcrate-action-btn');
-                if (previewCrate) previewCrate.classList.add('starcrate-rolling');
+                const chanceEl = document.getElementById('starcrate-chance-line');
+                const fx = this.scfxEnabled();
+                // С эффектами «зарядка» ящика длиннее (интрига), в режиме слабых устройств — как раньше
+                const chargeMs = fx ? 1250 : 650;
+                if (previewCrate) {
+                    if (fx) { previewCrate.style.setProperty('--ct', chargeMs + 'ms'); previewCrate.classList.add('scfx-charging'); }
+                    else previewCrate.classList.add('starcrate-rolling');
+                }
                 if (actionBtn) actionBtn.disabled = true;
+                if (chanceEl && fx) chanceEl.textContent = '⚡ Ящик заряжается…';
+                if (fx) { Sound.play('crate'); this.scfxCharge(overlayEl, previewCrate, lvl, tierDef.color, chargeMs); }
 
                 setTimeout(() => {
-                    if (previewCrate) previewCrate.classList.remove('starcrate-rolling');
-                    if (actionBtn) actionBtn.disabled = false;
+                    if (previewCrate) previewCrate.classList.remove('starcrate-rolling', 'scfx-charging');
+                    this.scfxChargeEnd(overlayEl);
                     const success = Math.random() < tierDef.upgradeChance;
                     if (success) {
                         this.p.starCrates[idx] = lvl + 1;
@@ -19437,12 +19844,21 @@ startCombat(isBossFight = false) {
                         this.log(`Мутационный ящик улучшен до уровня «${newTier.name}»!`, "loot");
                         this.save(); this.updateUI(); this.renderInventory();
                         this.openStarCrateModal(idx); // обновляем экран под новую редкость
+                        // Вспышка/кольца/звёзды поверх обновлённого экрана — смена цвета ящика скрыта за вспышкой
+                        this.scfxUpgradeBurst(overlayEl, previewCrate, lvl + 1, newTier.color);
+                        setTimeout(() => { if (actionBtn) actionBtn.disabled = false; }, fx ? 700 : 0);
                     } else {
                         Sound.play('upgradeFail');
                         this.log(`💥 Улучшение не удалось — ящик («${tierDef.name}») вскрывается автоматически.`, "loot");
-                        this.openStarCrateInstance(idx);
+                        if (chanceEl && fx) chanceEl.textContent = '💥 Не удалось… ящик вскрывается!';
+                        this.scfxFailBurst(overlayEl, previewCrate, lvl, tierDef.color);
+                        // Даём разглядеть трещину и обломки, и только потом вскрываем ящик
+                        setTimeout(() => {
+                            if (actionBtn) actionBtn.disabled = false;
+                            this.openStarCrateInstance(idx);
+                        }, fx ? 950 : 0);
                     }
-                }, 650);
+                }, chargeMs);
             },
 
             // Взвешенное число призов за одно открытие — растёт вместе с редкостью тира.
@@ -19510,6 +19926,16 @@ startCombat(isBossFight = false) {
                 rewardCard.style.display = 'none';
                 burst.classList.remove('active');
 
+                // 🌟 Расширенные анимации: подложка (лучи/искры), зарядка перед открытием, звёзды «выскакивают»
+                this._scfxActive = true; this._scfxColor = tierDef.color; this._scfxLvl = lvl;
+                overlay.classList.add('scfx-on');
+                this.scfxClear(overlay);
+                this.scfxAmbient(overlay, crate, lvl, tierDef.color);
+                this.scfxPopStars(document.getElementById('gacha-stars-top'));
+                const fx = this.scfxEnabled();
+                const buildMs = fx ? 1250 : 700; // с эффектами «зарядка» ящика перед открытием дольше
+                if (fx) { crate.style.setProperty('--ct', buildMs + 'ms'); crate.classList.add('scfx-charging'); this.scfxCharge(overlay, crate, lvl, tierDef.color, buildMs); }
+
                 const first = this._relicQueue[0];
                 if (first) {
                     if (first.iconIsModel) rewardEmerge.innerHTML = first.icon;
@@ -19520,16 +19946,17 @@ startCombat(isBossFight = false) {
                 Sound.play('crate');
 
                 setTimeout(() => {
-                    crate.classList.remove('opening');
+                    crate.classList.remove('opening', 'scfx-charging');
                     crate.classList.add('opened');
+                    this.scfxOpenBurst(overlay, crate, lvl, tierDef.color);
                     burst.style.setProperty('--burst-color', tierDef.color);
                     burst.classList.add('active');
                     const isHighTier = ['mythic', 'legendary', 'ultra'].includes(tierDef.id);
                     Sound.play(isHighTier ? 'crateEpic' : 'loot');
                     const starsTopEl = document.getElementById('gacha-stars-top');
                     if (starsTopEl) starsTopEl.classList.add('sst-hidden');
-                    setTimeout(() => { this.showNextRelicReward(); }, 900);
-                }, 700);
+                    setTimeout(() => { this.showNextRelicReward(); }, fx ? 1000 : 900);
+                }, buildMs);
             },
 
             // Взвешенный случайный выбор награды из пула ежедневного пайка
