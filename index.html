@@ -478,6 +478,14 @@
         .crate-thumb .crate-skin-star.star-lvl-5::before { filter: blur(5px); }
         /* В магазине у Мутационного ящика бейджик-счётчик звёзд над крышкой скрыт. */
         .sc-shop-card .crate-skin-star::after { display: none; }
+        /* Витрина Мутационного ящика в магазине: модель и цвет названия листаются по всем редкостям */
+        .sc-cycle-thumb { flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: opacity 0.28s ease, transform 0.28s ease; }
+        .sc-cycle-thumb.sc-swap { opacity: 0; transform: scale(0.8) rotate(-6deg); }
+        .sc-shop-card::before { transition: background 0.4s ease; }
+        .sc-shop-title { transition: color 0.4s ease; }
+        .sc-shop-title .sc-tier-name { font-weight: 800; font-size: 11px; opacity: 0.95; }
+        .sc-shop-title.sc-title-ultra, .sc-shop-title.sc-title-ultra .sc-tier-name { background: linear-gradient(90deg, #ff2a5f, #ffb703, #39ff14, #00f0ff, #bf5af2, #ff2a5f); background-size: 300% 100%; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; animation: starTopHueShift 3s linear infinite; }
+        .sc-shop-card.sc-ultra::before { background: linear-gradient(180deg, #ff2a5f, #ffb703, #39ff14, #00f0ff, #bf5af2); }
 
         /* ---- Уменьшенная статичная копия ящика для карточек магазина ---- */
         .crate-thumb { position: relative; width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
@@ -17277,18 +17285,20 @@ startCombat(isBossFight = false) {
                 // Мутационный ящик — экран риска/улучшения открывается сразу при покупке (см.
                 // Core.buyStarCrate); в магазине показываем без бейджика-счётчика звёзд.
                 {
-                    const scTier0 = DB.starCrate.tiers[0];
+                    const scLvl = (this._scShopCycleIdx || 0) % DB.starCrate.tiers.length;
+                    const scTier0 = DB.starCrate.tiers[scLvl];
                     shopHtml += `
-                    <div class="loot-card sc-shop-card" style="--box-color: ${scTier0.color}; flex-wrap: wrap;" onclick="Core.showStarCrateInfo()">
-                        ${Sprites.crateThumb(1, scTier0.color, 'star star-lvl-0')}
+                    <div class="loot-card sc-shop-card${scLvl === 5 ? ' sc-ultra' : ''}" style="--box-color: ${scTier0.color}; flex-wrap: wrap;" onclick="Core.showStarCrateInfo()">
+                        <div class="sc-cycle-thumb">${Sprites.crateThumb(this.STAR_VISUAL_TIER[scLvl] || 5, scTier0.color, 'star star-lvl-' + scLvl)}</div>
                         <div class="loot-card-info">
-                            <div class="loot-card-title" style="color: ${scTier0.color}">Мутационный ящик</div>
+                            <div class="loot-card-title sc-shop-title${scLvl === 5 ? ' sc-title-ultra' : ''}" style="color: ${scTier0.color}">Мутационный ящик <span class="sc-tier-name">· ${scTier0.name}</span></div>
                             <div class="loot-card-sub">Есть шанс улучшить ящик перед открытием — и получить больше наград!</div>
                         </div>
                         <button class="direct-buy-btn" style="background: linear-gradient(135deg, #5ec8ff, #0072ff); color:#fff; box-shadow: 0 6px 16px rgba(94,200,255,0.4), inset 0 1px 0 rgba(255,255,255,0.35);" onclick="event.stopPropagation(); Core.buyStarCrate()">100 🪙</button>
                     </div>`;
                 }
                 el.innerHTML = shopHtml;
+                this.startStarCrateShopCycle();
                 this.renderDailyDeals();
                 this.renderChainDeal();
                 this.renderTokenVault();
@@ -17296,6 +17306,41 @@ startCombat(isBossFight = false) {
                 this.renderSkinShop();
                 this.renderUpdateGiftCard();
                 this.renderRodCompensationCard();
+            },
+
+            // ================= ВИТРИНА МУТАЦИОННОГО ЯЩИКА В МАГАЗИНЕ =================
+            // Карточка в магазине по кругу показывает модель ящика каждой из 6 редкостей
+            // (Редкий → Ультра) вместе с цветом названия, чтобы было видно, какими они бывают.
+            // Один общий таймер на всё приложение; индекс хранится в Core, поэтому перерисовка
+            // магазина не сбрасывает цикл.
+            startStarCrateShopCycle() {
+                if (this._scShopCycleTimer) return;
+                this._scShopCycleTimer = setInterval(() => {
+                    const card = document.querySelector('.sc-shop-card');
+                    if (!card || card.offsetParent === null) return; // магазин не на экране — не листаем
+                    const tiers = DB.starCrate.tiers;
+                    this._scShopCycleIdx = ((this._scShopCycleIdx || 0) + 1) % tiers.length;
+                    const lvl = this._scShopCycleIdx;
+                    const tierDef = tiers[lvl];
+                    const thumbWrap = card.querySelector('.sc-cycle-thumb');
+                    const title = card.querySelector('.sc-shop-title');
+                    if (thumbWrap) thumbWrap.classList.add('sc-swap');
+                    setTimeout(() => {
+                        if (!card.isConnected) return;
+                        if (thumbWrap) {
+                            thumbWrap.innerHTML = Sprites.crateThumb(this.STAR_VISUAL_TIER[lvl] || 5, tierDef.color, 'star star-lvl-' + lvl);
+                            thumbWrap.classList.remove('sc-swap');
+                        }
+                        card.style.setProperty('--box-color', tierDef.color);
+                        card.classList.toggle('sc-ultra', lvl === 5);
+                        if (title) {
+                            title.style.color = tierDef.color;
+                            title.classList.toggle('sc-title-ultra', lvl === 5);
+                            const nm = title.querySelector('.sc-tier-name');
+                            if (nm) nm.textContent = '· ' + tierDef.name;
+                        }
+                    }, 280);
+                }, 2000);
             },
 
             // ================= СХРОН ЖЕТОНОВ: фиксированные наборы «Жетон Схрона» =================
@@ -18655,7 +18700,7 @@ startCombat(isBossFight = false) {
 
                     return `<details class="sc-info-tier" style="--tier-color:${tierDef.color}; --tier-color-35:${this.hexToRgba(tierDef.color, 0.35)}; --tier-color-6:${this.hexToRgba(tierDef.color, 0.06)};"${lvl === 0 ? ' open' : ''}>
                         <summary>
-                            <span class="sc-info-tier-name">${'★'.repeat(lvl + 1)} ${tierDef.name}</span>
+                            <span class="sc-info-tier-name">${tierDef.name}</span>
                             <span class="sc-info-tier-sub">${countText} наград</span>
                         </summary>
                         <div class="sc-info-tier-body">
@@ -18852,7 +18897,7 @@ startCombat(isBossFight = false) {
                 });
                 if (eligible.length === 0) {
                     let bonus = 5; this.p.vouchers += bonus;
-                    return { icon: '🏷️', name: `Оружие пока недоступно по уровню — компенсация: Ваучеры x${bonus}` };
+                    return { icon: '🏷️', name: `Ваучеры x${bonus}` };
                 }
                 const weighted = eligible.map(w => ({ w, weight: this.TIER_WEIGHT[w.tier] || 15 }));
                 const picked = this.rollWeightedEntry(weighted, 'weight').w;
@@ -18887,7 +18932,7 @@ startCombat(isBossFight = false) {
                 });
                 if (eligible.length === 0) {
                     let bonus = 3; this.p.vouchers += bonus;
-                    return { icon: '🏷️', name: `Броня пока недоступна по уровню — компенсация: Ваучеры x${bonus}` };
+                    return { icon: '🏷️', name: `Ваучеры x${bonus}` };
                 }
                 const weighted = eligible.map(a => ({ a, weight: this.TIER_WEIGHT[a.tier] || 15 }));
                 const picked = this.rollWeightedEntry(weighted, 'weight').a;
@@ -18919,7 +18964,7 @@ startCombat(isBossFight = false) {
                 let chosenIcon = "📦";
                 if (chosen.includes("Премиум-пропуск")) {
                     if (!this.p.bpPremium) { this.p.bpPremium = true; chosenIcon = "🎫"; }
-                    else { let bonus = 50; this.p.caps += bonus; chosen = `🪙 Крышки x${bonus} (Премиум уже активен)`; chosenIcon = "🪙"; }
+                    else { let bonus = 50; this.p.caps += bonus; chosen = `🪙 Крышки x${bonus}`; chosenIcon = "🪙"; }
                 }
                 else if (chosen.includes("Мед-Пакет")) {
                     // Мед-Пакеты из ящиков больше НЕ используются автоматически — они уходят в
@@ -18940,12 +18985,12 @@ startCombat(isBossFight = false) {
                 else if (chosen.includes("Мегасила")) {
                     let g = this.grantRandomMegasila();
                     if (g) { chosen = `⚡ ${g.name}`; chosenIcon = g.icon; }
-                    else { let bonus = 5; this.p.vouchers += bonus; chosen = `🏷️ Ваучеры x${bonus} (нет оружия Ур.10 без мегасилы)`; chosenIcon = "🏷️"; }
+                    else { let bonus = 5; this.p.vouchers += bonus; chosen = `🏷️ Ваучеры x${bonus}`; chosenIcon = "🏷️"; }
                 }
                 else if (chosen.includes("Гаджет")) {
                     let g = this.grantRandomGadget();
                     if (g) { chosen = `🧰 ${g.name}`; chosenIcon = g.icon; }
-                    else { let bonus = 3; this.p.vouchers += bonus; chosen = `🏷️ Ваучеры x${bonus} (нет оружия Ур.5 без гаджета)`; chosenIcon = "🏷️"; }
+                    else { let bonus = 3; this.p.vouchers += bonus; chosen = `🏷️ Ваучеры x${bonus}`; chosenIcon = "🏷️"; }
                 }
                 else if (chosen.includes("Ваучер")) {
                     let qty = parseInt(chosen.split(" x")[1]) || 1;
@@ -19791,7 +19836,7 @@ startCombat(isBossFight = false) {
                 else if(r.type === 'relic_wasteland') { this.p.relicWasteland = (this.p.relicWasteland || 0) + (r.qty || 1); this.log(`🎁 Награда ${sourceLabel}: 🗝️ Реликварий Пустоши x${r.qty || 1}`); }
                 else if(r.type === 'premium_pass') {
                     if (!this.p.bpPremium) { this.p.bpPremium = true; this.log(`🎁 Награда ${sourceLabel}: 🎫 Премиум-пропуск активирован!`); }
-                    else { let bonus = 50; this.p.caps += bonus; this.log(`🎁 Награда ${sourceLabel}: Премиум уже активен — начислено 🪙 x${bonus}`); }
+                    else { let bonus = 50; this.p.caps += bonus; this.log(`🎁 Награда ${sourceLabel}: 🪙 Крышки x${bonus}`); }
                 }
                 else if(r.type === 'lootbox') { this.log(`🎁 Награда: Бесплатный ${DB.lootboxes[r.boxIdx].name}!`); this.openLootboxAnimated(DB.lootboxes[r.boxIdx]); }
                 else if(r.type === 'starcrate') {
@@ -19805,12 +19850,12 @@ startCombat(isBossFight = false) {
                 else if(r.type === 'gadget') {
                     let g = this.grantRandomGadget();
                     if (g) this.log(`🎁 Награда ${sourceLabel}: 🧰 ${g.name}`);
-                    else { let bonus = 3; this.p.vouchers += bonus; this.log(`🎁 Награда ${sourceLabel}: нет оружия Ур.5 без гаджета — начислено 🏷️ x${bonus}`); }
+                    else { let bonus = 3; this.p.vouchers += bonus; this.log(`🎁 Награда ${sourceLabel}: 🏷️ Ваучеры x${bonus}`); }
                 }
                 else if(r.type === 'megasila') {
                     let g = this.grantRandomMegasila();
                     if (g) this.log(`🎁 Награда ${sourceLabel}: ⚡ ${g.name}`);
-                    else { let bonus = 5; this.p.vouchers += bonus; this.log(`🎁 Награда ${sourceLabel}: нет оружия Ур.10 без мегасилы — начислено 🏷️ x${bonus}`); }
+                    else { let bonus = 5; this.p.vouchers += bonus; this.log(`🎁 Награда ${sourceLabel}: 🏷️ Ваучеры x${bonus}`); }
                 }
                 else if(r.type === 'skin') {
                     let skin = DB.skins.find(s => s.id === r.skinId);
