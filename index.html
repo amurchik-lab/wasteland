@@ -573,30 +573,12 @@
         body.perf-mode .scfx-layer { display: none !important; }
         body.perf-mode #starcrate-overlay .crate-scene { animation: none !important; }
 
-        /* --- Подложка: вращающиеся лучи света, мягкое свечение «пола» и всплывающие искры --- */
-        .scfx-rays { position: absolute; left: var(--cx, 50%); top: var(--cy, 50%); width: 110vmax; height: 110vmax; margin: -55vmax 0 0 -55vmax; border-radius: 50%;
-            background: repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--scfx-color, #fff) 62%, transparent) 0deg 5deg, transparent 5deg 15deg);
-            -webkit-mask-image: radial-gradient(circle closest-side, #000 0%, rgba(0,0,0,0.55) 32%, transparent 100%);
-            mask-image: radial-gradient(circle closest-side, #000 0%, rgba(0,0,0,0.55) 32%, transparent 100%);
-            opacity: var(--scfx-ray-op, 0.5); animation: scfxSpin 26s linear infinite; will-change: transform; transition: left 0.45s ease, top 0.45s ease, opacity 0.35s; }
-        .scfx-rays.b { background: repeating-conic-gradient(from 7deg, color-mix(in srgb, var(--scfx-color, #fff) 48%, transparent) 0deg 3deg, transparent 3deg 22deg); opacity: calc(var(--scfx-ray-op, 0.5) * 0.8); animation: scfxSpin 38s linear infinite reverse; }
-        @keyframes scfxSpin { to { transform: rotate(360deg); } }
+        /* --- Подложка: мягкое свечение «пола» и всплывающие искры (лучи .scfx-rays убраны —
+           были самой тяжёлой частью анимации: два полноэкранных 110vmax слоя с
+           repeating-conic-gradient + mask-image, непрерывно вращающиеся все время,
+           пока открыт экран ящика; именно они вызывали лаги, особенно на телефонах) --- */
         @keyframes scfxHue { to { filter: hue-rotate(360deg); } }
-        .scfx-layer.scfx-ultra .scfx-rays { animation: scfxSpin 26s linear infinite, scfxHue 6s linear infinite; }
-        .scfx-layer.scfx-ultra .scfx-rays.b { animation: scfxSpin 38s linear infinite reverse, scfxHue 6s linear infinite; }
-        /* Зарядка: лучи «набирают силу» (масштаб — отдельным свойством scale, чтобы не сбивать вращение) */
-        .scfx-layer.scfx-charging .scfx-rays { animation: scfxSpin 26s linear infinite, scfxRayCharge 1.25s ease-in forwards; }
-        .scfx-layer.scfx-charging .scfx-rays.b { animation: scfxSpin 38s linear infinite reverse, scfxRayCharge 1.25s ease-in forwards; }
-        .scfx-layer.scfx-ultra.scfx-charging .scfx-rays { animation: scfxSpin 26s linear infinite, scfxHue 6s linear infinite, scfxRayCharge 1.25s ease-in forwards; }
-        .scfx-layer.scfx-ultra.scfx-charging .scfx-rays.b { animation: scfxSpin 38s linear infinite reverse, scfxHue 6s linear infinite, scfxRayCharge 1.25s ease-in forwards; }
-        @keyframes scfxRayCharge { from { scale: 1; } to { scale: 1.4; opacity: 1; } }
-        /* Вспышка при открытии: лучи резко разлетаются и возвращаются к обычной яркости */
-        .scfx-layer.scfx-boom .scfx-rays { animation: scfxSpin 26s linear infinite, scfxRayBoom 1.5s ease-out; }
-        .scfx-layer.scfx-boom .scfx-rays.b { animation: scfxSpin 38s linear infinite reverse, scfxRayBoom 1.5s ease-out; }
-        .scfx-layer.scfx-ultra.scfx-boom .scfx-rays { animation: scfxSpin 26s linear infinite, scfxHue 6s linear infinite, scfxRayBoom 1.5s ease-out; }
-        .scfx-layer.scfx-ultra.scfx-boom .scfx-rays.b { animation: scfxSpin 38s linear infinite reverse, scfxHue 6s linear infinite, scfxRayBoom 1.5s ease-out; }
-        @keyframes scfxRayBoom { 0% { scale: 0.55; opacity: 0; } 18% { scale: 1.6; opacity: 1; } 100% { scale: 1; } }
-        .scfx-layer.scfx-dim .scfx-rays, .scfx-layer.scfx-dim .scfx-floor { opacity: 0 !important; }
+        .scfx-layer.scfx-dim .scfx-floor { opacity: 0 !important; }
         .scfx-floor { position: absolute; left: var(--cx, 50%); top: calc(var(--cy, 50%) + 46px); width: 230px; height: 50px; margin-left: -115px; border-radius: 50%;
             background: radial-gradient(ellipse closest-side, color-mix(in srgb, var(--scfx-color, #fff) 78%, transparent) 0%, transparent 100%);
             animation: scfxFloor 3.4s ease-in-out infinite; transition: left 0.45s ease, top 0.45s ease; }
@@ -619,10 +601,8 @@
         }
         .scfx-p.rain { animation-name: scfxRain; animation-timing-function: linear; }
         @keyframes scfxRain { 0% { opacity: 1; transform: translate(0, 0) rotate(0deg); } 50% { transform: translate(calc(var(--tx, 0px) * -0.5), calc(var(--ty, 800px) * 0.5)) rotate(calc(var(--rot, 0deg) * 0.5)); } 88% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--tx, 0px), var(--ty, 800px)) rotate(var(--rot, 0deg)); } }
-        .scfx-ring { position: absolute; left: var(--x); top: var(--y); width: 20px; height: 20px; margin: -10px 0 0 -10px; border-radius: 50%; border: 3px solid var(--c, #fff); box-shadow: 0 0 18px var(--c, #fff), inset 0 0 14px var(--c, #fff); opacity: 0; animation: scfxRing var(--d, 0.9s) cubic-bezier(0.1, 0.6, 0.3, 1) var(--dl, 0s) forwards; }
-        @keyframes scfxRing { 0% { opacity: 0.95; transform: scale(0.4); border-width: 5px; } 100% { opacity: 0; transform: scale(var(--sc, 18)); border-width: 1px; } }
-        .scfx-ring.in { animation-name: scfxRingIn; animation-timing-function: cubic-bezier(0.4, 0, 0.9, 0.7); }
-        @keyframes scfxRingIn { 0% { opacity: 0; transform: scale(var(--sc, 8)); } 25% { opacity: 0.85; } 100% { opacity: 0; transform: scale(0.5); } }
+        /* Круги-вспышки .scfx-ring (расширяющиеся кольца при открытии/улучшении/провале/
+           показе награды) убраны полностью — по просьбе: их не должно быть в анимации. */
         .scfx-flash { position: absolute; inset: 0; opacity: 0; background: radial-gradient(circle at var(--x) var(--y), rgba(255,255,255,0.95) 0%, var(--c, #fff) 28%, transparent 72%); animation: scfxFlash var(--d, 0.8s) ease-out forwards; }
         @keyframes scfxFlash { 0% { opacity: 0; } 12% { opacity: var(--op, 0.9); } 100% { opacity: 0; } }
         .scfx-chargeglow { position: absolute; left: var(--x); top: var(--y); width: 170px; height: 170px; margin: -85px 0 0 -85px; border-radius: 50%; background: radial-gradient(circle, #fff 0%, var(--c, #fff) 26%, transparent 68%); mix-blend-mode: screen; opacity: 0; animation: scfxChargeGlow var(--d, 1.2s) ease-in forwards; }
@@ -1275,81 +1255,6 @@ transform:scale(1);
             box-shadow: 0 6px 16px rgba(255,0,160,0.4), inset 0 1px 0 rgba(255,255,255,0.35);
         }
         .direct-buy-btn:active { transform: scale(0.96); }
-
-        /* ===== Схрон Жетонов: наборы фиксированного размера, курс 1💠 = 150 🪙 ===== */
-        .token-vault-panel {
-            position: relative;
-            overflow: hidden;
-            background: linear-gradient(145deg, rgba(191,90,242,0.16) 0%, rgba(191,90,242,0.03) 100%), rgba(12, 10, 20, 0.82);
-            border: 1px solid rgba(191,90,242,0.3);
-            border-radius: 20px;
-            padding: 14px;
-            margin-bottom: 10px;
-            box-shadow: 0 10px 26px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -1px 0 rgba(0,0,0,0.3);
-        }
-        .token-vault-panel::before {
-            content: '';
-            position: absolute; inset: 0;
-            background: radial-gradient(circle at 100% 0%, var(--neon-purple) 0%, transparent 55%);
-            opacity: 0.16;
-            pointer-events: none;
-        }
-        .token-vault-head {
-            position: relative; z-index: 1;
-            display: flex; align-items: center; justify-content: space-between;
-            margin-bottom: 12px;
-        }
-        .token-vault-head-left { display: flex; align-items: center; gap: 10px; }
-        .token-vault-icon {
-            width: 38px; height: 38px; min-width: 38px; border-radius: 12px;
-            display: flex; align-items: center; justify-content: center; font-size: 19px;
-            background: linear-gradient(145deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.02) 100%), rgba(8,10,16,0.5);
-            border: 1.5px solid var(--neon-purple);
-            box-shadow: 0 0 14px rgba(191,90,242,0.45);
-        }
-        .token-vault-title { font-size: 13.5px; font-weight: 900; color: #fff; letter-spacing: 0.2px; }
-        .token-vault-sub { font-size: 10px; font-weight: 700; color: var(--text-muted); margin-top: 1px; }
-        .token-vault-rate { position: relative; z-index: 1; font-size: 10.5px; font-weight: 800; color: var(--neon-purple); background: rgba(191,90,242,0.14); border: 1px solid rgba(191,90,242,0.35); border-radius: 999px; padding: 5px 10px; white-space: nowrap; }
-        .token-bundle-grid { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
-        .token-bundle-card {
-            position: relative;
-            overflow: hidden;
-            display: flex; flex-direction: column; align-items: center; gap: 4px;
-            background: linear-gradient(160deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.02) 100%), rgba(10, 8, 18, 0.75);
-            border: 1px solid rgba(191,90,242,0.28);
-            border-radius: 16px;
-            padding: 12px 8px 10px;
-        }
-        .token-bundle-card.best {
-            border-color: rgba(255,183,3,0.55);
-            background: linear-gradient(160deg, rgba(255,183,3,0.16) 0%, rgba(255,255,255,0.02) 100%), rgba(10, 8, 18, 0.75);
-            padding-top: 22px;
-        }
-        .token-bundle-badge {
-            position: absolute; top: 0; left: 0; right: 0;
-            text-align: center;
-            font-size: 8.5px; font-weight: 900; letter-spacing: 0.3px;
-            background: var(--grad-gold); color: #3a2400;
-            padding: 3px 6px; border-radius: 0;
-            box-shadow: 0 2px 8px rgba(255,183,3,0.4);
-        }
-        .token-bundle-qty { font-size: 20px; font-weight: 900; color: #fff; display: flex; align-items: center; gap: 3px; text-shadow: 0 0 12px rgba(191,90,242,0.6); }
-        .token-bundle-qty .gem { font-size: 17px; }
-        .token-bundle-label { font-size: 9px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; }
-        .token-bundle-buy {
-            margin-top: 6px;
-            width: 100%;
-            background: var(--grad-purple);
-            border: none;
-            border-radius: 999px;
-            padding: 8px 6px;
-            font-weight: 900;
-            font-size: 12.5px;
-            color: #fff;
-            box-shadow: 0 6px 14px rgba(145,20,255,0.4), inset 0 1px 0 rgba(255,255,255,0.3);
-        }
-        .token-bundle-buy:active { transform: scale(0.95); }
-        .token-bundle-buy:disabled { opacity: 0.45; box-shadow: none; }
 
         /* ===== Ежедневные Акции: обновляются раз в сутки. Обычные и супер — за крышки, мега — за ваучеры =====
            Дизайн-идея: каждая карточка — рационная расписка барахольщика. Сверху — что
@@ -5471,8 +5376,6 @@ padding-top:9vh;
         <div id="daily-deals-container"></div>
         <div class="screen-title" style="margin-top: 12px;">🏪 Прямые Поставки Медсредств</div>
         <div id="direct-shop-list"></div>
-        <div class="screen-title" style="margin-top: 12px;">💠 Жетоны Схрона</div>
-        <div id="token-vault-list"></div>
         <div class="screen-title" style="margin-top: 12px;">🏪 Контейнеры</div>
         <div id="shop-list"></div>
         <button id="settings-btn" style="width:100%; margin-top:18px; padding:14px;" onclick="Core.openSettings()">⚙️ Настройки</button>
@@ -16749,14 +16652,13 @@ startCombat(isBossFight = false) {
                 { id: 'd_microbat', icon: '🔋', name: 'Батарейный Блок',     accent: '#00c8ff', tier: 'common', desc: 'В инвентаре: +20 энергии по кнопке. Столько же стоит разовая покупка в Прямых Поставках.', unitVal: 45, qtyMin: 2, qtyMax: 4, build: (q) => ({ type: 'item', item: 'Микро-батарея', qty: q }) },
                 { id: 'd_medkit',   icon: '💉', name: 'Мед-Пакет',           accent: '#39ff14', tier: 'common', desc: 'В инвентаре: +20 ОЗ по кнопке. Столько же стоит разовая покупка в Прямых Поставках.', unitVal: 50, qtyMin: 2, qtyMax: 4, build: (q) => ({ type: 'item', item: 'Мед-Пакет', qty: q }) },
                 { id: 'd_food',     icon: '🍖', name: 'Мясной паёк',         accent: '#39ff14', tier: 'common', desc: 'Сытный ужин прямо у костра.', unitVal: 8, qtyMin: 2, qtyMax: 4, build: (q) => ({ type: 'food', food: 'Жареное мясо крысы', qty: q }) },
-                { id: 'd_token',    icon: '💠', name: 'Жетон Схрона',        accent: '#bf5af2', tier: 'rare',   desc: 'Ключ к премиум-контейнерам. Столько же стоит 1 штука в Схроне Пустоши.', unitVal: 150, qtyMin: 1, qtyMax: 3, build: (q) => ({ type: 'item', item: 'Жетон Схрона', qty: q }) },
+                { id: 'd_food',     icon: '🍖', name: 'Мясной паёк',         accent: '#39ff14', tier: 'common', desc: 'Сытный ужин прямо у костра.', unitVal: 8, qtyMin: 2, qtyMax: 4, build: (q) => ({ type: 'food', food: 'Жареное мясо крысы', qty: q }) },
                 { id: 'd_heal',     icon: '❤️‍🩹', name: 'Полевой ремонт',   accent: '#39ff14', tier: 'rare',   desc: 'Мгновенно поднимет на ноги в бою — 100% ОЗ.', unitVal: 90, qtyMin: 1, qtyMax: 1, build: () => ({ type: 'full_heal' }) },
                 { id: 'd_maxhp',    icon: '🧬', name: 'Эксп. Сыворотка',     accent: '#bf5af2', tier: 'rare',   desc: 'Навсегда увеличивает запас здоровья на 20.', unitVal: 300, qtyMin: 1, qtyMax: 1, build: () => ({ type: 'maxhp' }) },
                 { id: 'd_combo1',   icon: '🧰', name: 'Набор Скрапера',      accent: '#ffb703', tier: 'rare',   desc: 'Запчасти и Тяжёлый Хлам одним лотом.', unitVal: 119, qtyMin: 1, qtyMax: 1, build: () => ([{ type: 'item', item: 'Запчасти', qty: 14 }, { type: 'item', item: 'Тяжелый Хлам', qty: 7 }]) },
                 { id: 'd_combo2',   icon: '🎒', name: 'НЗ Разведчика',       accent: '#ffb703', tier: 'rare',   desc: 'Полное восстановление ОЗ + заряд энергии.', unitVal: 158, qtyMin: 1, qtyMax: 1, build: () => ([{ type: 'full_heal' }, { type: 'energy_pack' }]) },
                 { id: 'd_combo3',   icon: '🥩', name: 'Паёк Охотника',       accent: '#39ff14', tier: 'common', desc: 'Мясо и жаркое про запас.', unitVal: 52, qtyMin: 1, qtyMax: 1, build: () => ([{ type: 'item', item: 'Сырое мясо', qty: 6 }, { type: 'food', food: 'Жареное мясо крысы', qty: 2 }]) },
-                { id: 'd_combo4',   icon: '🛠️', name: 'Ремкомплект Механика', accent: '#00c8ff', tier: 'rare', desc: 'Крупная партия деталей одним лотом.', unitVal: 208, qtyMin: 1, qtyMax: 1, build: () => ([{ type: 'item', item: 'Запчасти', qty: 25 }, { type: 'item', item: 'Тяжелый Хлам', qty: 12 }]) },
-                { id: 'd_combo5',   icon: '💰', name: 'Схрон Барахольщика',  accent: '#bf5af2', tier: 'rare',   desc: 'Жетон Схрона и лом одним мешком.', unitVal: 280, qtyMin: 1, qtyMax: 1, build: () => ([{ type: 'item', item: 'Жетон Схрона', qty: 1 }, { type: 'item', item: 'Тяжелый Хлам', qty: 10 }, { type: 'item', item: 'Запчасти', qty: 10 }]) }
+                { id: 'd_combo4',   icon: '🛠️', name: 'Ремкомплект Механика', accent: '#00c8ff', tier: 'rare', desc: 'Крупная партия деталей одним лотом.', unitVal: 208, qtyMin: 1, qtyMax: 1, build: () => ([{ type: 'item', item: 'Запчасти', qty: 25 }, { type: 'item', item: 'Тяжелый Хлам', qty: 12 }]) }
             ],
             // Отображаемые названия для внутренних ключей предметов, которые в остальной игре
             // подписаны иначе (сам предмет и его эффект не меняются — только текст в акциях).
@@ -16764,7 +16666,6 @@ startCombat(isBossFight = false) {
             // Пул СУПЕР-акций: появляется не каждый день (шанс), цена сильно ниже рыночной,
             // но и награда всего одна штука/эффект — очень выгодно, но по чуть-чуть.
             SUPER_DEAL_POOL: [
-                { id: 's_token',   icon: '💠', name: 'Жетон Схрона за бесценок',        accent: '#bf5af2', refVal: 150, priceMin: 20, priceMax: 35, build: () => ({ type: 'item', item: 'Жетон Схрона', qty: 1 }) },
                 { id: 's_battery', icon: '☢️', name: 'Ядерная Батарея по дешёвке',      accent: '#ffb703', refVal: 30,  priceMin: 4,  priceMax: 9,  build: () => ({ type: 'item', item: 'Ядерная Батарея', qty: 1 }) },
                 { id: 's_maxhp',   icon: '🧬', name: 'Сыворотка по акции',              accent: '#bf5af2', refVal: 300, priceMin: 40, priceMax: 60, build: () => ({ type: 'maxhp' }) },
                 { id: 's_medkit',  icon: '💉', name: 'Мед-Пакет почти даром',           accent: '#39ff14', refVal: 50,  priceMin: 6,  priceMax: 12, build: () => ({ type: 'item', item: 'Мед-Пакет', qty: 1 }) },
@@ -16776,13 +16677,12 @@ startCombat(isBossFight = false) {
             // символическая, и в награде НЕТ ни крышек, ни ваучеров — только реальные блага.
             MEGA_DEAL_POOL: [
                 { id: 'm_supplies', icon: '📦', name: 'Мега-Поставка Пустоши', desc: 'Огромная партия ресурсов — закроет крафт на неделю вперёд.', refCapValue: 810, priceMin: 23, priceMax: 27, build: () => ([{ type: 'item', item: 'Запчасти', qty: 60 }, { type: 'item', item: 'Тяжелый Хлам', qty: 30 }, { type: 'item', item: 'Ядерная Батарея', qty: 10 }]) },
-                { id: 'm_tokens',   icon: '💠', name: 'Ковчег Жетонов Схрона', desc: '20 Жетонов Схрона одним лотом — доступ к премиум-контейнерам надолго вперёд.', refCapValue: 1700, priceMin: 34, priceMax: 42, build: () => ([{ type: 'item', item: 'Жетон Схрона', qty: 20 }]) },
                 { id: 'm_recovery', icon: '🧬', name: 'Капсула Полного Восстановления', desc: 'Полное ОЗ, +20 к макс. ОЗ навсегда и полный заряд энергии одним нажатием.', refCapValue: 458, priceMin: 14, priceMax: 17, build: () => ([{ type: 'full_heal' }, { type: 'maxhp' }, { type: 'energy_pack' }]) },
-                { id: 'm_grand',    icon: '🎒', name: 'Ковчег Скитальца', desc: 'Огромный сборный лот: жетоны, батареи и медикаменты — всё и сразу.', refCapValue: 2120, priceMin: 48, priceMax: 58, build: () => ([{ type: 'item', item: 'Жетон Схрона', qty: 10 }, { type: 'item', item: 'Ядерная Батарея', qty: 8 }, { type: 'item', item: 'Мед-Пакет', qty: 4 }, { type: 'item', item: 'Микро-батарея', qty: 4 }]) }
+                { id: 'm_grand',    icon: '🎒', name: 'Ковчег Скитальца', desc: 'Огромный сборный лот: батареи и медикаменты — всё и сразу.', refCapValue: 2120, priceMin: 48, priceMax: 58, build: () => ([{ type: 'item', item: 'Ядерная Батарея', qty: 8 }, { type: 'item', item: 'Мед-Пакет', qty: 4 }, { type: 'item', item: 'Микро-батарея', qty: 4 }]) }
             ],
             SUPER_DEAL_CHANCE: 0.45,
             DEAL_VOUCHER_RATE: 20, // для расчёта % экономии мегаакции в пересчёте на крышки
-            DAILY_DEALS_SCHEMA: 6, // бампается при изменении структуры/баланса акций, чтобы старые сохранённые акции пересчитались
+            DAILY_DEALS_SCHEMA: 7, // бампается при изменении структуры/баланса акций, чтобы старые сохранённые акции пересчитались
 
             // ===== ЦЕПЬ ПОСТАВОК: разовая цепочка из 6 звеньев, показывается в Магазине сразу
             // под баннером Пропуска Пустоши (см. #chain-deal-container). Звенья открываются
@@ -17441,7 +17341,6 @@ startCombat(isBossFight = false) {
                 this.startStarCrateShopCycle();
                 this.renderDailyDeals();
                 this.renderChainDeal();
-                this.renderTokenVault();
                 this.renderMarketEntryLocks();
                 this.renderSkinShop();
                 this.renderUpdateGiftCard();
@@ -17481,51 +17380,6 @@ startCombat(isBossFight = false) {
                         }
                     }, 280);
                 }, 2000);
-            },
-
-            // ================= СХРОН ЖЕТОНОВ: фиксированные наборы «Жетон Схрона» =================
-            TOKEN_BUNDLES: [1, 5, 10, 20],
-            TOKEN_PRICES: { 1: 150, 5: 600, 10: 1150, 20: 1700 },
-            renderTokenVault() {
-                const el = document.getElementById('token-vault-list');
-                if (!el) return;
-                const owned = (this.p.inv && this.p.inv["Жетон Схрона"]) || 0;
-                const cardsHtml = this.TOKEN_BUNDLES.map(qty => {
-                    const price = this.TOKEN_PRICES[qty];
-                    const isBest = qty === 20;
-                    const canAfford = this.p.caps >= price;
-                    return `
-                    <div class="token-bundle-card ${isBest ? 'best' : ''}">
-                        ${isBest ? '<div class="token-bundle-badge">ВЫГОДНО</div>' : ''}
-                        <div class="token-bundle-qty"><span class="gem">💠</span>${qty}</div>
-                        <div class="token-bundle-label">Жетоны Схрона</div>
-                        <button class="token-bundle-buy" ${canAfford ? '' : 'disabled'} onclick="Core.buyTokenBundle(${qty})">${price} 🪙</button>
-                    </div>`;
-                }).join('');
-                el.innerHTML = `
-                    <div class="token-vault-panel">
-                        <div class="token-vault-head">
-                            <div class="token-vault-head-left">
-                                <div class="token-vault-icon">💠</div>
-                                <div>
-                                    <div class="token-vault-title">Жетоны Схрона</div>
-                                    <div class="token-vault-sub">В запасе: ${owned} 💠</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="token-bundle-grid">${cardsHtml}</div>
-                    </div>`;
-            },
-            buyTokenBundle(qty) {
-                if (!this.TOKEN_BUNDLES.includes(qty)) return;
-                const price = this.TOKEN_PRICES[qty];
-                if (this.p.caps < price) return alert("Мало крышек!");
-                this.p.caps -= price;
-                this.triggerQuest("spend_caps", price);
-                if (!this.p.inv) this.p.inv = {};
-                this.p.inv["Жетон Схрона"] = (this.p.inv["Жетон Схрона"] || 0) + qty;
-                this.log(`💠 Жетоны Схрона: +${qty}!`, "loot");
-                Sound.play('buy'); this.save(); this.updateUI(); this.renderTokenVault();
             },
 
             // ================= ПОДАРОК К ОБНОВЛЕНИЮ (разово, доступен 24 часа, только для тех, кто уже играл) =================
@@ -19590,8 +19444,10 @@ startCombat(isBossFight = false) {
                 back.classList.remove('scfx-charging', 'scfx-dim', 'scfx-boom');
                 if (!this.scfxEnabled()) return;
                 this.scfxSetCenter(back, this.scfxCenter(overlay, crateEl), color, lvl);
-                this.scfxAdd(back, 'scfx-rays');
-                this.scfxAdd(back, 'scfx-rays b');
+                // Лучи (.scfx-rays) убраны: два полноэкранных вращающихся conic-gradient
+                // слоя с mask-image были самой тяжёлой частью анимации открытия ящика
+                // и вызывали лаги на слабых устройствах. Свечение пола (.scfx-floor) и
+                // искры (.scfx-spark) сами по себе достаточно лёгкие и остаются.
                 this.scfxAdd(back, 'scfx-floor');
                 const n = 8 + lvl * 4;
                 for (let i = 0; i < n; i++) {
@@ -19622,9 +19478,6 @@ startCombat(isBossFight = false) {
                         '--d': d + 'ms', '--dl': dl + 'ms'
                     }, base), dl + d + 150);
                 }
-                [0.04, 0.38, 0.7].forEach(f => {
-                    this.scfxAdd(front, 'scfx-ring in', Object.assign({ '--c': color, '--d': '560ms', '--dl': Math.round(ms * f) + 'ms', '--sc': '8' }, base), ms * f + 750);
-                });
             },
             scfxChargeEnd(overlay) { this.scfxLayer(overlay, 'back').classList.remove('scfx-charging'); },
 
@@ -19671,8 +19524,6 @@ startCombat(isBossFight = false) {
                 const c = this.scfxCenter(overlay, crateEl), front = this.scfxLayer(overlay, 'front');
                 const base = { '--x': c.x + 'px', '--y': c.y + 'px', '--c': color };
                 this.scfxAdd(front, 'scfx-flash', Object.assign({ '--d': '800ms', '--op': '0.9' }, base), 900);
-                this.scfxAdd(front, 'scfx-ring', Object.assign({ '--d': '900ms', '--sc': '20' }, base), 1000);
-                this.scfxAdd(front, 'scfx-ring', Object.assign({ '--d': '1000ms', '--dl': '140ms', '--sc': '28' }, base), 1200);
                 this.scfxRadial(front, c, 24 + lvl * 5, color, lvl, 90, 230, [700, 1200]);
                 if (lvl >= 3) this.scfxAdd(front, 'scfx-pillar', base, 1300);
                 const txt = this.scfxAdd(front, 'scfx-text', { '--x': c.x + 'px', '--y': (c.y - 118) + 'px', '--c': color }, 1500);
@@ -19689,7 +19540,6 @@ startCombat(isBossFight = false) {
                 crack.innerHTML = '<svg viewBox="0 0 150 140" xmlns="http://www.w3.org/2000/svg"><path d="M75 4 L66 30 L84 46 L62 70 L86 92 L70 118 L78 136"/><path d="M84 46 L112 54 L120 78"/><path d="M62 70 L36 80 L28 106"/></svg>';
                 this.scfxAdd(front, 'scfx-flash', { '--x': c.x + 'px', '--y': c.y + 'px', '--c': '#ffffff', '--d': '520ms', '--op': '0.55', '--dl': '300ms' }, 900);
                 this.scfxAdd(front, 'scfx-flash', { '--x': c.x + 'px', '--y': c.y + 'px', '--c': '#ff2a5f', '--d': '800ms', '--op': '0.4', '--dl': '300ms' }, 1200);
-                this.scfxAdd(front, 'scfx-ring', { '--x': c.x + 'px', '--y': c.y + 'px', '--c': '#ff6b6b', '--d': '800ms', '--dl': '300ms', '--sc': '15' }, 1200);
                 for (let i = 0; i < 18; i++) {
                     const d = this.scfxR(800, 1300);
                     this.scfxAdd(front, 'scfx-p conf', {
@@ -19711,10 +19561,6 @@ startCombat(isBossFight = false) {
                 back.classList.remove('scfx-charging');
                 back.classList.remove('scfx-boom'); void back.offsetWidth; back.classList.add('scfx-boom');
                 this.scfxAdd(front, 'scfx-flash', Object.assign({ '--d': '900ms', '--op': (0.7 + lvl * 0.05).toFixed(2) }, base), 1000);
-                const ringCols = lvl >= 5 ? ['#ff2a5f', '#00f0ff', '#bf5af2'] : [color, color, color];
-                [['950ms', '0ms', '18'], ['1050ms', '120ms', '26'], ['1150ms', '260ms', '34']].forEach((r, i) => {
-                    this.scfxAdd(front, 'scfx-ring', { '--x': c.x + 'px', '--y': c.y + 'px', '--c': ringCols[i], '--d': r[0], '--dl': r[1], '--sc': r[2] }, 1500);
-                });
                 if (lvl >= 2) this.scfxAdd(front, 'scfx-pillar', base, 1300);
                 this.scfxRadial(front, c, 30 + lvl * 8, color, lvl, 110, 260 + lvl * 30, [800, 1400]);
                 if (lvl >= 1) this.scfxConfettiBurst(front, c, 10 + lvl * 6, color, lvl);
@@ -19738,7 +19584,6 @@ startCombat(isBossFight = false) {
                 this.scfxSetCenter(this.scfxLayer(overlay, 'back'), this.scfxCenter(overlay, crate));
                 const front = this.scfxLayer(overlay, 'front'), o = overlay.getBoundingClientRect(), r = icon.getBoundingClientRect();
                 const p = { x: r.left - o.left + r.width / 2, y: r.top - o.top + r.height / 2 };
-                this.scfxAdd(front, 'scfx-ring', { '--x': p.x + 'px', '--y': p.y + 'px', '--c': color, '--d': '800ms', '--sc': '9' }, 900);
                 this.scfxRadial(front, p, 12 + lvl * 2, color, lvl, 50, 130, [600, 1000]);
             },
             // Итоговая карточка (несколько призов): праздничный дождь конфетти
@@ -19852,10 +19697,11 @@ startCombat(isBossFight = false) {
                         this.log(`💥 Улучшение не удалось — ящик («${tierDef.name}») вскрывается автоматически.`, "loot");
                         if (chanceEl && fx) chanceEl.textContent = '💥 Не удалось… ящик вскрывается!';
                         this.scfxFailBurst(overlayEl, previewCrate, lvl, tierDef.color);
-                        // Даём разглядеть трещину и обломки, и только потом вскрываем ящик
+                        // Даём разглядеть трещину и обломки, и только потом вскрываем ящик —
+                        // сразу (immediate=true), без повторной анимации «зарядки» на карусели наград.
                         setTimeout(() => {
                             if (actionBtn) actionBtn.disabled = false;
-                            this.openStarCrateInstance(idx);
+                            this.openStarCrateInstance(idx, true);
                         }, fx ? 950 : 0);
                     }
                 }, chargeMs);
@@ -19882,7 +19728,10 @@ startCombat(isBossFight = false) {
             // advanceRelic/showRelicSummary), просто с моделью и цветами конкретного тира
             // Звёздного Ящика (см. playStarCrateIntro). Сам экземпляр удаляется из p.starCrates
             // по завершении показа — см. флаг _openingStarCrateIdx в closeGacha().
-            openStarCrateInstance(idx) {
+            // immediate=true — для случая, когда ящик уже треснул и вспыхнул на экране
+            // улучшения (неудачная попытка): тогда это тот же самый ящик, и повторной анимации
+            // «зарядка → тряска» перед открытием на карусели наград быть не должно.
+            openStarCrateInstance(idx, immediate) {
                 if (!this.p.starCrates || this.p.starCrates[idx] === undefined) return;
                 const lvl = this.p.starCrates[idx];
                 const tierDef = DB.starCrate.tiers[lvl];
@@ -19894,11 +19743,13 @@ startCombat(isBossFight = false) {
                 this._relicQueueTotal = count;
                 this._openingStarCrateIdx = idx;
                 this.closeStarCrateOverlay();
-                this.playStarCrateIntro(tierDef, lvl);
+                this.playStarCrateIntro(tierDef, lvl, immediate);
             },
             // Анимация ящика (тряска → открытие → вылет награды) для Звёздного Ящика — то же,
             // что playRelicIntro(), но выставляет модель/скин конкретного уровня редкости.
-            playStarCrateIntro(tierDef, lvl) {
+            // immediate=true пропускает фазу «зарядка/тряска» и открывает ящик сразу — см.
+            // openStarCrateInstance.
+            playStarCrateIntro(tierDef, lvl, immediate) {
                 const overlay = document.getElementById('gacha-overlay');
                 const crate = document.getElementById('gacha-crate');
                 const rewardCard = document.getElementById('gacha-reward');
@@ -19933,8 +19784,6 @@ startCombat(isBossFight = false) {
                 this.scfxAmbient(overlay, crate, lvl, tierDef.color);
                 this.scfxPopStars(document.getElementById('gacha-stars-top'));
                 const fx = this.scfxEnabled();
-                const buildMs = fx ? 1250 : 700; // с эффектами «зарядка» ящика перед открытием дольше
-                if (fx) { crate.style.setProperty('--ct', buildMs + 'ms'); crate.classList.add('scfx-charging'); this.scfxCharge(overlay, crate, lvl, tierDef.color, buildMs); }
 
                 const first = this._relicQueue[0];
                 if (first) {
@@ -19942,10 +19791,7 @@ startCombat(isBossFight = false) {
                     else rewardEmerge.textContent = first.icon;
                 } else { rewardEmerge.innerHTML = ''; }
 
-                crate.classList.add('opening');
-                Sound.play('crate');
-
-                setTimeout(() => {
+                const doOpen = () => {
                     crate.classList.remove('opening', 'scfx-charging');
                     crate.classList.add('opened');
                     this.scfxOpenBurst(overlay, crate, lvl, tierDef.color);
@@ -19956,7 +19802,23 @@ startCombat(isBossFight = false) {
                     const starsTopEl = document.getElementById('gacha-stars-top');
                     if (starsTopEl) starsTopEl.classList.add('sst-hidden');
                     setTimeout(() => { this.showNextRelicReward(); }, fx ? 1000 : 900);
-                }, buildMs);
+                };
+
+                if (immediate) {
+                    // Ящик уже треснул и вспыхнул на экране улучшения — это тот же самый
+                    // ящик, просто на другом оверлее (карусель наград), так что второй цикл
+                    // «зарядка → тряска → открытие» не запускаем, открываем сразу.
+                    setTimeout(doOpen, 30);
+                    return;
+                }
+
+                const buildMs = fx ? 1250 : 700; // с эффектами «зарядка» ящика перед открытием дольше
+                if (fx) { crate.style.setProperty('--ct', buildMs + 'ms'); crate.classList.add('scfx-charging'); this.scfxCharge(overlay, crate, lvl, tierDef.color, buildMs); }
+
+                crate.classList.add('opening');
+                Sound.play('crate');
+
+                setTimeout(doOpen, buildMs);
             },
 
             // Взвешенный случайный выбор награды из пула ежедневного пайка
