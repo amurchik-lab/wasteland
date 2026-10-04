@@ -1385,127 +1385,8 @@ transform:scale(1);
         .deals-refresh-btn:disabled { opacity: 0.4; box-shadow: none; }
         .deals-refresh-btn:active { transform: scale(0.95); }
 
-        /* ===== Цепь Поставок: разовая цепочка акций в Магазине, сразу под баннером Пропуска
-           Пустоши. Вертикальный степпер — звенья идут строго по порядку, текущее звено
-           подсвечено и активно, пройденные отмечены галочкой, будущие показаны затемнённо
-           с замком. Отдельная от Ежедневных Акций цветовая тема (изумрудно-бирюзовая —
-           "сигнальная цепь"), чтобы визуально не путаться с обычными акциями. */
-        .chain-deal-panel {
-            position: relative; overflow: hidden;
-            background: linear-gradient(150deg, rgba(57,255,20,0.07) 0%, rgba(0,240,255,0.05) 55%, rgba(8,6,14,0.95) 100%), var(--glass-bg);
-            border: 1px solid rgba(57,255,20,0.28);
-            border-radius: 20px;
-            padding: 14px 14px 15px;
-            margin-bottom: 10px;
-            box-shadow: 0 12px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.07);
-        }
-        .chain-deal-head { display: flex; align-items: center; gap: 10px; padding-bottom: 12px; margin-bottom: 4px; border-bottom: 1px dashed rgba(57,255,20,0.28); }
-        .chain-deal-head-icon {
-            width: 36px; height: 36px; min-width: 36px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; font-size: 18px;
-            background: radial-gradient(circle at 33% 28%, rgba(160,255,140,0.9), rgba(57,255,20,0.22) 68%), rgba(8,10,16,0.5);
-            border: 1.5px solid var(--neon-green);
-            box-shadow: 0 0 12px rgba(57,255,20,0.5);
-        }
-        .chain-deal-title { font-size: 13.5px; font-weight: 900; color: #fff; letter-spacing: 0.2px; }
-        .chain-deal-sub { font-size: 10px; font-weight: 700; color: var(--text-muted); margin-top: 3px; }
-        .chain-deal-done .chain-deal-head { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
-
-        /* Каждое звено — полноценный блок-карточка (в духе .deal-card / .mega-deal-card из
-           Ежедневных Акций), а не узкая строка. Блоки идут друг под другом сверху вниз,
-           между ними — вертикальный соединитель со стрелкой, подчёркивающий, что цепочка
-           двигается вниз по порядку. */
-        .chain-deal-nodes { display: flex; flex-direction: column; }
-        .chain-node {
-            position: relative; z-index: 1; overflow: hidden;
-            display: flex; flex-direction: column; gap: 10px;
-            border-radius: 18px; padding: 13px;
-            background: linear-gradient(155deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 55%, rgba(10,8,16,0.94) 100%), var(--glass-bg);
-            border: 1.5px solid rgba(255,255,255,0.16);
-            box-shadow: var(--glass-shadow-soft);
-        }
-        .chain-node.locked { opacity: 0.55; }
-        @keyframes chainNodePulse { 0%,100% { box-shadow: 0 0 10px rgba(0,240,255,0.5); } 50% { box-shadow: 0 0 18px rgba(0,240,255,0.85); } }
-        .chain-node.active {
-            border-color: var(--neon-blue);
-            background: linear-gradient(155deg, rgba(0,240,255,0.18) 0%, rgba(0,114,255,0.08) 55%, rgba(10,8,16,0.94) 100%), var(--glass-bg);
-            box-shadow: 0 0 0 1px rgba(0,240,255,0.18), 0 10px 26px rgba(0,240,255,0.28), var(--glass-shadow-soft);
-        }
-        .chain-node.done {
-            border-color: rgba(57,255,20,0.5);
-            background: linear-gradient(155deg, rgba(57,255,20,0.14) 0%, rgba(10,8,16,0.94) 60%), var(--glass-bg);
-            box-shadow: 0 6px 18px rgba(57,255,20,0.18), var(--glass-shadow-soft);
-        }
-        .chain-node-top { display: flex; align-items: center; gap: 12px; }
-        .chain-node-info { flex: 1; min-width: 0; }
-        .chain-node-step { font-size: 9.5px; font-weight: 900; letter-spacing: 0.4px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 2px; }
-        .chain-node.active .chain-node-step { color: var(--neon-blue); }
-        .chain-node.done .chain-node-step { color: var(--neon-green); }
-        .chain-node-name { font-size: 12.5px; font-weight: 800; color: #fff; line-height: 1.3; }
-        .chain-node-price { font-family: 'Consolas', monospace; font-size: 11.5px; font-weight: 800; color: #ffd979; }
-        .chain-node-price.free { color: var(--neon-green); font-family: system-ui, sans-serif; }
-        .chain-node-bottom { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-        .chain-node-btn {
-            flex-shrink: 0; border: none; border-radius: 999px;
-            padding: 9px 18px; font-weight: 900; font-size: 12px; font-family: 'Consolas', monospace;
-            color: #3a2400; background: var(--grad-gold);
-            box-shadow: 0 4px 12px rgba(255,183,3,0.32), inset 0 1px 0 rgba(255,255,255,0.35);
-        }
-        .chain-node-btn.gift { color: #062b00; background: linear-gradient(135deg, #39ff14, #1ea62e); box-shadow: 0 4px 12px rgba(57,255,20,0.35), inset 0 1px 0 rgba(255,255,255,0.35); }
-        .chain-node-btn:disabled { opacity: 0.4; box-shadow: none; }
-        .chain-node-btn:active { transform: scale(0.95); }
-
-        /* Визуальные плашки наград звеньев (вместо плоских кружков-эмодзи) — та же идея,
-           что и на Трофейной Дороге: настоящие спрайты ящиков/скинов/оружия, если есть. */
-        .chain-node-badge { flex-shrink: 0; width: 50px; height: 50px; border-radius: 14px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; background: linear-gradient(160deg, rgba(57,255,20,0.16), rgba(255,255,255,0.02)); border: 1.5px solid rgba(255,255,255,0.18); box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 2px 8px rgba(0,0,0,0.3); }
-        .chain-node-badge-icon { font-size: 21px; line-height: 1; color: var(--text-muted); }
-        .chain-node-badge .crate-thumb { width: 50px; height: 50px; }
-        .chain-node-badge > svg { width: 34px; height: 34px; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.5)); }
-        .chain-node-skin-visual { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
-        .chain-node-skin-visual svg { width: 86%; height: 86%; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.5)); }
-        .chain-node.active .chain-node-badge { border-color: var(--neon-blue); box-shadow: 0 0 14px rgba(0,240,255,0.45), inset 0 1px 0 rgba(255,255,255,0.15); animation: chainNodePulse 2.2s ease-in-out infinite; }
-        .chain-node.done .chain-node-badge { border-color: rgba(57,255,20,0.55); box-shadow: 0 0 10px rgba(57,255,20,0.3), inset 0 1px 0 rgba(255,255,255,0.1); }
-        .chain-node.locked .chain-node-badge { opacity: 0.6; }
-        .chain-node-chips { display: flex; flex-wrap: wrap; gap: 5px; }
-        .chain-node-chips .chain-chip { background: rgba(57,255,20,0.12); border-color: rgba(57,255,20,0.45); color: #baffa8; }
-
-        /* Полученное звено: показываем настоящую иконку/спрайт награды (слегка приглушённо),
-           а поверх — маленькую галочку-бейдж в углу, вместо того чтобы прятать её за плоским ✓. */
-        .chain-node-badge-visual { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; opacity: 0.65; filter: saturate(0.75); }
-        .chain-node-badge-check {
-            position: absolute; right: -3px; bottom: -3px; width: 20px; height: 20px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; color: #062b00;
-            background: linear-gradient(145deg, #39ff14, #1ea62e);
-            border: 2px solid rgba(10,8,16,0.9);
-            box-shadow: 0 0 8px rgba(57,255,20,0.6);
-        }
-        /* Плашка "получено" на месте цены/кнопки у пройденного звена */
-        .chain-node-claimed-tag {
-            margin-left: auto; display: inline-flex; align-items: center; gap: 5px;
-            font-size: 10.5px; font-weight: 900; letter-spacing: 0.2px; color: #baffa8;
-            background: rgba(57,255,20,0.12); border: 1px solid rgba(57,255,20,0.4);
-            border-radius: 999px; padding: 5px 12px;
-        }
-
-        /* Короткий "пульс" карточки в момент получения награды — играет один раз, сразу
-           после клика по кнопке "Купить"/"Забрать" (см. chainDealAction/_chainDealJustClaimedIdx). */
-        @keyframes chainNodeClaimPop {
-            0% { transform: scale(1); }
-            35% { transform: scale(1.035); box-shadow: 0 0 0 1px rgba(57,255,20,0.35), 0 0 34px rgba(57,255,20,0.55); }
-            100% { transform: scale(1); }
-        }
-        .chain-node.just-claimed { animation: chainNodeClaimPop 0.65s cubic-bezier(.22,1.4,.4,1); }
-        @keyframes chainNodeBadgeCheckPop { 0% { transform: scale(0); } 60% { transform: scale(1.25); } 100% { transform: scale(1); } }
-        .chain-node.just-claimed .chain-node-badge-check { animation: chainNodeBadgeCheckPop 0.4s 0.15s cubic-bezier(.34,1.8,.6,1) both; }
-
-        /* Соединитель между блоками-звеньями — вертикальная пунктирная линия со стрелкой
-           вниз, показывающая направление движения по цепочке. */
-        .chain-node-connector { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 4px 0; }
-        .chain-node-connector-line { width: 2px; height: 16px; background: repeating-linear-gradient(to bottom, rgba(255,255,255,0.25) 0, rgba(255,255,255,0.25) 4px, transparent 4px, transparent 8px); }
-        .chain-node-connector.done .chain-node-connector-line { background: linear-gradient(to bottom, #39ff14, rgba(57,255,20,0.3)); }
-        .chain-node-connector-arrow { font-size: 10px; line-height: 1; color: rgba(255,255,255,0.35); margin-top: -2px; }
-        .chain-node-connector.done .chain-node-connector-arrow { color: var(--neon-green); }
-        .chain-deal-expired-note { position: relative; z-index: 1; margin-top: 4px; padding: 10px 12px; border-radius: 14px; background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.22); color: var(--text-muted); font-size: 10.5px; font-weight: 700; text-align: center; }
+        .reward-skin-visual { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
+        .reward-skin-visual svg { width: 86%; height: 86%; filter: drop-shadow(0 1px 3px rgba(0,0,0,0.5)); }
 
         /* Мегаакция — единственная позиция за ваучеры, самая заметная карточка блока (классический стиль) */
         .mega-deal-card, .super-deal-card {
@@ -2064,12 +1945,6 @@ transform:scale(1);
         #trophy-overlay .schem-title { color: var(--neon-gold); text-shadow: 0 0 12px rgba(255,183,3,0.5); }
         #trophy-overlay .schem-close-btn { background: rgba(255,183,3,0.15); border-color: var(--neon-gold); color: var(--neon-gold); }
 
-        /* ===== Отдельное подменю "Цепь Поставок" (см. #chaindeal-overlay) — та же
-           изумрудно-бирюзовая тема, что и у самой панели цепочки в Магазине. */
-        #chaindeal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: radial-gradient(circle at 50% 18%, rgba(57,255,20,0.12), rgba(4,14,10,0.92) 65%); z-index: 5900; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 16px; backdrop-filter: blur(6px); }
-        #chaindeal-overlay .schem-container { border-color: #39ff14; box-shadow: 0 0 34px rgba(57,255,20,0.3), inset 0 0 22px rgba(57,255,20,0.08); background: linear-gradient(160deg, rgba(6,26,10,0.94), rgba(4,10,8,0.97)); }
-        #chaindeal-overlay .schem-title { color: #39ff14; text-shadow: 0 0 12px rgba(57,255,20,0.5); }
-        #chaindeal-overlay .schem-close-btn { background: rgba(57,255,20,0.15); border-color: #39ff14; color: #39ff14; }
         .trophy-progress-bar { background: linear-gradient(135deg, rgba(255,183,3,0.16), rgba(255,103,0,0.06)); border: 1px solid rgba(255,183,3,0.4); border-radius: 14px; padding: 12px 14px; margin-bottom: 14px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 4px 14px rgba(0,0,0,0.3); }
         .trophy-progress-top { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 800; color: #fff; margin-bottom: 8px; gap: 8px; }
         .trophy-progress-outer { height: 10px; border-radius: 6px; background: rgba(255,255,255,0.08); overflow: hidden; position: relative; box-shadow: inset 0 1px 3px rgba(0,0,0,0.4); }
@@ -3541,32 +3416,6 @@ transform:scale(1);
         .skin-collapsed-sub { font-size: 10px; color: var(--text-muted); font-weight: 700; margin-top: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.3; }
         .skin-collapsed-discount-flag { display: none; position: relative; z-index: 1; font-size: 9.5px; font-weight: 900; color: #fff; background: linear-gradient(135deg, #ff2a5f, #ff6600); padding: 4px 8px; border-radius: 7px; white-space: nowrap; box-shadow: 0 0 10px rgba(255,42,95,0.5); }
         .skin-collapsed-discount-flag.active { display: inline-block; }
-
-        /* ===== Вход в отдельное подменю "Цепь Поставок" — та же изумрудно-бирюзовая тема,
-           что и раньше у встроенной панели, но теперь это компактная плашка, открывающая
-           полноэкранное подменю (см. #chaindeal-overlay), как у Пропуска Пустоши/Скинов. */
-        .chaindeal-collapsed-bar {
-            position: relative; min-height: 64px;
-            background: linear-gradient(135deg, rgba(57,255,20,0.18) 0%, rgba(0,240,255,0.12) 55%, rgba(57,255,20,0.10) 100%), var(--glass-bg-strong);
-            backdrop-filter: blur(var(--glass-blur)) saturate(200%);
-            -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(200%);
-            border: 1.5px solid rgba(57,255,20,0.5);
-            border-radius: 20px;
-            padding: 12px 16px;
-            margin-bottom: 10px;
-            display: flex; align-items: center; gap: 12px;
-            box-shadow: 0 0 26px rgba(57,255,20,0.2), 0 8px 24px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.14);
-            cursor: pointer;
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
-        }
-        .chaindeal-collapsed-bar:active { transform: scale(0.98); }
-        .chaindeal-collapsed-bar:hover { box-shadow: 0 0 40px rgba(57,255,20,0.32), 0 8px 24px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.14); }
-        .chaindeal-collapsed-bar.done { border-color: rgba(255,255,255,0.25); box-shadow: 0 8px 20px rgba(0,0,0,0.4); }
-        .chaindeal-collapsed-icon { position: relative; width: 42px; height: 42px; flex-shrink: 0; border-radius: 14px; background: radial-gradient(circle, rgba(57,255,20,0.35), rgba(0,240,255,0.08)); border: 1.5px solid rgba(255,255,255,0.35); display: flex; align-items: center; justify-content: center; font-size: 21px; box-shadow: 0 0 16px rgba(57,255,20,0.4), inset 0 1px 0 rgba(255,255,255,0.25); z-index: 1; }
-        .chaindeal-collapsed-text { flex: 1; min-width: 0; position: relative; z-index: 1; display: flex; flex-direction: column; justify-content: center; gap: 3px; }
-        .chaindeal-collapsed-title { display: inline-block; line-height: 1.3; color: #39ff14; text-shadow: 0 1px 3px rgba(0,0,0,0.55); font-weight: 900; font-size: 13px; letter-spacing: 0.3px; }
-        .chaindeal-collapsed-sub { font-size: 10px; color: var(--text-muted); font-weight: 700; margin-top: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.3; }
-        .chaindeal-collapsed-level { background: rgba(57,255,20,0.16); color: #baffa8; }
 
         /* ===== Полноэкранное меню скинов ===== */
         #skin-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: rgba(4,6,10,0.7); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); z-index: 7000; display: none; justify-content: center; align-items: center; padding: 16px; }
@@ -5138,15 +4987,6 @@ padding-top:9vh;
 
 
 
-    <div id="chaindeal-overlay">
-        <div class="schem-container">
-            <div class="schem-header">
-                <div class="schem-title">🔗 Цепь Поставок</div>
-                <button class="schem-close-btn" onclick="Core.closeChainDeal()"><svg class="mini-ico" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M5.2 5.2l9.6 9.6M14.8 5.2L5.2 14.8" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg> Закрыть</button>
-            </div>
-            <div class="schem-body" id="chaindeal-body"></div>
-        </div>
-    </div>
 
     <div id="mastery-overlay">
         <div class="mastery-panel" id="mastery-panel">
@@ -6072,17 +5912,6 @@ padding-top:9vh;
             <div class="bp-collapsed-right">
                 <span id="bp-collapsed-level" class="bp-collapsed-level">ЭТАП 1</span>
                 <span class="bp-collapsed-arrow">›</span>
-            </div>
-        </div>
-        <div class="chaindeal-collapsed-bar" id="chaindeal-collapsed-bar" onclick="Core.openChainDeal()">
-            <div class="chaindeal-collapsed-icon" id="chaindeal-collapsed-icon">🔗</div>
-            <div class="chaindeal-collapsed-text">
-                <span class="chaindeal-collapsed-title">ЦЕПЬ ПОСТАВОК</span>
-                <div class="chaindeal-collapsed-sub" id="chaindeal-collapsed-sub">Разовая цепочка наград</div>
-            </div>
-            <div class="bp-collapsed-right">
-                <span class="bp-collapsed-level chaindeal-collapsed-level" id="chaindeal-collapsed-level">1/6</span>
-                <span class="bp-collapsed-arrow" style="color: #39ff14;">›</span>
             </div>
         </div>
         <div class="market-entry-row">
@@ -12604,7 +12433,7 @@ padding-top:9vh;
         };
 
         const Core = {
-            p: { hp: 50, maxHp: 50, energy: 100, maxEnergy: 100, rad: 0, hazards: {}, satiety: 100, lvl: 1, exp: 0, nextExp: 85, caps: 30, vouchers: 0, armor: 2, dodgeChance: 8, inv: { "Запчасти": 6, "Тяжелый Хлам": 0, "Ядерная Батарея": 0, "Сырое мясо": 1, "Жетон Схрона": 0 }, weaponsOwned: ["fists"], wpnUpgrades: { "fists": 0, "pipe": 0, "machete": 0, "pistol": 0, "revolver": 0, "shotgun": 0, "assault": 0, "plasma": 0, "minigun": 0, "gauss": 0, "sniper": 0, "axe": 0 }, wpnMastery: { "fists": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "pipe": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "machete": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "pistol": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "revolver": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "shotgun": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "assault": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "plasma": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "minigun": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "gauss": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "sniper": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 } }, wpnMasteryClaimed: {}, wpnMasteryTitleClaimed: [], activeWeapon: "fists", rodLvl: 0, rodResetV2Done: true, rodCompensationPending: null, food: { "Жареное мясо крысы": 1 }, currentBiome: 0, bioQuests: {}, bioQuestLegacyMax: 0, bossesDefeated: [], bossCooldowns: {}, bpLvl: 1, bpPoints: 0, bpPremium: false, bpElite: false, bpClaimedFree: [], bpClaimedPrem: [], bpClaimedElite: [], bpExtraPurchased: false, bpExtraLvl: 0, bpExtraClaimed: [], bpSeasonId: null, bpSeasonUID: null, bpSeasonHistory: [], bpSeasonV2Reset: true, plasmaRestoreV1Done: true, plasmaFullUnlockV1Done: true, seasonWpnOffByOneFixV1Done: true, adminForcedSeason: null, adminFreeBiomeTravel: false, lvlCapV1Done: true, dailyStreak: 0, lastDailyClaim: null, relicWasteland: 0, redeemedPromoCodes: [], freeBoxes: {}, starCrates: [], starCratesGuaranteed: [], nickname: "Странник", nicknameSet: false, avatarsOwned: ["ranger", "raider", "cyborg"], avatar: "ranger", titleId: "newbie", unlockedTitles: ["newbie"], maxBiomeReached: 0, bmLastSuccessDay: null, bmFailDay: null, bmFailCount: 0, marketEarnDay: null, marketEarnedToday: 0, marketDailyCapValue: null, exchangeDay: null, exchangeUsed: {}, marketBuyDay: null, marketBuySpentToday: 0, marketBuyDailyCapValue: null, skinsOwned: ["default"], activeSkin: "default", dailyQuests: [], dailyQuestsDay: null, dailyQuestsPremium: [], dailyQuestsPremiumDay: null, petsOwned: [], activePet: null, installedAt: Date.now(), updateGiftClaimed: false, restockGiftEligible: false, restockGiftClaimed: false, restockGiftAt: null, restockGiftWave: 2, pvpDuelLog: {}, wheelDay: null, wheelSpinsToday: 0, wheelFreeClaimed: false, wheelBonusSpins: 0, energyPackDay: null, energyPackBoughtToday: 0, buildPresets: [], chainDealStep: 0, chainDealSkinId: null, chainDealStartAt: null,
+            p: { hp: 50, maxHp: 50, energy: 100, maxEnergy: 100, rad: 0, hazards: {}, satiety: 100, lvl: 1, exp: 0, nextExp: 85, caps: 30, vouchers: 0, armor: 2, dodgeChance: 8, inv: { "Запчасти": 6, "Тяжелый Хлам": 0, "Ядерная Батарея": 0, "Сырое мясо": 1, "Жетон Схрона": 0 }, weaponsOwned: ["fists"], wpnUpgrades: { "fists": 0, "pipe": 0, "machete": 0, "pistol": 0, "revolver": 0, "shotgun": 0, "assault": 0, "plasma": 0, "minigun": 0, "gauss": 0, "sniper": 0, "axe": 0 }, wpnMastery: { "fists": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "pipe": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "machete": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "pistol": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "revolver": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "shotgun": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "assault": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "plasma": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "minigun": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "gauss": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 }, "sniper": { dmg: 0, kills: 0, crit: 0, elite: 0, flawless: 0, oneshot: 0, closecall: 0, irradiated: 0, biggame: 0 } }, wpnMasteryClaimed: {}, wpnMasteryTitleClaimed: [], activeWeapon: "fists", rodLvl: 0, rodResetV2Done: true, rodCompensationPending: null, food: { "Жареное мясо крысы": 1 }, currentBiome: 0, bioQuests: {}, bioQuestLegacyMax: 0, bossesDefeated: [], bossCooldowns: {}, bpLvl: 1, bpPoints: 0, bpPremium: false, bpElite: false, bpClaimedFree: [], bpClaimedPrem: [], bpClaimedElite: [], bpExtraPurchased: false, bpExtraLvl: 0, bpExtraClaimed: [], bpSeasonId: null, bpSeasonUID: null, bpSeasonHistory: [], bpSeasonV2Reset: true, plasmaRestoreV1Done: true, plasmaFullUnlockV1Done: true, seasonWpnOffByOneFixV1Done: true, adminForcedSeason: null, adminFreeBiomeTravel: false, lvlCapV1Done: true, dailyStreak: 0, lastDailyClaim: null, relicWasteland: 0, redeemedPromoCodes: [], freeBoxes: {}, starCrates: [], starCratesGuaranteed: [], nickname: "Странник", nicknameSet: false, avatarsOwned: ["ranger", "raider", "cyborg"], avatar: "ranger", titleId: "newbie", unlockedTitles: ["newbie"], maxBiomeReached: 0, bmLastSuccessDay: null, bmFailDay: null, bmFailCount: 0, marketEarnDay: null, marketEarnedToday: 0, marketDailyCapValue: null, exchangeDay: null, exchangeUsed: {}, marketBuyDay: null, marketBuySpentToday: 0, marketBuyDailyCapValue: null, skinsOwned: ["default"], activeSkin: "default", dailyQuests: [], dailyQuestsDay: null, dailyQuestsPremium: [], dailyQuestsPremiumDay: null, petsOwned: [], activePet: null, installedAt: Date.now(), updateGiftClaimed: false, restockGiftEligible: false, restockGiftClaimed: false, restockGiftAt: null, restockGiftWave: 2, pvpDuelLog: {}, wheelDay: null, wheelSpinsToday: 0, wheelFreeClaimed: false, wheelBonusSpins: 0, energyPackDay: null, energyPackBoughtToday: 0, buildPresets: [],
                 // ---- Реворк «Разведки» и «Костра» ----
                 exploreStreak: 0,     // серия подряд идущих мирных (не боевых) разведок — влияет на шанс тайника/точки интереса, показывается как "🍀 Удача разведки"
                 specialEventLock: 0,  // сколько ближайших разведок гарантированно будут обычной находкой — взводится на 2 после любого спецсобытия (тайник/засада/караван/бой/элит/точка интереса/опасный участок), чтобы спецсобытия не выпадали кластерами подряд
@@ -13261,15 +13090,6 @@ padding-top:9vh;
                     if(!this.p.bpClaimedElite) this.p.bpClaimedElite = [];
                     if(this.p.bpSeasonId === undefined) this.p.bpSeasonId = null;
                     if(this.p.bpSeasonUID === undefined) this.p.bpSeasonUID = null;
-                    // "Цепь Поставок" — новая одноразовая цепочка акций в магазине (см.
-                    // Core.CHAIN_DEAL_STEPS/initChainDeal/renderChainDeal). У старых сохранений
-                    // этих полей ещё нет — создаём в начальном состоянии (шаг 0, скин ещё не выбран).
-                    if(this.p.chainDealStep === undefined) this.p.chainDealStep = 0;
-                    if(this.p.chainDealSkinId === undefined) this.p.chainDealSkinId = null;
-                    // Цепь Поставок временная: с версии с таймером у старых сохранений, где цепь
-                    // уже была начата (chainDealSkinId уже выбран), отсчёт стартует "с нуля" при
-                    // первом же заходе после обновления — это разовая уступка на переходный период.
-                    if(this.p.chainDealStartAt === undefined) this.p.chainDealStartAt = this.p.chainDealSkinId ? Date.now() : null;
                     if(!this.p.bpSeasonHistory) this.p.bpSeasonHistory = [];
                     // ☢️ ОДНОРАЗОВАЯ МИГРАЦИЯ НА НОВУЮ 100-УРОВНЕВУЮ СЕЗОННУЮ СИСТЕМУ ПРОПУСКА.
                     // Новая система переиспользует старые поля (bpPremium/bpLvl/bpClaimedFree/
@@ -19008,288 +18828,6 @@ startCombat(isBossFight = false) {
             DEAL_VOUCHER_RATE: 20, // для расчёта % экономии мегаакции в пересчёте на крышки
             DAILY_DEALS_SCHEMA: 7, // бампается при изменении структуры/баланса акций, чтобы старые сохранённые акции пересчитались
 
-            // ===== ЦЕПЬ ПОСТАВОК: разовая цепочка из 6 звеньев, показывается в Магазине сразу
-            // под баннером Пропуска Пустоши (см. #chain-deal-container). Звенья открываются
-            // строго по порядку — следующее звено недоступно, пока не пройдено предыдущее.
-            // Платные звенья покупаются за КРЫШКИ (не ваучеры) — по account.chainDealStep
-            // отслеживается прогресс (0 = ничего не пройдено, 6 = цепь пройдена целиком).
-            // Звено 'skin' особое: сам скин и его цена определяются на лету (см.
-            // getChainDealSkinPrice/initChainDeal) — он должен быть скином, которого у игрока
-            // ещё нет, и не эксклюзивом Пропуска Пустоши (owl/cat).
-            // Звено 4 раньше выдавало случайный гаджет — заменено на набор ресурсов Мастерской
-            // (сразу несколько предметов; см. chainStepRewards/renderChainDealOverlay — там
-            // умеют разворачивать reward-массив в несколько строк с иконками).
-            CHAIN_DEAL_STEPS: [
-                { id: 'skin', paid: true },
-                { id: 'gift1', paid: false, reward: { name: "📦 Сейф Минори", type: "lootbox", boxIdx: 2 } },
-                { id: 'vouchers', paid: true, price: 125, reward: { name: "🏷️ Ваучеры x5", type: "voucher", qty: 5 } },
-                { id: 'gift2', paid: false, reward: [
-                    { name: "⚙️ Запчасти x30", type: "item", item: "Запчасти", qty: 30 },
-                    { name: "☢️ Ядерная Батарея x1", type: "item", item: "Ядерная Батарея", qty: 1 }
-                ] },
-                { id: 'tokens', paid: true, price: 2250, reward: { name: "💠 Жетон Схрона x15", type: "item", item: "Жетон Схрона", qty: 15 } },
-                { id: 'relics', paid: false, reward: { name: "🗝️ Реликварий Пустоши x2", type: "relic_wasteland", qty: 2 } }
-            ],
-            // Цена скина в звене 1 — переводим обычную ваучерную цену в крышки по курсу
-            // DEAL_VOUCHER_RATE и добавляем наценку x1.5: путь "без ваучеров" удобнее, но не дешевле.
-            getChainDealSkinPrice(skin) {
-                return Math.round(skin.price * this.DEAL_VOUCHER_RATE * 1.5);
-            },
-            // Цепь Поставок — временная акция: с момента старта (chainDealStartAt) у игрока есть
-            // ровно столько времени, чтобы пройти всю цепочку. Не путать с DAILY_DEALS_SCHEMA —
-            // здесь таймер общий на всю цепь, а не на отдельное звено.
-            CHAIN_DEAL_DURATION_MS: 3 * 24 * 60 * 60 * 1000, // 3 дня
-            // Возвращает true, если время на прохождение цепи вышло, а сама цепь ещё не пройдена
-            // целиком. Уже полученные звенья остаются у игрока — сгорает только возможность
-            // получить оставшиеся.
-            isChainDealExpired() {
-                const total = this.CHAIN_DEAL_STEPS.length;
-                if ((this.p.chainDealStep || 0) >= total) return false;
-                if (!this.p.chainDealStartAt) return false;
-                return (Date.now() - this.p.chainDealStartAt) >= this.CHAIN_DEAL_DURATION_MS;
-            },
-            chainDealMsRemaining() {
-                if (!this.p.chainDealStartAt) return this.CHAIN_DEAL_DURATION_MS;
-                return Math.max(0, this.p.chainDealStartAt + this.CHAIN_DEAL_DURATION_MS - Date.now());
-            },
-            // Формат "дни:часы" для таймера временной акции — в отличие от formatHMS (часы:мин:сек,
-            // удобно для суточных таймеров), для многодневного окна нагляднее считать целыми днями.
-            formatDaysHours(ms) {
-                const totalMinutes = Math.max(0, Math.ceil(ms / 60000));
-                const totalHours = Math.floor(totalMinutes / 60);
-                const d = Math.floor(totalHours / 24);
-                const h = totalHours % 24;
-                return `${d}д ${h}ч`;
-            },
-            // Выбирает (один раз и навсегда) скин для звена 1 из тех, что ещё не у игрока,
-            // исключая эксклюзивы Пропуска Пустоши. Если подходящих скинов не осталось —
-            // звено 1 автоматически засчитывается с компенсацией ваучерами (тот же принцип,
-            // что и у rewardDispatcher для уже полученных скинов/титулов). Здесь же стартует
-            // таймер всей цепи — ровно с момента, когда игрок впервые её увидел.
-            initChainDeal() {
-                if (this.p.chainDealSkinId) return;
-                if (!this.p.chainDealStartAt) this.p.chainDealStartAt = Date.now();
-                const pool = DB.skins.filter(s => s.id !== 'default' && s.id !== 'owl' && s.id !== 'cat' && !this.p.skinsOwned.includes(s.id));
-                if (pool.length) {
-                    this.p.chainDealSkinId = pool[Math.floor(Math.random() * pool.length)].id;
-                } else {
-                    this.p.chainDealSkinId = 'NONE';
-                    if ((this.p.chainDealStep || 0) === 0) {
-                        this.p.chainDealStep = 1;
-                        let bonus = 40; this.p.vouchers += bonus;
-                        this.log(`🔗 Цепь Поставок: все обычные скины уже у вас есть — начислено 🏷️ x${bonus} вместо первого звена цепи.`, "loot");
-                    }
-                }
-                this.save();
-            },
-            // Выполняет звено цепи idx: списывает крышки (если звено платное) и выдаёт награду.
-            // Доступно только для ТЕКУЩЕГО открытого звена — все остальные строго по порядку.
-            chainDealAction(idx) {
-                this.initChainDeal();
-                if ((this.p.chainDealStep || 0) !== idx) return;
-                if (this.isChainDealExpired()) { alert('Время Цепи Поставок истекло — акция была временной.'); this.renderChainDeal(); return; }
-                const step = this.CHAIN_DEAL_STEPS[idx];
-                if (step.id === 'skin') {
-                    if (this.p.chainDealSkinId === 'NONE') return; // уже засчитано автоматически в initChainDeal()
-                    const skin = DB.skins.find(s => s.id === this.p.chainDealSkinId);
-                    if (!skin) return;
-                    const price = this.getChainDealSkinPrice(skin);
-                    if (this.p.caps < price) { alert(`Недостаточно крышек! Нужно: ${price} 🪙`); return; }
-                    this.p.caps -= price;
-                    this.rewardDispatcher({ name: skin.name, type: "skin", skinId: skin.id }, "Цепь Поставок");
-                } else {
-                    if (step.paid) {
-                        if (this.p.caps < step.price) { alert(`Недостаточно крышек! Нужно: ${step.price} 🪙`); return; }
-                        this.p.caps -= step.price;
-                    }
-                    // reward может быть как одиночным объектом, так и массивом (набор ресурсов) —
-                    // разворачиваем в любом случае в список и выдаём по очереди.
-                    (Array.isArray(step.reward) ? step.reward : [step.reward]).forEach(r => this.rewardDispatcher(r, "Цепь Поставок"));
-                }
-                // Анимация получения награды (карточка-вспышка + галочка + список призов) и
-                // короткий "пульс" самого звена в списке — отмечаем индекс, renderChainDealOverlay
-                // навесит анимационный класс один раз и сразу же его сбросит.
-                this.playChainDealRewardAnim(step);
-                this._chainDealJustClaimedIdx = idx;
-                this.p.chainDealStep = idx + 1;
-                this.save(); this.updateUI(); this.renderChainDeal();
-            },
-            // Возвращает награду(ы) звена idx как массив (унифицирует одиночные и составные reward'ы,
-            // а также спецслучай звена 'skin', чей приз определяется динамически).
-            chainStepRewards(step) {
-                if (step.id === 'skin') {
-                    const skin = this.p.chainDealSkinId && this.p.chainDealSkinId !== 'NONE' ? DB.skins.find(sk => sk.id === this.p.chainDealSkinId) : null;
-                    return [skin ? { name: skin.name, type: "skin", skinId: skin.id } : { name: "Эксклюзивный скин", type: "skin" }];
-                }
-                return Array.isArray(step.reward) ? step.reward : [step.reward];
-            },
-            // Анимация получения награды за звено — переиспользует общий оверлей #deal-reward-overlay
-            // (вспышка + галочка + каскадный список предметов), но в фирменной изумрудной палитре
-            // Цепи Поставок и с rewardIcon/formatRewardName — они умеют показывать все типы наград,
-            // которые встречаются в цепи (предметы, ваучеры, ящики, реликварии, скины).
-            playChainDealRewardAnim(step) {
-                const rewards = this.chainStepRewards(step);
-                const color = '#39ff14';
-                const overlay = document.getElementById('deal-reward-overlay');
-                overlay.style.setProperty('--dr-color', color);
-                overlay.style.setProperty('--dr-color-15', this.hexToRgba(color, 0.15));
-                overlay.style.setProperty('--dr-glow', this.hexToRgba(color, 0.4));
-
-                document.getElementById('deal-reward-title').textContent = rewards.length > 1
-                    ? '🔗 Звено Цепи Поставок получено!'
-                    : `🔗 Получено: ${this.formatRewardName(rewards[0])}`;
-                document.getElementById('deal-reward-items').innerHTML = rewards.map((r, i) => `
-                    <div class="dr-item" style="animation-delay:${0.25 + i * 0.08}s">
-                        <div class="dr-item-icon">${this.rewardIcon(r)}</div>
-                        <div class="dr-item-name">${this.formatRewardName(r)}</div>
-                    </div>`).join('');
-
-                // Сброс и повторный запуск класса .active — чтобы CSS-анимации проигрывались
-                // заново при получении нескольких звеньев подряд без перезагрузки страницы.
-                overlay.classList.remove('active');
-                void overlay.offsetWidth;
-                overlay.classList.add('active');
-                Sound.play('reward');
-            },
-            // "Цепь Поставок" теперь живёт как отдельное подменю Магазина (см. #chaindeal-overlay),
-            // а не встроенной панелью на главном экране. renderChainDeal обновляет и плашку-вход
-            // в Магазине, и содержимое самого подменю (если оно уже открыто — обновится на лету
-            // сразу после покупки/получения звена).
-            renderChainDeal() {
-                this.initChainDeal();
-                this.renderChainDealBar();
-                this.renderChainDealOverlay();
-            },
-            // Компактная плашка-вход в Магазине, открывающая подменю "Цепь Поставок". Акция
-            // временная: как только срок истёк, а цепь не пройдена целиком — плашка целиком
-            // пропадает из Магазина (не просто блокируется), а открытое подменю закрывается.
-            renderChainDealBar() {
-                const bar = document.getElementById('chaindeal-collapsed-bar');
-                if (!bar) return;
-                const total = this.CHAIN_DEAL_STEPS.length;
-                const curStep = this.p.chainDealStep || 0;
-                const expired = this.isChainDealExpired();
-                if (expired) {
-                    bar.style.display = 'none';
-                    const overlay = document.getElementById('chaindeal-overlay');
-                    if (overlay && overlay.style.display !== 'none') this.closeChainDeal();
-                    return;
-                }
-                bar.style.display = '';
-                const iconEl = document.getElementById('chaindeal-collapsed-icon');
-                const subEl = document.getElementById('chaindeal-collapsed-sub');
-                const levelEl = document.getElementById('chaindeal-collapsed-level');
-                const done = curStep >= total;
-                bar.classList.toggle('done', done);
-                if (iconEl) iconEl.textContent = done ? '✅' : '🔗';
-                if (subEl) subEl.textContent = done ? 'Все звенья получены — спасибо!' : `Звено ${curStep + 1} из ${total} · осталось ${this.formatDaysHours(this.chainDealMsRemaining())}`;
-                if (levelEl) levelEl.textContent = done ? 'ГОТОВО' : `${curStep + 1}/${total}`;
-            },
-            // Полное содержимое подменю "Цепь Поставок" — вертикальный степпер звеньев,
-            // у каждого звена собственная визуальная плашка награды (та же логика, что и на
-            // Трофейной Дороге — настоящие спрайты ящиков/скинов/оружия вместо плоских эмодзи,
-            // см. trophyRewardVisual). Составные звенья (несколько ресурсов сразу) показывают
-            // все предметы отдельными чипами под названием.
-            renderChainDealOverlay() {
-                const el = document.getElementById('chaindeal-body');
-                if (!el) return;
-                const steps = this.CHAIN_DEAL_STEPS;
-                const total = steps.length;
-                const curStep = this.p.chainDealStep || 0;
-
-                if (curStep >= total) {
-                    el.innerHTML = `<div class="chain-deal-panel chain-deal-done">
-                        <div class="chain-deal-head">
-                            <div class="chain-deal-head-icon">🔗</div>
-                            <div>
-                                <div class="chain-deal-title">Цепь Поставок пройдена</div>
-                                <div class="chain-deal-sub">Все звенья получены — спасибо, что дошли до конца!</div>
-                            </div>
-                        </div>
-                    </div>`;
-                    return;
-                }
-
-                const expired = this.isChainDealExpired();
-                const justClaimedIdx = this._chainDealJustClaimedIdx;
-                this._chainDealJustClaimedIdx = -1; // одноразовая пометка — используется и сбрасывается за один рендер
-
-                const nodesHtml = steps.map((s, i) => {
-                    let state = i < curStep ? 'done' : (i === curStep ? 'active' : 'locked');
-                    if (expired && state === 'active') state = 'locked';
-                    const rewards = this.chainStepRewards(s);
-                    const mainReward = rewards[0];
-                    let price;
-                    if (s.id === 'skin') {
-                        const skin = this.p.chainDealSkinId && this.p.chainDealSkinId !== 'NONE' ? DB.skins.find(sk => sk.id === this.p.chainDealSkinId) : null;
-                        price = skin ? this.getChainDealSkinPrice(skin) : 0;
-                    } else {
-                        price = s.price || 0;
-                    }
-                    // У полученного звена показываем настоящую иконку/спрайт награды (приглушённо),
-                    // а не голую галочку — так видно, что именно забрано, плюс галочка-бейдж поверх.
-                    const badgeInner = state === 'done' ? `<div class="chain-node-badge-visual">${this.trophyRewardVisual(mainReward)}</div><div class="chain-node-badge-check">✓</div>`
-                        : (state === 'locked' ? '<span class="chain-node-badge-icon">🔒</span>' : this.trophyRewardVisual(mainReward));
-                    const priceHtml = state === 'done' ? '' : (s.paid
-                        ? `<div class="chain-node-price">${price} 🪙</div>`
-                        : `<div class="chain-node-price free">Бесплатно</div>`);
-                    const btnHtml = (state === 'active' && !expired)
-                        ? (s.paid
-                            ? `<button class="chain-node-btn" ${this.p.caps < price ? 'disabled' : ''} onclick="Core.chainDealAction(${i})">Купить</button>`
-                            : `<button class="chain-node-btn gift" onclick="Core.chainDealAction(${i})">Забрать</button>`)
-                        : (state === 'done' ? `<div class="chain-node-claimed-tag">✓ Получено</div>` : '');
-                    const nameHtml = rewards.length > 1 ? 'Набор ресурсов Мастерской' : this.formatRewardName(mainReward);
-                    const chipsHtml = rewards.length > 1
-                        ? `<div class="chain-node-chips">${rewards.map(r => `<span class="mastery-reward-chip chain-chip"><span class="mrc-ico">${this.rewardIcon(r)}</span>${this.formatRewardName(r)}</span>`).join('')}</div>`
-                        : '';
-                    const connectorHtml = i < total - 1
-                        ? `<div class="chain-node-connector ${state === 'done' ? 'done' : ''}">
-                               <div class="chain-node-connector-line"></div>
-                               <div class="chain-node-connector-arrow">▼</div>
-                           </div>`
-                        : '';
-                    const claimPopClass = (i === justClaimedIdx) ? ' just-claimed' : '';
-                    return `
-                    <div class="chain-node ${state}${claimPopClass}">
-                        <div class="chain-node-top">
-                            <div class="chain-node-badge">${badgeInner}</div>
-                            <div class="chain-node-info">
-                                <div class="chain-node-step">Звено ${i + 1} из ${total}</div>
-                                <div class="chain-node-name">${nameHtml}</div>
-                            </div>
-                        </div>
-                        ${chipsHtml}
-                        <div class="chain-node-bottom">
-                            ${priceHtml}
-                            ${btnHtml}
-                        </div>
-                    </div>${connectorHtml}`;
-                }).join('');
-
-                const subText = expired
-                    ? 'Время вышло — оставшиеся звенья больше недоступны'
-                    : `Разовая цепочка наград · Звено ${curStep + 1} из ${total} · осталось ${this.formatDaysHours(this.chainDealMsRemaining())}`;
-                const expiredNoteHtml = expired
-                    ? `<div class="chain-deal-expired-note">⌛ Цепь Поставок была временной акцией — срок на прохождение вышел. Уже полученные звенья остаются у вас.</div>`
-                    : '';
-
-                el.innerHTML = `
-                <div class="chain-deal-panel">
-                    <div class="chain-deal-head">
-                        <div class="chain-deal-head-icon">🔗</div>
-                        <div>
-                            <div class="chain-deal-title">Цепь Поставок</div>
-                            <div class="chain-deal-sub">${subText}</div>
-                        </div>
-                    </div>
-                    <div class="chain-deal-nodes">${nodesHtml}</div>
-                    ${expiredNoteHtml}
-                </div>`;
-            },
-            openChainDeal() {
-                Sound.play('click'); this.renderChainDealOverlay(); document.getElementById('chaindeal-overlay').style.display = 'flex';
-            },
-            closeChainDeal() { document.getElementById('chaindeal-overlay').style.display = 'none'; },
             DEALS_REFRESH_BASE_PRICE: 150,
             DEALS_REFRESH_MULT: 1.5, // каждое следующее обновление за день дороже на 50%
             // Скидка на акцию: от 0% (скидки может не быть вообще) до 99% (почти нереальная удача).
@@ -19664,7 +19202,6 @@ startCombat(isBossFight = false) {
                 el.innerHTML = shopHtml;
                 this.startStarCrateShopCycle();
                 this.renderDailyDeals();
-                this.renderChainDeal();
                 this.renderMarketEntryLocks();
                 this.renderSkinShop();
                 this.renderUpdateGiftCard();
@@ -22662,11 +22199,11 @@ startCombat(isBossFight = false) {
                     const wpn = DB.weapons.find(w => w.id === r.wpnId);
                     return Sprites.weapon(r.wpnId) || `<span class="trophy-node-badge-icon">${wpn ? wpn.icon : '🔫'}</span>`;
                 }
-                // Скин-награда (используется в "Цепи Поставок") — показываем настоящую модель
+                // Скин-награда — показываем настоящую модель
                 // скина, как в Гардеробе, а не плоский эмодзи.
                 if (r.type === 'skin' && r.skinId) {
                     const skin = DB.skins.find(s => s.id === r.skinId);
-                    if (skin) return `<span class="chain-node-skin-visual">${Sprites.player(skin.id)}</span>`;
+                    if (skin) return `<span class="reward-skin-visual">${Sprites.player(skin.id)}</span>`;
                 }
                 return `<span class="trophy-node-badge-icon">${this.rewardIcon(r)}</span>`;
             },
