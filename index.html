@@ -12001,7 +12001,7 @@ padding-top:9vh;
                 const r = this.active, e = Core.combatState; if (!r || !e) return;
                 r.kills++; r.waveDone++;
                 Core.safeSiegeProgress('kills', 1);
-                if (r.id === 'bossrush') { r.defeatedBosses++; r.pending.caps += e.rewardCaps || 0; r.pending.exp += e.exp; }
+                if (r.id === 'bossrush') { r.defeatedBosses++; r.pending.caps += Math.round((e.rewardCaps || 0) / 12); r.pending.exp += Math.round(e.exp / 12); } // Босс-Раш: награда уменьшена в 12 раз
                 else { r.pending.caps += Math.max(1, Math.round(r.ref * 0.0085 * (1 + r.wave * 0.1)) + (e.isBoss ? Math.round(r.ref * 0.11) : 0) + (e.isElite ? Math.round(r.ref * 0.022) : 0)); r.pending.exp += e.exp; }
                 Sound.play('victory');
                 Core.log(`🎉 ${e.name} повержен. <span style="opacity:.7">(${r.waveDone}/${r.waveTotal})</span>`, 'combat-win');
@@ -12385,7 +12385,7 @@ padding-top:9vh;
                     s.defense.cleared[r.biomeId] = true;
                     bonusLine = first ? '🎁 Бонус за первую победу в этом биоме!' : '🎁 Бонус за победу';
                 }
-                if (r.id === 'bossrush' && win) { const cb = Math.round(r.ref * 1.0); Core.p.caps += cb; r.total.caps += cb; Core.p.vouchers = (Core.p.vouchers || 0) + 2; r.total.vouchers += 2; Core.p.inv['Жетон Схрона'] = (Core.p.inv['Жетон Схрона'] || 0) + 5; r.total.tokens += 5; bonusLine = '🎁 Бонус за полное прохождение!'; }
+                if (r.id === 'bossrush' && win) { const cb = Math.round(r.ref * 1.0 / 12); Core.p.caps += cb; r.total.caps += cb; Core.p.vouchers = (Core.p.vouchers || 0) + 2; r.total.vouchers += 2; Core.p.inv['Жетон Схрона'] = (Core.p.inv['Жетон Схрона'] || 0) + 5; r.total.tokens += 5; bonusLine = '🎁 Бонус за полное прохождение!'; }
                 // рекорды
                 let record = false;
                 if (r.id === 'waves') { s.waves.runs++; if (r.cleared > s.waves.best || (r.cleared === s.waves.best && r.kills > s.waves.bestKills)) { record = r.cleared > s.waves.best; s.waves.best = r.cleared; s.waves.bestKills = r.kills; } }
