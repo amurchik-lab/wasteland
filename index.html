@@ -90,7 +90,7 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; font-family: system-ui, -apple-system, sans-serif; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55); }
         body { background-color: var(--bg-main); background-image: radial-gradient(circle at 50% 10%, var(--biome-glow, #111827) 0%, var(--bg-main) 80%); color: var(--text-main); overflow: hidden; height: 100dvh; display: flex; flex-direction: column; padding-bottom: env(safe-area-inset-bottom); position: relative; transition: background-image 1.4s ease; }
-        body::after { content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 9997; opacity: 0.035; mix-blend-mode: overlay; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+        body::after { content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 9997; opacity: 0.026; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
         body.no-glass * { text-shadow: none; }
         /* Эффект "жидкого стекла" (backdrop-filter: blur — размытие фона под панелями)
            полностью удалён из игры: класс no-glass теперь навешивается на body всегда,
@@ -4076,7 +4076,8 @@ transform:scale(1);
         .stage-scene.shake-heavy { animation: v2ShakeHeavy 0.5s ease; }
         @keyframes v2Shake { 0%,100% { transform: translate(0,0); } 20% { transform: translate(-3px, 1px); } 45% { transform: translate(3px,-2px); } 70% { transform: translate(-2px, 1px); } }
         @keyframes v2ShakeHeavy { 0%,100% { transform: translate(0,0) rotate(0); } 12% { transform: translate(-6px, 3px) rotate(-0.4deg); } 30% { transform: translate(6px,-4px) rotate(0.4deg); } 50% { transform: translate(-4px, 3px); } 72% { transform: translate(3px,-2px); } }
-        .stage-scene.hitstop .combatant *, .stage-scene.hitstop .stage-particles * { animation-play-state: paused !important; }
+        /* hit-stop: раньше селектор «.combatant *» трогал сотни SVG-узлов (пересчёт стилей ≈ 20 мс на слабом железе) — теперь только сами спрайты бойцов, где и играется удар */
+        .stage-scene.hitstop .combatant-sprite, .stage-scene.hitstop .combatant-recoil, .stage-scene.hitstop .combatant-sprite-wrap, .stage-scene.hitstop .combatant-weapon-badge { animation-play-state: paused !important; }
 
         /* ---- небо ---- */
         .stage-sky { position: absolute; inset: 0; z-index: 0; overflow: hidden; background:
@@ -4645,13 +4646,73 @@ transform:scale(1);
         body.bg-paused *, body.bg-paused *::before, body.bg-paused *::after { animation-play-state: paused !important; }
         /* Пока идёт забег, экраны выбора под ним не рендерятся вовсе */
         body.mode-run #mode-overlay:not(.show) { display: none; }
+
+        /* ===== Оптимизация (без изменения внешнего вида) ===== */
+        /* убирает задержку тапа и ложные двойные-тап-зумы на кнопках */
+        button, .tab-btn, [onclick] { touch-action: manipulation; }
+        /* Автоматический «лёгкий» режим: включается ТОЛЬКО если устройство реально проседает по FPS.
+           Ничего не удаляется — массовые декоративные анимации просто замирают на текущем кадре. */
+        body.auto-lite .sky-star, body.auto-lite .stage-particle, body.auto-lite .sky-cloud,
+        body.auto-lite .stage-fog, body.auto-lite .stage-rays, body.auto-lite .sky-orb,
+        body.auto-lite .combatant-embers i { animation-play-state: paused !important; }
+
+        /* --- Крит/одновременные удары: фиксируем слои сцены, чтобы анимации тряски/зума камеры
+           не перерисовывали (re-raster) всё содержимое сцены на каждом кадре --- */
+        .stage-camera { will-change: transform; }
+        .stage-scene { will-change: transform; }
+        /* белая вспышка крита — постоянный (невидимый) слой вместо создания/удаления псевдоэлемента на лету */
+        .stage-scene::after { content: ''; position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; z-index: 8; will-change: opacity; }
+        .stage-scene.crit-freeze::after { animation: critFlashWhite 0.11s ease-out; }
+        .dmg-float, .impact-spark, .ring-fx, .slash-fx, .claw-marks, .muzzle-flash-fx, .bullet-tracer-fx, .plasma-particle-fx, .plasma-cone-fx, .energy-bolt-fx, .puff-fx, .debris-fx, .heal-spark { will-change: transform, opacity; }
+
+        /* ===== Облегчение спрайтов бойцов =====
+           Раньше на .combatant-sprite висел CSS-filter: drop-shadow (до двух размытий, у боссов — с 16px свечением),
+           причём спрайт перерисовывается каждый кадр (внутри SVG постоянно играют анимации рук/головы/глаз), а во время удара,
+           крита и низкого ОЗ фильтр ещё и анимировался. Это главный источник просадок на критах, при одновременных атаках и в Босс-Раше.
+           Теперь: размытие заменено лёгкими градиентными свечениями (внешне то же самое), а в самих фильтрах остались
+           только дешёвые brightness/saturate — вспышки удара/крита выглядят как прежде. */
+        .combatant-sprite, .combatant.enemy-combatant.boss-enemy .combatant-sprite { filter: none; }
+        .combatant-sprite.down { filter: grayscale(1) brightness(0.55); }
+        @keyframes v2HitFlash { 0% { filter: brightness(3.2) saturate(0); } 45% { filter: brightness(1.6) saturate(1.3); } 100% { filter: brightness(1); } }
+        @keyframes v2CritPunch { 0% { transform: scale(1); filter: brightness(1); } 14% { transform: scale(0.82); filter: brightness(3) saturate(0); } 34% { transform: scale(1.2); filter: brightness(1.6); } 65% { transform: scale(0.97); } 100% { transform: scale(1); filter: brightness(1); } }
+        @keyframes critPunch { 0% { transform: scale(1); filter: brightness(1); } 12% { transform: scale(0.8); filter: brightness(2.8); } 32% { transform: scale(1.22); filter: brightness(1.5); } 60% { transform: scale(0.95); filter: brightness(1); } 100% { transform: scale(1); filter: brightness(1); } }
+        @keyframes lowHpPulse { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.4); } }
+        .combatant-stage::before { content: ''; position: absolute; inset: -14%; border-radius: 50%; pointer-events: none; opacity: 0; z-index: 3; background: radial-gradient(closest-side, var(--sg, rgba(255,60,90,0.7)), transparent 75%); }
+        .combatant.hit .combatant-stage::before { --sg: rgba(255,60,90,0.6); animation: sgFlash 0.32s ease-out; }
+        .combatant.crit-hit .combatant-stage::before { --sg: rgba(255,200,60,0.85); animation: sgFlash 0.4s ease-out; }
+        .combatant.player-combatant.low-hp .combatant-stage::before { --sg: rgba(255,42,95,0.45); animation: sgPulse 0.85s ease-in-out infinite; }
+        @keyframes sgFlash { 0% { opacity: 0; } 35% { opacity: 1; } 100% { opacity: 0; } }
+        @keyframes sgPulse { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
+        .enemy-combatant.boss-enemy .combatant-glow { background: radial-gradient(closest-side, rgba(255,60,90,0.62), transparent 74%); }
+
+        /* ===== Серая плашка отката на кнопках атак (вместо «(2с)») ===== */
+        #combat-actions button, #pvp-ability-grid button { position: relative; overflow: hidden; }
+        .cd-fill { position: absolute; inset: 0; background: rgba(96, 102, 118, 0.6); transform-origin: right center; pointer-events: none; border-radius: inherit; animation: cdWipe linear forwards; will-change: transform; }
+        @keyframes cdWipe { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+        #combat-actions button.cd-on, #pvp-ability-grid button.cd-on { cursor: default; }
+        #pvp-ability-grid button.cd-on { opacity: 1; }
+
+        #auth-modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: rgba(4,6,10,0.88); z-index: 10001; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
+        .auth-in { margin-top: 10px; user-select: text; -webkit-user-select: text; }
+        .auth-link-btn { width: 100%; margin-top: 10px; padding: 12px; font-size: 13px; font-weight: 800; border-radius: 12px; background: transparent; border: 1px solid rgba(255,255,255,0.2); color: var(--text-main); }
+
+        /* ===== Компактные настройки: помещаются в экран, при нехватке места — прокрутка внутри карточки ===== */
+        #settings-overlay { padding: 10px; }
+        .settings-card { padding: 12px 14px; max-height: calc(100dvh - 20px); overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+        .settings-card .settings-row { padding: 6px 0; gap: 6px !important; }
+        .settings-card .settings-label { font-size: 12px; }
+        .settings-card .settings-sub { font-size: 9.5px; line-height: 1.25; margin-top: 1px; }
+        .settings-card select, .settings-card input[type=text] { padding: 7px 10px !important; font-size: 12px !important; }
+        .settings-card .settings-row button { min-height: 0; }
+        .settings-card > button.primary { margin-top: 8px !important; padding: 10px !important; font-size: 13px; }
+        .settings-card #promo-code-input + button { padding: 0 12px !important; }
 </style>
 </head>
 <body>
 
     <div id="settings-overlay">
         <div class="settings-card">
-            <h3 style="margin-bottom: 16px; color: var(--neon-blue);">⚙️ Настройки</h3>
+            <h3 style="margin-bottom: 6px; color: var(--neon-blue); font-size: 16px;">⚙️ Настройки</h3>
             <div class="settings-row">
                 <div>
                     <div class="settings-label">🪶 Режим слабых устройств</div>
@@ -4661,6 +4722,16 @@ transform:scale(1);
                     <input type="checkbox" id="setting-perf-mode" onchange="Core.togglePerfMode(this.checked)">
                     <span class="track"><span class="thumb"></span></span>
                 </label>
+            </div>
+            <div class="settings-row" style="flex-direction: column; align-items: stretch; gap: 10px;">
+                <div>
+                    <div class="settings-label">📧 Аккаунт и почта</div>
+                    <div class="settings-sub" id="auth-status">…</div>
+                </div>
+                <div style="display:flex; gap:8px;">
+                    <button id="auth-link-btn" style="flex:1; padding:9px 6px; font-size:12px;" onclick="Auth.open('link')">Привязать почту</button>
+                    <button style="flex:1; padding:9px 6px; font-size:12px;" onclick="Auth.open('login')">Войти в аккаунт</button>
+                </div>
             </div>
             <div class="settings-row" style="flex-direction: column; align-items: stretch; gap: 10px;">
                 <div>
@@ -5639,6 +5710,7 @@ padding-top:9vh;
         </div>
     </div>
 
+    <div id="auth-modal"><div class="nick-gate-card"><div id="auth-modal-body"></div></div></div>
     <div id="nickname-gate-overlay">
         <div class="nick-gate-card">
             <div class="nick-gate-icon">🧭</div>
@@ -5648,6 +5720,7 @@ padding-top:9vh;
                 onkeydown="if(event.key==='Enter'){Core.submitNicknameGate(); this.blur();}">
             <div class="nick-gate-feedback" id="nickname-gate-feedback"></div>
             <button class="nick-gate-btn" onclick="Core.submitNicknameGate()">🚀 В Пустошь!</button>
+            <button class="auth-link-btn" onclick="Auth.open('login')">Уже есть аккаунт? Войти</button>
         </div>
     </div>
 
@@ -8946,14 +9019,25 @@ padding-top:9vh;
             critImpact(target) {
                 this._later(() => {
                     Sound.play('crit');
-                    this._cls(target === 'enemy' ? 'scene-enemy' : 'scene-player', 'crit-hit', 420);
-                    this._cls('stage-scene', 'crit-freeze', 120);
-                    this._cls('stage-scene', 'hitstop', 80);
-                    const cam = this.$('stage-camera');
-                    if (cam) { cam.style.setProperty('--cam-x', target === 'enemy' ? '-6px' : '6px'); cam.classList.remove('cam-punch'); void cam.offsetWidth; cam.classList.add('cam-punch'); setTimeout(() => cam.classList.remove('cam-punch'), 280); }
+                    // Все классы переключаем одной пачкой с ОДНИМ принудительным reflow (раньше их было 4-5 подряд —
+                    // каждый заставлял браузер пересчитать стили всей сцены прямо в момент крита).
+                    const spr = this.$(target === 'enemy' ? 'scene-enemy' : 'scene-player');
+                    const stage = this.$('stage-scene'), cam = this.$('stage-camera');
+                    // позицию колец считаем ДО изменения классов, чтобы не провоцировать лишний layout
                     const p = this._pt(this._spriteId(target), 0.5, 0.4);
+                    if (spr) spr.classList.remove('crit-hit');
+                    if (stage) stage.classList.remove('crit-freeze', 'hitstop', 'shake', 'shake-heavy');
+                    if (cam) { cam.style.setProperty('--cam-x', target === 'enemy' ? '-6px' : '6px'); cam.classList.remove('cam-punch'); }
+                    void (stage || document.body).offsetWidth;
+                    if (spr) { spr.classList.add('crit-hit'); setTimeout(() => spr.classList.remove('crit-hit'), 420); }
+                    if (stage) {
+                        stage.classList.add('crit-freeze', 'hitstop', 'shake-heavy');
+                        setTimeout(() => stage.classList.remove('crit-freeze'), 120);
+                        setTimeout(() => stage.classList.remove('hitstop'), 80);
+                        setTimeout(() => stage.classList.remove('shake-heavy'), 520);
+                    }
+                    if (cam) { cam.classList.add('cam-punch'); setTimeout(() => cam.classList.remove('cam-punch'), 280); }
                     if (p) { this._ring(p.x, p.y, '#ffd23a', 4, 520, true); this._ring(p.x, p.y, '#fff', 2.4, 380, true); }
-                    this.shake(true);
                 });
             },
             gadgetBurst(color) {
@@ -11135,15 +11219,23 @@ padding-top:9vh;
             pushTimer: null,
             firstSyncDone: false,
 
+            // Клиент создаётся один раз — им пользуется и экран регистрации (Auth), и облачная синхронизация
+            ensureClient() {
+                if (this.client) return this.client;
+                if (!window.supabase || !window.supabase.createClient) return null;
+                this.client = window.supabase.createClient(
+                    "https://dkraqtzqvjsnqvohobqp.supabase.co",
+                    "sb_publishable_De8dF05CjxEufKz1GToZAw_pTPjA6fw"
+                );
+                return this.client;
+            },
+
             init() {
                 if (!window.supabase || !window.supabase.createClient) {
                     console.warn("Cloud: библиотека supabase-js не загрузилась — работаем только локально.");
                     return Promise.resolve(false);
                 }
-                this.client = window.supabase.createClient(
-                    "https://dkraqtzqvjsnqvohobqp.supabase.co",
-                    "sb_publishable_De8dF05CjxEufKz1GToZAw_pTPjA6fw"
-                );
+                this.ensureClient();
                 return this.ensureSession().then(ok => {
                     this.ready = ok;
                     if (ok) this.reconcileOnBoot();
@@ -11285,6 +11377,173 @@ padding-top:9vh;
             }
         };
 
+
+        // ===================================================================
+        // Auth: привязка почты (по желанию) и вход по почте + паролю — всё через коды из писем.
+        // Игра по-прежнему стартует без регистрации (анонимная сессия). В Настройках → «Привязать почту»:
+        //   1) вводим почту → Supabase шлёт код  2) вводим код и придумываем пароль → аккаунт привязан
+        // (id и весь облачный прогресс сохраняются). Вход с другого устройства: почта + пароль;
+        // «Забыл пароль?» → код на почту → новый пароль.
+        // В шаблонах писем Supabase («Change Email Address» и «Reset Password») должен быть {{ .Token }}.
+        // ===================================================================
+        const Auth = {
+            view: null, busy: false, email: '', mode: '',
+            user: null,
+            refresh() { // подтягивает статус для блока в Настройках
+                const c = Cloud.ensureClient();
+                const st = document.getElementById('auth-status'), btn = document.getElementById('auth-link-btn');
+                if (!st || !btn) return;
+                if (!c) { st.textContent = 'Нет связи с сервером'; return; }
+                c.auth.getSession().then(({ data }) => {
+                    const u = data && data.session && data.session.user; this.user = u || null;
+                    if (u && u.email && !u.is_anonymous) { st.textContent = '✅ Привязана: ' + u.email; btn.style.display = 'none'; }
+                    else { st.textContent = 'Почта не привязана — прогресс хранится только на этом устройстве и в анонимном облаке'; btn.style.display = ''; }
+                }).catch(() => { st.textContent = 'Нет связи с сервером'; });
+            },
+            open(view) {
+                this.busy = false;
+                document.getElementById('auth-modal').style.display = 'flex';
+                this.setView(view || 'link');
+            },
+            close() { document.getElementById('auth-modal').style.display = 'none'; this.refresh(); },
+            VIEWS: {
+                link:    { title: '📧 Привязать почту', sub: 'Введите почту — мы пришлём код подтверждения.', fields: ['email'], btn: 'Получить код', go: 'sendLinkCode' },
+                linkc:   { title: '📧 Подтверждение', sub: 'Введите код из письма и придумайте пароль для входа.', fields: ['code', 'newpass'], btn: 'Привязать', go: 'confirmLink' },
+                login:   { title: '🔑 Вход в аккаунт', sub: 'Введите почту и пароль, которые вы привязали.', fields: ['email', 'pass'], btn: 'Войти', go: 'login' },
+                forgot:  { title: '🔁 Сброс пароля', sub: 'Введите почту аккаунта — пришлём код для сброса.', fields: ['email'], btn: 'Получить код', go: 'sendResetCode' },
+                forgotc: { title: '🔁 Новый пароль', sub: 'Введите код из письма и новый пароль.', fields: ['code', 'newpass'], btn: 'Сменить пароль', go: 'confirmReset' }
+            },
+            FIELDS: {
+                email:   { id: 'auth-f-email', type: 'email', ph: 'Почта', ac: 'email' },
+                pass:    { id: 'auth-f-pass', type: 'password', ph: 'Пароль', ac: 'current-password' },
+                newpass: { id: 'auth-f-newpass', type: 'password', ph: 'Новый пароль (от 6 символов)', ac: 'new-password' },
+                code:    { id: 'auth-f-code', type: 'text', ph: 'Код из письма', ac: 'one-time-code' }
+            },
+            setView(v) {
+                this.view = v; const d = this.VIEWS[v];
+                const keep = {}; Object.values(this.FIELDS).forEach(f => { const e = document.getElementById(f.id); if (e) keep[f.id] = e.value; });
+                if (this.email && !keep['auth-f-email']) keep['auth-f-email'] = this.email;
+                let h = `<div class="nick-gate-title">${d.title}</div><div class="nick-gate-sub" style="margin-bottom:6px">${d.sub}</div>`;
+                d.fields.forEach(k => { const f = this.FIELDS[k]; h += `<input id="${f.id}" type="${f.type}" class="nick-gate-input auth-in" placeholder="${f.ph}" autocomplete="${f.ac}" autocapitalize="off" spellcheck="false" ${k === 'code' ? 'inputmode="numeric" maxlength="10"' : ''} value="${(keep[f.id] || '').replace(/"/g, '&quot;')}" onkeydown="if(event.key==='Enter'){Auth.submit();}">`; });
+                h += `<div class="nick-gate-feedback" id="auth-feedback"></div><button class="nick-gate-btn" id="auth-main-btn" onclick="Auth.submit()">${d.btn}</button>`;
+                if (v === 'login') h += `<button class="auth-link-btn" onclick="Auth.setView('forgot')">Забыл пароль?</button>`;
+                h += `<button class="auth-link-btn" onclick="Auth.close()">Закрыть</button>`;
+                document.getElementById('auth-modal-body').innerHTML = h;
+            },
+            msg(t, ok) { const e = document.getElementById('auth-feedback'); if (e) { e.textContent = t; e.style.color = ok ? 'var(--neon-green)' : 'var(--neon-red)'; } },
+            val(k) { const e = document.getElementById(this.FIELDS[k].id); return e ? e.value.trim() : ''; },
+            busyOn(b) { this.busy = b; document.querySelectorAll('#auth-modal button').forEach(x => x.disabled = b); },
+            submit() { if (!this.busy) this[this.VIEWS[this.view].go](); },
+            okEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); },
+            okCode(c) { return /^\d{4,10}$/.test(c); },
+            explain(err) {
+                const m = ((err && err.message) || '').toLowerCase();
+                if (m.includes('already') || m.includes('registered') || m.includes('exists')) return 'Эта почта уже привязана к другому аккаунту';
+                if (m.includes('expired') || m.includes('invalid') && m.includes('token')) return 'Код неверный или устарел';
+                const sec = m.match(/after (\d+) seconds?/);
+                if (sec) return 'Повторить можно через ' + sec[1] + ' сек. — подождите и нажмите снова';
+                if (m.includes('email rate limit') || (err && err.code === 'over_email_send_rate_limit'))
+                    return 'Лимит писем сервера исчерпан (встроенная почта Supabase шлёт всего ~2 письма в час). Подождите час или подключите свой SMTP в настройках Supabase';
+                if (m.includes('rate') || m.includes('too many')) return 'Слишком много запросов, попробуйте позже';
+                if (m.includes('password') && (m.includes('different') || m.includes('same'))) return 'Новый пароль должен отличаться от старого';
+                if (m.includes('password')) return 'Пароль слишком простой — минимум 6 символов';
+                if (m.includes('fetch') || m.includes('network')) return 'Нет связи с сервером';
+                return 'Не удалось: ' + ((err && err.message) || 'ошибка');
+            },
+            async run(fn) { // общая обёртка: блокировка кнопок + перехват сетевых ошибок
+                this.busyOn(true);
+                try { await fn(); } catch (e) { this.msg('Нет связи с сервером'); }
+                this.busyOn(false);
+            },
+            // ---- привязка почты ----
+            sendLinkCode() {
+                const email = this.val('email').toLowerCase();
+                if (!this.okEmail(email)) return this.msg('Введите корректную почту');
+                const c = Cloud.ensureClient(); if (!c) return this.msg('Нет связи с сервером');
+                return this.run(async () => {
+                    this.msg('Отправляем код…', true);
+                    const { data: sd } = await c.auth.getSession();
+                    if (!(sd && sd.session)) { const r = await c.auth.signInAnonymously(); if (r.error) return this.msg(this.explain(r.error)); Cloud.userId = r.data.session.user.id; }
+                    const { error } = await c.auth.updateUser({ email });
+                    if (error) return this.msg(this.explain(error));
+                    this.email = email; this.setView('linkc'); this.msg('Код отправлен на ' + email, true);
+                });
+            },
+            confirmLink() {
+                const code = this.val('code'), pw = this.val('newpass');
+                if (!this.okCode(code)) return this.msg('Введите код из письма');
+                if (pw.length < 6) return this.msg('Пароль: минимум 6 символов');
+                const c = Cloud.ensureClient();
+                return this.run(async () => {
+                    const { error } = await c.auth.verifyOtp({ email: this.email, token: code, type: 'email_change' });
+                    if (error) return this.msg(this.explain(error));
+                    const r = await c.auth.updateUser({ password: pw });
+                    if (r.error) { this.msg('Почта привязана, но пароль не сохранён: ' + this.explain(r.error)); this.view = 'forgot'; return; }
+                    Cloud.push();
+                    document.getElementById('auth-modal-body').innerHTML = `<div class="nick-gate-icon">✅</div><div class="nick-gate-title">Почта привязана</div><div class="nick-gate-sub">Теперь можно войти в этот аккаунт с любого устройства: почта + пароль.</div><button class="nick-gate-btn" onclick="Auth.close()">Отлично</button>`;
+                });
+            },
+            // ---- вход ----
+            login() {
+                const email = this.val('email').toLowerCase(), pw = this.val('pass');
+                if (!this.okEmail(email) || !pw) return this.msg('Введите почту и пароль');
+                const c = Cloud.ensureClient(); if (!c) return this.msg('Нет связи с сервером');
+                return this.run(async () => {
+                    this.msg('Входим…', true);
+                    const { data: before } = await c.auth.getSession();
+                    const prevUser = before && before.session && before.session.user;
+                    const { data, error } = await c.auth.signInWithPassword({ email, password: pw });
+                    if (error || !data || !data.user) return this.msg('Неверная почта или пароль');
+                    if (prevUser && prevUser.id === data.user.id) { this.msg('Вы уже в этом аккаунте', true); return; }
+                    Cloud.userId = data.user.id;
+                    const { data: row } = await c.from('players').select('*').eq('id', data.user.id).maybeSingle();
+                    const hasLocal = !!localStorage.getItem('w_save_v7') && Core.p.nicknameSet;
+                    if (row) {
+                        if (hasLocal && !confirm('Прогресс на этом устройстве будет заменён прогрессом аккаунта ' + email + '. Продолжить?\n\nЕсли на этом устройстве есть прогресс без привязанной почты — он будет потерян.')) {
+                            await c.auth.signOut(); return this.msg('Вход отменён');
+                        }
+                        Cloud.hydrateFromRow(row); Core.saveNow(); location.reload();
+                        return;
+                    }
+                    this.msg('Вход выполнен. В облаке пока нет прогресса — продолжаем с локальным.', true);
+                    Cloud.push();
+                });
+            },
+            // ---- сброс пароля ----
+            sendResetCode() {
+                const email = this.val('email').toLowerCase();
+                if (!this.okEmail(email)) return this.msg('Введите корректную почту');
+                const c = Cloud.ensureClient(); if (!c) return this.msg('Нет связи с сервером');
+                return this.run(async () => {
+                    this.msg('Отправляем код…', true);
+                    const { error } = await c.auth.resetPasswordForEmail(email);
+                    if (error) return this.msg(this.explain(error));
+                    this.email = email; this.setView('forgotc'); this.msg('Если такая почта есть в игре — код уже в пути', true);
+                });
+            },
+            confirmReset() {
+                const code = this.val('code'), pw = this.val('newpass');
+                if (!this.okCode(code)) return this.msg('Введите код из письма');
+                if (pw.length < 6) return this.msg('Пароль: минимум 6 символов');
+                const c = Cloud.ensureClient();
+                return this.run(async () => {
+                    const { error } = await c.auth.verifyOtp({ email: this.email, token: code, type: 'recovery' });
+                    if (error) return this.msg(this.explain(error));
+                    const r = await c.auth.updateUser({ password: pw });
+                    if (r.error) return this.msg(this.explain(r.error));
+                    // после verifyOtp мы уже вошли в аккаунт — подтягиваем его прогресс так же, как при обычном входе
+                    const { data: u } = await c.auth.getUser();
+                    const uid = u && u.user && u.user.id;
+                    if (uid) {
+                        Cloud.userId = uid;
+                        const { data: row } = await c.from('players').select('*').eq('id', uid).maybeSingle();
+                        if (row) { Cloud.hydrateFromRow(row); Core.saveNow(); }
+                    }
+                    document.getElementById('auth-modal-body').innerHTML = `<div class="nick-gate-icon">✅</div><div class="nick-gate-title">Пароль изменён</div><div class="nick-gate-sub">Вы вошли в аккаунт. Страница перезагрузится.</div><button class="nick-gate-btn" onclick="location.reload()">Продолжить</button>`;
+                    setTimeout(() => location.reload(), 1800);
+                });
+            }
+        };
         // ===================================================================
         // PvP: сетевые дуэли 1на1 по коду комнаты (через Supabase Realtime).
         // Игроки создают/входят в комнату, оба жмут «Готов», после чего бой
@@ -11641,30 +11900,40 @@ padding-top:9vh;
                 const cds = this.myCooldowns();
                 const nowSec = Date.now() / 1000;
                 const lastAtk = this.myLastAtk(); const streak = this.myAtkStreak();
-                let html = '';
+                let html = '', keyHtml = '';
                 for (let i = 0; i < abilities.length; i += 2) {
                     const rowItems = abilities.slice(i, i + 2);
                     html += `<div class="buttons-grid">`;
                     rowItems.forEach(a => {
-                        const remain = Math.ceil((cds[a.key] || 0) - nowSec);
+                        const remainExact = (cds[a.key] || 0) - nowSec;
+                        const remain = Math.ceil(remainExact);
                         const repeatLocked = !battleOver && a.key === lastAtk && streak >= 2;
-                        const disabled = battleOver || this.attackPending || remain > 0 || repeatLocked;
+                        const onCd = !battleOver && !this.attackPending && remain > 0;
+                        const disabled = battleOver || this.attackPending || onCd || repeatLocked;
                         let label = a.label;
                         if (!battleOver) {
                             if (this.attackPending) label = '...';
-                            else if (remain > 0) label = `${a.label} (${remain}с)`;
                             else if (repeatLocked) label = `${a.label} 🔒`;
                         }
+                        // серая плашка отката вместо «(Nс)»; ключ без задержки — чтобы DOM не перестраивался каждый тик
+                        let fillKey = '', fillHtml = '';
+                        if (onCd) {
+                            const total = Math.max(0.5, (a.cd || 3)) * 1000;
+                            fillKey = `<i class="cd-fill" style="animation-duration:${total}ms"></i>`;
+                            fillHtml = `<i class="cd-fill" style="animation-duration:${total}ms;animation-delay:${-Math.max(0, total - remainExact * 1000)}ms"></i>`;
+                        }
+                        keyHtml += `<button class="${a.cls || 'primary'}${onCd ? ' cd-on' : ''}" ${a.sty ? `style="${a.sty}"` : ''} ${disabled && !onCd ? 'disabled' : ''}>${label}${fillKey}</button>`;
                         let styleParts = [];
                         if (a.sty) styleParts.push(a.sty);
                         if (rowItems.length === 1) styleParts.push('grid-column: 1 / -1;');
                         const styleAttr = styleParts.length ? `style="${styleParts.join(' ')}"` : '';
-                        html += `<button class="${a.cls || 'primary'}" ${styleAttr} ${disabled ? 'disabled' : ''} onclick="PvP.attackNow('${a.key}')">${label}</button>`;
+                        html += `<button class="${a.cls || 'primary'}${onCd ? ' cd-on' : ''}" ${styleAttr} ${disabled && !onCd ? 'disabled' : ''} onclick="PvP.attackNow('${a.key}')">${label}${fillHtml}</button>`;
                     });
                     html += `</div>`;
+                    keyHtml += `|row|`;
                 }
-                if (container._lastHtml === html) return; // ничего не поменялось — не трогаем DOM (тикер 150мс)
-                container._lastHtml = html;
+                if (container._lastKey === keyHtml) return; // ничего не поменялось — не трогаем DOM (тикер 150мс), CSS-анимация плашки продолжает идти сама
+                container._lastKey = keyHtml;
                 container.innerHTML = html;
             },
             renderCountdown() {
@@ -12678,7 +12947,7 @@ padding-top:9vh;
                 if (trackSelect) trackSelect.value = this.settings.musicTrack;
             },
             saveSettings() { localStorage.setItem('w_settings_v1', JSON.stringify(this.settings)); },
-            openSettings() { document.getElementById('settings-overlay').classList.add('active'); },
+            openSettings() { document.getElementById('settings-overlay').classList.add('active'); Auth.refresh(); },
             togglePerfMode(val) {
                 this.settings.perfMode = val;
                 document.body.classList.toggle('perf-mode', val);
@@ -13668,7 +13937,7 @@ padding-top:9vh;
                 if (!t || !t.iconIsModel) return t ? t.icon : '';
                 return `<span class="title-icon-model" style="width:${px}px;height:${px}px;">${t.icon}</span>`;
             },
-            log(msg, type = '') { const box = document.getElementById('log'); const e = document.createElement('div'); e.className = `log-entry ${type}`; e.innerHTML = msg; box.appendChild(e); box.scrollTop = box.scrollHeight; Scene.setCaption(msg, type); },
+            log(msg, type = '') { const box = document.getElementById('log'); const e = document.createElement('div'); e.className = `log-entry ${type}`; e.innerHTML = msg; box.appendChild(e); while (box.childElementCount > 80) box.firstElementChild.remove(); box.scrollTop = box.scrollHeight; Scene.setCaption(msg, type); },
             // Небольшая всплывающая карточка исхода разведки — для событий без выбора (находка/точка
             // интереса/опасный участок/пусто), чтобы результат читался как событие, а не как строка
             // в журнале. Дублирует log() визуально, сам закрывается через паузу.
@@ -13759,14 +14028,32 @@ padding-top:9vh;
                 abilities.forEach(a => {
                     let btn = document.getElementById(`btn-attack-${a.key}`);
                     if (!btn) return;
-                    let txt, dis;
+                    let txt, dis, remainMs = 0;
                     if (heatCritical && a.plasmaPowerful) { dis = true; txt = `🔒 ${a.label} (остывает)`; }
                     else {
-                        let remain = Math.ceil(((this.abilityCooldowns[a.key] || 0) - now) / 1000);
-                        if (remain > 0) { dis = true; txt = `${a.label} (${remain}с)`; } else { dis = false; txt = a.label; }
+                        remainMs = (this.abilityCooldowns[a.key] || 0) - now;
+                        // Откат больше не пишется цифрами — вместо этого поверх кнопки «уезжает» серая плашка (см. .cd-fill)
+                        dis = false; txt = a.label;
                     }
                     if (btn._txt !== txt) { btn._txt = txt; btn.innerText = txt; }
                     if (btn.disabled !== dis) btn.disabled = dis;
+                    // серая плашка отката: анимация идёт на CSS (transform), JS её не дёргает каждый тик
+                    let fill = btn.querySelector('.cd-fill');
+                    if (remainMs > 0) {
+                        const endAt = this.abilityCooldowns[a.key];
+                        if (!fill || fill._end !== endAt) {
+                            if (fill) fill.remove();
+                            const total = (this.abilityCdTotal && this.abilityCdTotal[a.key]) || (a.cd || 3) * 1000;
+                            fill = document.createElement('i'); fill.className = 'cd-fill'; fill._end = endAt;
+                            fill.style.animationDuration = total + 'ms';
+                            fill.style.animationDelay = (-Math.max(0, total - remainMs)) + 'ms';
+                            btn.appendChild(fill);
+                        }
+                        if (!btn.classList.contains('cd-on')) btn.classList.add('cd-on');
+                    } else {
+                        if (fill) fill.remove();
+                        if (btn.classList.contains('cd-on')) btn.classList.remove('cd-on');
+                    }
                 });
             },
 
@@ -15347,9 +15634,7 @@ startCombat(isBossFight = false) {
 
                 let now = Date.now();
                 if (now < (this.abilityCooldowns[attackType] || 0)) {
-                    Sound.play('deny');
-                    this.log(`⏳ Способность ещё перезаряжается!`);
-                    return;
+                    return; // откат виден по серой плашке на кнопке — без лишних звуков/записей в журнал
                 }
                 if (attackType === this.lastAttackType && this.sameAttackStreak >= 2) {
                     Sound.play('deny');
@@ -15359,6 +15644,8 @@ startCombat(isBossFight = false) {
 
                 Sound.play('attack');
                 this.abilityCooldowns[attackType] = now + (ability.cd || 3) * 1000;
+                (this.abilityCdTotal = this.abilityCdTotal || {})[attackType] = (ability.cd || 3) * 1000;
+                this.renderAbilityCooldowns();
                 if (attackType === this.lastAttackType) { this.sameAttackStreak++; } else { this.lastAttackType = attackType; this.sameAttackStreak = 1; }
 
                 this.exposeRadiation("Радиационный фон боя");
@@ -22746,6 +23033,27 @@ startCombat(isBossFight = false) {
             window.addEventListener('resize', apply);
         }
         window.onload = () => { Core.init(); Scene.initPlayerSprite(); Scene.updatePetCompanion(); initBottomUiTracker(); initStageZoom(); };
+
+        // ===== Адаптивный FPS-регулятор =====
+        // Если кадры стабильно дольше ~33мс (меньше ~30 fps) в течение нескольких секунд, замораживаем
+        // самые массовые декоративные анимации (звёзды, частицы, облака, туман). Как только устройство
+        // снова держит 50+ fps — всё возвращается. Работает только при реальной просадке.
+        (function () {
+            let last = 0, acc = 0, n = 0, slow = 0, fast = 0, on = false;
+            function tick(t) {
+                if (last && !document.hidden) { acc += t - last; n++; }
+                last = t;
+                if (n >= 90) {
+                    const avg = acc / n; acc = 0; n = 0;
+                    if (avg > 33) { slow++; fast = 0; } else if (avg < 20) { fast++; slow = 0; } else { slow = 0; fast = 0; }
+                    if (!on && slow >= 2) { on = true; document.body.classList.add('auto-lite'); }
+                    else if (on && fast >= 4) { on = false; document.body.classList.remove('auto-lite'); }
+                }
+                requestAnimationFrame(tick);
+            }
+            document.addEventListener('visibilitychange', () => { last = 0; acc = 0; n = 0; });
+            requestAnimationFrame(tick);
+        })();
     </script>
 </body>
 </html>
