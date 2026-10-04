@@ -3055,7 +3055,7 @@ transform:scale(1);
         @keyframes mxAtkSlideIn { from { transform: translateY(28px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         body.perf-mode #combat-actions { animation: none !important; }
         
-        button { background: var(--glass-bg); backdrop-filter: blur(var(--glass-blur)) saturate(160%); -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(160%); border: 1px solid rgba(255,255,255,0.14); box-shadow: var(--glass-shadow-soft); color: var(--text-main); padding: 14px; border-radius: 16px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+        button { background: var(--glass-bg); backdrop-filter: blur(var(--glass-blur)) saturate(160%); -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(160%); border: 1px solid rgba(255,255,255,0.14); box-shadow: var(--glass-shadow-soft); color: var(--text-main); padding: 14px; border-radius: 16px; font-size: 12px; font-weight: 700; cursor: pointer; transition: transform 0.2s, background-color 0.2s, border-color 0.2s, box-shadow 0.2s, opacity 0.2s, color 0.2s; }
         button:active { transform: scale(0.97); }
         button.primary { background: linear-gradient(135deg, rgba(255,42,95,0.55), rgba(255,0,160,0.55)); border: 1px solid rgba(255,255,255,0.16); box-shadow: 0 4px 16px rgba(255,42,95,0.3), var(--glass-shadow-soft); }
         button.success { background: linear-gradient(135deg, rgba(0,240,255,0.5), rgba(0,114,255,0.5)); border: 1px solid rgba(255,255,255,0.16); box-shadow: 0 4px 16px rgba(0,180,255,0.3), var(--glass-shadow-soft); }
@@ -4637,7 +4637,15 @@ transform:scale(1);
         body.perf-mode .mx-cta::after, body.perf-mode .mx-perk, body.perf-mode .mx-perk::after, body.perf-mode .mx-wave-badge, body.perf-mode .mx-wave-badge::before, body.perf-mode .mx-wave-badge::after, body.perf-mode .mx-wave-badge b, body.perf-mode .mx-res-title, body.perf-mode .mx-res-ico { animation: none !important; }
         body.perf-mode .mode-objective *, body.perf-mode .mode-banner, body.perf-mode .mh-dots i { animation: none !important; }
 
-    </style>
+    
+        /* ===== Оптимизация производительности (без потери визуала) ===== */
+        /* Изоляция слоёв: перерисовка HUD/цели/баннера режимов не заставляет браузер пересчитывать остальную страницу */
+        .mode-hud, .mode-objective, .mode-banner, #mode-overlay { contain: layout style; }
+                /* Вкладка скрыта — декоративные анимации на паузе */
+        body.bg-paused *, body.bg-paused *::before, body.bg-paused *::after { animation-play-state: paused !important; }
+        /* Пока идёт забег, экраны выбора под ним не рендерятся вовсе */
+        body.mode-run #mode-overlay:not(.show) { display: none; }
+</style>
 </head>
 <body>
 
@@ -11506,7 +11514,7 @@ padding-top:9vh;
                 clearInterval(this.battleTimer);
                 // Тикер раз в 150мс только переоценивает, какие атаки разблокировались
                 // по кулдауну — сам он ни разу не наносит урон и не действует за игрока.
-                this.battleTimer = setInterval(() => this.renderAbilityGrid(), 150);
+                this.battleTimer = setInterval(() => { if (!document.hidden) this.renderAbilityGrid(); }, 200);
             },
             logEntriesFromRoom(room) {
                 const arr = (room && room.battle_log) || [];
@@ -11655,6 +11663,8 @@ padding-top:9vh;
                     });
                     html += `</div>`;
                 }
+                if (container._lastHtml === html) return; // ничего не поменялось — не трогаем DOM (тикер 150мс)
+                container._lastHtml = html;
                 container.innerHTML = html;
             },
             renderCountdown() {
@@ -12321,7 +12331,7 @@ padding-top:9vh;
                     </div>
                     ${r.id === 'defense' ? `<div class="mh-beacon"><span>🏗️ МАЯК</span><div class="mh-bar"><div class="mh-bar-f" id="mh-bar-f"></div></div><b id="mh-bar-t"></b></div>` : ''}`;
                 this.hudBeacon(); this.hudRepair();
-                if (r.id === 'defense' && !this._hudTimer) this._hudTimer = setInterval(() => this.hudRepair(), 250);
+                if (r.id === 'defense' && !this._hudTimer) this._hudTimer = setInterval(() => { if (!document.hidden) this.hudRepair(); }, 250);
             },
             hudBeacon() {
                 const r = this.active; if (!r || !r.beacon) return;
@@ -12334,9 +12344,10 @@ padding-top:9vh;
                 const r = this.active, b = this.$('mh-repair'); if (!r || !b) return;
                 const left = r.repairAt - Date.now();
                 const ok = left <= 0 && !!Core.combatState && r.beacon && r.beacon.hp > 0;
-                b.disabled = !ok;
-                b.innerHTML = left > 0 ? `🔧 ${Math.ceil(left / 1000)}` : '🔧';
-                b.classList.toggle('ready', ok);
+                const txt = left > 0 ? `🔧 ${Math.ceil(left / 1000)}` : '🔧';
+                if (b._txt !== txt) { b._txt = txt; b.textContent = txt; }
+                if (b.disabled === ok) b.disabled = !ok;
+                if (b.classList.contains('ready') !== ok) b.classList.toggle('ready', ok);
             },
             confirmAbandon() {
                 if (!this.active || this.active.over) return;
@@ -12575,12 +12586,13 @@ padding-top:9vh;
                 // Оффлайн-прогресс: досчитываем время, пока вкладка была свёрнута/неактивна
                 document.addEventListener('visibilitychange', () => {
                     if (document.visibilityState === 'hidden') {
-                        this.lastTick = Date.now(); this.save();
+                        this.lastTick = Date.now(); this.save(); this.saveNow();
                     } else {
                         this.applyOfflineProgress(); this.updateUI(); this.save();
                     }
                 });
-                window.addEventListener('pagehide', () => { this.lastTick = Date.now(); this.save(); });
+                window.addEventListener('pagehide', () => { this.lastTick = Date.now(); this.save(); this.saveNow(); });
+                window.addEventListener('beforeunload', () => this.saveNow());
                 this.checkSpecialDay(); this.announceToday(); setTimeout(() => this.maybeShowAxePromo(), 2500);
                 Cloud.init().then(ok => { // подключение к облаку — асинхронно, не блокирует запуск игры
                     if (ok) {
@@ -12915,7 +12927,16 @@ padding-top:9vh;
                 this.saveSettings();
             },
 
-            save() { localStorage.setItem('w_save_v7', JSON.stringify({ p: this.p, cc: this.campCooldowns, q: this.quests, lt: this.lastTick, sda: this.satietyDecayAccum || 0, hra: this.hpRegenAccum || 0 })); Cloud.push(); },
+            // Оптимизация: save() зовут десятки раз в секунду (бой, режимы, UI) — раньше каждый вызов делал
+            // тяжёлый JSON.stringify всего профиля + запись в localStorage. Теперь записи склеиваются
+            // в одну (≤1 раза в 400мс), а при сворачивании/закрытии вкладки данные сбрасываются сразу.
+            save() { this._saveDirty = true; if (this._saveT) return; this._saveT = setTimeout(() => this.saveNow(), 400); },
+            saveNow() {
+                clearTimeout(this._saveT); this._saveT = null;
+                if (!this._saveDirty) return; this._saveDirty = false;
+                try { localStorage.setItem('w_save_v7', JSON.stringify({ p: this.p, cc: this.campCooldowns, q: this.quests, lt: this.lastTick, sda: this.satietyDecayAccum || 0, hra: this.hpRegenAccum || 0 })); } catch (e) { console.warn('save failed', e); }
+                Cloud.push();
+            },
             load() { 
                 let data = localStorage.getItem('w_save_v7'); 
                 if(data) { 
@@ -13692,7 +13713,7 @@ padding-top:9vh;
 
             startCooldownTicker() {
                 if (this.combatCooldownInterval) clearInterval(this.combatCooldownInterval);
-                this.combatCooldownInterval = setInterval(() => this.renderAbilityCooldowns(), 200);
+                this.combatCooldownInterval = setInterval(() => { if (!document.hidden) this.renderAbilityCooldowns(); }, 200);
                 this.renderAbilityCooldowns();
             },
             stopCooldownTicker() {
@@ -13738,10 +13759,14 @@ padding-top:9vh;
                 abilities.forEach(a => {
                     let btn = document.getElementById(`btn-attack-${a.key}`);
                     if (!btn) return;
-                    if (heatCritical && a.plasmaPowerful) { btn.disabled = true; btn.innerText = `🔒 ${a.label} (остывает)`; return; }
-                    let remain = Math.ceil(((this.abilityCooldowns[a.key] || 0) - now) / 1000);
-                    if (remain > 0) { btn.disabled = true; btn.innerText = `${a.label} (${remain}с)`; }
-                    else { btn.disabled = false; btn.innerText = a.label; }
+                    let txt, dis;
+                    if (heatCritical && a.plasmaPowerful) { dis = true; txt = `🔒 ${a.label} (остывает)`; }
+                    else {
+                        let remain = Math.ceil(((this.abilityCooldowns[a.key] || 0) - now) / 1000);
+                        if (remain > 0) { dis = true; txt = `${a.label} (${remain}с)`; } else { dis = false; txt = a.label; }
+                    }
+                    if (btn._txt !== txt) { btn._txt = txt; btn.innerText = txt; }
+                    if (btn.disabled !== dis) btn.disabled = dis;
                 });
             },
 
@@ -20440,7 +20465,7 @@ startCombat(isBossFight = false) {
                 // этого сброс "не срабатывал". Теперь на старте локальный сейв уже есть
                 // (чистый), поэтому облако не подтягивается, а само перезаписывается этим
                 // чистым состоянием (см. Cloud.reconcileOnBoot -> push()).
-                this.save();
+                this.save(); this.saveNow();
 
                 // Дополнительно — best-effort попытка стереть саму запись в облаке
                 // (может не сработать из-за прав доступа, но выше мы это уже подстраховали).
