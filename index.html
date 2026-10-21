@@ -101,7 +101,7 @@
         body.perf-mode .trophy-progress-fill::before,
         body.perf-mode .trophy-progress-fill::after,
         body.perf-mode .trophy-road-row.row-claimable::after,
-        body.perf-mode .trophy-node.claimable,
+        body.perf-mode .trophy-node.claimable::before, body.perf-mode .trophy-node.claimable::after,
         body.perf-mode .tab-btn.tab-alert::after,
         body.perf-mode .profile-header-fx::after,
         body.perf-mode .profile-avatar-wrap::before,
@@ -698,10 +698,14 @@
 
         /* --- Карточка награды: свечение цвета редкости, блик, парящая иконка --- */
         #gacha-overlay.scfx-on .reward-card { border-color: color-mix(in srgb, var(--reward-color, #fff) 65%, #fff 8%); box-shadow: 0 0 34px color-mix(in srgb, var(--reward-color, #fff) 42%, transparent), 0 0 80px color-mix(in srgb, var(--reward-color, #fff) 22%, transparent), inset 0 1px 0 rgba(255,255,255,0.2); }
-        #gacha-overlay.scfx-on .reward-card::after { content: ''; position: absolute; inset: 0; border-radius: 22px; pointer-events: none; background: linear-gradient(105deg, transparent 38%, rgba(255,255,255,0.2) 50%, transparent 62%); background-size: 260% 100%; background-position: 160% 0; animation: scfxSheen 3s ease-in-out 0.7s infinite; }
-        @keyframes scfxSheen { 0% { background-position: 160% 0; } 55%, 100% { background-position: -60% 0; } }
+        #gacha-overlay.scfx-on .reward-card { overflow: clip; }
+        /* Блик: широкий слой (3 периода того же узора) едет через translateX — вместо background-position.
+           Картинка прежняя, но анимация на GPU; края режет overflow:clip карточки (скругление то же). */
+        #gacha-overlay.scfx-on .reward-card::after { content: ''; position: absolute; top: 0; height: 100%; left: -516%; width: 780%; pointer-events: none; background: linear-gradient(105deg, transparent 38%, rgba(255,255,255,0.2) 50%, transparent 62%); background-size: 33.3333% 100%; background-position: 0 0; animation: scfxSheen 3s ease-in-out 0.7s infinite; }
+        @keyframes scfxSheen { 0% { transform: translateX(0); } 55%, 100% { transform: translateX(45.1282%); } }
         #gacha-overlay.scfx-on .reward-icon { animation: rewardIconBounce 0.6s cubic-bezier(0.25, 1.5, 0.4, 1), scfxIconFloat 2.6s ease-in-out 0.6s infinite; filter: drop-shadow(0 0 14px var(--reward-color, #fff)) drop-shadow(0 4px 8px rgba(0,0,0,0.5)); }
-        @keyframes scfxIconFloat { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-6px) scale(1.05); } }
+        /* translate/scale вместо transform: так «влёт» (rewardIconBounce, transform) и «парение» не конфликтуют на одном элементе и оба идут на GPU */
+        @keyframes scfxIconFloat { 0%, 100% { translate: 0 0; scale: 1; } 50% { translate: 0 -6px; scale: 1.05; } }
         .boxpick-head { text-align: center; margin-bottom: 22px; }
         .boxpick-title { font-size: 15px; font-weight: 900; color: #fff; margin-bottom: 4px; }
         .boxpick-sub { font-size: 12px; color: var(--text-muted); }
@@ -728,11 +732,14 @@
             background: radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.12) 45%, transparent 75%);
             border-radius: 50%; }
         /* Бегущий диагональный блик по запечатанной рубашке — исчезает, как только карточка раскрыта */
-        .boxpick-card::after { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+        /* Блик «бежит» через translateX широкого слоя (3 периода одного и того же узора), а не через
+           background-position: картинка та же, но анимация идёт на GPU и не заставляет страницу
+           пересчитывать стили каждый кадр. Саму карточку клипует её overflow:hidden. */
+        .boxpick-card::after { content: ''; position: absolute; top: 0; height: 100%; left: -548%; width: 720%; z-index: 1; pointer-events: none;
             background: linear-gradient(115deg, transparent 42%, rgba(255,255,255,0.45) 50%, transparent 58%);
-            background-size: 240% 240%; background-position: 200% 0; animation: boxpickShimmer 2.8s ease-in-out infinite; mix-blend-mode: overlay; }
+            background-size: 33.3333% 240%; background-position: 0 0; animation: boxpickShimmer 2.8s ease-in-out infinite; mix-blend-mode: overlay; }
         .boxpick-card.revealed::after { animation: none; opacity: 0; }
-        @keyframes boxpickShimmer { 0% { background-position: 220% 0; } 100% { background-position: -60% 0; } }
+        @keyframes boxpickShimmer { 0% { transform: translateX(0); } 100% { transform: translateX(54.4444%); } }
         .boxpick-card .boxpick-face { display: none; z-index: 2; text-align: center; padding: 8px 7px; width: 100%; box-sizing: border-box; }
         .boxpick-card.revealed { cursor: default; border-color: var(--hint-color, #00f0ff); box-shadow: 0 0 22px var(--hint-color, #00f0ff); }
         .boxpick-card.revealed .boxpick-face { display: block; animation: boxpickFaceIn 0.35s ease; }
@@ -807,6 +814,9 @@ transform:scale(1);
         @keyframes plasmaCritPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.75; } }
         .progress-bar-inner { position: relative; height: 100%; width: 100%; border-radius: 5px; transition: width 0.3s ease; }
         .progress-bar-inner::after { content: ''; position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(180deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 55%); pointer-events: none; }
+        /* ⚡ Заполнение шкалы через scale (идёт на видеокарте), а не через width (каждый кадр заставляло главный поток пересчитывать раскладку).
+           Скругление правого края пересчитывается под масштаб (--s), поэтому в покое шкала выглядит так же, как с width. */
+        .progress-bar-inner.pb-gpu { transform-origin: 0 50%; transition: scale 0.3s ease; border-radius: min(calc(var(--r, 3px) / max(var(--s, 1), 0.05)), 50%) / var(--r, 3px); }
         .meta-info { grid-column: span 2; display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.03); padding: 4px 6px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.07); font-size: 9.5px; gap: 3px; }
         .meta-info > div { display: flex; align-items: center; gap: 3px; font-weight: 800; }
 
@@ -1108,11 +1118,11 @@ transform:scale(1);
         @keyframes weaponIdleSway { 0%, 100% { transform: rotate(4deg); } 50% { transform: rotate(-2deg); } }
         .combatant.player-combatant.attacking .combatant-weapon-badge { animation: none; transform: rotate(-26deg) scale(1.1); }
         .combatant-hpbar-outer { width: 62px; height: 7px; border-radius: 5px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.16); overflow: hidden; }
-        .combatant-hpbar-fill { height: 100%; width: 100%; background: var(--grad-blue); transition: width 0.35s ease, background 0.3s ease; }
+        .combatant-hpbar-fill { height: 100%; width: 100%; background: var(--grad-blue); transform-origin: 0 50%; transition: scale 0.35s ease, background 0.3s ease; }
         .combatant-hpbar-fill.enemyfill { background: linear-gradient(135deg, #ff2a5f, #ff6a00); }
         /* ☢️ ПЛАЗМА: компактная шкала перегрева прямо над синей полосой ХП персонажа в сцене боя */
         .combatant-heatbar-outer { width: 62px; height: 5px; border-radius: 4px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,183,3,0.3); overflow: hidden; }
-        .combatant-heatbar-fill { height: 100%; width: 0%; background: var(--grad-gold); transition: width 0.35s ease, background 0.3s ease; }
+        .combatant-heatbar-fill { height: 100%; width: 100%; scale: 0 1; background: var(--grad-gold); transform-origin: 0 50%; transition: scale 0.35s ease, background 0.3s ease; }
         .combatant-heatbar-outer.heat-glow { border-color: rgba(255,87,34,0.55); box-shadow: 0 0 6px rgba(255,87,34,0.4); }
         .combatant-heatbar-outer.heat-critical { border-color: rgba(255,42,95,0.75); box-shadow: 0 0 8px rgba(255,42,95,0.55); animation: plasmaCritPulse 1.1s ease-in-out infinite; }
         .enemy-name-tag { font-size: 9.5px; font-weight: 800; color: #fff; background: rgba(0,0,0,0.55); padding: 2px 8px; border-radius: 8px; white-space: nowrap; max-width: 130px; overflow: hidden; text-overflow: ellipsis; }
@@ -2387,8 +2397,14 @@ transform:scale(1);
         @keyframes trophyDotPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.3); } }
         .trophy-node { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 148px; max-width: 44%; text-align: center; border: 1px solid rgba(255,183,3,0.25); border-radius: 14px; padding: 10px 10px 9px; background: linear-gradient(135deg, rgba(255,183,3,0.07), rgba(255,255,255,0.02)); transition: transform 0.15s ease, box-shadow 0.2s ease; }
         .trophy-node.claimed { opacity: 0.5; }
-        .trophy-node.claimable { border-color: var(--neon-gold); background: linear-gradient(135deg, rgba(255,183,3,0.22), rgba(255,103,0,0.06)); box-shadow: 0 0 16px rgba(255,183,3,0.3), inset 0 1px 0 rgba(255,255,255,0.1); animation: trophyNodePulse 1.9s ease-in-out infinite; }
-        @keyframes trophyNodePulse { 0%, 100% { box-shadow: 0 0 14px rgba(255,183,3,0.26), inset 0 1px 0 rgba(255,255,255,0.1); } 50% { box-shadow: 0 0 26px rgba(255,183,3,0.5), inset 0 1px 0 rgba(255,255,255,0.15); } }
+        .trophy-node.claimable { border-color: var(--neon-gold); background: linear-gradient(135deg, rgba(255,183,3,0.22), rgba(255,103,0,0.06)); box-shadow: none; position: relative; }
+        /* Пульсация свечения: вместо анимации box-shadow (перерисовка каждый кадр) — две псевдо-оболочки
+           с готовыми тенями (низкая/пиковая), которые перетекают друг в друга через opacity (на GPU). */
+        .trophy-node.claimable::before, .trophy-node.claimable::after { content: ''; position: absolute; inset: -1px; box-sizing: border-box; border: 1px solid transparent; border-radius: 14px; pointer-events: none; }
+        .trophy-node.claimable::before { box-shadow: 0 0 14px rgba(255,183,3,0.26), inset 0 1px 0 rgba(255,255,255,0.1); animation: trophyNodeLo 1.9s ease-in-out infinite; }
+        .trophy-node.claimable::after { box-shadow: 0 0 26px rgba(255,183,3,0.5), inset 0 1px 0 rgba(255,255,255,0.15); opacity: 0; animation: trophyNodeHi 1.9s ease-in-out infinite; }
+        @keyframes trophyNodeLo { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        @keyframes trophyNodeHi { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
         .trophy-node-badge { flex-shrink: 0; width: 54px; height: 54px; border-radius: 14px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; background: linear-gradient(160deg, rgba(255,183,3,0.18), rgba(255,255,255,0.02)); border: 1.5px solid rgba(255,183,3,0.4); box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 2px 8px rgba(0,0,0,0.3); }
         .trophy-node-badge-icon { font-size: 22px; line-height: 1; }
         .trophy-node-badge .crate-thumb { width: 54px; height: 54px; }
@@ -4584,7 +4600,7 @@ transform:scale(1);
         .combatant-hpbar-outer { position: relative; width: calc(var(--cw) * 0.92); height: 9px; border-radius: 6px; background: rgba(4,6,10,0.78); border: 1px solid rgba(255,255,255,0.24); box-shadow: 0 2px 6px rgba(0,0,0,0.5), inset 0 1px 2px rgba(0,0,0,0.6); overflow: hidden; }
         .combatant-hpbar-outer::after { content: ''; position: absolute; inset: 0; z-index: 3; pointer-events: none; background: linear-gradient(180deg, rgba(255,255,255,0.32), transparent 55%), repeating-linear-gradient(90deg, transparent 0 24.2%, rgba(0,0,0,0.4) 24.5% 25.5%); }
         .combatant-hpbar-fill { position: relative; z-index: 2; }
-        .hp-trail { position: absolute; left: 0; top: 0; bottom: 0; width: 100%; z-index: 1; background: linear-gradient(90deg, #fff6c8, #ffe27a); transition: width 0.7s cubic-bezier(.4,0,.2,1) 0.35s; }
+        .hp-trail { position: absolute; left: 0; top: 0; bottom: 0; width: 100%; z-index: 1; background: linear-gradient(90deg, #fff6c8, #ffe27a); transform-origin: 0 50%; transition: scale 0.7s cubic-bezier(.4,0,.2,1) 0.35s; }
         .combatant-heatbar-outer { width: calc(var(--cw) * 0.92); }
         .enemy-name-tag { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 800; letter-spacing: 0.2px; color: #fff; background: linear-gradient(180deg, rgba(20,24,34,0.85), rgba(6,8,12,0.85)); border: 1px solid rgba(255,255,255,0.16); padding: 2px 9px 2px 6px; border-radius: 9px; max-width: 150px; }
         .enemy-name-tag .nt-ic { font-size: 11px; }
@@ -4792,12 +4808,17 @@ transform:scale(1);
 
         /* ---- дополнения ---- */
         .combatant-hpbar-fill.low { background: linear-gradient(135deg, #ff2a5f, #ff6a00); }
-        .combatant-hpbar-fill { transition: width 0.3s ease, background 0.3s ease; }
+        .combatant-hpbar-fill { transition: scale 0.3s ease, background 0.3s ease; }
         .claw-marks { position: absolute; z-index: 7; width: 46px; height: 46px; margin: -23px; pointer-events: none; animation: v2Claw 0.45s ease-out forwards; }
         .claw-marks svg { width: 100%; height: 100%; overflow: visible; }
-        .claw-marks path { stroke-dasharray: 60; animation: v2ClawDraw 0.3s ease-out forwards; }
+        /* ⚡ «Рисование» когтей раньше шло через stroke-dashoffset — такую анимацию нельзя отдать видеокарте, и на 0,3 с главный поток
+           перерисовывал сцену каждый кадр. Теперь то же появление сверху вниз делает «окно-шторка»: окно и содержимое едут навстречу
+           друг другу (transform), поэтому когти проявляются тем же движением и с тем же ease-out, но без нагрузки на процессор. */
+        .claw-marks .cw-win { position: absolute; left: -8px; top: -4px; width: 62px; height: 56px; overflow: hidden; animation: clawWipeWin 0.3s ease-out forwards; }
+        .claw-marks .cw-in { position: absolute; left: 8px; top: 4px; width: 46px; height: 46px; animation: clawWipeIn 0.3s ease-out forwards; }
+        @keyframes clawWipeWin { from { transform: translateY(-51px); } to { transform: translateY(7.4px); } }
+        @keyframes clawWipeIn { from { transform: translateY(51px); } to { transform: translateY(-7.4px); } }
         @keyframes v2Claw { 0% { opacity: 1; transform: scale(0.8) rotate(-8deg); } 100% { opacity: 0; transform: scale(1.15) rotate(4deg); } }
-        @keyframes v2ClawDraw { from { stroke-dashoffset: 60; } to { stroke-dashoffset: 0; } }
         .combatant.enemy-combatant.taunt .arch { animation: v2Roar 0.7s ease-out; }
         @keyframes v2Roar { 0%,100% { transform: scale(1); } 25% { transform: scale(1.06,1.03) translateY(-2px); } 45% { transform: scale(0.98,1.02); } }
         .combatant.enemy-combatant.taunt .e-head { animation: v2PHurt 0.7s ease-out reverse; }
@@ -4865,7 +4886,7 @@ transform:scale(1);
         #mh-repair { width: 44px; }
         .mh-beacon { display: flex; align-items: center; gap: 7px; font-size: 10px; font-weight: 800; color: #9be7ff; }
         .mh-bar { flex: 1; height: 8px; border-radius: 5px; background: rgba(0,0,0,0.55); border: 1px solid rgba(255,255,255,0.2); overflow: hidden; }
-        .mh-bar-f { height: 100%; width: 100%; background: linear-gradient(90deg, #00c8ff, #39ff14); transition: width 0.3s ease; }
+        .mh-bar-f { height: 100%; width: 100%; background: linear-gradient(90deg, #00c8ff, #39ff14); transform-origin: 0 50%; transition: scale 0.3s ease; }
         .mh-bar-f.low { background: linear-gradient(90deg, #ff2a5f, #ff8a00); animation: moPulse 0.7s ease-in-out infinite; transform-origin: left; }
         .mh-beacon b { color: #fff; font-size: 10px; min-width: 62px; text-align: right; }
 
@@ -4877,8 +4898,8 @@ transform:scale(1);
         .obj-bar-wrap { position: absolute; left: 50%; top: -20px; transform: translateX(-50%); width: calc(var(--cw) * 0.95); }
         .obj-label { text-align: center; font-size: 8.5px; font-weight: 900; letter-spacing: 1px; color: #9be7ff; text-shadow: 0 1px 2px #000; margin-top: 2px; }
         .obj-bar { position: relative; height: 8px; border-radius: 5px; background: rgba(4,6,10,0.78); border: 1px solid rgba(255,255,255,0.28); overflow: hidden; }
-        .obj-trail { position: absolute; left: 0; top: 0; bottom: 0; width: 100%; background: linear-gradient(90deg, #fff6c8, #ffe27a); transition: width 0.8s ease 0.3s; }
-        .obj-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 100%; background: linear-gradient(90deg, #00c8ff, #39ff14); transition: width 0.25s ease; }
+        .obj-trail { position: absolute; left: 0; top: 0; bottom: 0; width: 100%; background: linear-gradient(90deg, #fff6c8, #ffe27a); transform-origin: 0 50%; transition: scale 0.8s ease 0.3s; }
+        .obj-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 100%; background: linear-gradient(90deg, #00c8ff, #39ff14); transform-origin: 0 50%; transition: scale 0.25s ease; }
         .mode-objective.low .obj-fill { background: linear-gradient(90deg, #ff2a5f, #ff8a00); }
         .obj-dome { position: absolute; left: -35%; right: -35%; top: 4%; bottom: -6%; border-radius: 50% 50% 46% 46%; border: 1.5px solid rgba(0,240,255,0.32); background: radial-gradient(closest-side, rgba(0,240,255,0.05), rgba(0,240,255,0.14)); box-shadow: inset 0 0 18px rgba(0,240,255,0.25), 0 0 14px rgba(0,240,255,0.2); animation: objDome 3s ease-in-out infinite; }
         @keyframes objDome { 0%,100% { opacity: 0.65; } 50% { opacity: 1; } }
@@ -6755,7 +6776,7 @@ padding-top:9vh;
             <div id="fish-rod-label" style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px; font-weight: 700;"></div>
             <p id="fish-status-text" style="font-size: 13px; color: #fff; line-height: 1.5; margin-bottom: 16px;">Клюёт! Быстро жми на кнопку, чтобы заполнить шкалу до того как рыба сорвётся!</p>
             <div class="progress-bar-outer" style="height: 16px; border-radius: 8px; margin-bottom: 6px;">
-                <div id="fish-bar" class="progress-bar-inner" style="background: var(--grad-blue); width: 0%;"></div>
+                <div id="fish-bar" class="progress-bar-inner pb-gpu" style="background: var(--grad-blue); scale: 0 1; --s: 0; --r: 5px;"></div>
             </div>
             <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-bottom: 16px;">
                 <span>Улов: <span id="fish-progress-val">0</span>%</span>
@@ -7384,15 +7405,15 @@ padding-top:9vh;
     <div class="status-bar" id="status-bar">
         <div class="stat-container">
             <div class="stat-header"><span><svg class="mi" viewBox="0 0 48 48" aria-hidden="true"><use href="#ic-heart"/></svg> ЖИЗНЬ</span><span id="hp-val">50/50</span></div>
-            <div class="progress-bar-outer"><div id="hp-bar" class="progress-bar-inner" style="background: var(--grad-accent);"></div></div>
+            <div class="progress-bar-outer"><div id="hp-bar" class="progress-bar-inner pb-gpu" style="background: var(--grad-accent);"></div></div>
         </div>
         <div class="stat-container">
             <div class="stat-header"><span><svg class="mi" viewBox="0 0 48 48" aria-hidden="true"><use href="#ic-bolt"/></svg> ЭНЕРГИЯ</span><span id="en-val">100/100</span></div>
-            <div class="progress-bar-outer"><div id="en-bar" class="progress-bar-inner" style="background: var(--grad-blue);"></div></div>
+            <div class="progress-bar-outer"><div id="en-bar" class="progress-bar-inner pb-gpu" style="background: var(--grad-blue);"></div></div>
         </div>
         <div class="stat-container" id="satiety-container">
             <div class="stat-header" style="color: var(--neon-gold)"><span><svg class="mi" viewBox="0 0 48 48" aria-hidden="true"><use href="#ic-meat"/></svg> СЫТОСТЬ</span><span id="satiety-val">100%</span></div>
-            <div class="progress-bar-outer"><div id="satiety-bar" class="progress-bar-inner" style="background: var(--grad-gold);"></div></div>
+            <div class="progress-bar-outer"><div id="satiety-bar" class="progress-bar-inner pb-gpu" style="background: var(--grad-gold);"></div></div>
         </div>
         <div class="stat-container" id="rad-container" style="display:none;">
             <div class="stat-header" style="color: var(--neon-green)"><span id="rad-label"><svg class="mi" viewBox="0 0 48 48" aria-hidden="true"><use href="#hz-rad"/></svg> РАДИАЦИЯ</span><span id="rad-val">0%</span></div>
@@ -7787,7 +7808,7 @@ padding-top:9vh;
             <div id="luck-meter-row" title="Растёт с каждой спокойной разведкой (без боя): повышает шанс на тайники и точки интереса. Полностью сбрасывается после боя или засады." style="display:flex; align-items:center; gap:8px; margin-bottom:6px; font-size:10px; color: var(--text-muted); cursor: help;">
                 <span style="white-space:nowrap;"><svg class="mi" viewBox="0 0 48 48" aria-hidden="true"><use href="#ic-clover"/></svg> Удача разведки</span>
                 <div class="progress-bar-outer" style="height:7px; flex:1; border-radius:5px;">
-                    <div id="luck-bar" class="progress-bar-inner" style="width:0%; background: linear-gradient(90deg, var(--neon-blue), var(--neon-green)); transition: width .4s;"></div>
+                    <div id="luck-bar" class="progress-bar-inner pb-gpu" style="scale: 0 1; --s: 0; --r: 3.5px; background: linear-gradient(90deg, var(--neon-blue), var(--neon-green)); transition: scale .4s;"></div>
                 </div>
                 <span id="luck-streak-label" style="white-space:nowrap;"><svg class="mi" viewBox="0 0 48 48" aria-hidden="true"><use href="#ic-flame"/></svg>0</span>
             </div>
@@ -10680,6 +10701,14 @@ document.addEventListener('DOMContentLoaded', () => Sec.restore());
             }
         };
         // Плавный "прокрут" числа вместо мгновенной смены — используется для крышек и других частых счётчиков
+        // ⚡ Заполнение шкалы через scale (его анимацию делает видеокарта), а не через width, который на каждом кадре
+        // перестраивал раскладку на главном потоке. --s нужен .pb-gpu, чтобы правый край шкалы оставался скруглённым как раньше.
+        function setBar(el, pct) {
+            if (!el) return;
+            let s = pct / 100; if (!(s > 0)) s = 0; else if (s > 1) s = 1;
+            el.style.scale = s + ' 1';
+            if (el.classList.contains('pb-gpu')) el.style.setProperty('--s', s);
+        }
         function animateValue(el, start, end, duration) {
             if (!el) return;
             start = Number(start) || 0; end = Number(end) || 0;
@@ -11382,12 +11411,13 @@ document.addEventListener('DOMContentLoaded', () => Sec.restore());
                 const prev = parseFloat(fill.dataset.pct || '100');
                 // ⚡ Оптимизация: если значение не изменилось — ничего не трогаем. Раньше при каждом updateUI()
                 // здесь вызывался принудительный пересчёт раскладки (offsetWidth), хотя полоса стояла на месте.
-                if (fill.dataset.pct !== undefined && prev === pct && (!trail || trail.style.width === pct + '%')) return;
-                fill.style.width = pct + '%'; fill.dataset.pct = pct;
+                if (fill.dataset.pct !== undefined && prev === pct && (!trail || trail.dataset.pct === String(pct))) return;
+                setBar(fill, pct); fill.dataset.pct = pct;
                 fill.classList.toggle('low', pct <= 25);
                 if (!trail) return;
-                if (instant || pct >= prev) { trail.style.transition = 'none'; trail.style.width = pct + '%'; void trail.offsetWidth; trail.style.transition = ''; }
-                else trail.style.width = pct + '%';
+                trail.dataset.pct = pct;
+                if (instant || pct >= prev) { trail.style.transition = 'none'; setBar(trail, pct); void getComputedStyle(trail).scale; trail.style.transition = ''; }
+                else setBar(trail, pct);
             },
             syncCombat() {
                 this.syncPlayerHp();
@@ -11525,7 +11555,7 @@ document.addEventListener('DOMContentLoaded', () => Sec.restore());
                 this._later(() => {
                     const p = this._pt(this._spriteId(target), 0.5, 0.36); if (!p) return;
                     this._fx('slash-fx' + (kind === 'claw' ? ' claw-fx' : ''), p.x, p.y, 440);
-                    if (kind === 'claw') this._fx('claw-marks', p.x, p.y, 480).innerHTML = '<svg viewBox="0 0 46 46"><path d="M8 4 L22 42 M20 2 L34 40 M32 4 L44 38" stroke="#fff" stroke-width="2.6" stroke-linecap="round" fill="none"/><path d="M8 4 L22 42 M20 2 L34 40 M32 4 L44 38" stroke="var(--neon-red)" stroke-width="1.2" stroke-linecap="round" fill="none"/></svg>';
+                    if (kind === 'claw') this._fx('claw-marks', p.x, p.y, 480).innerHTML = '<div class="cw-win"><div class="cw-in"><svg viewBox="0 0 46 46"><path d="M8 4 L22 42 M20 2 L34 40 M32 4 L44 38" stroke="#fff" stroke-width="2.6" stroke-linecap="round" fill="none"/><path d="M8 4 L22 42 M20 2 L34 40 M32 4 L44 38" stroke="var(--neon-red)" stroke-width="1.2" stroke-linecap="round" fill="none"/></svg></div></div>';
                 });
             },
             impactSpark(target, count) {
@@ -16026,8 +16056,7 @@ ${owned ? '<div class="weapon-info-desc" style="text-align:center;">Это ор�
                 const r = this.active, el = this.$('scene-objective'); if (!r || !r.beacon || !el) return;
                 const pct = Math.max(0, Math.min(100, r.beacon.hp / r.beacon.max * 100));
                 const fill = this.$('obj-fill'), trail = this.$('obj-trail');
-                if (fill) fill.style.width = pct + '%';
-                if (trail) trail.style.width = pct + '%';
+                setBar(fill, pct); setBar(trail, pct);
                 el.classList.toggle('low', pct > 0 && pct <= 35);
             },
             objectiveHitFx(dmg, kind) {
@@ -16084,7 +16113,7 @@ return;
                 const r = this.active; if (!r || !r.beacon) return;
                 const f = this.$('mh-bar-f'), t = this.$('mh-bar-t'); if (!f) return;
                 const pct = Math.max(0, r.beacon.hp / r.beacon.max * 100);
-                f.style.width = pct + '%'; f.classList.toggle('low', pct <= 35);
+                setBar(f, pct); f.classList.toggle('low', pct <= 35);
                 t.textContent = `${r.beacon.hp}/${r.beacon.max}`;
             },
             hudRepair() {
@@ -18437,7 +18466,7 @@ if (r.trial) { r.over = true; Core.stopCooldownTicker(); Core.clearEnemyAutoAtta
                 let heatRounded = Math.round(hi.heat);
                 let fill = document.getElementById('scene-player-heat-fill');
                 if (fill) {
-                    fill.style.width = heatRounded + '%';
+                    setBar(fill, heatRounded);
                     fill.style.background = hi.tierKey === 'critical' ? 'var(--neon-red)'
                         : hi.tierKey === 'overheat' ? 'linear-gradient(135deg, #ff5722, #ff2a5f)'
                         : hi.tierKey === 'heating' ? 'var(--grad-gold)' : 'var(--grad-blue)';
@@ -18524,13 +18553,13 @@ if (r.trial) { r.over = true; Core.stopCooldownTicker(); Core.clearEnemyAutoAtta
                 let currentHazard = this.getEffectiveHazard();
                 let allowedMax = Math.max(5, this.p.maxHp - currentHazard); if (this.p.hp > allowedMax) this.p.hp = allowedMax;
                 document.getElementById('hp-val').innerText = `${this.p.hp}/${allowedMax}`;
-                document.getElementById('hp-bar').style.width = (this.p.hp / this.p.maxHp * 100) + '%';
+                setBar(document.getElementById('hp-bar'), this.p.hp / this.p.maxHp * 100);
                 document.getElementById('en-val').innerText = `${this.p.energy}/${this.p.maxEnergy}`;
-                document.getElementById('en-bar').style.width = (this.p.energy / this.p.maxEnergy * 100) + '%';
+                setBar(document.getElementById('en-bar'), this.p.energy / this.p.maxEnergy * 100);
                 document.getElementById('satiety-val').innerText = `${this.p.satiety}%`;
-                document.getElementById('satiety-bar').style.width = this.p.satiety + '%';
+                setBar(document.getElementById('satiety-bar'), this.p.satiety);
                 let luckBarEl = document.getElementById('luck-bar');
-                if (luckBarEl) luckBarEl.style.width = Math.min(100, (this.p.exploreStreak || 0) / 15 * 100) + '%';
+                if (luckBarEl) setBar(luckBarEl, Math.min(100, (this.p.exploreStreak || 0) / 15 * 100));
                 let streakLabelEl = document.getElementById('luck-streak-label');
                 if (streakLabelEl) { const _sv = this.p.exploreStreak || 0; if (streakLabelEl._v !== _sv) { streakLabelEl._v = _sv; streakLabelEl.innerHTML = `<svg class="mi" viewBox="0 0 48 48" aria-hidden="true"><use href="#ic-flame"/></svg>${_sv}`; } }
 
@@ -20010,7 +20039,7 @@ if (r.trial) { r.over = true; Core.stopCooldownTicker(); Core.clearEnemyAutoAtta
                 this.fishing = { progress: 0, timeLeft: rod.duration, decayTimer: null, countdownTimer: null, active: true, rod };
                 document.getElementById('fish-rod-label').innerText = `${DB.rod.icon} Экипировано: ${DB.rod.name} · Ур. ${rodLvl}`;
                 document.getElementById('fish-status-text').innerText = "Клюёт! Быстро жми на кнопку, чтобы заполнить шкалу до того как рыба сорвётся!";
-                document.getElementById('fish-bar').style.width = '0%';
+                setBar(document.getElementById('fish-bar'), 0);
                 document.getElementById('fish-progress-val').innerText = '0';
                 document.getElementById('fish-timer-val').innerText = rod.duration.toFixed(1);
                 document.getElementById('fish-pull-btn').disabled = false;
@@ -20041,7 +20070,7 @@ if (r.trial) { r.over = true; Core.stopCooldownTicker(); Core.clearEnemyAutoAtta
             },
 
             updateFishBar() {
-                document.getElementById('fish-bar').style.width = this.fishing.progress + '%';
+                setBar(document.getElementById('fish-bar'), this.fishing.progress);
                 document.getElementById('fish-progress-val').innerText = Math.floor(this.fishing.progress);
             },
 
@@ -20329,7 +20358,7 @@ beginCombat(){
     document.body.classList.add('in-combat');
     // Бой всегда на главной вкладке: убираем «свёрнутую» панель действий, оставшуюся от другой вкладки (карта и т.п.)
     document.body.classList.remove('tab-off-main');
-    if (window.__bottomFullH) document.documentElement.style.setProperty('--bottom-ui-h', window.__bottomFullH + 'px');
+    if (window.__bottomFullH) setBottomUiH(window.__bottomFullH);
 
     this.combatState = this.pendingEnemy;
     this.combatState.gadgetUsesLeft = this.combatState.isBoss ? 2 : 1;
@@ -28943,7 +28972,7 @@ else if(r.type === 'caps') { this.p.caps += r.qty; this.log(`🎁 Награда
                 document.body.classList.toggle('tab-off-main', tab !== 'main');
                 document.body.classList.add('ap-anim'); clearTimeout(this._apT);
                 this._apT = setTimeout(() => { document.body.classList.remove('ap-anim'); if (window.__bottomUiApply) window.__bottomUiApply(); }, 650);
-                if (tab === 'main' && window.__bottomFullH) document.documentElement.style.setProperty('--bottom-ui-h', window.__bottomFullH + 'px');
+                if (tab === 'main' && window.__bottomFullH) setBottomUiH(window.__bottomFullH);
                 
                 if (tab === 'main') {
                     document.getElementById('main-view').style.display = 'block';
@@ -29112,6 +29141,15 @@ else if(r.type === 'caps') { this.p.caps += r.qty; this.log(`🎁 Награда
             }, { passive: false });
         }
 
+        // ⚡ --bottom-ui-h раньше ставилась на <html>. Переменная наследуется, поэтому КАЖДОЕ её изменение заставляло браузер
+        // пересчитывать стили всех элементов страницы (на тяжёлых вкладках вроде Пропуска — около 60 мс за раз, несколько раз
+        // подряд при переключении вкладок). Нужна она только трём элементам — задаём её точечно, результат на экране тот же.
+        let _buiEls = null, _buiV = '';
+        function setBottomUiH(px) {
+            const v = px + 'px'; if (v === _buiV) return; _buiV = v;
+            if (!_buiEls) _buiEls = ['biome-stage', 'tutorial-overlay', 'tip-card'].map(id => document.getElementById(id)).filter(Boolean);
+            _buiEls.forEach(el => el.style.setProperty('--bottom-ui-h', v));
+        }
         function initBottomUiTracker() {
             const el = document.getElementById('bottom-ui-container');
             if (!el) return;
@@ -29120,7 +29158,7 @@ else if(r.type === 'caps') { this.p.caps += r.qty; this.log(`🎁 Награда
             const apply = () => {
                 if (document.body.classList.contains('ap-anim')) return;
                 const h = Math.ceil(el.getBoundingClientRect().height);
-                document.documentElement.style.setProperty('--bottom-ui-h', h + 'px');
+                setBottomUiH(h);
                 if (!document.body.classList.contains('tab-off-main')) window.__bottomFullH = h;
             };
             window.__bottomUiApply = apply;
@@ -29138,8 +29176,11 @@ else if(r.type === 'caps') { this.p.caps += r.qty; this.log(`🎁 Награда
         (function () {
             const flex = el => !!el && (el.getAttribute('style') || '').indexOf('flex') !== -1;
             function sync() {
+                // Полностью непрозрачные полноэкранные окна открытия наград: сцену под ними всё равно не видно.
+                const opaque = id => { const e = document.getElementById(id); return !!e && getComputedStyle(e).display !== 'none'; };
                 const on = !!(document.querySelector('.screen-overlay.active') || flex(document.getElementById('schematics-overlay')) ||
-                    document.getElementById('forge-overlay') || flex(document.getElementById('shard-promo-overlay')) || document.getElementById('trial-result'));
+                    document.getElementById('forge-overlay') || flex(document.getElementById('shard-promo-overlay')) || document.getElementById('trial-result') ||
+                    opaque('gacha-overlay') || opaque('boxpick-overlay') || opaque('starcrate-overlay'));
                 if (on !== document.body.classList.contains('ov-open')) document.body.classList.toggle('ov-open', on);
             }
             window.syncOverlayState = sync;
@@ -29147,6 +29188,7 @@ else if(r.type === 'caps') { this.p.caps += r.qty; this.log(`🎁 Награда
             const mo = new MutationObserver(sync);
             document.querySelectorAll('.screen-overlay').forEach(e => mo.observe(e, { attributes: true, attributeFilter: ['class'] }));
             ['schematics-overlay', 'shard-promo-overlay'].forEach(id => { const e = document.getElementById(id); if (e) mo.observe(e, { attributes: true, attributeFilter: ['style'] }); });
+            ['gacha-overlay', 'boxpick-overlay', 'starcrate-overlay'].forEach(id => { const e = document.getElementById(id); if (e) mo.observe(e, { attributes: true, attributeFilter: ['style', 'class'] }); });
             mo.observe(document.body, { childList: true }); // forge-overlay и trial-result добавляются прямо в body
             sync();
         })();
