@@ -231,6 +231,62 @@
         .highlight-action { position: relative; z-index: 5500 !important; box-shadow: 0 0 20px #e8ab5c !important; border-color: #e8ab5c !important; background: rgba(232,171,92,0.2) !important; animation: pulse 1.2s infinite; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.04); } 100% { transform: scale(1); } }
 
+        /* ===== Единый визуальный шаблон «карточек исходов похода» (тайник/засада/караван/костёр/находка) =====
+           Раньше все они были одинаковыми безликими прямоугольниками из .tut-card с голым текстом
+           и кнопками-полосками — отсюда ощущение "сыро". Теперь у каждой карточки есть крупная
+           иконка-медальон, чёткий заголовок, описание отдельным блоком и кнопки с двумя строками
+           (что это даёт + статус/цена), поэтому исход читается за секунду, а не вчитыванием в абзац. */
+        .outcome-card { position: relative; background: var(--glass-bg-strong); backdrop-filter: blur(var(--glass-blur)) saturate(180%); -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%); border: 2px solid var(--oc-color, var(--neon-blue)); border-radius: 22px; padding: 22px 20px 18px; width: 100%; text-align: center; box-shadow: 0 0 30px color-mix(in srgb, var(--oc-color, var(--neon-blue)) 35%, transparent), var(--glass-shadow-soft); pointer-events: auto; animation: outcomeCardIn 0.22s ease-out; }
+        @keyframes outcomeCardIn { from { opacity: 0; transform: translateY(8px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        .outcome-card-icon { width: 54px; height: 54px; margin: 0 auto 10px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 26px; background: color-mix(in srgb, var(--oc-color, var(--neon-blue)) 18%, rgba(4,6,10,0.6)); border: 1.5px solid color-mix(in srgb, var(--oc-color, var(--neon-blue)) 55%, transparent); box-shadow: 0 0 16px color-mix(in srgb, var(--oc-color, var(--neon-blue)) 45%, transparent); }
+        .outcome-card-title { font-size: 16px; font-weight: 900; margin-bottom: 6px; letter-spacing: 0.2px; }
+        .outcome-card-desc { font-size: 12.5px; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px; }
+        .outcome-card-actions { display: flex; flex-direction: column; gap: 9px; }
+        .outcome-choice-btn { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 11px 14px; border-radius: 13px; text-align: left; }
+        .oc-btn-title { font-size: 13px; font-weight: 800; }
+        .oc-btn-title small { font-weight: 600; opacity: 0.75; font-size: 10.5px; }
+        .oc-btn-effect { font-size: 10.5px; font-weight: 600; opacity: 0.85; }
+        .oc-btn-status { font-size: 10px; font-weight: 700; color: var(--neon-orange, #ff8a3d); min-height: 12px; }
+        .outcome-cancel-btn { margin-top: 2px; padding: 9px; font-size: 11.5px; opacity: 0.7; background: transparent; border: 1px solid rgba(255,255,255,0.15); }
+        .outcome-reward-chip { display: inline-flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 5px 10px; font-size: 11.5px; font-weight: 700; margin: 2px 3px; }
+
+        /* ===== Костёр — отдельный, более тёплый визуал вместо общего "исходного" шаблона:
+           крупное пламя вместо иконки-медальона, разбор занятий строками с иконкой слева
+           (а не блоками с отдельной строкой статуса-плашкой под каждым — вместо неё цвет
+           текста самой строки эффекта меняется на отключённом занятии). */
+        .camp-card { position: relative; background: linear-gradient(180deg, rgba(40,20,8,0.92) 0%, rgba(10,7,6,0.96) 100%); backdrop-filter: blur(var(--glass-blur)) saturate(180%); -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%); border: 1.5px solid rgba(255,140,20,0.4); border-radius: 24px; padding: 24px 20px 18px; width: 100%; max-width: 380px; text-align: center; box-shadow: 0 0 34px rgba(255,120,20,0.22), var(--glass-shadow-soft); pointer-events: auto; animation: outcomeCardIn 0.22s ease-out; }
+        .camp-card-flame { font-size: 40px; margin-bottom: 4px; filter: drop-shadow(0 0 14px rgba(255,140,20,0.65)); animation: campFlameFlicker 2.4s ease-in-out infinite; }
+        @keyframes campFlameFlicker { 0%,100% { transform: scale(1) rotate(-1deg); } 50% { transform: scale(1.07) rotate(1deg); } }
+        .camp-card-title { font-size: 17px; font-weight: 900; margin-bottom: 6px; letter-spacing: 0.2px; color: #ffb703; text-shadow: 0 0 12px rgba(255,140,20,0.5); }
+        .camp-card-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px; }
+        .camp-options { display: flex; flex-direction: column; gap: 8px; }
+        .camp-option { display: flex; flex-direction: column; align-items: stretch; gap: 8px; padding: 10px 13px; border-radius: 15px; text-align: left; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); transition: opacity 0.2s ease, transform 0.12s ease; }
+        .camp-option:active { transform: scale(0.98); }
+        .camp-option-row { display: flex; align-items: center; gap: 12px; width: 100%; }
+        .camp-option-icon { flex: none; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; background: rgba(255,140,20,0.14); border: 1px solid rgba(255,140,20,0.3); }
+        .camp-option-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+        .camp-option-title { font-size: 12.5px; font-weight: 800; color: #fff; }
+        .camp-option-title small { font-weight: 600; opacity: 0.65; font-size: 10px; margin-left: 4px; }
+        .camp-option-effect { font-size: 10.5px; font-weight: 600; color: var(--text-muted); line-height: 1.35; }
+        .camp-option-effect.no-wrap { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .camp-option:disabled { opacity: 0.5; }
+        .camp-option:disabled .camp-option-effect { color: var(--neon-orange, #ff8a3d); opacity: 1; }
+        /* Явный "ценник" занятия у костра — что именно мы платим/теряем, отдельно от эффекта.
+           Расположен отдельной строкой под карточкой занятия (не сбоку), чтобы точно бросался в глаза. */
+        .camp-option-price { display: block; width: 100%; text-align: center; font-size: 11.5px; font-weight: 900; padding: 6px 10px; border-radius: 10px; white-space: nowrap; letter-spacing: 0.3px; box-sizing: border-box; }
+        .camp-option-price-cost { color: #ffc2cf; background: rgba(255,42,95,0.18); border: 1px solid rgba(255,42,95,0.45); }
+        .camp-option-price-free { color: var(--neon-green); background: rgba(57,255,20,0.14); border: 1px solid rgba(57,255,20,0.4); }
+        .camp-cancel-btn { margin-top: 4px; padding: 9px; font-size: 11.5px; opacity: 0.65; background: transparent; border: 1px solid rgba(255,255,255,0.15); border-radius: 13px; }
+
+        /* ===== Тост исхода разведки — карточка для находок без выбора (землемарка/пусто/ловушка),
+           чтобы результат ощущался как событие, а не строка в журнале. Сам закрывается через паузу. */
+        #explore-toast-overlay { position: fixed; left: 50%; top: 175px; transform: translateX(-50%) translateY(-14px); z-index: 6100; pointer-events: none; opacity: 0; transition: opacity 0.25s ease, transform 0.25s ease; width: min(340px, 88vw); }
+        #explore-toast-overlay.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .explore-toast-card { display: flex; align-items: center; gap: 12px; background: var(--glass-bg-strong); backdrop-filter: blur(var(--glass-blur)) saturate(180%); -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%); border: 2px solid var(--et-color, var(--neon-gold)); border-radius: 16px; padding: 12px 14px; box-shadow: 0 0 22px color-mix(in srgb, var(--et-color, var(--neon-gold)) 40%, transparent), var(--glass-shadow-soft); }
+        .explore-toast-icon { width: 38px; height: 38px; flex: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 19px; background: color-mix(in srgb, var(--et-color, var(--neon-gold)) 20%, rgba(4,6,10,0.6)); }
+        .explore-toast-title { font-size: 12.5px; font-weight: 800; color: #fff; margin-bottom: 2px; }
+        .explore-toast-sub { font-size: 10.5px; font-weight: 600; color: var(--text-muted); line-height: 1.4; }
+
         /* ===== Контекстные подсказки Полкана (после обучения: рецепты, тех-схемы, рынки и т.д.) ===== */
         #tip-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: rgba(4,6,10,0.6); z-index: 6900; display: none; justify-content: center; align-items: flex-end; padding: 16px; pointer-events: none; }
         #tip-overlay.show { display: flex; }
@@ -16289,6 +16345,7 @@ boomerang: [
             const DMG_TIERS = [10000, 50000, 100000, 1000000, 10000000];
             const KILL_TIERS = [1, 50, 100, 500, 1000];
             const CRIT_TIERS = [10, 100, 500, 2500, 10000];
+            const FEAR_TIERS = [8, 30, 90, 220, 500]; // Банши: количество попавших «Нагнать ужас»
             const TIER_MULT = { "Стартовое": 0.6, "Редкое": 0.8, "Суперредкое": 1.0, "Эпическое": 1.3, "Мифическое": 1.6 };
             // Отдельный множитель СЛОЖНОСТИ заданий (не награды!) — чем выше редкость оружия,
             // тем труднее выполнить его этапы Мастерства. У «Обычного» оружия множитель = 1,
@@ -16377,7 +16434,9 @@ boomerang: { genitive: "Бумеранга",           special: { label: "Ни �
                     categories: [
                         buildCategory('Урон', '💥', 'dmg', scaleTiers(DMG_TIERS, taskMult), mult),
                         buildCategory('Убийства', '💀', 'kills', scaleTiers(KILL_TIERS, taskMult), mult),
-                        buildCategory('Критические удары', '🔥', 'crit', scaleTiers(CRIT_TIERS, taskMult), mult),
+                        // 😱 У «Банши» нет критов (noCrit) — вместо них считаем попавшие «Нагнать ужас»
+                        w.noCrit ? buildCategory('Нагнать ужас', '😱', 'fear', scaleTiers(FEAR_TIERS, taskMult), mult)
+                                 : buildCategory('Критические удары', '🔥', 'crit', scaleTiers(CRIT_TIERS, taskMult), mult),
                         buildCategory(meta.special.label, meta.special.icon, meta.special.statKey, scaleTiers(meta.special.tiers, taskMult), mult)
                     ],
                     finalReward: [
@@ -23424,6 +23483,7 @@ startCombat(isBossFight = false) {
                         this.trackWeaponMastery(this.p.activeWeapon, 'dmg', netEnemyDmg);
                         this.combatHitsLanded = (this.combatHitsLanded || 0) + 1;
                         if (isPlayerCrit) this.trackWeaponMastery(this.p.activeWeapon, 'crit', 1);
+                        if (ability.fear) this.trackWeaponMastery(this.p.activeWeapon, 'fear', 1);
                         let matchupNote = matchupMult > 1 ? ' ⚡ Слабое место!' : matchupMult < 1 ? ' 🛡️ Сопротивление.' : '';
                         let armorNote = isBreakthrough ? ` 🔨💥 ПРОБИТИЕ — броня полностью проигнорирована, урон ×5!` : (ability.armorPenPct ? ` 🛡️‍💥 Частично игнорирует броню.` : '');
                         if (ability.fear) this.log(`😱 «Банши» вопит — [${this.combatState.name}] цепенеет от ужаса и теряет ${netEnemyDmg} ОЗ от страха! Осталось: ${this.combatState.hp} ОЗ.${fearInfo.note}`, "combat-win");
@@ -25449,6 +25509,7 @@ startCombat(isBossFight = false) {
                 dmg: 'Наносите урон этим оружием в любых стычках — каждая единица урона идёт в зачёт этой вкладки.',
                 kills: 'Убивайте врагов этим оружием — каждое убийство продвигает прогресс.',
                 crit: 'Наносите критические удары этим оружием — цельтесь в уязвимые зоны, чтобы чаще критовать.',
+                fear: 'Применяйте способность «Нагнать ужас» — каждое попавшее применение засчитывается в прогресс.',
                 closecall: 'Побеждайте этим оружием, когда ваше ОЗ упало до 20% от максимума или ниже, — засчитывается только победа «на волоске».',
                 elite: 'Уничтожайте закалённых (элитных) противников этим оружием — они выделяются при встрече.',
                 biggame: 'Побеждайте этим оружием более живучего из двух видов врагов, встречающихся в текущем биоме, — самого крепкого противника из тех, что водятся здесь.'
@@ -25469,6 +25530,7 @@ startCombat(isBossFight = false) {
                     case 'dmg': return `Нанести ${s} урона`;
                     case 'kills': return `Убить ${s} ${this.ruCount(n, 'врага', 'врагов', 'врагов')}`;
                     case 'crit': return `Нанести ${s} ${this.ruCount(n, 'критический удар', 'критических удара', 'критических ударов')}`;
+                    case 'fear': return `Нагнать ужас на врагов ${s} ${this.ruCount(n, 'раз', 'раза', 'раз')}`;
                     case 'closecall': return `Победить ${s} ${this.ruCount(n, 'раз', 'раза', 'раз')} на волоске (≤20% ОЗ)`;
                     case 'elite': return `Уничтожить ${s} ${this.ruCount(n, 'элитного противника', 'элитных противников', 'элитных противников')}`;
                     case 'biggame': return `Победить ${s} ${this.ruCount(n, 'крупную цель', 'крупные цели', 'крупных целей')}`;
